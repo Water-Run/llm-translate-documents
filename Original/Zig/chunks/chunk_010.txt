@@ -1,0 +1,1527 @@
+      <p>At compile-time:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_wrong_union_field_access.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    f.float = <span class="tok-number">12.34</span>;
+}
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_wrong_union_field_access.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_wrong_union_field_access.zig:3:6: </span><span class="sgr-31m">error: </span><span class="sgr-1m">access of union field 'float' while field 'int' is active
+</span>    f.float = 12.34;
+    <span class="sgr-32m">~^~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_wrong_union_field_access.zig:6:13: </span><span class="sgr-36m">note: </span><span class="sgr-1m">union declared here
+</span>const Foo = union {
+            <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>At runtime:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_wrong_union_field_access.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    bar(&amp;f);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(f: *Foo) <span class="tok-type">void</span> {
+    f.float = <span class="tok-number">12.34</span>;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{f.float});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_wrong_union_field_access.zig</kbd>
+$ <kbd>./runtime_wrong_union_field_access</kbd>
+thread 2901950 panic: access of union field 'float' while field 'int' is active
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_wrong_union_field_access.zig:14:6</span>: <span class="sgr-2m">0x113fb1e in bar (runtime_wrong_union_field_access.zig)</span>
+    f.float = 12.34;
+     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_wrong_union_field_access.zig:10:8</span>: <span class="sgr-2m">0x113e89f in main (runtime_wrong_union_field_access.zig)</span>
+    bar(&amp;f);
+       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      <p>
+      This safety is not available for <code><span class="tok-kw">extern</span></code> or <code><span class="tok-kw">packed</span></code> unions.
+      </p>
+      <p>
+      To change the active field of a union, assign the entire union, like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">change_active_union_field.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    bar(&amp;f);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(f: *Foo) <span class="tok-type">void</span> {
+    f.* = Foo{ .float = <span class="tok-number">12.34</span> };
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{f.float});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe change_active_union_field.zig</kbd>
+$ <kbd>./change_active_union_field</kbd>
+value: 12.34
+</samp></pre></figure>
+
+      <p>
+      To change the active field of a union when a meaningful value for the field is not known,
+      use <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a>, like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">undefined_active_union_field.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    f = Foo{ .float = <span class="tok-null">undefined</span> };
+    bar(&amp;f);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{f.float});
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(f: *Foo) <span class="tok-type">void</span> {
+    f.float = <span class="tok-number">12.34</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe undefined_active_union_field.zig</kbd>
+$ <kbd>./undefined_active_union_field</kbd>
+value: 12.34
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#union">union</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern-union">extern union</a></li>
+</ul>
+
+      
+
+      <h3 id="Out-of-Bounds-Float-to-Integer-Cast"><a href="https://ziglang.org/documentation/0.15.2/#toc-Out-of-Bounds-Float-to-Integer-Cast">Out of Bounds Float to Integer Cast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Out-of-Bounds-Float-to-Integer-Cast">§</a></h3>
+
+      <p>
+      This happens when casting a float to an integer where the float has a value outside the
+      integer type's range.
+      </p>
+      <p>At compile-time:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_out_of_bounds_float_to_integer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> float: <span class="tok-type">f32</span> = <span class="tok-number">4294967296</span>;
+    <span class="tok-kw">const</span> int: <span class="tok-type">i32</span> = <span class="tok-builtin">@intFromFloat</span>(float);
+    _ = int;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_out_of_bounds_float_to_integer_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_out_of_bounds_float_to_integer_cast.zig:3:36: </span><span class="sgr-31m">error: </span><span class="sgr-1m">float value '4294967296' cannot be stored in integer type 'i32'
+</span>    const int: i32 = @intFromFloat(float);
+                                   <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>At runtime:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_out_of_bounds_float_to_integer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> float: <span class="tok-type">f32</span> = <span class="tok-number">4294967296</span>; <span class="tok-comment">// runtime-known</span>
+    _ = &amp;float;
+    <span class="tok-kw">const</span> int: <span class="tok-type">i32</span> = <span class="tok-builtin">@intFromFloat</span>(float);
+    _ = int;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_out_of_bounds_float_to_integer_cast.zig</kbd>
+$ <kbd>./runtime_out_of_bounds_float_to_integer_cast</kbd>
+thread 2898584 panic: integer part of floating point value out of bounds
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_out_of_bounds_float_to_integer_cast.zig:4:22</span>: <span class="sgr-2m">0x113e8d2 in main (runtime_out_of_bounds_float_to_integer_cast.zig)</span>
+    const int: i32 = @intFromFloat(float);
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      
+
+      <h3 id="Pointer-Cast-Invalid-Null"><a href="https://ziglang.org/documentation/0.15.2/#toc-Pointer-Cast-Invalid-Null">Pointer Cast Invalid Null</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Pointer-Cast-Invalid-Null">§</a></h3>
+
+      <p>
+      This happens when casting a pointer with the address 0 to a pointer which may not have the address 0.
+      For example, <a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C Pointers</a>, <a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">Optional Pointers</a>, and <a href="https://ziglang.org/documentation/0.15.2/#allowzero">allowzero</a> pointers
+      allow address zero, but normal <a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a> do not.
+      </p>
+      <p>At compile-time:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_null_pointer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> opt_ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">const</span> ptr: *<span class="tok-type">i32</span> = <span class="tok-builtin">@ptrCast</span>(opt_ptr);
+    _ = ptr;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_null_pointer_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_null_pointer_cast.zig:3:32: </span><span class="sgr-31m">error: </span><span class="sgr-1m">null pointer casted to type '*i32'
+</span>    const ptr: *i32 = @ptrCast(opt_ptr);
+                               <span class="sgr-32m">^~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>At runtime:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_null_pointer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> opt_ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+    _ = &amp;opt_ptr;
+    <span class="tok-kw">const</span> ptr: *<span class="tok-type">i32</span> = <span class="tok-builtin">@ptrCast</span>(opt_ptr);
+    _ = ptr;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_null_pointer_cast.zig</kbd>
+$ <kbd>./runtime_invalid_null_pointer_cast</kbd>
+thread 2892939 panic: cast causes pointer to be null
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_null_pointer_cast.zig:4:23</span>: <span class="sgr-2m">0x113e88a in main (runtime_invalid_null_pointer_cast.zig)</span>
+    const ptr: *i32 = @ptrCast(opt_ptr);
+                      <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      
+
+      
+      <h2 id="Memory"><a href="https://ziglang.org/documentation/0.15.2/#toc-Memory">Memory</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Memory">§</a></h2>
+
+      <p>
+      The Zig language performs no memory management on behalf of the programmer. This is
+      why Zig has no runtime, and why Zig code works seamlessly in so many environments,
+      including real-time software, operating system kernels, embedded devices, and
+      low latency servers. As a consequence, Zig programmers must always be able to answer
+      the question:
+      </p>
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Where-are-the-bytes">Where are the bytes?</a></p>
+      <p>
+      Like Zig, the C programming language has manual memory management. However, unlike Zig,
+      C has a default allocator - <code>malloc</code>, <code>realloc</code>, and <code>free</code>.
+      When linking against libc, Zig exposes this allocator with <code>std.heap.c_allocator</code>.
+      However, by convention, there is no default allocator in Zig. Instead, functions which need to
+      allocate accept an <code>Allocator</code> parameter. Likewise, some data structures
+      accept an <code>Allocator</code> parameter in their initialization functions:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_allocator.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> Allocator = std.mem.Allocator;
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"using an allocator"</span> {
+    <span class="tok-kw">var</span> buffer: [<span class="tok-number">100</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> fba = std.heap.FixedBufferAllocator.init(&amp;buffer);
+    <span class="tok-kw">const</span> allocator = fba.allocator();
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> concat(allocator, <span class="tok-str">"foo"</span>, <span class="tok-str">"bar"</span>);
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, <span class="tok-str">"foobar"</span>, result));
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">concat</span>(allocator: Allocator, a: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, b: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) ![]<span class="tok-type">u8</span> {
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> allocator.alloc(<span class="tok-type">u8</span>, a.len + b.len);
+    <span class="tok-builtin">@memcpy</span>(result[<span class="tok-number">0</span>..a.len], a);
+    <span class="tok-builtin">@memcpy</span>(result[a.len..], b);
+    <span class="tok-kw">return</span> result;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_allocator.zig</kbd>
+1/1 test_allocator.test.using an allocator...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      In the above example, 100 bytes of stack memory are used to initialize a
+      <code>FixedBufferAllocator</code>, which is then passed to a function.
+      As a convenience there is a global <code>FixedBufferAllocator</code>
+      available for quick tests at <code>std.testing.allocator</code>,
+      which will also perform basic leak detection.
+      </p>
+      <p>
+      Zig has a general purpose allocator available to be imported
+      with <code>std.heap.GeneralPurposeAllocator</code>. However, it is still recommended to
+      follow the <a href="https://ziglang.org/documentation/0.15.2/#Choosing-an-Allocator">Choosing an Allocator</a> guide.
+      </p>
+
+      <h3 id="Choosing-an-Allocator"><a href="https://ziglang.org/documentation/0.15.2/#toc-Choosing-an-Allocator">Choosing an Allocator</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Choosing-an-Allocator">§</a></h3>
+
+      <p>What allocator to use depends on a number of factors. Here is a flow chart to help you decide:
+      </p>
+      <ol>
+          <li>
+              Are you making a library? In this case, best to accept an <code>Allocator</code>
+              as a parameter and allow your library's users to decide what allocator to use.
+          </li>
+          <li>Are you linking libc? In this case, <code>std.heap.c_allocator</code> is likely
+              the right choice, at least for your main allocator.</li>
+          <li>
+              Is the maximum number of bytes that you will need bounded by a number known at
+              <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>? In this case, use <code>std.heap.FixedBufferAllocator</code>.
+          </li>
+          <li>
+              Is your program a command line application which runs from start to end without any fundamental
+              cyclical pattern (such as a video game main loop, or a web server request handler),
+              such that it would make sense to free everything at once at the end?
+              In this case, it is recommended to follow this pattern:
+              <figure><figcaption class="zig-cap"><cite class="file">cli_allocation.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    <span class="tok-kw">defer</span> arena.deinit();
+
+    <span class="tok-kw">const</span> allocator = arena.allocator();
+
+    <span class="tok-kw">const</span> ptr = <span class="tok-kw">try</span> allocator.create(<span class="tok-type">i32</span>);
+    std.debug.print(<span class="tok-str">"ptr={*}\n"</span>, .{ptr});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe cli_allocation.zig</kbd>
+$ <kbd>./cli_allocation</kbd>
+ptr=i32@7f1a3ed8e010
+</samp></pre></figure>
+
+              When using this kind of allocator, there is no need to free anything manually. Everything
+              gets freed at once with the call to <code>arena.deinit()</code>.
+          </li>
+          <li>
+              Are the allocations part of a cyclical pattern such as a video game main loop, or a web
+              server request handler? If the allocations can all be freed at once, at the end of the cycle,
+              for example once the video game frame has been fully rendered, or the web server request has
+              been served, then <code>std.heap.ArenaAllocator</code> is a great candidate. As
+              demonstrated in the previous bullet point, this allows you to free entire arenas at once.
+              Note also that if an upper bound of memory can be established, then
+              <code>std.heap.FixedBufferAllocator</code> can be used as a further optimization.
+          </li>
+          <li>
+              Are you writing a test, and you want to make sure <code><span class="tok-kw">error</span>.OutOfMemory</code>
+              is handled correctly? In this case, use <code>std.testing.FailingAllocator</code>.
+          </li>
+          <li>
+              Are you writing a test? In this case, use <code>std.testing.allocator</code>.
+          </li>
+          <li>
+              Finally, if none of the above apply, you need a general purpose allocator.
+              If you are in Debug mode, <code>std.heap.DebugAllocator</code> is available as a
+              function that takes a <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> <a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a> of configuration options and returns a type.
+              Generally, you will set up exactly one in your main function, and
+              then pass it or sub-allocators around to various parts of your
+              application.
+          </li>
+          <li>
+              If you are compiling in ReleaseFast mode, <code>std.heap.smp_allocator</code> is
+              a solid choice for a general purpose allocator.
+          </li>
+          <li>
+              You can also consider implementing an allocator.
+          </li>
+      </ol>
+      
+
+      <h3 id="Where-are-the-bytes"><a href="https://ziglang.org/documentation/0.15.2/#toc-Where-are-the-bytes">Where are the bytes?</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Where-are-the-bytes">§</a></h3>
+
+      <p>String literals such as <code><span class="tok-str">"hello"</span></code> are in the global constant data section.
+      This is why it is an error to pass a string literal to a mutable slice, like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_string_literal_to_slice.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(s: []<span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    _ = s;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"string literal to mutable slice"</span> {
+    foo(<span class="tok-str">"hello"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_string_literal_to_slice.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_string_literal_to_slice.zig:6:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type '[]u8', found '*const [5:0]u8'
+</span>    foo("hello");
+        <span class="sgr-32m">^~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_string_literal_to_slice.zig:6:9: </span><span class="sgr-36m">note: </span><span class="sgr-1m">cast discards const qualifier
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_string_literal_to_slice.zig:1:11: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter type declared here
+</span>fn foo(s: []u8) void {
+          <span class="sgr-32m">^~~~
+</span>
+</samp></pre></figure>
+
+      <p>However if you make the slice constant, then it works:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_string_literal_to_const_slice.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(s: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    _ = s;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"string literal to constant slice"</span> {
+    foo(<span class="tok-str">"hello"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_string_literal_to_const_slice.zig</kbd>
+1/1 test_string_literal_to_const_slice.test.string literal to constant slice...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Just like string literals, <code><span class="tok-kw">const</span></code> declarations, when the value is known at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>,
+      are stored in the global constant data section. Also <a href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Variables">Compile Time Variables</a> are stored
+      in the global constant data section.
+      </p>
+      <p>
+      <code><span class="tok-kw">var</span></code> declarations inside functions are stored in the function's stack frame. Once a function returns,
+      any <a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a> to variables in the function's stack frame become invalid references, and
+      dereferencing them becomes unchecked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      <p>
+      <code><span class="tok-kw">var</span></code> declarations at the top level or in <a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a> declarations are stored in the global
+      data section.
+      </p>
+      <p>
+      The location of memory allocated with <code>allocator.alloc</code> or
+      <code>allocator.create</code> is determined by the allocator's implementation.
+      </p>
+      <p>TODO: thread local variables</p>
+      
+
+      <h3 id="Heap-Allocation-Failure"><a href="https://ziglang.org/documentation/0.15.2/#toc-Heap-Allocation-Failure">Heap Allocation Failure</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Heap-Allocation-Failure">§</a></h3>
+
+      <p>
+      Many programming languages choose to handle the possibility of heap allocation failure by
+      unconditionally crashing. By convention, Zig programmers do not consider this to be a
+      satisfactory solution. Instead, <code><span class="tok-kw">error</span>.OutOfMemory</code> represents
+      heap allocation failure, and Zig libraries return this error code whenever heap allocation
+      failure prevented an operation from completing successfully.
+      </p>
+      <p>
+      Some have argued that because some operating systems such as Linux have memory overcommit enabled by
+      default, it is pointless to handle heap allocation failure. There are many problems with this reasoning:
+      </p>
+      <ul>
+          <li>Only some operating systems have an overcommit feature.
+              <ul>
+                  <li>Linux has it enabled by default, but it is configurable.</li>
+                  <li>Windows does not overcommit.</li>
+                  <li>Embedded systems do not have overcommit.</li>
+                  <li>Hobby operating systems may or may not have overcommit.</li>
+              </ul>
+          </li>
+          <li>
+              For real-time systems, not only is there no overcommit, but typically the maximum amount
+              of memory per application is determined ahead of time.
+          </li>
+          <li>
+              When writing a library, one of the main goals is code reuse. By making code handle
+              allocation failure correctly, a library becomes eligible to be reused in
+              more contexts.
+          </li>
+          <li>
+              Although some software has grown to depend on overcommit being enabled, its existence
+              is the source of countless user experience disasters. When a system with overcommit enabled,
+              such as Linux on default settings, comes close to memory exhaustion, the system locks up
+              and becomes unusable. At this point, the OOM Killer selects an application to kill
+              based on heuristics. This non-deterministic decision often results in an important process
+              being killed, and often fails to return the system back to working order.
+          </li>
+      </ul>
+      
+
+      <h3 id="Recursion"><a href="https://ziglang.org/documentation/0.15.2/#toc-Recursion">Recursion</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Recursion">§</a></h3>
+
+      <p>
+      Recursion is a fundamental tool in modeling software. However it has an often-overlooked problem:
+      unbounded memory allocation.
+      </p>
+      <p>
+      Recursion is an area of active experimentation in Zig and so the documentation here is not final.
+      You can read a
+      <a href="https://ziglang.org/download/0.3.0/release-notes.html#recursion">summary of recursion status in the 0.3.0 release notes</a>.
+      </p>
+      <p>
+      The short summary is that currently recursion works normally as you would expect. Although Zig code
+      is not yet protected from stack overflow, it is planned that a future version of Zig will provide
+      such protection, with some degree of cooperation from Zig code required.
+      </p>
+      
+
+      <h3 id="Lifetime-and-Ownership"><a href="https://ziglang.org/documentation/0.15.2/#toc-Lifetime-and-Ownership">Lifetime and Ownership</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Lifetime-and-Ownership">§</a></h3>
+
+      <p>
+      It is the Zig programmer's responsibility to ensure that a <a href="https://ziglang.org/documentation/0.15.2/#Pointers">pointer</a> is not
+      accessed when the memory pointed to is no longer available. Note that a <a href="https://ziglang.org/documentation/0.15.2/#Slices">slice</a>
+      is a form of pointer, in that it references other memory.
+      </p>
+      <p>
+      In order to prevent bugs, there are some helpful conventions to follow when dealing with pointers.
+      In general, when a function returns a pointer, the documentation for the function should explain
+      who "owns" the pointer. This concept helps the programmer decide when it is appropriate, if ever,
+      to free the pointer.
+      </p>
+      <p>
+      For example, the function's documentation may say "caller owns the returned memory", in which case
+      the code that calls the function must have a plan for when to free that memory. Probably in this situation,
+      the function will accept an <code>Allocator</code> parameter.
+      </p>
+      <p>
+      Sometimes the lifetime of a pointer may be more complicated. For example, the
+      <code>std.ArrayList(T).items</code> slice has a lifetime that remains
+      valid until the next time the list is resized, such as by appending new elements.
+      </p>
+      <p>
+      The API documentation for functions and data structures should take great care to explain
+      the ownership and lifetime semantics of pointers. Ownership determines whose responsibility it
+      is to free the memory referenced by the pointer, and lifetime determines the point at which
+      the memory becomes inaccessible (lest <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a> occur).
+      </p>
+      
+
+      
+      <h2 id="Compile-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compile-Variables">Compile Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">§</a></h2>
+
+      <p>
+      Compile variables are accessible by importing the <code><span class="tok-str">"builtin"</span></code> package,
+      which the compiler makes available to every Zig source file. It contains
+      compile-time constants such as the current target, endianness, and release mode.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">compile_variables.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> separator = <span class="tok-kw">if</span> (builtin.os.tag == .windows) <span class="tok-str">'\\'</span> <span class="tok-kw">else</span> <span class="tok-str">'/'</span>;</code></pre></figure>
+
+      <p>
+      Example of what is imported with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>)</code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite>@import("builtin")</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-comment">/// Zig version. When writing code that supports multiple versions of Zig, prefer</span>
+<span class="tok-comment">/// feature detection (i.e. with `@hasDecl` or `@hasField`) over version checks.</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> zig_version = std.SemanticVersion.parse(zig_version_string) <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> zig_version_string = <span class="tok-str">"0.15.2"</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> zig_backend = std.builtin.CompilerBackend.stage2_x86_64;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> output_mode: std.builtin.OutputMode = .Exe;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> link_mode: std.builtin.LinkMode = .static;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> unwind_tables: std.builtin.UnwindTables = .async;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> is_test = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> single_threaded = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> abi: std.Target.Abi = .gnu;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> cpu: std.Target.Cpu = .{
+    .arch = .x86_64,
+    .model = &amp;std.Target.x86.cpu.znver4,
+    .features = std.Target.x86.featureSet(&amp;.{
+        .@"64bit",
+        .adx,
+        .aes,
+        .allow_light_256_bit,
+        .avx,
+        .avx2,
+        .avx512bf16,
+        .avx512bitalg,
+        .avx512bw,
+        .avx512cd,
+        .avx512dq,
+        .avx512f,
+        .avx512ifma,
+        .avx512vbmi,
+        .avx512vbmi2,
+        .avx512vl,
+        .avx512vnni,
+        .avx512vpopcntdq,
+        .bmi,
+        .bmi2,
+        .branchfusion,
+        .clflushopt,
+        .clwb,
+        .clzero,
+        .cmov,
+        .crc32,
+        .cx16,
+        .cx8,
+        .evex512,
+        .f16c,
+        .fast_15bytenop,
+        .fast_bextr,
+        .fast_dpwssd,
+        .fast_imm16,
+        .fast_lzcnt,
+        .fast_movbe,
+        .fast_scalar_fsqrt,
+        .fast_scalar_shift_masks,
+        .fast_variable_perlane_shuffle,
+        .fast_vector_fsqrt,
+        .fma,
+        .fsgsbase,
+        .fsrm,
+        .fxsr,
+        .gfni,
+        .idivq_to_divl,
+        .invpcid,
+        .lzcnt,
+        .macrofusion,
+        .mmx,
+        .movbe,
+        .mwaitx,
+        .nopl,
+        .pclmul,
+        .pku,
+        .popcnt,
+        .prfchw,
+        .rdpid,
+        .rdpru,
+        .rdrnd,
+        .rdseed,
+        .sahf,
+        .sbb_dep_breaking,
+        .sha,
+        .shstk,
+        .slow_shld,
+        .smap,
+        .smep,
+        .sse,
+        .sse2,
+        .sse3,
+        .sse4_1,
+        .sse4_2,
+        .sse4a,
+        .ssse3,
+        .vaes,
+        .vpclmulqdq,
+        .vzeroupper,
+        .wbnoinvd,
+        .x87,
+        .xsave,
+        .xsavec,
+        .xsaveopt,
+        .xsaves,
+    }),
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> os: std.Target.Os = .{
+    .tag = .linux,
+    .version_range = .{ .linux = .{
+        .range = .{
+            .min = .{
+                .major = <span class="tok-number">6</span>,
+                .minor = <span class="tok-number">16</span>,
+                .patch = <span class="tok-number">0</span>,
+            },
+            .max = .{
+                .major = <span class="tok-number">6</span>,
+                .minor = <span class="tok-number">16</span>,
+                .patch = <span class="tok-number">0</span>,
+            },
+        },
+        .glibc = .{
+            .major = <span class="tok-number">2</span>,
+            .minor = <span class="tok-number">39</span>,
+            .patch = <span class="tok-number">0</span>,
+        },
+        .android = <span class="tok-number">29</span>,
+    }},
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> target: std.Target = .{
+    .cpu = cpu,
+    .os = os,
+    .abi = abi,
+    .ofmt = object_format,
+    .dynamic_linker = .init(<span class="tok-str">"/nix/store/zdpby3l6azi78sl83cpad2qjpfj25aqx-glibc-2.40-66/lib/ld-linux-x86-64.so.2"</span>),
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> object_format: std.Target.ObjectFormat = .elf;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> mode: std.builtin.OptimizeMode = .Debug;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> link_libc = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> link_libcpp = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> have_error_return_tracing = <span class="tok-null">true</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> valgrind_support = <span class="tok-null">true</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> sanitize_thread = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> fuzz = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> position_independent_code = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> position_independent_executable = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> strip_debug_info = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> code_model: std.builtin.CodeModel = .default;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> omit_frame_pointer = <span class="tok-null">false</span>;</code></pre></figure>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Build-Mode">Build Mode</a></li>
+</ul>
+
+      
+      <h2 id="Compilation-Model"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compilation-Model">Compilation Model</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compilation-Model">§</a></h2>
+
+      <p>
+      A Zig compilation is separated into <em>modules</em>. Each module is a collection of Zig source files,
+      one of which is the module's <em>root source file</em>. Each module can <em>depend</em> on any number of
+      other modules, forming a directed graph (dependency loops between modules are allowed). If module A
+      depends on module B, then any Zig source file in module A can import the <em>root source file</em> of
+      module B using <code><span class="tok-builtin">@import</span></code> with the module's name. In essence, a module acts as an
+      alias to import a Zig source file (which might exist in a completely separate part of the filesystem).
+      </p>
+      <p>
+      A simple Zig program compiled with <code>zig build-exe</code> has two key modules: the one containing your
+      code, known as the "main" or "root" module, and the standard library. Your module <em>depends on</em>
+      the standard library module under the name "std", which is what allows you to write
+      <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>)</code>! In fact, every single module in a Zig compilation — including
+      the standard library itself — implicitly depends on the standard library module under the name "std".
+      </p>
+      <p>
+      The "root module" (the one provided by you in the <code>zig build-exe</code> example) has a special
+      property. Like the standard library, it is implicitly made available to all modules (including itself),
+      this time under the name "root". So, <code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code> will always be equivalent to
+      <code><span class="tok-builtin">@import</span></code> of your "main" source file (often, but not necessarily, named
+      <code>main.zig</code>).
+      </p>
+      <h3 id="Source-File-Structs"><a href="https://ziglang.org/documentation/0.15.2/#toc-Source-File-Structs">Source File Structs</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Source-File-Structs">§</a></h3>
+
+      <p>
+      Every Zig source file is implicitly a <code><span class="tok-kw">struct</span></code> declaration; you can imagine that
+      the file's contents are literally surrounded by <code><span class="tok-kw">struct</span> { ... }</code>. This means that
+      as well as declarations, the top level of a file is permitted to contain fields:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">TopLevelFields.zig</cite></figcaption><pre><code><span class="tok-comment">//! Because this file contains fields, it is a type which is intended to be instantiated, and so</span>
+<span class="tok-comment">//! is named in TitleCase instead of snake_case by convention.</span>
+
+foo: <span class="tok-type">u32</span>,
+bar: <span class="tok-type">u64</span>,
+
+<span class="tok-comment">/// `@This()` can be used to refer to this struct type. In files with fields, it is quite common to</span>
+<span class="tok-comment">/// name the type here, so it can be easily referenced by other declarations in this file.</span>
+<span class="tok-kw">const</span> TopLevelFields = <span class="tok-builtin">@This</span>();
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(val: <span class="tok-type">u32</span>) TopLevelFields {
+    <span class="tok-kw">return</span> .{
+        .foo = val,
+        .bar = val * <span class="tok-number">10</span>,
+    };
+}</code></pre></figure>
+      <p>
+      Such files can be instantiated just like any other <code><span class="tok-kw">struct</span></code> type. A file's "root
+      struct type" can be referred to within that file using <a href="https://ziglang.org/documentation/0.15.2/#This">@This</a>.
+      </p>
+      
+      <h3 id="File-and-Declaration-Discovery"><a href="https://ziglang.org/documentation/0.15.2/#toc-File-and-Declaration-Discovery">File and Declaration Discovery</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#File-and-Declaration-Discovery">§</a></h3>
+
+      <p>
+      Zig places importance on the concept of whether any piece of code is <em>semantically analyzed</em>; in
+      essence, whether the compiler "looks at" it. What code is analyzed is based on what files and
+      declarations are "discovered" from a certain point. This process of "discovery" is based on a simple set
+      of recursive rules:
+      </p>
+      <ul>
+        <li>If a call to <code><span class="tok-builtin">@import</span></code> is analyzed, the file being imported is analyzed.</li>
+        <li>If a type (including a file) is analyzed, all <code><span class="tok-kw">comptime</span></code> and <code><span class="tok-kw">export</span></code> declarations within it are analyzed.</li>
+        <li>If a type (including a file) is analyzed, and the compilation is for a <a href="https://ziglang.org/documentation/0.15.2/#Zig-Test">test</a>, and the module the type is within is the root module of the compilation, then all <code><span class="tok-kw">test</span></code> declarations within it are also analyzed.</li>
+        <li>If a reference to a named declaration (i.e. a usage of it) is analyzed, the declaration being referenced is analyzed. Declarations are order-independent, so this reference may be above or below the declaration being referenced, or even in another file entirely.</li>
+      </ul>
+      <p>
+      That's it! Those rules define how Zig files and declarations are discovered. All that remains is to
+      understand where this process <em>starts</em>.
+      </p>
+      <p>
+      The answer to that is the root of the standard library: every Zig compilation begins by analyzing the
+      file <code>lib/std/std.zig</code>. This file contains a <code><span class="tok-kw">comptime</span></code> declaration
+      which imports <code>lib/std/start.zig</code>, and that file in turn uses
+      <code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code> to reference the "root module"; so, the file you provide as your
+      main module's root source file is effectively also a root, because the standard library will always
+      reference it.
+      </p>
+      <p>
+      It is often desirable to make sure that certain declarations — particularly <code><span class="tok-kw">test</span></code>
+      or <code><span class="tok-kw">export</span></code> declarations — are discovered. Based on the above rules, a common
+      strategy for this is to use <code><span class="tok-builtin">@import</span></code> within a <code><span class="tok-kw">comptime</span></code> or
+      <code><span class="tok-kw">test</span></code> block:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">force_file_discovery.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-comment">// This will ensure that the file 'api.zig' is always discovered (as long as this file is discovered).</span>
+    <span class="tok-comment">// It is useful if 'api.zig' contains important exported declarations.</span>
+    _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"api.zig"</span>);
+
+    <span class="tok-comment">// We could also have a file which contains declarations we only want to export depending on a comptime</span>
+    <span class="tok-comment">// condition. In that case, we can use an `if` statement here:</span>
+    <span class="tok-kw">if</span> (builtin.os.tag == .windows) {
+        _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"windows_api.zig"</span>);
+    }
+}
+
+<span class="tok-kw">test</span> {
+    <span class="tok-comment">// This will ensure that the file 'tests.zig' is always discovered (as long as this file is discovered),</span>
+    <span class="tok-comment">// if this compilation is a test. It is useful if 'tests.zig' contains tests we want to ensure are run.</span>
+    _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"tests.zig"</span>);
+
+    <span class="tok-comment">// We could also have a file which contains tests we only want to run depending on a comptime condition.</span>
+    <span class="tok-comment">// In that case, we can use an `if` statement here:</span>
+    <span class="tok-kw">if</span> (builtin.os.tag == .windows) {
+        _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"windows_tests.zig"</span>);
+    }
+}
+
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);</code></pre></figure>
+      
+      <h3 id="Special-Root-Declarations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Special-Root-Declarations">Special Root Declarations</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Special-Root-Declarations">§</a></h3>
+
+      <p>
+      Because the root module's root source file is always accessible using
+      <code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code>, is is sometimes used by libraries — including the Zig Standard
+      Library — as a place for the program to expose some "global" information to that library. The Zig
+      Standard Library will look for several declarations in this file.
+      </p>
+      <h4 id="Entry-Point"><a href="https://ziglang.org/documentation/0.15.2/#toc-Entry-Point">Entry Point</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Entry-Point">§</a></h4>
+
+      <p>
+      When building an executable, the most important thing to be looked up in this file is the program's
+      <em>entry point</em>. Most commonly, this is a function named <code>main</code>, which
+      <code>std.start</code> will call just after performing important initialization work.
+      </p>
+      <p>
+      Alternatively, the presence of a declaration named <code>_start</code> (for instance,
+      <code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> _start = {};</code>) will disable the default <code>std.start</code>
+      logic, allowing your root source file to export a low-level entry point as needed.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">entry_point.zig</cite></figcaption><pre><code><span class="tok-comment">/// `std.start` imports this file using `@import("root")`, and uses this declaration as the program's</span>
+<span class="tok-comment">/// user-provided entry point. It can return any of the following types:</span>
+<span class="tok-comment">/// * `void`</span>
+<span class="tok-comment">/// * `E!void`, for any error set `E`</span>
+<span class="tok-comment">/// * `u8`</span>
+<span class="tok-comment">/// * `E!u8`, for any error set `E`</span>
+<span class="tok-comment">/// Returning a `void` value from this function will exit with code 0.</span>
+<span class="tok-comment">/// Returning a `u8` value from this function will exit with the given status code.</span>
+<span class="tok-comment">/// Returning an error value from this function will print an Error Return Trace and exit with code 1.</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    std.debug.print(<span class="tok-str">"Hello, World!\n"</span>, .{});
+}
+
+<span class="tok-comment">// If uncommented, this declaration would suppress the usual std.start logic, causing</span>
+<span class="tok-comment">// the `main` declaration above to be ignored.</span>
+<span class="tok-comment">//pub const _start = {};</span>
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe entry_point.zig</kbd>
+$ <kbd>./entry_point</kbd>
+Hello, World!
+</samp></pre></figure>
+      <p>
+      If the Zig compilation links libc, the <code>main</code> function can optionally be an
+      <code><span class="tok-kw">export</span> <span class="tok-kw">fn</span></code> which matches the signature of the C <code>main</code> function:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">libc_export_entry_point.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>(argc: <span class="tok-type">c_int</span>, argv: [*]<span class="tok-kw">const</span> [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">c_int</span> {
+    <span class="tok-kw">const</span> args = argv[<span class="tok-number">0</span>..<span class="tok-builtin">@intCast</span>(argc)];
+    std.debug.print(<span class="tok-str">"Hello! argv[0] is '{s}'\n"</span>, .{args[<span class="tok-number">0</span>]});
+    <span class="tok-kw">return</span> <span class="tok-number">0</span>;
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe libc_export_entry_point.zig -lc</kbd>
+$ <kbd>./libc_export_entry_point</kbd>
+Hello! argv[0] is './libc_export_entry_point'
+</samp></pre></figure>
+      <p>
+      <code>std.start</code> may also use other entry point declarations in certain situations, such
+      as <code>wWinMain</code> or <code>EfiMain</code>. Refer to the
+      <code>lib/std/start.zig</code> logic for details of these declarations.
+      </p>
+      
+      <h4 id="Standard-Library-Options"><a href="https://ziglang.org/documentation/0.15.2/#toc-Standard-Library-Options">Standard Library Options</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Options">§</a></h4>
+
+      <p>
+      The standard library also looks for a declaration in the root module's root source file named
+      <code>std_options</code>. If present, this declaration is expected to be a struct of type
+      <code>std.Options</code>, and allows the program to customize some standard library
+      functionality, such as the <code>std.log</code> implementation.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">std_options.zig</cite></figcaption><pre><code><span class="tok-comment">/// The presence of this declaration allows the program to override certain behaviors of the standard library.</span>
+<span class="tok-comment">/// For a full list of available options, see the documentation for `std.Options`.</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> std_options: std.Options = .{
+    <span class="tok-comment">// By default, in safe build modes, the standard library will attach a segfault handler to the program to</span>
+    <span class="tok-comment">// print a helpful stack trace if a segmentation fault occurs. Here, we can disable this, or even enable</span>
+    <span class="tok-comment">// it in unsafe build modes.</span>
+    .enable_segfault_handler = <span class="tok-null">true</span>,
+    <span class="tok-comment">// This is the logging function used by `std.log`.</span>
+    .logFn = myLogFn,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">myLogFn</span>(
+    <span class="tok-kw">comptime</span> level: std.log.Level,
+    <span class="tok-kw">comptime</span> scope: <span class="tok-builtin">@Type</span>(.enum_literal),
+    <span class="tok-kw">comptime</span> format: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+    args: <span class="tok-kw">anytype</span>,
+) <span class="tok-type">void</span> {
+    <span class="tok-comment">// We could do anything we want here!</span>
+    <span class="tok-comment">// ...but actually, let's just call the default implementation.</span>
+    std.log.defaultLog(level, scope, format, args);
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure>
+      
+      <h4 id="Panic-Handler"><a href="https://ziglang.org/documentation/0.15.2/#toc-Panic-Handler">Panic Handler</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Panic-Handler">§</a></h4>
+
+      <p>
+      The Zig Standard Library looks for a declaration named <code>panic</code> in the root module's
+      root source file. If present, it is expected to be a namespace (container type) with declarations
+      providing different panic handlers.
+      </p>
+      <p>
+      See <code>std.debug.simple_panic</code> for a basic implementation of this namespace.
+      </p>
+      <p>
+      Overriding how the panic handler actually outputs messages, but keeping the formatted safety panics
+      which are enabled by default, can be easily achieved with <code>std.debug.FullPanic</code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">panic_handler.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-builtin">@setRuntimeSafety</span>(<span class="tok-null">true</span>);
+    <span class="tok-kw">var</span> x: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+    <span class="tok-comment">// Let's overflow this integer!</span>
+    x += <span class="tok-number">1</span>;
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> panic = std.debug.FullPanic(myPanic);
+
+<span class="tok-kw">fn</span> <span class="tok-fn">myPanic</span>(msg: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, first_trace_addr: ?<span class="tok-type">usize</span>) <span class="tok-type">noreturn</span> {
+    _ = first_trace_addr;
+    std.debug.print(<span class="tok-str">"Panic! {s}\n"</span>, .{msg});
+    std.process.exit(<span class="tok-number">1</span>);
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe panic_handler.zig</kbd>
+$ <kbd>./panic_handler</kbd>
+Panic! integer overflow
+</samp></pre></figure>
+      
+      
+      
+      <h2 id="Zig-Build-System"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zig-Build-System">Zig Build System</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">§</a></h2>
+
+      <p>
+      The Zig Build System provides a cross-platform, dependency-free way to declare
+      the logic required to build a project. With this system, the logic to build
+      a project is written in a build.zig file, using the Zig Build System API to
+      declare and configure build artifacts and other tasks.
+      </p>
+      <p>
+      Some examples of tasks the build system can help with:
+      </p>
+      <ul>
+        <li>Performing tasks in parallel and caching the results.</li>
+        <li>Depending on other projects.</li>
+        <li>Providing a package for other projects to depend on.</li>
+        <li>Creating build artifacts by executing the Zig compiler. This includes
+          building Zig source code as well as C and C++ source code.</li>
+        <li>Capturing user-configured options and using those options to configure
+          the build.</li>
+        <li>Surfacing build configuration as <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> values by providing a
+          file that can be <a href="https://ziglang.org/documentation/0.15.2/#import">imported</a> by Zig code.</li>
+        <li>Caching build artifacts to avoid unnecessarily repeating steps.</li>
+        <li>Executing build artifacts or system-installed tools.</li>
+        <li>Running tests and verifying the output of executing a build artifact matches
+        the expected value.</li>
+        <li>Running <code>zig fmt</code> on a codebase or a subset of it.</li>
+        <li>Custom tasks.</li>
+      </ul>
+      <p>
+      To use the build system, run <kbd>zig build --help</kbd>
+      to see a command-line usage help menu. This will include project-specific
+      options that were declared in the build.zig script.
+      </p>
+      <p>
+      For the time being, the build system documentation is hosted externally:
+      <a href="https://ziglang.org/learn/build-system/">Build System Documentation</a>
+      </p>
+      
+      <h2 id="C"><a href="https://ziglang.org/documentation/0.15.2/#toc-C">C</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C">§</a></h2>
+
+      <p>
+      Although Zig is independent of C, and, unlike most other languages, does not depend on libc,
+      Zig acknowledges the importance of interacting with existing C code.
+      </p>
+      <p>
+      There are a few ways that Zig facilitates C interop.
+      </p>
+      <h3 id="C-Type-Primitives"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Type-Primitives">C Type Primitives</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Type-Primitives">§</a></h3>
+
+      <p>
+      These have guaranteed C ABI compatibility and can be used like any other type.
+      </p>
+      <ul>
+          <li><code><span class="tok-type">c_char</span></code></li>
+          <li><code><span class="tok-type">c_short</span></code></li>
+          <li><code><span class="tok-type">c_ushort</span></code></li>
+          <li><code><span class="tok-type">c_int</span></code></li>
+          <li><code><span class="tok-type">c_uint</span></code></li>
+          <li><code><span class="tok-type">c_long</span></code></li>
+          <li><code><span class="tok-type">c_ulong</span></code></li>
+          <li><code><span class="tok-type">c_longlong</span></code></li>
+          <li><code><span class="tok-type">c_ulonglong</span></code></li>
+          <li><code><span class="tok-type">c_longdouble</span></code></li>
+      </ul>
+      <p>
+      To interop with the C <code><span class="tok-type">void</span></code> type, use <code><span class="tok-type">anyopaque</span></code>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">Primitive Types</a></li>
+</ul>
+
+      
+      <h3 id="Import-from-C-Header-File"><a href="https://ziglang.org/documentation/0.15.2/#toc-Import-from-C-Header-File">Import from C Header File</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">§</a></h3>
+
+      <p>
+      The <code><span class="tok-builtin">@cImport</span></code> builtin function can be used
+      to directly import symbols from <code class="file">.h</code> files:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">cImport_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> c = <span class="tok-builtin">@cImport</span>({
+    <span class="tok-comment">// See https://github.com/ziglang/zig/issues/515</span>
+    <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_NO_CRT_STDIO_INLINE"</span>, <span class="tok-str">"1"</span>);
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"stdio.h"</span>);
+});
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    _ = c.printf(<span class="tok-str">"hello\n"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe cImport_builtin.zig -lc</kbd>
+$ <kbd>./cImport_builtin</kbd>
+hello
+</samp></pre></figure>
+
+      <p>
+      The <code><span class="tok-builtin">@cImport</span></code> function takes an expression as a parameter.
+      This expression is evaluated at compile-time and is used to control
+      preprocessor directives and include multiple <code class="file">.h</code> files:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">@cImport Expression</cite></figcaption><pre><code><span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+
+<span class="tok-kw">const</span> c = <span class="tok-builtin">@cImport</span>({
+    <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"NDEBUG"</span>, builtin.mode == .ReleaseFast);
+    <span class="tok-kw">if</span> (something) {
+        <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_GNU_SOURCE"</span>, {});
+    }
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"stdlib.h"</span>);
+    <span class="tok-kw">if</span> (something) {
+        <span class="tok-builtin">@cUndef</span>(<span class="tok-str">"_GNU_SOURCE"</span>);
+    }
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"soundio.h"</span>);
+});</code></pre></figure>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+</ul>
+
+      
+
+      <h3 id="C-Translation-CLI"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Translation-CLI">C Translation CLI</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Translation-CLI">§</a></h3>
+
+      <p>
+      Zig's C translation capability is available as a CLI tool via <kbd>zig translate-c</kbd>.
+      It requires a single filename as an argument. It may also take a set of optional flags that are
+      forwarded to clang. It writes the translated file to stdout.
+      </p>
+      <h4 id="Command-line-flags"><a href="https://ziglang.org/documentation/0.15.2/#toc-Command-line-flags">Command line flags</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Command-line-flags">§</a></h4>
+
+      <ul>
+        <li>
+          <kbd>-I</kbd>:
+          Specify a search directory for include files. May be used multiple times. Equivalent to
+          <a href="https://releases.llvm.org/12.0.0/tools/clang/docs/ClangCommandLineReference.html#cmdoption-clang-i-dir">
+          clang's <kbd>-I</kbd> flag</a>. The current directory is <em>not</em> included by default;
+          use <kbd>-I.</kbd> to include it.
+        </li>
+        <li>
+          <kbd>-D</kbd>: Define a preprocessor macro. Equivalent to
+          <a href="https://releases.llvm.org/12.0.0/tools/clang/docs/ClangCommandLineReference.html#cmdoption-clang-d-macro">
+          clang's <kbd>-D</kbd> flag</a>.
+        </li>
+        <li>
+          <kbd>-cflags [flags] --</kbd>: Pass arbitrary additional
+          <a href="https://releases.llvm.org/12.0.0/tools/clang/docs/ClangCommandLineReference.html">command line
+          flags</a> to clang. Note: the list of flags must end with <kbd>--</kbd>
+        </li>
+        <li>
+          <kbd>-target</kbd>: The <a href="https://ziglang.org/documentation/0.15.2/#Targets">target triple</a> for the translated Zig code.
+          If no target is specified, the current host target will be used.
+        </li>
+      </ul>
+      
+      <h4 id="Using--target-and--cflags"><a href="https://ziglang.org/documentation/0.15.2/#toc-Using--target-and--cflags">Using -target and -cflags</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Using--target-and--cflags">§</a></h4>
+
+      <p>
+        <strong>Important!</strong> When translating C code with <kbd>zig translate-c</kbd>,
+        you <strong>must</strong> use the same <kbd>-target</kbd> triple that you will use when compiling
+        the translated code. In addition, you <strong>must</strong> ensure that the <kbd>-cflags</kbd> used,
+        if any, match the cflags used by code on the target system. Using the incorrect <kbd>-target</kbd>
+        or <kbd>-cflags</kbd> could result in clang or Zig parse failures, or subtle ABI incompatibilities
+        when linking with C code.
+      </p>
+      <figure><figcaption class="c-cap"><cite class="file">varytarget.h</cite></figcaption><pre><code>long FOO = __LONG_MAX__;</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig translate-c -target thumb-freestanding-gnueabihf varytarget.h|grep FOO</kbd>
+pub export var FOO: c_long = 2147483647;
+$ <kbd>zig translate-c -target x86_64-macos-gnu varytarget.h|grep FOO</kbd>
+pub export var FOO: c_long = 9223372036854775807;
+</samp></pre></figure>
+      <figure><figcaption class="c-cap"><cite class="file">varycflags.h</cite></figcaption><pre><code>enum FOO { BAR };
+int do_something(enum FOO foo);</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig translate-c varycflags.h|grep -B1 do_something</kbd>
+pub const enum_FOO = c_uint;
+pub extern fn do_something(foo: enum_FOO) c_int;
+$ <kbd>zig translate-c -cflags -fshort-enums -- varycflags.h|grep -B1 do_something</kbd>
+pub const enum_FOO = u8;
+pub extern fn do_something(foo: enum_FOO) c_int;
+</samp></pre></figure>
+      
+      <h4 id="cImport-vs-translate-c"><a href="https://ziglang.org/documentation/0.15.2/#toc-cImport-vs-translate-c">@cImport vs translate-c</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cImport-vs-translate-c">§</a></h4>
+
+      <p><code><span class="tok-builtin">@cImport</span></code> and <kbd>zig translate-c</kbd> use the same underlying
+      C translation functionality, so on a technical level they are equivalent. In practice,
+      <code><span class="tok-builtin">@cImport</span></code> is useful as a way to quickly and easily access numeric constants, typedefs,
+      and record types without needing any extra setup. If you need to pass <a href="https://ziglang.org/documentation/0.15.2/#Using--target-and--cflags">cflags</a>
+      to clang, or if you would like to edit the translated code, it is recommended to use
+      <kbd>zig translate-c</kbd> and save the results to a file. Common reasons for editing
+      the generated code include: changing <code><span class="tok-kw">anytype</span></code> parameters in function-like macros to more
+      specific types; changing <code>[*c]T</code> pointers to <code>[*]T</code> or
+      <code>*T</code> pointers for improved type safety; and
+      <a href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">enabling or disabling runtime safety</a> within specific functions.
+      </p>
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Targets">Targets</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Type-Primitives">C Type Primitives</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C Pointers</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">Import from C Header File</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">@setRuntimeSafety</a></li>
+</ul>
+
+      
+      <h3 id="C-Translation-Caching"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Translation-Caching">C Translation Caching</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Translation-Caching">§</a></h3>
+
+      <p>
+        The C translation feature (whether used via <kbd>zig translate-c</kbd> or
+        <code><span class="tok-builtin">@cImport</span></code>) integrates with the Zig caching system. Subsequent runs with
+        the same source file, target, and cflags will use the cache instead of repeatedly translating
+        the same code.
+      </p>
+      <p>
+        To see where the cached files are stored when compiling code that uses <code><span class="tok-builtin">@cImport</span></code>,
+        use the <kbd>--verbose-cimport</kbd> flag:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">verbose_cimport_flag.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> c = <span class="tok-builtin">@cImport</span>({
+    <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_NO_CRT_STDIO_INLINE"</span>, <span class="tok-str">"1"</span>);
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"stdio.h"</span>);
+});
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    _ = c;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe verbose_cimport_flag.zig -lc --verbose-cimport</kbd>
+info(compilation): C import source: /home/andy/dev/zig/.zig-cache/o/f9216ef6681abef94b056af4b875b0bd/cimport.h
+info(compilation): C import .d file: /home/andy/dev/zig/.zig-cache/o/f9216ef6681abef94b056af4b875b0bd/cimport.h.d
+$ <kbd>./verbose_cimport_flag</kbd>
+</samp></pre></figure>
+
+      <p>
+        <code class="file">cimport.h</code> contains the file to translate (constructed from calls to
+        <code><span class="tok-builtin">@cInclude</span></code>, <code><span class="tok-builtin">@cDefine</span></code>, and <code><span class="tok-builtin">@cUndef</span></code>),
+        <code class="file">cimport.h.d</code> is the list of file dependencies, and
+        <code class="file">cimport.zig</code> contains the translated output.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">Import from C Header File</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Translation-CLI">C Translation CLI</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+</ul>
+
+      
+      <h3 id="Translation-failures"><a href="https://ziglang.org/documentation/0.15.2/#toc-Translation-failures">Translation failures</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Translation-failures">§</a></h3>
+
+      <p>
+        Some C constructs cannot be translated to Zig - for example, <em>goto</em>,
+        structs with bitfields, and token-pasting macros. Zig employs <em>demotion</em> to allow translation
+        to continue in the face of non-translatable entities.
+      </p>
+      <p>
+        Demotion comes in three varieties - <a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a>, <em>extern</em>, and
+        <code><span class="tok-builtin">@compileError</span></code>.
+
+        C structs and unions that cannot be translated correctly will be translated as <code><span class="tok-kw">opaque</span>{}</code>.
+        Functions that contain opaque types or code constructs that cannot be translated will be demoted
+        to <code><span class="tok-kw">extern</span></code> declarations.
+
+        Thus, non-translatable types can still be used as pointers, and non-translatable functions
+        can be called so long as the linker is aware of the compiled function.
+      </p>
+      <p>
+        <code><span class="tok-builtin">@compileError</span></code> is used when top-level definitions (global variables,
+        function prototypes, macros) cannot be translated or demoted. Since Zig uses lazy analysis for
+        top-level declarations, untranslatable entities will not cause a compile error in your code unless
+        you actually use them.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern">extern</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+</ul>
+
+      
+      <h3 id="C-Macros"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Macros">C Macros</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Macros">§</a></h3>
+
+      <p>
+        C Translation makes a best-effort attempt to translate function-like macros into equivalent
+        Zig functions. Since C macros operate at the level of lexical tokens, not all C macros
+        can be translated to Zig. Macros that cannot be translated will be demoted to
+        <code><span class="tok-builtin">@compileError</span></code>. Note that C code which <em>uses</em> macros will be
+        translated without any additional issues (since Zig operates on the pre-processed source
+        with macros expanded). It is merely the macros themselves which may not be translatable to
+        Zig.
+      </p>
+      <p>Consider the following example:</p>
+      <figure><figcaption class="c-cap"><cite class="file">macro.c</cite></figcaption><pre><code>#define MAKELOCAL(NAME, INIT) int NAME = INIT
+int foo(void) {
+   MAKELOCAL(a, 1);
+   MAKELOCAL(b, 2);
+   return a + b;
+}</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig translate-c macro.c &gt; macro.zig</kbd>
+</samp></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">macro.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">c_int</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">c_int</span> = <span class="tok-number">1</span>;
+    _ = &amp;a;
+    <span class="tok-kw">var</span> b: <span class="tok-type">c_int</span> = <span class="tok-number">2</span>;
+    _ = &amp;b;
+    <span class="tok-kw">return</span> a + b;
+}
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> MAKELOCAL = <span class="tok-builtin">@compileError</span>(<span class="tok-str">"unable to translate C expr: unexpected token .Equal"</span>); <span class="tok-comment">// macro.c:1:9</span></code></pre></figure>
+
+      <p>Note that <code>foo</code> was translated correctly despite using a non-translatable
+        macro. <code>MAKELOCAL</code> was demoted to <code><span class="tok-builtin">@compileError</span></code> since
+        it cannot be expressed as a Zig function; this simply means that you cannot directly use
+        <code>MAKELOCAL</code> from Zig.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+</ul>
+
+      
+
+      <h3 id="C-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Pointers">C Pointers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Pointers">§</a></h3>
+
+      <p>
+      This type is to be avoided whenever possible. The only valid reason for using a C pointer is in
+      auto-generated code from translating C code.
+      </p>
+      <p>
+      When importing C header files, it is ambiguous whether pointers should be translated as
+      single-item pointers (<code>*T</code>) or many-item pointers (<code>[*]T</code>).
+      C pointers are a compromise so that Zig code can utilize translated header files directly.
+      </p>
+      <p><code>[*c]T</code> - C pointer.</p>
+      <ul>
+        <li>Supports all the syntax of the other two pointer types (<code>*T</code>) and (<code>[*]T</code>).</li>
+        <li>Coerces to other pointer types, as well as <a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">Optional Pointers</a>.
+            When a C pointer is coerced to a non-optional pointer, safety-checked
+            <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a> occurs if the address is 0.
+        </li>
+        <li>Allows address 0. On non-freestanding targets, dereferencing address 0 is safety-checked
+            <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>. Optional C pointers introduce another bit to keep track of
+            null, just like <code>?<span class="tok-type">usize</span></code>. Note that creating an optional C pointer
+            is unnecessary as one can use normal <a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">Optional Pointers</a>.
+        </li>
+        <li>Supports <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">Type Coercion</a> to and from integers.</li>
+        <li>Supports comparison with integers.</li>
+        <li>Does not support Zig-only pointer attributes such as alignment. Use normal <a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a>
+        please!</li>
+      </ul>
+      <p>When a C pointer is pointing to a single struct (not an array), dereference the C pointer to
+        access the struct's fields or member data. That syntax looks like
+        this: </p>
+        <p><code>ptr_to_struct.*.struct_member</code></p>
+        <p>This is comparable to doing <code>-&gt;</code> in C.</p>
+        <p> When a C pointer is pointing to an array of structs, the syntax reverts to this:</p>
+        <p><code>ptr_to_struct_array[index].struct_member</code></p>
+      
+
+      <h3 id="C-Variadic-Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Variadic-Functions">C Variadic Functions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Variadic-Functions">§</a></h3>
+
+      <p>Zig supports extern variadic functions.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_variadic_function.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> testing = std.testing;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-str">"c"</span> <span class="tok-kw">fn</span> <span class="tok-fn">printf</span>(format: [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, ...) <span class="tok-type">c_int</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"variadic function"</span> {
+    <span class="tok-kw">try</span> testing.expect(printf(<span class="tok-str">"Hello, world!\n"</span>) == <span class="tok-number">14</span>);
+    <span class="tok-kw">try</span> testing.expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(printf)).@"fn".is_var_args);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_variadic_function.zig -lc</kbd>
+1/1 test_variadic_function.test.variadic function...OK
+All 1 tests passed.
+Hello, world!
+</samp></pre></figure>
+
+      <p>
+        Variadic functions can be implemented using <a href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a>, <a href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a>, <a href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a> and <a href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_defining_variadic_function.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> testing = std.testing;
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+
+<span class="tok-kw">fn</span> <span class="tok-fn">add</span>(count: <span class="tok-type">c_int</span>, ...) <span class="tok-kw">callconv</span>(.c) <span class="tok-type">c_int</span> {
+    <span class="tok-kw">var</span> ap = <span class="tok-builtin">@cVaStart</span>();
+    <span class="tok-kw">defer</span> <span class="tok-builtin">@cVaEnd</span>(&amp;ap);
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> sum: <span class="tok-type">c_int</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (i &lt; count) : (i += <span class="tok-number">1</span>) {
+        sum += <span class="tok-builtin">@cVaArg</span>(&amp;ap, <span class="tok-type">c_int</span>);
+    }
+    <span class="tok-kw">return</span> sum;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"defining a variadic function"</span> {
+    <span class="tok-kw">if</span> (builtin.cpu.arch == .aarch64 <span class="tok-kw">and</span> builtin.os.tag != .macos) {
+        <span class="tok-comment">// https://github.com/ziglang/zig/issues/14096</span>
+        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SkipZigTest;
+    }
+    <span class="tok-kw">if</span> (builtin.cpu.arch == .x86_64 <span class="tok-kw">and</span> builtin.os.tag == .windows) {
+        <span class="tok-comment">// https://github.com/ziglang/zig/issues/16961</span>
+        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SkipZigTest;
+    }
+
+    <span class="tok-kw">try</span> std.testing.expectEqual(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>), add(<span class="tok-number">0</span>));
+    <span class="tok-kw">try</span> std.testing.expectEqual(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>), add(<span class="tok-number">1</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>)));
+    <span class="tok-kw">try</span> std.testing.expectEqual(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">3</span>), add(<span class="tok-number">2</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">2</span>)));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_defining_variadic_function.zig</kbd>
+1/1 test_defining_variadic_function.test.defining a variadic function...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="Exporting-a-C-Library"><a href="https://ziglang.org/documentation/0.15.2/#toc-Exporting-a-C-Library">Exporting a C Library</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Exporting-a-C-Library">§</a></h3>
+
+      <p>
+      One of the primary use cases for Zig is exporting a library with the C ABI for other programming languages
+      to call into. The <code><span class="tok-kw">export</span></code> keyword in front of functions, variables, and types causes them to
+      be part of the library API:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">mathtest.zig</cite></figcaption><pre><code><span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> a + b;
+}</code></pre></figure>
+
+      <p>To make a static library:</p>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-lib mathtest.zig</kbd>
+</samp></pre></figure>
+      <p>To make a shared library:</p>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-lib mathtest.zig -dynamic</kbd>
+</samp></pre></figure>
+      <p>Here is an example with the <a href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">Zig Build System</a>:</p>
+      <figure><figcaption class="c-cap"><cite class="file">test.c</cite></figcaption><pre><code>// This header is generated by zig from mathtest.zig
+#include "mathtest.h"
+#include &lt;stdio.h&gt;
+
+int main(int argc, char **argv) {
+    int32_t result = add(42, 1337);
+    printf("%d\n", result);
+    return 0;
+}</code></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">build_c.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">build</span>(b: *std.Build) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> lib = b.addLibrary(.{
+        .linkage = .dynamic,
+        .name = <span class="tok-str">"mathtest"</span>,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path(<span class="tok-str">"mathtest.zig"</span>),
+        }),
+        .version = .{ .major = <span class="tok-number">1</span>, .minor = <span class="tok-number">0</span>, .patch = <span class="tok-number">0</span> },
+    });
+    <span class="tok-kw">const</span> exe = b.addExecutable(.{
+        .name = <span class="tok-str">"test"</span>,
+        .root_module = b.createModule(.{
+            .link_libc = <span class="tok-null">true</span>,
+        }),
+    });
+    exe.root_module.addCSourceFile(.{ .file = b.path(<span class="tok-str">"test.c"</span>), .flags = &amp;.{<span class="tok-str">"-std=c99"</span>} });
+    exe.root_module.linkLibrary(lib);
+
+    b.default_step.dependOn(&amp;exe.step);
+
+    <span class="tok-kw">const</span> run_cmd = exe.run();
+
+    <span class="tok-kw">const</span> test_step = b.step(<span class="tok-str">"test"</span>, <span class="tok-str">"Test the program"</span>);
+    test_step.dependOn(&amp;run_cmd.step);
+}</code></pre></figure>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build test</kbd>
+1379
+</samp></pre></figure>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#export">export</a></li>
+</ul>
+
+      
+      <h3 id="Mixing-Object-Files"><a href="https://ziglang.org/documentation/0.15.2/#toc-Mixing-Object-Files">Mixing Object Files</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Mixing-Object-Files">§</a></h3>
+
+      <p>
+      You can mix Zig object files with any other object files that respect the C ABI. Example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">base64.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> base64 = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).base64;
+
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">decode_base_64</span>(
+    dest_ptr: [*]<span class="tok-type">u8</span>,
+    dest_len: <span class="tok-type">usize</span>,
+    source_ptr: [*]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+    source_len: <span class="tok-type">usize</span>,
+) <span class="tok-type">usize</span> {
+    <span class="tok-kw">const</span> src = source_ptr[<span class="tok-number">0</span>..source_len];
+    <span class="tok-kw">const</span> dest = dest_ptr[<span class="tok-number">0</span>..dest_len];
+    <span class="tok-kw">const</span> base64_decoder = base64.standard.Decoder;
+    <span class="tok-kw">const</span> decoded_size = base64_decoder.calcSizeForSlice(src) <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;
+    base64_decoder.decode(dest[<span class="tok-number">0</span>..decoded_size], src) <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;
+    <span class="tok-kw">return</span> decoded_size;
+}</code></pre></figure>
+
+      <figure><figcaption class="c-cap"><cite class="file">test.c</cite></figcaption><pre><code>// This header is generated by zig from base64.zig
+#include "base64.h"
+
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(int argc, char **argv) {
+    const char *encoded = "YWxsIHlvdXIgYmFzZSBhcmUgYmVsb25nIHRvIHVz";
+    char buf[200];
+
+    size_t len = decode_base_64(buf, 200, encoded, strlen(encoded));
+    buf[len] = 0;
+    puts(buf);
+
+    return 0;
+}</code></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">build_object.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">build</span>(b: *std.Build) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> obj = b.addObject(.{
+        .name = <span class="tok-str">"base64"</span>,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path(<span class="tok-str">"base64.zig"</span>),
+        }),
+    });
+
+    <span class="tok-kw">const</span> exe = b.addExecutable(.{
+        .name = <span class="tok-str">"test"</span>,
+        .root_module = b.createModule(.{
+            .link_libc = <span class="tok-null">true</span>,
+        }),
+    });
+    exe.root_module.addCSourceFile(.{ .file = b.path(<span class="tok-str">"test.c"</span>), .flags = &amp;.{<span class="tok-str">"-std=c99"</span>} });
+    exe.root_module.addObject(obj);
+    b.installArtifact(exe);
+}</code></pre></figure>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build</kbd>
+$ <kbd>./zig-out/bin/test</kbd>
+all your base are belong to us
+</samp></pre></figure>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Targets">Targets</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">Zig Build System</a></li>
+</ul>
+
+      
+      
+      <h2 id="WebAssembly"><a href="https://ziglang.org/documentation/0.15.2/#toc-WebAssembly">WebAssembly</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#WebAssembly">§</a></h2>
+
+      <p>Zig supports building for WebAssembly out of the box.</p>
+      <h3 id="Freestanding"><a href="https://ziglang.org/documentation/0.15.2/#toc-Freestanding">Freestanding</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Freestanding">§</a></h3>
+
+      <p>For host environments like the web browser and nodejs, build as an executable using the freestanding
+      OS target. Here's an example of running Zig code compiled to WebAssembly with nodejs.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">math.zig</cite></figcaption><pre><code><span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">print</span>(<span class="tok-type">i32</span>) <span class="tok-type">void</span>;
+
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">void</span> {
+    print(a + b);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe math.zig -target wasm32-freestanding -fno-entry --export=add</kbd>
+</samp></pre></figure>
+
+      <figure><figcaption class="javascript-cap"><cite class="file">test.js</cite></figcaption><pre><code>const fs = require('fs');
+const source = fs.readFileSync("./math.wasm");
+const typedArray = new Uint8Array(source);
+
+WebAssembly.instantiate(typedArray, {
+  env: {
+    print: (result) =&gt; { console.log(`The result is ${result}`); }
+  }}).then(result =&gt; {
+  const add = result.instance.exports.add;
+  add(1, 2);
+});</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>node test.js</kbd>
+The result is 3
+</samp></pre></figure>
+      
+      <h3 id="WASI"><a href="https://ziglang.org/documentation/0.15.2/#toc-WASI">WASI</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#WASI">§</a></h3>
+
+      <p>Zig's support for WebAssembly System Interface (WASI) is under active development.
+      Example of using the standard library and reading command line arguments:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">wasi_args.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> general_purpose_allocator: std.heap.GeneralPurposeAllocator(.{}) = .init;
+    <span class="tok-kw">const</span> gpa = general_purpose_allocator.allocator();
+    <span class="tok-kw">const</span> args = <span class="tok-kw">try</span> std.process.argsAlloc(gpa);
+    <span class="tok-kw">defer</span> std.process.argsFree(gpa, args);
+
+    <span class="tok-kw">for</span> (args, <span class="tok-number">0</span>..) |arg, i| {
+        std.debug.print(<span class="tok-str">"{}: {s}\n"</span>, .{ i, arg });
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe wasi_args.zig -target wasm32-wasi</kbd>
+</samp></pre></figure>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>wasmtime wasi_args.wasm 123 hello</kbd>
+0: wasi_args.wasm
+1: 123
+2: hello
+</samp></pre></figure>
+      <p>A more interesting example would be extracting the list of preopens from the runtime.
+      This is now supported in the standard library via <code>std.fs.wasi.Preopens</code>:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">wasi_preopens.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> fs = std.fs;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> general_purpose_allocator: std.heap.GeneralPurposeAllocator(.{}) = .init;
+    <span class="tok-kw">const</span> gpa = general_purpose_allocator.allocator();
+
+    <span class="tok-kw">var</span> arena_instance = std.heap.ArenaAllocator.init(gpa);
+    <span class="tok-kw">defer</span> arena_instance.deinit();
+    <span class="tok-kw">const</span> arena = arena_instance.allocator();
+
+    <span class="tok-kw">const</span> preopens = <span class="tok-kw">try</span> fs.wasi.preopensAlloc(arena);
+
+    <span class="tok-kw">for</span> (preopens.names, <span class="tok-number">0</span>..) |preopen, i| {
+        std.debug.print(<span class="tok-str">"{}: {s}\n"</span>, .{ i, preopen });
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe wasi_preopens.zig -target wasm32-wasi</kbd>
+</samp></pre></figure>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>wasmtime --dir=. wasi_preopens.wasm</kbd>
+0: stdin
+1: stdout
+2: stderr
+3: .
+</samp></pre></figure>
+      
+      
+      <h2 id="Targets"><a href="https://ziglang.org/documentation/0.15.2/#toc-Targets">Targets</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Targets">§</a></h2>
+
+      <p>
+      <strong>Target</strong> refers to the computer that will be used to run an executable.
+      It is composed of the CPU architecture, the set of enabled CPU features, operating system,
+      minimum and maximum operating system version, ABI, and ABI version.
+      </p>
+      <p>
+      Zig is a general-purpose programming language which means that it is designed to
+      generate optimal code for a large set of targets. The command <code>zig targets</code>
+      provides information about all of the targets the compiler is aware of.</p>
+      <p>When no target option is provided to the compiler, the default choice
+      is to target the <strong>host computer</strong>, meaning that the
+      resulting executable will be <em>unsuitable for copying to a different
+      computer</em>. In order to copy an executable to another computer, the compiler
+      needs to know about the target requirements via the <code>-target</code> option.
+      </p>
+      <p>
+      The Zig Standard Library (<code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>)</code>) has
+      cross-platform abstractions, making the same source code viable on many targets.
+      Some code is more portable than other code. In general, Zig code is extremely
+      portable compared to other programming languages.
+      </p>
+      <p>
+      Each platform requires its own implementations to make Zig's
+      cross-platform abstractions work. These implementations are at various
+      degrees of completion. Each tagged release of the compiler comes with
+      release notes that provide the full support table for each target.
+      </p>
+      
+      <h2 id="Style-Guide"><a href="https://ziglang.org/documentation/0.15.2/#toc-Style-Guide">Style Guide</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Style-Guide">§</a></h2>
+
+      <p>
+These coding conventions are not enforced by the compiler, but they are shipped in
+this documentation along with the compiler in order to provide a point of
+reference, should anyone wish to point to an authority on agreed upon Zig
+coding style.
+      </p>

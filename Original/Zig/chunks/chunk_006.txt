@@ -1,0 +1,1407 @@
+      <p>
+      Error Return Traces show all the points in the code that an error was returned to the calling function. This makes it practical to use <a href="https://ziglang.org/documentation/0.15.2/#try">try</a> everywhere and then still be able to know what happened if an error ends up bubbling all the way out of your application.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">error_return_trace.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> foo(<span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: <span class="tok-type">i32</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (x &gt;= <span class="tok-number">5</span>) {
+        <span class="tok-kw">try</span> bar();
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> bang2();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (baz()) {
+        <span class="tok-kw">try</span> quux();
+    } <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.FileNotFound =&gt; <span class="tok-kw">try</span> hello(),
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">baz</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang1();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">quux</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">hello</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang1</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.FileNotFound;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang2</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.PermissionDenied;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe error_return_trace.zig</kbd>
+$ <kbd>./error_return_trace</kbd>
+error: PermissionDenied
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:34:5</span>: <span class="sgr-2m">0x113d36c in bang1 (error_return_trace.zig)</span>
+    return error.FileNotFound;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:22:5</span>: <span class="sgr-2m">0x113d3b6 in baz (error_return_trace.zig)</span>
+    try bang1();
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:38:5</span>: <span class="sgr-2m">0x113d3ec in bang2 (error_return_trace.zig)</span>
+    return error.PermissionDenied;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:30:5</span>: <span class="sgr-2m">0x113d496 in hello (error_return_trace.zig)</span>
+    try bang2();
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:17:31</span>: <span class="sgr-2m">0x113d56e in bar (error_return_trace.zig)</span>
+        error.FileNotFound =&gt; try hello(),
+                              <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:7:9</span>: <span class="sgr-2m">0x113d654 in foo (error_return_trace.zig)</span>
+        try bar();
+        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:2:5</span>: <span class="sgr-2m">0x113d71b in main (error_return_trace.zig)</span>
+    try foo(12);
+    <span class="sgr-32m">^</span>
+</samp></pre></figure>
+
+      <p>
+      Look closely at this example. This is no stack trace.
+      </p>
+      <p>
+      You can see that the final error bubbled up was <code>PermissionDenied</code>,
+          but the original error that started this whole thing was <code>FileNotFound</code>. In the <code>bar</code> function, the code handles the original error code,
+      and then returns another one, from the switch statement. Error Return Traces make this clear, whereas a stack trace would look like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">stack_trace.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    foo(<span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: <span class="tok-type">i32</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (x &gt;= <span class="tok-number">5</span>) {
+        bar();
+    } <span class="tok-kw">else</span> {
+        bang2();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (baz()) {
+        quux();
+    } <span class="tok-kw">else</span> {
+        hello();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">baz</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> bang1();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">quux</span>() <span class="tok-type">void</span> {
+    bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">hello</span>() <span class="tok-type">void</span> {
+    bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang1</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> <span class="tok-null">false</span>;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang2</span>() <span class="tok-type">void</span> {
+    <span class="tok-builtin">@panic</span>(<span class="tok-str">"PermissionDenied"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe stack_trace.zig</kbd>
+$ <kbd>./stack_trace</kbd>
+thread 2902479 panic: PermissionDenied
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:38:5</span>: <span class="sgr-2m">0x1140e6c in bang2 (stack_trace.zig)</span>
+    @panic("PermissionDenied");
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:30:10</span>: <span class="sgr-2m">0x11414ac in hello (stack_trace.zig)</span>
+    bang2();
+         <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:17:14</span>: <span class="sgr-2m">0x1140e23 in bar (stack_trace.zig)</span>
+        hello();
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:7:12</span>: <span class="sgr-2m">0x1140ab8 in foo (stack_trace.zig)</span>
+        bar();
+           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:2:8</span>: <span class="sgr-2m">0x113f871 in main (stack_trace.zig)</span>
+    foo(12);
+       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113eabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113e351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      <p>
+      Here, the stack trace does not explain how the control
+      flow in <code>bar</code> got to the <code>hello()</code> call.
+      One would have to open a debugger or further instrument the application
+      in order to find out. The error return trace, on the other hand,
+      shows exactly how the error bubbled up.
+      </p>
+      <p>
+      This debugging feature makes it easier to iterate quickly on code that
+      robustly handles all error conditions. This means that Zig developers
+      will naturally find themselves writing correct, robust code in order
+      to increase their development pace.
+      </p>
+      <p>
+      Error Return Traces are enabled by default in <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> builds and disabled by default in <a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a>, <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a> builds.
+      </p>
+      <p>
+      There are a few ways to activate this error return tracing feature:
+      </p>
+      <ul>
+        <li>Return an error from main</li>
+        <li>An error makes its way to <code><span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span></code> and you have not overridden the default panic handler</li>
+        <li>Use <a href="https://ziglang.org/documentation/0.15.2/#errorReturnTrace">errorReturnTrace</a> to access the current return trace. You can use <code>std.debug.dumpStackTrace</code> to print it. This function returns comptime-known <a href="https://ziglang.org/documentation/0.15.2/#null">null</a> when building without error return tracing support.</li>
+      </ul>
+      <h4 id="Implementation-Details"><a href="https://ziglang.org/documentation/0.15.2/#toc-Implementation-Details">Implementation Details</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Implementation-Details">§</a></h4>
+
+      <p>
+      To analyze performance cost, there are two cases:
+      </p>
+      <ul>
+        <li>when no errors are returned</li>
+        <li>when returning errors</li>
+      </ul>
+      <p>
+      For the case when no errors are returned, the cost is a single memory write operation, only in the first non-failable function in the call graph that calls a failable function, i.e. when a function returning <code><span class="tok-type">void</span></code> calls a function returning <code><span class="tok-kw">error</span></code>.
+      This is to initialize this struct in the stack memory:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">stack_trace_struct.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> StackTrace = <span class="tok-kw">struct</span> {
+    index: <span class="tok-type">usize</span>,
+    instruction_addresses: [N]<span class="tok-type">usize</span>,
+};</code></pre></figure>
+      <p>
+      Here, N is the maximum function call depth as determined by call graph analysis. Recursion is ignored and counts for 2.
+      </p>
+      <p>
+      A pointer to <code>StackTrace</code> is passed as a secret parameter to every function that can return an error, but it's always the first parameter, so it can likely sit in a register and stay there.
+      </p>
+      <p>
+      That's it for the path when no errors occur. It's practically free in terms of performance.
+      </p>
+      <p>
+      When generating the code for a function that returns an error, just before the <code><span class="tok-kw">return</span></code> statement (only for the <code><span class="tok-kw">return</span></code> statements that return errors), Zig generates a call to this function:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">zig_return_error_fn.zig</cite></figcaption><pre><code><span class="tok-comment">// marked as "no-inline" in LLVM IR</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">__zig_return_error</span>(stack_trace: *StackTrace) <span class="tok-type">void</span> {
+    stack_trace.instruction_addresses[stack_trace.index] = <span class="tok-builtin">@returnAddress</span>();
+    stack_trace.index = (stack_trace.index + <span class="tok-number">1</span>) % N;
+}</code></pre></figure>
+      <p>
+      The cost is 2 math operations plus some memory reads and writes. The memory accessed is constrained and should remain cached for the duration of the error return bubbling.
+      </p>
+      <p>
+      As for code size cost, 1 function call before a return statement is no big deal. Even so,
+      I have <a href="https://github.com/ziglang/zig/issues/690">a plan</a> to make the call to
+      <code>__zig_return_error</code> a tail call, which brings the code size cost down to actually zero. What is a return statement in code without error return tracing can become a jump instruction in code with error return tracing.
+      </p>
+      
+      
+      
+      <h2 id="Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optionals">Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optionals">§</a></h2>
+
+      <p>
+      One area that Zig provides safety without compromising efficiency or
+      readability is with the optional type.
+      </p>
+      <p>
+      The question mark symbolizes the optional type. You can convert a type to an optional
+      type by putting a question mark in front of it, like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">optional_integer.zig</cite></figcaption><pre><code><span class="tok-comment">// normal integer</span>
+<span class="tok-kw">const</span> normal_int: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+
+<span class="tok-comment">// optional integer</span>
+<span class="tok-kw">const</span> optional_int: ?<span class="tok-type">i32</span> = <span class="tok-number">5678</span>;</code></pre></figure>
+
+      <p>
+      Now the variable <code>optional_int</code> could be an <code><span class="tok-type">i32</span></code>, or <code><span class="tok-null">null</span></code>.
+      </p>
+      <p>
+      Instead of integers, let's talk about pointers. Null references are the source of many runtime
+      exceptions, and even stand accused of being
+      <a href="https://www.lucidchart.com/techblog/2015/08/31/the-worst-mistake-of-computer-science/">the worst mistake of computer science</a>.
+      </p>
+      <p>Zig does not have them.</p>
+      <p>
+      Instead, you can use an optional pointer. This secretly compiles down to a normal pointer,
+      since we know we can use 0 as the null value for the optional type. But the compiler
+      can check your work and make sure you don't assign null to something that can't be null.
+      </p>
+      <p>
+      Typically the downside of not having null is that it makes the code more verbose to
+      write. But, let's compare some equivalent C code and Zig code.
+      </p>
+      <p>
+      Task: call malloc, if the result is null, return null.
+      </p>
+      <p>C code</p>
+      <figure><figcaption class="c-cap"><cite class="file">call_malloc_in_c.c</cite></figcaption><pre><code>// malloc prototype included for reference
+void *malloc(size_t size);
+
+struct Foo *do_a_thing(void) {
+    char *ptr = malloc(1234);
+    if (!ptr) return NULL;
+    // ...
+}</code></pre></figure>
+      <p>Zig code</p>
+      <figure><figcaption class="zig-cap"><cite class="file">call_malloc_from_zig.zig</cite></figcaption><pre><code><span class="tok-comment">// malloc prototype included for reference</span>
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">malloc</span>(size: <span class="tok-type">usize</span>) ?[*]<span class="tok-type">u8</span>;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>() ?*Foo {
+    <span class="tok-kw">const</span> ptr = malloc(<span class="tok-number">1234</span>) <span class="tok-kw">orelse</span> <span class="tok-kw">return</span> <span class="tok-null">null</span>;
+    _ = ptr; <span class="tok-comment">// ...</span>
+}</code></pre></figure>
+      <p>
+        Here, Zig is at least as convenient, if not more, than C. And, the type of "ptr"
+        is <code>[*]<span class="tok-type">u8</span></code> <em>not</em> <code>?[*]<span class="tok-type">u8</span></code>. The <code><span class="tok-kw">orelse</span></code> keyword
+                    unwrapped the optional type and therefore <code>ptr</code> is guaranteed to be non-null everywhere
+        it is used in the function.
+      </p>
+      <p>
+        The other form of checking against NULL you might see looks like this:
+      </p>
+      <figure><figcaption class="c-cap"><cite class="file">checking_null_in_c.c</cite></figcaption><pre><code>void do_a_thing(struct Foo *foo) {
+    // do some stuff
+
+    if (foo) {
+        do_something_with_foo(foo);
+    }
+
+    // do some stuff
+}</code></pre></figure>
+      <p>
+        In Zig you can accomplish the same thing:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">checking_null_in_zig.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">struct</span> {};
+<span class="tok-kw">fn</span> <span class="tok-fn">doSomethingWithFoo</span>(foo: *Foo) <span class="tok-type">void</span> {
+    _ = foo;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(optional_foo: ?*Foo) <span class="tok-type">void</span> {
+    <span class="tok-comment">// do some stuff</span>
+
+    <span class="tok-kw">if</span> (optional_foo) |foo| {
+        doSomethingWithFoo(foo);
+    }
+
+    <span class="tok-comment">// do some stuff</span>
+}</code></pre></figure>
+
+      <p>
+      Once again, the notable thing here is that inside the if block,
+      <code>foo</code> is no longer an optional pointer, it is a pointer, which
+      cannot be null.
+      </p>
+      <p>
+      One benefit to this is that functions which take pointers as arguments can
+      be annotated with the "nonnull" attribute - <code>__attribute__((nonnull))</code> in
+      <a href="https://gcc.gnu.org/onlinedocs/gcc-4.0.0/gcc/Function-Attributes.html">GCC</a>.
+      The optimizer can sometimes make better decisions knowing that pointer arguments
+      cannot be null.
+      </p>
+      <h3 id="Optional-Type"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optional-Type">Optional Type</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optional-Type">§</a></h3>
+
+      <p>An optional is created by putting <code>?</code> in front of a type. You can use compile-time
+      reflection to access the child type of an optional:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_optional_type.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"optional type"</span> {
+    <span class="tok-comment">// Declare an optional and coerce from null:</span>
+    <span class="tok-kw">var</span> foo: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-comment">// Coerce from child type of an optional</span>
+    foo = <span class="tok-number">1234</span>;
+
+    <span class="tok-comment">// Use compile-time reflection to access the child type of the optional:</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(foo)).optional.child == <span class="tok-type">i32</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_optional_type.zig</kbd>
+1/1 test_optional_type.test.optional type...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="null"><a href="https://ziglang.org/documentation/0.15.2/#toc-null">null</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#null">§</a></h3>
+
+      <p>
+      Just like <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a>, <code><span class="tok-null">null</span></code> has its own type, and the only way to use it is to
+      cast it to a different type:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">null.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> optional_value: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;</code></pre></figure>
+
+      
+      <h3 id="Optional-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optional-Pointers">Optional Pointers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">§</a></h3>
+
+      <p>An optional pointer is guaranteed to be the same size as a pointer. The <code><span class="tok-null">null</span></code> of
+      the optional is guaranteed to be address 0.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_optional_pointer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"optional pointers"</span> {
+    <span class="tok-comment">// Pointers cannot be null. If you want a null pointer, use the optional</span>
+    <span class="tok-comment">// prefix `?` to make the pointer type optional.</span>
+    <span class="tok-kw">var</span> ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    ptr = &amp;x;
+
+    <span class="tok-kw">try</span> expect(ptr.?.* == <span class="tok-number">1</span>);
+
+    <span class="tok-comment">// Optional pointers are the same size as normal pointers, because pointer</span>
+    <span class="tok-comment">// value 0 is used as the null value.</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@sizeOf</span>(?*<span class="tok-type">i32</span>) == <span class="tok-builtin">@sizeOf</span>(*<span class="tok-type">i32</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_optional_pointer.zig</kbd>
+1/1 test_optional_pointer.test.optional pointers...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">while with Optionals</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">if with Optionals</a></li>
+</ul>
+
+      
+      <h2 id="Casting"><a href="https://ziglang.org/documentation/0.15.2/#toc-Casting">Casting</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Casting">§</a></h2>
+
+      <p>
+      A <strong>type cast</strong> converts a value of one type to another.
+      Zig has <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">Type Coercion</a> for conversions that are known to be completely safe and unambiguous,
+      and <a href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">Explicit Casts</a> for conversions that one would not want to happen on accident.
+      There is also a third kind of type conversion called <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for
+      the case when a result type must be decided given multiple operand types.
+      </p>
+      <h3 id="Type-Coercion"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion">Type Coercion</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">§</a></h3>
+
+      <p>
+      Type coercion occurs when one type is expected, but different type is provided:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_type_coercion.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"type coercion - variable declaration"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u16</span> = a;
+    _ = b;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"type coercion - function call"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">1</span>;
+    foo(a);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(b: <span class="tok-type">u16</span>) <span class="tok-type">void</span> {
+    _ = b;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"type coercion - @as builtin"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b = <span class="tok-builtin">@as</span>(<span class="tok-type">u16</span>, a);
+    _ = b;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_type_coercion.zig</kbd>
+1/3 test_type_coercion.test.type coercion - variable declaration...OK
+2/3 test_type_coercion.test.type coercion - function call...OK
+3/3 test_type_coercion.test.type coercion - @as builtin...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Type coercions are only allowed when it is completely unambiguous how to get from one type to another,
+      and the transformation is guaranteed to be safe. There is one exception, which is <a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C Pointers</a>.
+      </p>
+      <h4 id="Type-Coercion-Stricter-Qualification"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Stricter-Qualification">Type Coercion: Stricter Qualification</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Stricter-Qualification">§</a></h4>
+
+      <p>
+      Values which have the same representation at runtime can be cast to increase the strictness
+      of the qualifiers, no matter how nested the qualifiers are:
+      </p>
+      <ul>
+          <li><code><span class="tok-kw">const</span></code> - non-const to const is allowed</li>
+          <li><code><span class="tok-kw">volatile</span></code> - non-volatile to volatile is allowed</li>
+          <li><code><span class="tok-kw">align</span></code> - bigger to smaller alignment is allowed </li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">error sets</a> to supersets is allowed</li>
+      </ul>
+      <p>
+      These casts are no-ops at runtime since the value representation does not change.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_no_op_casts.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"type coercion - const qualification"</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b: *<span class="tok-type">i32</span> = &amp;a;
+    foo(b);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(_: *<span class="tok-kw">const</span> <span class="tok-type">i32</span>) <span class="tok-type">void</span> {}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_no_op_casts.zig</kbd>
+1/1 test_no_op_casts.test.type coercion - const qualification...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      In addition, pointers coerce to const optional pointers:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_pointer_coerce_const_optional.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+
+<span class="tok-kw">test</span> <span class="tok-str">"cast *[1][*:0]const u8 to []const ?[*:0]const u8"</span> {
+    <span class="tok-kw">const</span> window_name = [<span class="tok-number">1</span>][*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>{<span class="tok-str">"window name"</span>};
+    <span class="tok-kw">const</span> x: []<span class="tok-kw">const</span> ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;window_name;
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, mem.span(x[<span class="tok-number">0</span>].?), <span class="tok-str">"window name"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_pointer_coerce_const_optional.zig</kbd>
+1/1 test_pointer_coerce_const_optional.test.cast *[1][*:0]const u8 to []const ?[*:0]const u8...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Integer-and-Float-Widening"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Integer-and-Float-Widening">Type Coercion: Integer and Float Widening</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Integer-and-Float-Widening">§</a></h4>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a> coerce to integer types which can represent every value of the old type, and likewise
+      <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> coerce to float types which can represent every value of the old type.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_integer_widening.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+
+<span class="tok-kw">test</span> <span class="tok-str">"integer widening"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">250</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u16</span> = a;
+    <span class="tok-kw">const</span> c: <span class="tok-type">u32</span> = b;
+    <span class="tok-kw">const</span> d: <span class="tok-type">u64</span> = c;
+    <span class="tok-kw">const</span> e: <span class="tok-type">u64</span> = d;
+    <span class="tok-kw">const</span> f: <span class="tok-type">u128</span> = e;
+    <span class="tok-kw">try</span> expect(f == a);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"implicit unsigned integer to signed integer"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">250</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">i16</span> = a;
+    <span class="tok-kw">try</span> expect(b == <span class="tok-number">250</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"float widening"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">f16</span> = <span class="tok-number">12.34</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">f32</span> = a;
+    <span class="tok-kw">const</span> c: <span class="tok-type">f64</span> = b;
+    <span class="tok-kw">const</span> d: <span class="tok-type">f128</span> = c;
+    <span class="tok-kw">try</span> expect(d == a);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_integer_widening.zig</kbd>
+1/3 test_integer_widening.test.integer widening...OK
+2/3 test_integer_widening.test.implicit unsigned integer to signed integer...OK
+3/3 test_integer_widening.test.float widening...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Float-to-Int"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Float-to-Int">Type Coercion: Float to Int</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Float-to-Int">§</a></h4>
+
+      <p>
+      A compiler error is appropriate because this ambiguous expression leaves the compiler
+      two choices about the coercion.
+      </p>
+      <ul>
+        <li>Cast <code><span class="tok-number">54.0</span></code> to <code><span class="tok-type">comptime_int</span></code> resulting in <code><span class="tok-builtin">@as</span>(<span class="tok-type">comptime_int</span>, <span class="tok-number">10</span>)</code>, which is casted to <code><span class="tok-builtin">@as</span>(<span class="tok-type">f32</span>, <span class="tok-number">10</span>)</code></li>
+        <li>Cast <code><span class="tok-number">5</span></code> to <code><span class="tok-type">comptime_float</span></code> resulting in <code><span class="tok-builtin">@as</span>(<span class="tok-type">comptime_float</span>, <span class="tok-number">10.8</span>)</code>, which is casted to <code><span class="tok-builtin">@as</span>(<span class="tok-type">f32</span>, <span class="tok-number">10.8</span>)</code></li>
+      </ul>
+      <figure><figcaption class="zig-cap"><cite class="file">test_ambiguous_coercion.zig</cite></figcaption><pre><code><span class="tok-comment">// Compile time coercion of float to int</span>
+<span class="tok-kw">test</span> <span class="tok-str">"implicit cast to comptime_int"</span> {
+    <span class="tok-kw">const</span> f: <span class="tok-type">f32</span> = <span class="tok-number">54.0</span> / <span class="tok-number">5</span>;
+    _ = f;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_ambiguous_coercion.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_ambiguous_coercion.zig:3:25: </span><span class="sgr-31m">error: </span><span class="sgr-1m">ambiguous coercion of division operands 'comptime_float' and 'comptime_int'; non-zero remainder '4'
+</span>    const f: f32 = 54.0 / 5;
+                   <span class="sgr-32m">~~~~~^~~
+</span>
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Slices-Arrays-and-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Slices-Arrays-and-Pointers">Type Coercion: Slices, Arrays and Pointers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Slices-Arrays-and-Pointers">§</a></h4>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_slices_arrays_and_pointers.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-comment">// You can assign constant pointers to arrays to a slice with</span>
+<span class="tok-comment">// const modifier on the element type. Useful in particular for</span>
+<span class="tok-comment">// String literals.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*const [N]T to []const T"</span> {
+    <span class="tok-kw">const</span> x1: []<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> x2: []<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;[<span class="tok-number">5</span>]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-number">111</span> };
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, x1, x2));
+
+    <span class="tok-kw">const</span> y: []<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">try</span> expect(y[<span class="tok-number">0</span>] == <span class="tok-number">1.2</span>);
+}
+
+<span class="tok-comment">// Likewise, it works when the destination type is an error union.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*const [N]T to E![]const T"</span> {
+    <span class="tok-kw">const</span> x1: <span class="tok-type">anyerror</span>![]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> x2: <span class="tok-type">anyerror</span>![]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;[<span class="tok-number">5</span>]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-number">111</span> };
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, <span class="tok-kw">try</span> x1, <span class="tok-kw">try</span> x2));
+
+    <span class="tok-kw">const</span> y: <span class="tok-type">anyerror</span>![]<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> y)[<span class="tok-number">0</span>] == <span class="tok-number">1.2</span>);
+}
+
+<span class="tok-comment">// Likewise, it works when the destination type is an optional.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*const [N]T to ?[]const T"</span> {
+    <span class="tok-kw">const</span> x1: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> x2: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;[<span class="tok-number">5</span>]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-number">111</span> };
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, x1.?, x2.?));
+
+    <span class="tok-kw">const</span> y: ?[]<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">try</span> expect(y.?[<span class="tok-number">0</span>] == <span class="tok-number">1.2</span>);
+}
+
+<span class="tok-comment">// In this cast, the array length becomes the slice length.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*[N]T to []T"</span> {
+    <span class="tok-kw">var</span> buf: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> x: []<span class="tok-type">u8</span> = &amp;buf;
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, x, <span class="tok-str">"hello"</span>));
+
+    <span class="tok-kw">const</span> buf2 = [<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">const</span> x2: []<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;buf2;
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">f32</span>, x2, &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> }));
+}
+
+<span class="tok-comment">// Single-item pointers to arrays can be coerced to many-item pointers.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*[N]T to [*]T"</span> {
+    <span class="tok-kw">var</span> buf: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> x: [*]<span class="tok-type">u8</span> = &amp;buf;
+    <span class="tok-kw">try</span> expect(x[<span class="tok-number">4</span>] == <span class="tok-str">'o'</span>);
+    <span class="tok-comment">// x[5] would be an uncaught out of bounds pointer dereference!</span>
+}
+
+<span class="tok-comment">// Likewise, it works when the destination type is an optional.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*[N]T to ?[*]T"</span> {
+    <span class="tok-kw">var</span> buf: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> x: ?[*]<span class="tok-type">u8</span> = &amp;buf;
+    <span class="tok-kw">try</span> expect(x.?[<span class="tok-number">4</span>] == <span class="tok-str">'o'</span>);
+}
+
+<span class="tok-comment">// Single-item pointers can be cast to len-1 single-item arrays.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*T to *[1]T"</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: *[<span class="tok-number">1</span>]<span class="tok-type">i32</span> = &amp;x;
+    <span class="tok-kw">const</span> z: [*]<span class="tok-type">i32</span> = y;
+    <span class="tok-kw">try</span> expect(z[<span class="tok-number">0</span>] == <span class="tok-number">1234</span>);
+}
+
+<span class="tok-comment">// Sentinel-terminated slices can be coerced into sentinel-terminated pointers</span>
+<span class="tok-kw">test</span> <span class="tok-str">"[:x]T to [*:x]T"</span> {
+    <span class="tok-kw">const</span> buf: [:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> buf2: [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = buf;
+    <span class="tok-kw">try</span> expect(buf2[<span class="tok-number">4</span>] == <span class="tok-str">'o'</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_slices_arrays_and_pointers.zig</kbd>
+1/8 test_coerce_slices_arrays_and_pointers.test.*const [N]T to []const T...OK
+2/8 test_coerce_slices_arrays_and_pointers.test.*const [N]T to E![]const T...OK
+3/8 test_coerce_slices_arrays_and_pointers.test.*const [N]T to ?[]const T...OK
+4/8 test_coerce_slices_arrays_and_pointers.test.*[N]T to []T...OK
+5/8 test_coerce_slices_arrays_and_pointers.test.*[N]T to [*]T...OK
+6/8 test_coerce_slices_arrays_and_pointers.test.*[N]T to ?[*]T...OK
+7/8 test_coerce_slices_arrays_and_pointers.test.*T to *[1]T...OK
+8/8 test_coerce_slices_arrays_and_pointers.test.[:x]T to [*:x]T...OK
+All 8 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C Pointers</a></li>
+</ul>
+
+      
+      <h4 id="Type-Coercion-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Optionals">Type Coercion: Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Optionals">§</a></h4>
+
+      <p>
+      The payload type of <a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a>, as well as <a href="https://ziglang.org/documentation/0.15.2/#null">null</a>, coerce to the optional type.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_optionals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"coerce to optionals"</span> {
+    <span class="tok-kw">const</span> x: ?<span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">try</span> expect(x.? == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect(y == <span class="tok-null">null</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_optionals.zig</kbd>
+1/1 test_coerce_optionals.test.coerce to optionals...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>Optionals work nested inside the <a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a>, too:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_optional_wrapped_error_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"coerce to optionals wrapped in error union"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">anyerror</span>!?<span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: <span class="tok-type">anyerror</span>!?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> x).? == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> y) == <span class="tok-null">null</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_optional_wrapped_error_union.zig</kbd>
+1/1 test_coerce_optional_wrapped_error_union.test.coerce to optionals wrapped in error union...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Error-Unions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Error-Unions">Type Coercion: Error Unions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Error-Unions">§</a></h4>
+
+      <p>The payload type of an <a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a> as well as the <a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">Error Set Type</a>
+      coerce to the error union type:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_to_error_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"coercion to error unions"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-kw">error</span>.Failure;
+
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> x) == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> std.testing.expectError(<span class="tok-kw">error</span>.Failure, y);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_to_error_union.zig</kbd>
+1/1 test_coerce_to_error_union.test.coercion to error unions...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Compile-Time-Known-Numbers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Compile-Time-Known-Numbers">Type Coercion: Compile-Time Known Numbers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Compile-Time-Known-Numbers">§</a></h4>
+
+      <p>When a number is <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known to be representable in the destination type,
+      it may be coerced:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_large_to_small.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"coercing large integer type to smaller one when value is comptime-known to fit"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">u64</span> = <span class="tok-number">255</span>;
+    <span class="tok-kw">const</span> y: <span class="tok-type">u8</span> = x;
+    <span class="tok-kw">try</span> expect(y == <span class="tok-number">255</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_large_to_small.zig</kbd>
+1/1 test_coerce_large_to_small.test.coercing large integer type to smaller one when value is comptime-known to fit...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Unions-and-Enums"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Unions-and-Enums">Type Coercion: Unions and Enums</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Unions-and-Enums">§</a></h4>
+
+      <p>Tagged unions can be coerced to enums, and enums can be coerced to tagged unions
+      when they are <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known to be a field of the union that has only one possible value, such as
+      <a href="https://ziglang.org/documentation/0.15.2/#void">void</a>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_unions_enums.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> E = <span class="tok-kw">enum</span> {
+    one,
+    two,
+    three,
+};
+
+<span class="tok-kw">const</span> U = <span class="tok-kw">union</span>(E) {
+    one: <span class="tok-type">i32</span>,
+    two: <span class="tok-type">f32</span>,
+    three,
+};
+
+<span class="tok-kw">const</span> U2 = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: <span class="tok-type">void</span>,
+    b: <span class="tok-type">f32</span>,
+
+    <span class="tok-kw">fn</span> <span class="tok-fn">tag</span>(self: U2) <span class="tok-type">usize</span> {
+        <span class="tok-kw">switch</span> (self) {
+            .a =&gt; <span class="tok-kw">return</span> <span class="tok-number">1</span>,
+            .b =&gt; <span class="tok-kw">return</span> <span class="tok-number">2</span>,
+        }
+    }
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"coercion between unions and enums"</span> {
+    <span class="tok-kw">const</span> u = U{ .two = <span class="tok-number">12.34</span> };
+    <span class="tok-kw">const</span> e: E = u; <span class="tok-comment">// coerce union to enum</span>
+    <span class="tok-kw">try</span> expect(e == E.two);
+
+    <span class="tok-kw">const</span> three = E.three;
+    <span class="tok-kw">const</span> u_2: U = three; <span class="tok-comment">// coerce enum to union</span>
+    <span class="tok-kw">try</span> expect(u_2 == E.three);
+
+    <span class="tok-kw">const</span> u_3: U = .three; <span class="tok-comment">// coerce enum literal to union</span>
+    <span class="tok-kw">try</span> expect(u_3 == E.three);
+
+    <span class="tok-kw">const</span> u_4: U2 = .a; <span class="tok-comment">// coerce enum literal to union with inferred enum tag type.</span>
+    <span class="tok-kw">try</span> expect(u_4.tag() == <span class="tok-number">1</span>);
+
+    <span class="tok-comment">// The following example is invalid.</span>
+    <span class="tok-comment">// error: coercion from enum '@TypeOf(.enum_literal)' to union 'test_coerce_unions_enum.U2' must initialize 'f32' field 'b'</span>
+    <span class="tok-comment">//var u_5: U2 = .b;</span>
+    <span class="tok-comment">//try expect(u_5.tag() == 2);</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_unions_enums.zig</kbd>
+1/1 test_coerce_unions_enums.test.coercion between unions and enums...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#union">union</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a></li>
+</ul>
+
+      
+      <h4 id="Type-Coercion-undefined"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-undefined">Type Coercion: undefined</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-undefined">§</a></h4>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a> can be coerced to any type.</p>
+      
+
+      <h4 id="Type-Coercion-Tuples-to-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Tuples-to-Arrays">Type Coercion: Tuples to Arrays</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Tuples-to-Arrays">§</a></h4>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Tuples">Tuples</a> can be coerced to arrays, if all of the fields have the same type.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_tuples_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Tuple = <span class="tok-kw">struct</span> { <span class="tok-type">u8</span>, <span class="tok-type">u8</span> };
+<span class="tok-kw">test</span> <span class="tok-str">"coercion from homogeneous tuple to array"</span> {
+    <span class="tok-kw">const</span> tuple: Tuple = .{ <span class="tok-number">5</span>, <span class="tok-number">6</span> };
+    <span class="tok-kw">const</span> array: [<span class="tok-number">2</span>]<span class="tok-type">u8</span> = tuple;
+    _ = array;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_tuples_arrays.zig</kbd>
+1/1 test_coerce_tuples_arrays.test.coercion from homogeneous tuple to array...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h3 id="Explicit-Casts"><a href="https://ziglang.org/documentation/0.15.2/#toc-Explicit-Casts">Explicit Casts</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">§</a></h3>
+
+      <p>
+      Explicit casts are performed via <a href="https://ziglang.org/documentation/0.15.2/#Builtin-Functions">Builtin Functions</a>.
+      Some explicit casts are safe; some are not.
+      Some explicit casts perform language-level assertions; some do not.
+      Some explicit casts are no-ops at runtime; some are not.
+      </p>
+      <ul>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#bitCast">@bitCast</a> - change type but maintain bit representation</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#alignCast">@alignCast</a> - make a pointer have more alignment</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#enumFromInt">@enumFromInt</a> - obtain an enum value based on its integer tag value</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#errorFromInt">@errorFromInt</a> - obtain an error code based on its integer value</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#errorCast">@errorCast</a> - convert to a smaller error set</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#floatCast">@floatCast</a> - convert a larger float to a smaller float</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#floatFromInt">@floatFromInt</a> - convert an integer to a float value</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intCast">@intCast</a> - convert between integer types</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromBool">@intFromBool</a> - convert true to 1 and false to 0</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromEnum">@intFromEnum</a> - obtain the integer tag value of an enum or tagged union</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromError">@intFromError</a> - obtain the integer value of an error code</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromFloat">@intFromFloat</a> - obtain the integer part of a float value</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromPtr">@intFromPtr</a> - obtain the address of a pointer</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">@ptrFromInt</a> - convert an address to a pointer</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a> - convert between pointer types</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#truncate">@truncate</a> - convert between integer types, chopping off bits</li>
+      </ul>
+      
+
+      <h3 id="Peer-Type-Resolution"><a href="https://ziglang.org/documentation/0.15.2/#toc-Peer-Type-Resolution">Peer Type Resolution</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">§</a></h3>
+
+      <p>Peer Type Resolution occurs in these places:</p>
+      <ul>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a> expressions</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#if">if</a> expressions</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#while">while</a> expressions</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#for">for</a> expressions</li>
+        <li>Multiple break statements in a block</li>
+        <li>Some <a href="https://ziglang.org/documentation/0.15.2/#Table-of-Operators">binary operations</a></li>
+      </ul>
+      <p>
+      This kind of type resolution chooses a type that all peer types can coerce into. Here are
+      some examples:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_peer_type_resolution.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer resolve int widening"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">i8</span> = <span class="tok-number">12</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">i16</span> = <span class="tok-number">34</span>;
+    <span class="tok-kw">const</span> c = a + b;
+    <span class="tok-kw">try</span> expect(c == <span class="tok-number">46</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(c) == <span class="tok-type">i16</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer resolve arrays of different size to const slice"</span> {
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">true</span>), <span class="tok-str">"true"</span>));
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">false</span>), <span class="tok-str">"false"</span>));
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">true</span>), <span class="tok-str">"true"</span>));
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">false</span>), <span class="tok-str">"false"</span>));
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">boolToStr</span>(b: <span class="tok-type">bool</span>) []<span class="tok-kw">const</span> <span class="tok-type">u8</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (b) <span class="tok-str">"true"</span> <span class="tok-kw">else</span> <span class="tok-str">"false"</span>;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer resolve array and const slice"</span> {
+    <span class="tok-kw">try</span> testPeerResolveArrayConstSlice(<span class="tok-null">true</span>);
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> testPeerResolveArrayConstSlice(<span class="tok-null">true</span>);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">testPeerResolveArrayConstSlice</span>(b: <span class="tok-type">bool</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> value1 = <span class="tok-kw">if</span> (b) <span class="tok-str">"aoeu"</span> <span class="tok-kw">else</span> <span class="tok-builtin">@as</span>([]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, <span class="tok-str">"zz"</span>);
+    <span class="tok-kw">const</span> value2 = <span class="tok-kw">if</span> (b) <span class="tok-builtin">@as</span>([]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, <span class="tok-str">"zz"</span>) <span class="tok-kw">else</span> <span class="tok-str">"aoeu"</span>;
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, value1, <span class="tok-str">"aoeu"</span>));
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, value2, <span class="tok-str">"zz"</span>));
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer type resolution: ?T and T"</span> {
+    <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">true</span>, <span class="tok-null">false</span>).? == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">false</span>, <span class="tok-null">false</span>).? == <span class="tok-number">3</span>);
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">true</span>, <span class="tok-null">false</span>).? == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">false</span>, <span class="tok-null">false</span>).? == <span class="tok-number">3</span>);
+    }
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">peerTypeTAndOptionalT</span>(c: <span class="tok-type">bool</span>, b: <span class="tok-type">bool</span>) ?<span class="tok-type">usize</span> {
+    <span class="tok-kw">if</span> (c) {
+        <span class="tok-kw">return</span> <span class="tok-kw">if</span> (b) <span class="tok-null">null</span> <span class="tok-kw">else</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-number">0</span>);
+    }
+
+    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-number">3</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer type resolution: *[0]u8 and []const u8"</span> {
+    <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">true</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">false</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">1</span>);
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">true</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">false</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">1</span>);
+    }
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">peerTypeEmptyArrayAndSlice</span>(a: <span class="tok-type">bool</span>, slice: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) []<span class="tok-kw">const</span> <span class="tok-type">u8</span> {
+    <span class="tok-kw">if</span> (a) {
+        <span class="tok-kw">return</span> &amp;[_]<span class="tok-type">u8</span>{};
+    }
+
+    <span class="tok-kw">return</span> slice[<span class="tok-number">0</span>..<span class="tok-number">1</span>];
+}
+<span class="tok-kw">test</span> <span class="tok-str">"peer type resolution: *[0]u8, []const u8, and anyerror![]u8"</span> {
+    {
+        <span class="tok-kw">var</span> data = <span class="tok-str">"hi"</span>.*;
+        <span class="tok-kw">const</span> slice = data[<span class="tok-number">0</span>..];
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">true</span>, slice)).len == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">false</span>, slice)).len == <span class="tok-number">1</span>);
+    }
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">var</span> data = <span class="tok-str">"hi"</span>.*;
+        <span class="tok-kw">const</span> slice = data[<span class="tok-number">0</span>..];
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">true</span>, slice)).len == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">false</span>, slice)).len == <span class="tok-number">1</span>);
+    }
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">peerTypeEmptyArrayAndSliceAndError</span>(a: <span class="tok-type">bool</span>, slice: []<span class="tok-type">u8</span>) <span class="tok-type">anyerror</span>![]<span class="tok-type">u8</span> {
+    <span class="tok-kw">if</span> (a) {
+        <span class="tok-kw">return</span> &amp;[_]<span class="tok-type">u8</span>{};
+    }
+
+    <span class="tok-kw">return</span> slice[<span class="tok-number">0</span>..<span class="tok-number">1</span>];
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer type resolution: *const T and ?*T"</span> {
+    <span class="tok-kw">const</span> a: *<span class="tok-kw">const</span> <span class="tok-type">usize</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x123456780</span>);
+    <span class="tok-kw">const</span> b: ?*<span class="tok-type">usize</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x123456780</span>);
+    <span class="tok-kw">try</span> expect(a == b);
+    <span class="tok-kw">try</span> expect(b == a);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"peer type resolution: error union switch"</span> {
+    <span class="tok-comment">// The non-error and error cases are only peers if the error case is just a switch expression;</span>
+    <span class="tok-comment">// the pattern `if (x) {...} else |err| blk: { switch (err) {...} }` does not consider the</span>
+    <span class="tok-comment">// non-error and error case to be peers.</span>
+    <span class="tok-kw">var</span> a: <span class="tok-kw">error</span>{ A, B, C }!<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    _ = &amp;a;
+    <span class="tok-kw">const</span> b = <span class="tok-kw">if</span> (a) |x|
+        x + <span class="tok-number">3</span>
+    <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.A =&gt; <span class="tok-number">0</span>,
+        <span class="tok-kw">error</span>.B =&gt; <span class="tok-number">1</span>,
+        <span class="tok-kw">error</span>.C =&gt; <span class="tok-null">null</span>,
+    };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(b) == ?<span class="tok-type">u32</span>);
+
+    <span class="tok-comment">// The non-error and error cases are only peers if the error case is just a switch expression;</span>
+    <span class="tok-comment">// the pattern `x catch |err| blk: { switch (err) {...} }` does not consider the unwrapped `x`</span>
+    <span class="tok-comment">// and error case to be peers.</span>
+    <span class="tok-kw">const</span> c = a <span class="tok-kw">catch</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.A =&gt; <span class="tok-number">0</span>,
+        <span class="tok-kw">error</span>.B =&gt; <span class="tok-number">1</span>,
+        <span class="tok-kw">error</span>.C =&gt; <span class="tok-null">null</span>,
+    };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(c) == ?<span class="tok-type">u32</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_peer_type_resolution.zig</kbd>
+1/8 test_peer_type_resolution.test.peer resolve int widening...OK
+2/8 test_peer_type_resolution.test.peer resolve arrays of different size to const slice...OK
+3/8 test_peer_type_resolution.test.peer resolve array and const slice...OK
+4/8 test_peer_type_resolution.test.peer type resolution: ?T and T...OK
+5/8 test_peer_type_resolution.test.peer type resolution: *[0]u8 and []const u8...OK
+6/8 test_peer_type_resolution.test.peer type resolution: *[0]u8, []const u8, and anyerror![]u8...OK
+7/8 test_peer_type_resolution.test.peer type resolution: *const T and ?*T...OK
+8/8 test_peer_type_resolution.test.peer type resolution: error union switch...OK
+All 8 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="Zero-Bit-Types"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zero-Bit-Types">Zero Bit Types</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zero-Bit-Types">§</a></h2>
+
+      <p>For some types, <a href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a> is 0:</p>
+      <ul>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#void">void</a></li>
+          <li>The <a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a> <code><span class="tok-type">u0</span></code> and <code><span class="tok-type">i0</span></code>.</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> with len 0, or with an element type that is a zero bit type.</li>
+          <li>An <a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a> with only 1 tag.</li>
+          <li>A <a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a> with all fields being zero bit types.</li>
+          <li>A <a href="https://ziglang.org/documentation/0.15.2/#union">union</a> with only 1 field which is a zero bit type.</li>
+      </ul>
+      <p>
+      These types can only ever have one possible value, and thus
+      require 0 bits to represent. Code that makes use of these types is
+      not included in the final generated code:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">zero_bit_types.zig</cite></figcaption><pre><code><span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">entry</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">void</span> = {};
+    <span class="tok-kw">var</span> y: <span class="tok-type">void</span> = {};
+    x = y;
+    y = x;
+}</code></pre></figure>
+
+      <p>When this turns into machine code, there is no code generated in the
+      body of <code>entry</code>, even in <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> mode. For example, on x86_64:</p>
+      <pre><code>0000000000000010 &lt;entry&gt;:
+  10:	55                   	push   %rbp
+  11:	48 89 e5             	mov    %rsp,%rbp
+  14:	5d                   	pop    %rbp
+  15:	c3                   	retq   </code></pre>
+      <p>These assembly instructions do not have any code associated with the void values -
+      they only perform the function call prologue and epilogue.</p>
+
+      <h3 id="void"><a href="https://ziglang.org/documentation/0.15.2/#toc-void">void</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#void">§</a></h3>
+
+      <p>
+      <code><span class="tok-type">void</span></code> can be useful for instantiating generic types. For example, given a
+          <code>Map(Key, Value)</code>, one can pass <code><span class="tok-type">void</span></code> for the <code>Value</code>
+                      type to make it into a <code>Set</code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_void_in_hashmap.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"turn HashMap into a set with void"</span> {
+    <span class="tok-kw">var</span> map = std.AutoHashMap(<span class="tok-type">i32</span>, <span class="tok-type">void</span>).init(std.testing.allocator);
+    <span class="tok-kw">defer</span> map.deinit();
+
+    <span class="tok-kw">try</span> map.put(<span class="tok-number">1</span>, {});
+    <span class="tok-kw">try</span> map.put(<span class="tok-number">2</span>, {});
+
+    <span class="tok-kw">try</span> expect(map.contains(<span class="tok-number">2</span>));
+    <span class="tok-kw">try</span> expect(!map.contains(<span class="tok-number">3</span>));
+
+    _ = map.remove(<span class="tok-number">2</span>);
+    <span class="tok-kw">try</span> expect(!map.contains(<span class="tok-number">2</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_void_in_hashmap.zig</kbd>
+1/1 test_void_in_hashmap.test.turn HashMap into a set with void...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>Note that this is different from using a dummy value for the hash map value.
+      By using <code><span class="tok-type">void</span></code> as the type of the value, the hash map entry type has no value field, and
+      thus the hash map takes up less space. Further, all the code that deals with storing and loading the
+      value is deleted, as seen above.
+      </p>
+      <p>
+      <code><span class="tok-type">void</span></code> is distinct from <code><span class="tok-type">anyopaque</span></code>.
+      <code><span class="tok-type">void</span></code> has a known size of 0 bytes, and <code><span class="tok-type">anyopaque</span></code> has an unknown, but non-zero, size.
+      </p>
+      <p>
+      Expressions of type <code><span class="tok-type">void</span></code> are the only ones whose value can be ignored. For example, ignoring
+      a non-<code><span class="tok-type">void</span></code> expression is a compile error:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_expression_ignored.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"ignoring expression value"</span> {
+    foo();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-number">1234</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_expression_ignored.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_expression_ignored.zig:2:8: </span><span class="sgr-31m">error: </span><span class="sgr-1m">value of type 'i32' ignored
+</span>    foo();
+    <span class="sgr-32m">~~~^~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_expression_ignored.zig:2:8: </span><span class="sgr-36m">note: </span><span class="sgr-1m">all non-void values must be used
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_expression_ignored.zig:2:8: </span><span class="sgr-36m">note: </span><span class="sgr-1m">to discard the value, assign it to '_'
+</span>
+</samp></pre></figure>
+
+      <p>However, if the expression has type <code><span class="tok-type">void</span></code>, there will be no error. Expression results can be explicitly ignored by assigning them to <code>_</code>. </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_void_ignored.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"void is ignored"</span> {
+    returnsVoid();
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"explicitly ignoring expression value"</span> {
+    _ = foo();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">returnsVoid</span>() <span class="tok-type">void</span> {}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-number">1234</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_void_ignored.zig</kbd>
+1/2 test_void_ignored.test.void is ignored...OK
+2/2 test_void_ignored.test.explicitly ignoring expression value...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="Result-Location-Semantics"><a href="https://ziglang.org/documentation/0.15.2/#toc-Result-Location-Semantics">Result Location Semantics</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">§</a></h2>
+
+      <p>
+      During compilation, every Zig expression and sub-expression is assigned optional result location
+      information. This information dictates what type the expression should have (its result type), and
+      where the resulting value should be placed in memory (its result location). The information is
+      optional in the sense that not every expression has this information: assignment to
+      <code>_</code>, for instance, does not provide any information about the type of an
+      expression, nor does it provide a concrete memory location to place it in.
+      </p>
+      <p>
+      As a motivating example, consider the statement <code><span class="tok-kw">const</span> x: <span class="tok-type">u32</span> = <span class="tok-number">42</span>;</code>. The type
+      annotation here provides a result type of <code><span class="tok-type">u32</span></code> to the initialization expression
+      <code><span class="tok-number">42</span></code>, instructing the compiler to coerce this integer (initially of type
+      <code><span class="tok-type">comptime_int</span></code>) to this type. We will see more examples shortly.
+      </p>
+      <p>
+      This is not an implementation detail: the logic outlined above is codified into the Zig language
+      specification, and is the primary mechanism of type inference in the language. This system is
+      collectively referred to as "Result Location Semantics".
+      </p>
+      <h3 id="Result-Types"><a href="https://ziglang.org/documentation/0.15.2/#toc-Result-Types">Result Types</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Result-Types">§</a></h3>
+
+      <p>
+      Result types are propagated recursively through expressions where possible. For instance, if the
+      expression <code>&amp;e</code> has result type <code>*<span class="tok-type">u32</span></code>, then
+      <code>e</code> is given a result type of <code><span class="tok-type">u32</span></code>, allowing the
+      language to perform this coercion before taking a reference.
+      </p>
+      <p>
+      The result type mechanism is utilized by casting builtins such as <code><span class="tok-builtin">@intCast</span></code>.
+      Rather than taking as an argument the type to cast to, these builtins use their result type to
+      determine this information. The result type is often known from context; where it is not, the
+      <code><span class="tok-builtin">@as</span></code> builtin can be used to explicitly provide a result type.
+      </p>
+      <p>
+      We can break down the result types for each component of a simple expression as follows:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">result_type_propagation.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expectEqual = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expectEqual;
+<span class="tok-kw">test</span> <span class="tok-str">"result type propagates through struct initializer"</span> {
+    <span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> { x: <span class="tok-type">u32</span> };
+    <span class="tok-kw">const</span> val: <span class="tok-type">u64</span> = <span class="tok-number">123</span>;
+    <span class="tok-kw">const</span> s: S = .{ .x = <span class="tok-builtin">@intCast</span>(val) };
+    <span class="tok-comment">// .{ .x = @intCast(val) }   has result type `S` due to the type annotation</span>
+    <span class="tok-comment">//         @intCast(val)     has result type `u32` due to the type of the field `S.x`</span>
+    <span class="tok-comment">//                  val      has no result type, as it is permitted to be any integer type</span>
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">123</span>), s.x);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test result_type_propagation.zig</kbd>
+1/1 result_type_propagation.test.result type propagates through struct initializer...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      This result type information is useful for the aforementioned cast builtins, as well as to avoid
+      the construction of pre-coercion values, and to avoid the need for explicit type coercions in some
+      cases. The following table details how some common expressions propagate result types, where
+      <code>x</code> and <code>y</code> are arbitrary sub-expressions.
+      </p>
+      <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Expression</th>
+            <th scope="col">Parent Result Type</th>
+            <th scope="col">Sub-expression Result Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">const</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">var</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>val = x</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code><span class="tok-builtin">@TypeOf</span>(val)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@as</span>(T, x)</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&amp;x</code></th>
+            <td><code>*T</code></td>
+            <td><code>x</code> is a <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&amp;x</code></th>
+            <td><code>[]T</code></td>
+            <td><code>x</code> is some array of <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>f(x)</code></th>
+            <td>-</td>
+            <td><code>x</code> has the type of the first parameter of <code>f</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{x}</code></th>
+            <td><code>T</code></td>
+            <td><code>x</code> is a <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"0"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{ .a = x }</code></th>
+            <td><code>T</code></td>
+            <td><code>x</code> is a <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"a"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{x}</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"0"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{ .a = x }</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"a"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@Type</span>(x)</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code>std.builtin.Type</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@typeInfo</span>(x)</code></th>
+            <td>-</td>
+            <td><code>x</code> is a <code><span class="tok-type">type</span></code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>x &lt;&lt; y</code></th>
+            <td>-</td>
+            <td><code>y</code> is a <code>std.math.Log2IntCeil(<span class="tok-builtin">@TypeOf</span>(x))</code></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      
+      <h3 id="Result-Locations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Result-Locations">Result Locations</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Result-Locations">§</a></h3>
+
+      <p>
+      In addition to result type information, every expression may be optionally assigned a result
+      location: a pointer to which the value must be directly written. This system can be used to prevent
+      intermediate copies when initializing data structures, which can be important for types which must
+      have a fixed memory address ("pinned" types).
+      </p>
+      <p>
+      When compiling the simple assignment expression <code>x = e</code>, many languages would
+      create the temporary value <code>e</code> on the stack, and then assign it to
+      <code>x</code>, potentially performing a type coercion in the process. Zig approaches this
+      differently. The expression <code>e</code> is given a result type matching the type of
+      <code>x</code>, and a result location of <code>&amp;x</code>. For many syntactic
+      forms of <code>e</code>, this has no practical impact. However, it can have important
+      semantic effects when working with more complex syntax forms.
+      </p>
+      <p>
+      For instance, if the expression <code>.{ .a = x, .b = y }</code> has a result location of
+      <code>ptr</code>, then <code>x</code> is given a result location of
+      <code>&amp;ptr.a</code>, and <code>y</code> a result location of <code>&amp;ptr.b</code>.
+      Without this system, this expression would construct a temporary struct value entirely on the stack, and
+      only then copy it to the destination address. In essence, Zig desugars the assignment
+      <code>foo = .{ .a = x, .b = y }</code> to the two statements <code>foo.a = x; foo.b = y;</code>.
+      </p>
+      <p>
+      This can sometimes be important when assigning an aggregate value where the initialization
+      expression depends on the previous value of the aggregate. The easiest way to demonstrate this is by
+      attempting to swap fields of a struct or array - the following logic looks sound, but in fact is not:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">result_location_interfering_with_swap.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+<span class="tok-kw">test</span> <span class="tok-str">"attempt to swap array elements with array initializer"</span> {
+    <span class="tok-kw">var</span> arr: [<span class="tok-number">2</span>]<span class="tok-type">u32</span> = .{ <span class="tok-number">1</span>, <span class="tok-number">2</span> };
+    arr = .{ arr[<span class="tok-number">1</span>], arr[<span class="tok-number">0</span>] };
+    <span class="tok-comment">// The previous line is equivalent to the following two lines:</span>
+    <span class="tok-comment">//   arr[0] = arr[1];</span>
+    <span class="tok-comment">//   arr[1] = arr[0];</span>
+    <span class="tok-comment">// So this fails!</span>
+    <span class="tok-kw">try</span> expect(arr[<span class="tok-number">0</span>] == <span class="tok-number">2</span>); <span class="tok-comment">// succeeds</span>
+    <span class="tok-kw">try</span> expect(arr[<span class="tok-number">1</span>] == <span class="tok-number">1</span>); <span class="tok-comment">// fails</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test result_location_interfering_with_swap.zig</kbd>
+1/1 result_location_interfering_with_swap.test.attempt to swap array elements with array initializer...FAIL (TestUnexpectedResult)
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/testing.zig:607:14</span>: <span class="sgr-2m">0x102f019 in expect (std.zig)</span>
+    if (!ok) return error.TestUnexpectedResult;
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/result_location_interfering_with_swap.zig:10:5</span>: <span class="sgr-2m">0x102f144 in test.attempt to swap array elements with array initializer (result_location_interfering_with_swap.zig)</span>
+    try expect(arr[1] == 1); // fails
+    <span class="sgr-32m">^</span>
+0 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+/home/andy/dev/zig/.zig-cache/o/d439bc8d3e0f685e13e3c778e438793a/test --seed=0x9b2332d1
+</samp></pre></figure>
+
+      <p>
+      The following table details how some common expressions propagate result locations, where
+      <code>x</code> and <code>y</code> are arbitrary sub-expressions. Note that
+      some expressions cannot provide meaningful result locations to sub-expressions, even if they
+      themselves have a result location.
+      </p>
+      <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Expression</th>
+            <th scope="col">Result Location</th>
+            <th scope="col">Sub-expression Result Locations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">const</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> has result location <code>&amp;val</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">var</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> has result location <code>&amp;val</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>val = x</code></th>
+            <td>-</td>
+            <td><code>x</code> has result location <code>&amp;val</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@as</span>(T, x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&amp;x</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>f(x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{x}</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has result location <code>&amp;ptr[<span class="tok-number">0</span>]</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{ .a = x }</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has result location <code>&amp;ptr.a</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{x}</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location (typed initializers do not propagate result locations)</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{ .a = x }</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location (typed initializers do not propagate result locations)</td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@Type</span>(x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location</td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@typeInfo</span>(x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> has no result location</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>x &lt;&lt; y</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> and <code>y</code> do not have result locations</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      
+      
+
+      <h2 id="comptime"><a href="https://ziglang.org/documentation/0.15.2/#toc-comptime">comptime</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#comptime">§</a></h2>
+
+      <p>
+      Zig places importance on the concept of whether an expression is known at compile-time.
+      There are a few different places this concept is used, and these building blocks are used
+      to keep the language small, readable, and powerful.
+      </p>
+      <h3 id="Introducing-the-Compile-Time-Concept"><a href="https://ziglang.org/documentation/0.15.2/#toc-Introducing-the-Compile-Time-Concept">Introducing the Compile-Time Concept</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Introducing-the-Compile-Time-Concept">§</a></h3>
+
+      <h4 id="Compile-Time-Parameters"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compile-Time-Parameters">Compile-Time Parameters</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Parameters">§</a></h4>
+
+      <p>
+      Compile-time parameters is how Zig implements generics. It is compile-time duck typing.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">compile-time_duck_typing.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) T {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (a &gt; b) a <span class="tok-kw">else</span> b;
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">gimmeTheBiggerFloat</span>(a: <span class="tok-type">f32</span>, b: <span class="tok-type">f32</span>) <span class="tok-type">f32</span> {
+    <span class="tok-kw">return</span> max(<span class="tok-type">f32</span>, a, b);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">gimmeTheBiggerInteger</span>(a: <span class="tok-type">u64</span>, b: <span class="tok-type">u64</span>) <span class="tok-type">u64</span> {
+    <span class="tok-kw">return</span> max(<span class="tok-type">u64</span>, a, b);
+}</code></pre></figure>
+
+      <p>
+      In Zig, types are first-class citizens. They can be assigned to variables, passed as parameters to functions,
+      and returned from functions. However, they can only be used in expressions which are known at <em>compile-time</em>,
+      which is why the parameter <code>T</code> in the above snippet must be marked with <code><span class="tok-kw">comptime</span></code>.
+      </p>
+      <p>
+      A <code><span class="tok-kw">comptime</span></code> parameter means that:
+      </p>
+      <ul>
+        <li>At the callsite, the value must be known at compile-time, or it is a compile error.</li>
+        <li>In the function definition, the value is known at compile-time.</li>
+      </ul>
+      <p>
+      For example, if we were to introduce another function to the above snippet:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_unresolved_comptime_value.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) T {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (a &gt; b) a <span class="tok-kw">else</span> b;
+}
+<span class="tok-kw">test</span> <span class="tok-str">"try to pass a runtime type"</span> {
+    foo(<span class="tok-null">false</span>);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(condition: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> result = max(<span class="tok-kw">if</span> (condition) <span class="tok-type">f32</span> <span class="tok-kw">else</span> <span class="tok-type">u64</span>, <span class="tok-number">1234</span>, <span class="tok-number">5678</span>);
+    _ = result;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unresolved_comptime_value.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:8:28: </span><span class="sgr-31m">error: </span><span class="sgr-1m">unable to resolve comptime value
+</span>    const result = max(if (condition) f32 else u64, 1234, 5678);
+                           <span class="sgr-32m">^~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:8:24: </span><span class="sgr-36m">note: </span><span class="sgr-1m">argument to comptime parameter must be comptime-known
+</span>    const result = max(if (condition) f32 else u64, 1234, 5678);
+                       <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:1:8: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter declared comptime here
+</span>fn max(comptime T: type, a: T, b: T) T {
+       <span class="sgr-32m">^~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    test.try to pass a runtime type: /home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:5:8
+</span>
+</samp></pre></figure>
+

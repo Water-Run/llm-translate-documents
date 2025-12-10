@@ -1,0 +1,1650 @@
+      <p>
+        A destructuring expression may only appear within a block (i.e. not at container scope).
+        The left hand side of the assignment must consist of a comma separated list,
+        each element of which may be either an lvalue (for instance, an existing `var`) or a variable declaration:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">destructuring_mixed.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+
+    <span class="tok-kw">const</span> tuple = .{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span> };
+
+    x, <span class="tok-kw">var</span> y : <span class="tok-type">u32</span>, <span class="tok-kw">const</span> z = tuple;
+
+    print(<span class="tok-str">"x = {}, y = {}, z = {}\n"</span>, .{x, y, z});
+
+    <span class="tok-comment">// y is mutable</span>
+    y = <span class="tok-number">100</span>;
+
+    <span class="tok-comment">// You can use _ to throw away unwanted values.</span>
+    _, x, _ = tuple;
+
+    print(<span class="tok-str">"x = {}"</span>, .{x});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe destructuring_mixed.zig</kbd>
+$ <kbd>./destructuring_mixed</kbd>
+x = 1, y = 2, z = 3
+x = 2
+</samp></pre></figure>
+
+      <p>
+        A destructure may be prefixed with the <code><span class="tok-kw">comptime</span></code> keyword, in which case the entire
+        destructure expression is evaluated at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>. All <code><span class="tok-kw">var</span></code>s declared would
+        be <code><span class="tok-kw">comptime</span> <span class="tok-kw">var</span></code>s and all expressions (both result locations and the assignee
+        expression) are evaluated at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>.
+      </p>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Tuples">Destructuring Tuples</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">Destructuring Arrays</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Vectors">Destructuring Vectors</a></li>
+</ul>
+
+      
+      
+      
+      <h2 id="Zig-Test"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zig-Test">Zig Test</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zig-Test">§</a></h2>
+
+      <p>
+        Code written within one or more <code><span class="tok-kw">test</span></code> declarations can be used to ensure behavior meets expectations:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_introduction.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"expect addOne adds one to 41"</span> {
+
+    <span class="tok-comment">// The Standard Library contains useful functions to help create tests.</span>
+    <span class="tok-comment">// `expect` is a function that verifies its argument is true.</span>
+    <span class="tok-comment">// It will return an error if its argument is false to indicate a failure.</span>
+    <span class="tok-comment">// `try` is used to return an error to the test runner to notify it that the test failed.</span>
+    <span class="tok-kw">try</span> std.testing.expect(addOne(<span class="tok-number">41</span>) == <span class="tok-number">42</span>);
+}
+
+<span class="tok-kw">test</span> addOne {
+    <span class="tok-comment">// A test name can also be written using an identifier.</span>
+    <span class="tok-comment">// This is a doctest, and serves as documentation for `addOne`.</span>
+    <span class="tok-kw">try</span> std.testing.expect(addOne(<span class="tok-number">41</span>) == <span class="tok-number">42</span>);
+}
+
+<span class="tok-comment">/// The function `addOne` adds one to the number given as its argument.</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">addOne</span>(number: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> number + <span class="tok-number">1</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test testing_introduction.zig</kbd>
+1/2 testing_introduction.test.expect addOne adds one to 41...OK
+2/2 testing_introduction.decltest.addOne...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+        The <code class="file">testing_introduction.zig</code> code sample tests the <a href="https://ziglang.org/documentation/0.15.2/#Functions">function</a>
+        <code>addOne</code> to ensure that it returns <code><span class="tok-number">42</span></code> given the input
+        <code><span class="tok-number">41</span></code>. From this test's perspective, the <code>addOne</code> function is
+        said to be <em>code under test</em>.
+      </p>
+      <p>
+        <kbd>zig test</kbd> is a tool that creates and runs a test build. By default, it builds and runs an
+        executable program using the <em>default test runner</em> provided by the <a href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">Zig Standard Library</a>
+        as its main entry point. During the build, <code><span class="tok-kw">test</span></code> declarations found while
+        <a href="https://ziglang.org/documentation/0.15.2/#File-and-Declaration-Discovery">resolving</a> the given Zig source file are included for the default test runner
+        to run and report on.
+      </p>
+      <aside>
+        This documentation discusses the features of the default test runner as provided by the Zig Standard Library.
+        Its source code is located in <code class="file">lib/compiler/test_runner.zig</code>.
+      </aside>
+      <p>
+        The shell output shown above displays two lines after the <kbd>zig test</kbd> command. These lines are
+        printed to standard error by the default test runner:
+      </p>
+      <dl>
+        <dt><samp>1/2 testing_introduction.test.expect addOne adds one to 41...</samp></dt>
+        <dd>Lines like this indicate which test, out of the total number of tests, is being run.
+          In this case, <samp>1/2</samp> indicates that the first test, out of a total of two tests,
+          is being run. Note that, when the test runner program's standard error is output
+          to the terminal, these lines are cleared when a test succeeds.
+        </dd>
+        <dt><samp>2/2 testing_introduction.decltest.addOne...</samp></dt>
+        <dd>When the test name is an identifier, the default test runner uses the text
+          decltest instead of test.
+        </dd>
+        <dt><samp>All 2 tests passed.</samp></dt>
+        <dd>This line indicates the total number of tests that have passed.</dd>
+      </dl>
+      <h3 id="Test-Declarations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Test-Declarations">Test Declarations</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Test-Declarations">§</a></h3>
+
+      <p>
+        Test declarations contain the <a href="https://ziglang.org/documentation/0.15.2/#Keyword-Reference">keyword</a> <code><span class="tok-kw">test</span></code>, followed by an
+        optional name written as a <a href="https://ziglang.org/documentation/0.15.2/#String-Literals-and-Unicode-Code-Point-Literals">string literal</a> or an
+        <a href="https://ziglang.org/documentation/0.15.2/#Identifiers">identifier</a>, followed by a <a href="https://ziglang.org/documentation/0.15.2/#Blocks">block</a> containing any valid Zig code that
+        is allowed in a <a href="https://ziglang.org/documentation/0.15.2/#Functions">function</a>.
+      </p>
+      <p>Non-named test blocks always run during test builds and are exempt from
+        <a href="https://ziglang.org/documentation/0.15.2/#Skip-Tests">Skip Tests</a>.</p>
+      <p>
+        Test declarations are similar to <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a>: they have a return type and a block of code. The implicit
+        return type of <code><span class="tok-kw">test</span></code> is the <a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a> <code><span class="tok-type">anyerror</span>!<span class="tok-type">void</span></code>,
+        and it cannot be changed. When a Zig source file is not built using the <kbd>zig test</kbd> tool, the test
+        declarations are omitted from the build.
+      </p>
+      <p>
+        Test declarations can be written in the same file, where code under test is written, or in a separate Zig source file.
+        Since test declarations are top-level declarations, they are order-independent and can
+        be written before or after the code under test.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#The-Global-Error-Set">The Global Error Set</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Grammar">Grammar</a></li>
+</ul>
+
+      <h4 id="Doctests"><a href="https://ziglang.org/documentation/0.15.2/#toc-Doctests">Doctests</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Doctests">§</a></h4>
+
+      <p>
+        Test declarations named using an identifier are <em>doctests</em>. The identifier must refer to another declaration in
+        scope. A doctest, like a <a href="https://ziglang.org/documentation/0.15.2/#Doc-Comments">doc comment</a>, serves as documentation for the associated declaration, and
+        will appear in the generated documentation for the declaration.
+      </p>
+      <p>
+        An effective doctest should be self-contained and focused on the declaration being tested, answering questions a new
+        user might have about its interface or intended usage, while avoiding unnecessary or confusing details. A doctest is not
+        a substitute for a doc comment, but rather a supplement and companion providing a testable, code-driven example, verified
+        by <kbd>zig test</kbd>.
+      </p>
+      
+      
+      <h3 id="Test-Failure"><a href="https://ziglang.org/documentation/0.15.2/#toc-Test-Failure">Test Failure</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Test-Failure">§</a></h3>
+
+      <p>
+        The default test runner checks for an <a href="https://ziglang.org/documentation/0.15.2/#Errors">error</a> returned from a test.
+        When a test returns an error, the test is considered a failure and its <a href="https://ziglang.org/documentation/0.15.2/#Error-Return-Traces">error return trace</a>
+        is output to standard error. The total number of failures will be reported after all tests have run.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_failure.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"expect this to fail"</span> {
+    <span class="tok-kw">try</span> std.testing.expect(<span class="tok-null">false</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"expect this to succeed"</span> {
+    <span class="tok-kw">try</span> std.testing.expect(<span class="tok-null">true</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test testing_failure.zig</kbd>
+1/2 testing_failure.test.expect this to fail...FAIL (TestUnexpectedResult)
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/testing.zig:607:14</span>: <span class="sgr-2m">0x102f019 in expect (std.zig)</span>
+    if (!ok) return error.TestUnexpectedResult;
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/testing_failure.zig:4:5</span>: <span class="sgr-2m">0x102f078 in test.expect this to fail (testing_failure.zig)</span>
+    try std.testing.expect(false);
+    <span class="sgr-32m">^</span>
+2/2 testing_failure.test.expect this to succeed...OK
+1 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+/home/andy/dev/zig/.zig-cache/o/bac0cff07a7d3f5b652a5a9cf02e6de1/test --seed=0x7a2fdb1
+</samp></pre></figure>
+
+      
+      <h3 id="Skip-Tests"><a href="https://ziglang.org/documentation/0.15.2/#toc-Skip-Tests">Skip Tests</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Skip-Tests">§</a></h3>
+
+      <p>
+        One way to skip tests is to filter them out by using the <kbd>zig test</kbd> command line parameter
+        <kbd>--test-filter [text]</kbd>. This makes the test build only include tests whose name contains the
+        supplied filter text. Note that non-named tests are run even when using the <kbd>--test-filter [text]</kbd>
+        command line parameter.
+      </p>
+      <p>
+        To programmatically skip a test, make a <code><span class="tok-kw">test</span></code> return the error
+        <code><span class="tok-kw">error</span>.SkipZigTest</code> and the default test runner will consider the test as being skipped.
+        The total number of skipped tests will be reported after all tests have run.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_skip.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"this will be skipped"</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SkipZigTest;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test testing_skip.zig</kbd>
+1/1 testing_skip.test.this will be skipped...SKIP
+0 passed; 1 skipped; 0 failed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Report-Memory-Leaks"><a href="https://ziglang.org/documentation/0.15.2/#toc-Report-Memory-Leaks">Report Memory Leaks</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Report-Memory-Leaks">§</a></h3>
+
+      <p>
+        When code allocates <a href="https://ziglang.org/documentation/0.15.2/#Memory">Memory</a> using the <a href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">Zig Standard Library</a>'s testing allocator,
+        <code>std.testing.allocator</code>, the default test runner will report any leaks that are
+        found from using the testing allocator:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_detect_leak.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"detect leak"</span> {
+    <span class="tok-kw">var</span> list = std.array_list.Managed(<span class="tok-type">u21</span>).init(std.testing.allocator);
+    <span class="tok-comment">// missing `defer list.deinit();`</span>
+    <span class="tok-kw">try</span> list.append(<span class="tok-str">'☔'</span>);
+
+    <span class="tok-kw">try</span> std.testing.expect(list.items.len == <span class="tok-number">1</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test testing_detect_leak.zig</kbd>
+1/1 testing_detect_leak.test.detect leak...OK
+[gpa] (err): memory address 0x7f74a8aa0000 leaked:
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/array_list.zig:468:67</span>: <span class="sgr-2m">0x10aa8fe in ensureTotalCapacityPrecise (std.zig)</span>
+                const new_memory = try self.allocator.alignedAlloc(T, alignment, new_capacity);
+                                                                  <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/array_list.zig:444:51</span>: <span class="sgr-2m">0x107c9e4 in ensureTotalCapacity (std.zig)</span>
+            return self.ensureTotalCapacityPrecise(better_capacity);
+                                                  <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/array_list.zig:494:41</span>: <span class="sgr-2m">0x105590d in addOne (std.zig)</span>
+            try self.ensureTotalCapacity(newlen);
+                                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/array_list.zig:252:49</span>: <span class="sgr-2m">0x1038771 in append (std.zig)</span>
+            const new_item_ptr = try self.addOne();
+                                                <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/testing_detect_leak.zig:6:20</span>: <span class="sgr-2m">0x10350a9 in test.detect leak (testing_detect_leak.zig)</span>
+    try list.append('☔');
+                   <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x1174760 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1170d81 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x116ab1d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x116a3b1 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+
+All 1 tests passed.
+1 errors were logged.
+1 tests leaked memory.
+error: the following test command failed with exit code 1:
+/home/andy/dev/zig/.zig-cache/o/4df377b3969e36bf7e0b2704790b75be/test --seed=0xabc34e97
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#defer">defer</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Memory">Memory</a></li>
+</ul>
+
+      
+      <h3 id="Detecting-Test-Build"><a href="https://ziglang.org/documentation/0.15.2/#toc-Detecting-Test-Build">Detecting Test Build</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Detecting-Test-Build">§</a></h3>
+
+      <p>
+        Use the <a href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">compile variable</a> <code><span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>).is_test</code>
+        to detect a test build:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_detect_test.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"builtin.is_test"</span> {
+    <span class="tok-kw">try</span> expect(isATest());
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">isATest</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> builtin.is_test;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test testing_detect_test.zig</kbd>
+1/1 testing_detect_test.test.builtin.is_test...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="Test-Output-and-Logging"><a href="https://ziglang.org/documentation/0.15.2/#toc-Test-Output-and-Logging">Test Output and Logging</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Test-Output-and-Logging">§</a></h3>
+
+      <p>
+        The default test runner and the Zig Standard Library's testing namespace output messages to standard error.
+      </p>
+      
+      <h3 id="The-Testing-Namespace"><a href="https://ziglang.org/documentation/0.15.2/#toc-The-Testing-Namespace">The Testing Namespace</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#The-Testing-Namespace">§</a></h3>
+
+      <p>
+        The Zig Standard Library's <code>testing</code> namespace contains useful functions to help
+        you create tests. In addition to the <code>expect</code> function, this document uses a couple of more functions
+        as exemplified here:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_namespace.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"expectEqual demo"</span> {
+    <span class="tok-kw">const</span> expected: <span class="tok-type">i32</span> = <span class="tok-number">42</span>;
+    <span class="tok-kw">const</span> actual = <span class="tok-number">42</span>;
+
+    <span class="tok-comment">// The first argument to `expectEqual` is the known, expected, result.</span>
+    <span class="tok-comment">// The second argument is the result of some expression.</span>
+    <span class="tok-comment">// The actual's type is casted to the type of expected.</span>
+    <span class="tok-kw">try</span> std.testing.expectEqual(expected, actual);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"expectError demo"</span> {
+    <span class="tok-kw">const</span> expected_error = <span class="tok-kw">error</span>.DemoError;
+    <span class="tok-kw">const</span> actual_error_union: <span class="tok-type">anyerror</span>!<span class="tok-type">void</span> = <span class="tok-kw">error</span>.DemoError;
+
+    <span class="tok-comment">// `expectError` will fail when the actual error is different than</span>
+    <span class="tok-comment">// the expected error.</span>
+    <span class="tok-kw">try</span> std.testing.expectError(expected_error, actual_error_union);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test testing_namespace.zig</kbd>
+1/2 testing_namespace.test.expectEqual demo...OK
+2/2 testing_namespace.test.expectError demo...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>The Zig Standard Library also contains functions to compare <a href="https://ziglang.org/documentation/0.15.2/#Slices">Slices</a>, strings, and more. See the rest of the
+        <code>std.testing</code> namespace in the <a href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">Zig Standard Library</a> for more available functions.</p>
+      
+      <h3 id="Test-Tool-Documentation"><a href="https://ziglang.org/documentation/0.15.2/#toc-Test-Tool-Documentation">Test Tool Documentation</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Test-Tool-Documentation">§</a></h3>
+
+      <p>
+        <kbd>zig test</kbd> has a few command line parameters which affect the compilation.
+        See <kbd>zig test --help</kbd> for a full list.
+      </p>
+      
+      
+
+      <h2 id="Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Variables">Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Variables">§</a></h2>
+
+      <p>
+      A variable is a unit of <a href="https://ziglang.org/documentation/0.15.2/#Memory">Memory</a> storage.
+      </p>
+      <p>
+      It is generally preferable to use <code><span class="tok-kw">const</span></code> rather than
+      <code><span class="tok-kw">var</span></code> when declaring a variable. This causes less work for both
+      humans and computers to do when reading code, and creates more optimization opportunities.
+      </p>
+      <p>
+      The <code><span class="tok-kw">extern</span></code> keyword or <a href="https://ziglang.org/documentation/0.15.2/#extern">@extern</a> builtin function can be used to link against a variable that is exported
+      from another object. The <code><span class="tok-kw">export</span></code> keyword or <a href="https://ziglang.org/documentation/0.15.2/#export">@export</a> builtin function
+      can be used to make a variable available to other objects at link time. In both cases,
+      the type of the variable must be C ABI compatible.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Exporting-a-C-Library">Exporting a C Library</a></li>
+</ul>
+
+
+      <h3 id="Identifiers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Identifiers">Identifiers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Identifiers">§</a></h3>
+
+      <p>
+      Variable identifiers are never allowed to shadow identifiers from an outer scope.
+      </p>
+      <p>
+      Identifiers must start with an alphabetic character or underscore and may be followed
+      by any number of alphanumeric characters or underscores.
+      They must not overlap with any keywords. See <a href="https://ziglang.org/documentation/0.15.2/#Keyword-Reference">Keyword Reference</a>.
+      </p>
+      <p>
+      If a name that does not fit these requirements is needed, such as for linking with external libraries, the <code>@""</code> syntax may be used.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">identifiers.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> @"identifier with spaces in it" = <span class="tok-number">0xff</span>;
+<span class="tok-kw">const</span> @"1SmallStep4Man" = <span class="tok-number">112358</span>;
+
+<span class="tok-kw">const</span> c = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).c;
+<span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-str">"c"</span> <span class="tok-kw">fn</span> <span class="tok-fn">@"error"</span>() <span class="tok-type">void</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-str">"c"</span> <span class="tok-kw">fn</span> <span class="tok-fn">@"fstat$INODE64"</span>(fd: c.fd_t, buf: *c.Stat) <span class="tok-type">c_int</span>;
+
+<span class="tok-kw">const</span> Color = <span class="tok-kw">enum</span> {
+    red,
+    @"really red",
+};
+<span class="tok-kw">const</span> color: Color = .@"really red";</code></pre></figure>
+
+      
+
+      <h3 id="Container-Level-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Container-Level-Variables">Container Level Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Container-Level-Variables">§</a></h3>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Containers">Container</a> level variables have static lifetime and are order-independent and lazily analyzed.
+      The initialization value of container level variables is implicitly
+      <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>. If a container level variable is <code><span class="tok-kw">const</span></code> then its value is
+      <code><span class="tok-kw">comptime</span></code>-known, otherwise it is runtime-known.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_container_level_variables.zig</cite></figcaption><pre><code><span class="tok-kw">var</span> y: <span class="tok-type">i32</span> = add(<span class="tok-number">10</span>, x);
+<span class="tok-kw">const</span> x: <span class="tok-type">i32</span> = add(<span class="tok-number">12</span>, <span class="tok-number">34</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"container level variables"</span> {
+    <span class="tok-kw">try</span> expect(x == <span class="tok-number">46</span>);
+    <span class="tok-kw">try</span> expect(y == <span class="tok-number">56</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> a + b;
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_container_level_variables.zig</kbd>
+1/1 test_container_level_variables.test.container level variables...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Container level variables may be declared inside a <a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a>, <a href="https://ziglang.org/documentation/0.15.2/#union">union</a>, <a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a>, or <a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_namespaced_container_level_variable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"namespaced container level variable"</span> {
+    <span class="tok-kw">try</span> expect(foo() == <span class="tok-number">1235</span>);
+    <span class="tok-kw">try</span> expect(foo() == <span class="tok-number">1236</span>);
+}
+
+<span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">i32</span> {
+    S.x += <span class="tok-number">1</span>;
+    <span class="tok-kw">return</span> S.x;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_namespaced_container_level_variable.zig</kbd>
+1/1 test_namespaced_container_level_variable.test.namespaced container level variable...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Static-Local-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Static-Local-Variables">Static Local Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Static-Local-Variables">§</a></h3>
+
+      <p>
+        It is also possible to have local variables with static lifetime by using containers inside functions.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_static_local_variable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"static local variable"</span> {
+    <span class="tok-kw">try</span> expect(foo() == <span class="tok-number">1235</span>);
+    <span class="tok-kw">try</span> expect(foo() == <span class="tok-number">1236</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">i32</span> {
+    <span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> {
+        <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    };
+    S.x += <span class="tok-number">1</span>;
+    <span class="tok-kw">return</span> S.x;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_static_local_variable.zig</kbd>
+1/1 test_static_local_variable.test.static local variable...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Thread-Local-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Thread-Local-Variables">Thread Local Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Thread-Local-Variables">§</a></h3>
+
+      <p>A variable may be specified to be a thread-local variable using the
+      <code><span class="tok-kw">threadlocal</span></code> keyword,
+      which makes each thread work with a separate instance of the variable:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_thread_local_variables.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> assert = std.debug.assert;
+
+<span class="tok-kw">threadlocal</span> <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"thread local storage"</span> {
+    <span class="tok-kw">const</span> thread1 = <span class="tok-kw">try</span> std.Thread.spawn(.{}, testTls, .{});
+    <span class="tok-kw">const</span> thread2 = <span class="tok-kw">try</span> std.Thread.spawn(.{}, testTls, .{});
+    testTls();
+    thread1.join();
+    thread2.join();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">testTls</span>() <span class="tok-type">void</span> {
+    assert(x == <span class="tok-number">1234</span>);
+    x += <span class="tok-number">1</span>;
+    assert(x == <span class="tok-number">1235</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_thread_local_variables.zig</kbd>
+1/1 test_thread_local_variables.test.thread local storage...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      For <a href="https://ziglang.org/documentation/0.15.2/#Single-Threaded-Builds">Single Threaded Builds</a>, all thread local variables are treated as regular <a href="https://ziglang.org/documentation/0.15.2/#Container-Level-Variables">Container Level Variables</a>.
+      </p>
+      <p>
+      Thread local variables may not be <code><span class="tok-kw">const</span></code>.
+      </p>
+      
+
+      <h3 id="Local-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Local-Variables">Local Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Local-Variables">§</a></h3>
+
+      <p>
+      Local variables occur inside <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a>, <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> blocks, and <a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a> blocks.
+      </p>
+      <p>
+      When a local variable is <code><span class="tok-kw">const</span></code>, it means that after initialization, the variable's
+      value will not change. If the initialization value of a <code><span class="tok-kw">const</span></code> variable is
+      <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known, then the variable is also <code><span class="tok-kw">comptime</span></code>-known.
+      </p>
+      <p>
+      A local variable may be qualified with the <code><span class="tok-kw">comptime</span></code> keyword. This causes
+      the variable's value to be <code><span class="tok-kw">comptime</span></code>-known, and all loads and stores of the
+      variable to happen during semantic analysis of the program, rather than at runtime.
+      All variables declared in a <code><span class="tok-kw">comptime</span></code> expression are implicitly
+      <code><span class="tok-kw">comptime</span></code> variables.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_variables.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"comptime vars"</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> y: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+
+    x += <span class="tok-number">1</span>;
+    y += <span class="tok-number">1</span>;
+
+    <span class="tok-kw">try</span> expect(x == <span class="tok-number">2</span>);
+    <span class="tok-kw">try</span> expect(y == <span class="tok-number">2</span>);
+
+    <span class="tok-kw">if</span> (y != <span class="tok-number">2</span>) {
+        <span class="tok-comment">// This compile error never triggers because y is a comptime variable,</span>
+        <span class="tok-comment">// and so `y != 2` is a comptime value, and this if is statically evaluated.</span>
+        <span class="tok-builtin">@compileError</span>(<span class="tok-str">"wrong y value"</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_variables.zig</kbd>
+1/1 test_comptime_variables.test.comptime vars...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="Integers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Integers">Integers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Integers">§</a></h2>
+
+      <h3 id="Integer-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Integer-Literals">Integer Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Integer-Literals">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">integer_literals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> decimal_int = <span class="tok-number">98222</span>;
+<span class="tok-kw">const</span> hex_int = <span class="tok-number">0xff</span>;
+<span class="tok-kw">const</span> another_hex_int = <span class="tok-number">0xFF</span>;
+<span class="tok-kw">const</span> octal_int = <span class="tok-number">0o755</span>;
+<span class="tok-kw">const</span> binary_int = <span class="tok-number">0b11110000</span>;
+
+<span class="tok-comment">// underscores may be placed between two digits as a visual separator</span>
+<span class="tok-kw">const</span> one_billion = <span class="tok-number">1_000_000_000</span>;
+<span class="tok-kw">const</span> binary_mask = <span class="tok-number">0b1_1111_1111</span>;
+<span class="tok-kw">const</span> permissions = <span class="tok-number">0o7_5_5</span>;
+<span class="tok-kw">const</span> big_address = <span class="tok-number">0xFF80_0000_0000_0000</span>;</code></pre></figure>
+
+      
+      <h3 id="Runtime-Integer-Values"><a href="https://ziglang.org/documentation/0.15.2/#toc-Runtime-Integer-Values">Runtime Integer Values</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Runtime-Integer-Values">§</a></h3>
+
+      <p>
+      Integer literals have no size limitation, and if any Illegal Behavior occurs,
+      the compiler catches it.
+      </p>
+      <p>
+      However, once an integer value is no longer known at compile-time, it must have a
+      known size, and is vulnerable to safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_vs_comptime.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">divide</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> a / b;
+}</code></pre></figure>
+
+      <p>
+      In this function, values <code>a</code> and <code>b</code> are known only at runtime,
+      and thus this division operation is vulnerable to both <a href="https://ziglang.org/documentation/0.15.2/#Integer-Overflow">Integer Overflow</a> and
+      <a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a>.
+      </p>
+      <p>
+      Operators such as <code>+</code> and <code>-</code> cause <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a> on
+      integer overflow. Alternative operators are provided for wrapping and saturating arithmetic on all targets.
+      <code>+%</code> and <code>-%</code> perform wrapping arithmetic
+      while <code>+|</code> and <code>-|</code> perform saturating arithmetic.
+      </p>
+      <p>
+      Zig supports arbitrary bit-width integers, referenced by using
+      an identifier of <code>i</code> or <code>u</code> followed by digits. For example, the identifier
+      <code><span class="tok-type">i7</span></code> refers to a signed 7-bit integer. The maximum allowed bit-width of an
+      integer type is <code><span class="tok-number">65535</span></code>. For signed integer types, Zig uses a
+      <a href="https://en.wikipedia.org/wiki/Two&#39;s_complement">two's complement</a> representation.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Wrapping-Operations">Wrapping Operations</a></li>
+</ul>
+
+      
+      
+      <h2 id="Floats"><a href="https://ziglang.org/documentation/0.15.2/#toc-Floats">Floats</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Floats">§</a></h2>
+
+      <p>Zig has the following floating point types:</p>
+      <ul>
+          <li><code><span class="tok-type">f16</span></code> - IEEE-754-2008 binary16</li>
+          <li><code><span class="tok-type">f32</span></code> - IEEE-754-2008 binary32</li>
+          <li><code><span class="tok-type">f64</span></code> - IEEE-754-2008 binary64</li>
+          <li><code><span class="tok-type">f80</span></code> - IEEE-754-2008 80-bit extended precision</li>
+          <li><code><span class="tok-type">f128</span></code> - IEEE-754-2008 binary128</li>
+          <li><code><span class="tok-type">c_longdouble</span></code> - matches <code class="c">long double</code> for the target C ABI</li>
+      </ul>
+      <h3 id="Float-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Float-Literals">Float Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Float-Literals">§</a></h3>
+
+      <p>
+      Float literals have type <code><span class="tok-type">comptime_float</span></code> which is guaranteed to have
+      the same precision and operations of the largest other floating point type, which is
+      <code><span class="tok-type">f128</span></code>.
+      </p>
+      <p>
+      Float literals <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">coerce</a> to any floating point type,
+      and to any <a href="https://ziglang.org/documentation/0.15.2/#Integers">integer</a> type when there is no fractional component.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">float_literals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> floating_point = <span class="tok-number">123.0E+77</span>;
+<span class="tok-kw">const</span> another_float = <span class="tok-number">123.0</span>;
+<span class="tok-kw">const</span> yet_another = <span class="tok-number">123.0e+77</span>;
+
+<span class="tok-kw">const</span> hex_floating_point = <span class="tok-number">0x103.70p-5</span>;
+<span class="tok-kw">const</span> another_hex_float = <span class="tok-number">0x103.70</span>;
+<span class="tok-kw">const</span> yet_another_hex_float = <span class="tok-number">0x103.70P-5</span>;
+
+<span class="tok-comment">// underscores may be placed between two digits as a visual separator</span>
+<span class="tok-kw">const</span> lightspeed = <span class="tok-number">299_792_458.000_000</span>;
+<span class="tok-kw">const</span> nanosecond = <span class="tok-number">0.000_000_001</span>;
+<span class="tok-kw">const</span> more_hex = <span class="tok-number">0x1234_5678.9ABC_CDEFp-10</span>;</code></pre></figure>
+
+      <p>
+      There is no syntax for NaN, infinity, or negative infinity. For these special values,
+      one must use the standard library:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">float_special_values.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> inf = std.math.inf(<span class="tok-type">f32</span>);
+<span class="tok-kw">const</span> negative_inf = -std.math.inf(<span class="tok-type">f64</span>);
+<span class="tok-kw">const</span> nan = std.math.nan(<span class="tok-type">f128</span>);</code></pre></figure>
+
+      
+      <h3 id="Floating-Point-Operations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Floating-Point-Operations">Floating Point Operations</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">§</a></h3>
+
+      <p>By default floating point operations use <code>Strict</code> mode,
+          but you can switch to <code>Optimized</code> mode on a per-block basis:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">float_mode_obj.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> big = <span class="tok-builtin">@as</span>(<span class="tok-type">f64</span>, <span class="tok-number">1</span> &lt;&lt; <span class="tok-number">40</span>);
+
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo_strict</span>(x: <span class="tok-type">f64</span>) <span class="tok-type">f64</span> {
+    <span class="tok-kw">return</span> x + big - big;
+}
+
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo_optimized</span>(x: <span class="tok-type">f64</span>) <span class="tok-type">f64</span> {
+    <span class="tok-builtin">@setFloatMode</span>(.optimized);
+    <span class="tok-kw">return</span> x + big - big;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj float_mode_obj.zig -O ReleaseFast</kbd>
+</samp></pre></figure>
+
+      <p>For this test we have to separate code into two object files -
+      otherwise the optimizer figures out all the values at compile-time,
+      which operates in strict mode.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">float_mode_exe.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo_strict</span>(x: <span class="tok-type">f64</span>) <span class="tok-type">f64</span>;
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo_optimized</span>(x: <span class="tok-type">f64</span>) <span class="tok-type">f64</span>;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> x = <span class="tok-number">0.001</span>;
+    print(<span class="tok-str">"optimized = {}\n"</span>, .{foo_optimized(x)});
+    print(<span class="tok-str">"strict = {}\n"</span>, .{foo_strict(x)});
+}</code></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#setFloatMode">@setFloatMode</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a></li>
+</ul>
+
+      
+      
+      <h2 id="Operators"><a href="https://ziglang.org/documentation/0.15.2/#toc-Operators">Operators</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Operators">§</a></h2>
+
+      <p>
+      There is no operator overloading. When you see an operator in Zig, you know that
+      it is doing something from this table, and nothing else.
+      </p>
+      <h3 id="Table-of-Operators"><a href="https://ziglang.org/documentation/0.15.2/#toc-Table-of-Operators">Table of Operators</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Table-of-Operators">§</a></h3>
+
+      <div class="table-wrapper">
+      <table>
+        <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Syntax</th>
+          <th scope="col">Types</th>
+          <th scope="col">Remarks</th>
+          <th scope="col">Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Addition</td>
+          <td><pre><code>a + b
+a += b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">overflow</a> for integers.</li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">2</span> + <span class="tok-number">5</span> == <span class="tok-number">7</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Wrapping Addition</td>
+          <td><pre><code>a +% b
+a +%= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Twos-complement wrapping behavior.</li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">0xffffffff</span>) +% <span class="tok-number">1</span> == <span class="tok-number">0</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Saturating Addition</td>
+          <td><pre><code>a +| b
+a +|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">255</span>) +| <span class="tok-number">1</span> == <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">255</span>)</code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Subtraction</td>
+          <td><pre><code>a - b
+a -= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">overflow</a> for integers.</li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">2</span> - <span class="tok-number">5</span> == -<span class="tok-number">3</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Wrapping Subtraction</td>
+          <td><pre><code>a -% b
+a -%= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Twos-complement wrapping behavior.</li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">0</span>) -% <span class="tok-number">1</span> == <span class="tok-number">255</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Saturating Subtraction</td>
+          <td><pre><code>a -| b
+a -|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">0</span>) -| <span class="tok-number">1</span> == <span class="tok-number">0</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Negation</td>
+          <td><pre><code>-a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">overflow</a> for integers.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code>-<span class="tok-number">1</span> == <span class="tok-number">0</span> - <span class="tok-number">1</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Wrapping Negation</td>
+          <td><pre><code>-%a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Twos-complement wrapping behavior.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code>-%<span class="tok-builtin">@as</span>(<span class="tok-type">i8</span>, -<span class="tok-number">128</span>) == -<span class="tok-number">128</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Multiplication</td>
+          <td><pre><code>a * b
+a *= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">overflow</a> for integers.</li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">2</span> * <span class="tok-number">5</span> == <span class="tok-number">10</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Wrapping Multiplication</td>
+          <td><pre><code>a *% b
+a *%= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Twos-complement wrapping behavior.</li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">200</span>) *% <span class="tok-number">2</span> == <span class="tok-number">144</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Saturating Multiplication</td>
+          <td><pre><code>a *| b
+a *|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">200</span>) *| <span class="tok-number">2</span> == <span class="tok-number">255</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Division</td>
+          <td><pre><code>a / b
+a /= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">overflow</a> for integers.</li>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a> for integers.</li>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a> for floats in <a href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">FloatMode.Optimized Mode</a>.</li>
+              <li>Signed integer operands must be comptime-known and positive. In other cases, use
+                <a href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a>,
+                <a href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a>, or
+                <a href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a> instead.
+              </li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">10</span> / <span class="tok-number">5</span> == <span class="tok-number">2</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Remainder Division</td>
+          <td><pre><code>a % b
+a %= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a> for integers.</li>
+              <li>Can cause <a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a> for floats in <a href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">FloatMode.Optimized Mode</a>.</li>
+              <li>Signed or floating-point operands must be comptime-known and positive. In other cases, use
+                <a href="https://ziglang.org/documentation/0.15.2/#rem">@rem</a> or
+                <a href="https://ziglang.org/documentation/0.15.2/#mod">@mod</a> instead.
+              </li>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">10</span> % <span class="tok-number">3</span> == <span class="tok-number">1</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Bit Shift Left</td>
+          <td><pre><code>a &lt;&lt; b
+a &lt;&lt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Moves all bits to the left, inserting new zeroes at the
+              least-significant bit.</li>
+              <li><code>b</code> must be
+              <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime-known</a> or have a type with log2 number
+              of bits as <code>a</code>.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a>.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b1</span> &lt;&lt; <span class="tok-number">8</span> == <span class="tok-number">0b100000000</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Saturating Bit Shift Left</td>
+          <td><pre><code>a &lt;&lt;| b
+a &lt;&lt;|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a>.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">1</span>) &lt;&lt;| <span class="tok-number">8</span> == <span class="tok-number">255</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Bit Shift Right</td>
+          <td><pre><code>a &gt;&gt; b
+a &gt;&gt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Moves all bits to the right, inserting zeroes at the most-significant bit.</li>
+              <li><code>b</code> must be
+                <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime-known</a> or have a type with log2 number
+                of bits as <code>a</code>.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#shrExact">@shrExact</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b1010</span> &gt;&gt; <span class="tok-number">1</span> == <span class="tok-number">0b101</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Bitwise And</td>
+          <td><pre><code>a &amp; b
+a &amp;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b011</span> &amp; <span class="tok-number">0b101</span> == <span class="tok-number">0b001</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Bitwise Or</td>
+          <td><pre><code>a | b
+a |= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b010</span> | <span class="tok-number">0b100</span> == <span class="tok-number">0b110</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Bitwise Xor</td>
+          <td><pre><code>a ^ b
+a ^= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b011</span> ^ <span class="tok-number">0b101</span> == <span class="tok-number">0b110</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Bitwise Not</td>
+          <td><pre><code>~a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+            </ul>
+          </td>
+          <td></td>
+          <td>
+            <pre><code>~<span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">0b10101111</span>) == <span class="tok-number">0b01010000</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Defaulting Optional Unwrap</td>
+          <td><pre><code>a <span class="tok-kw">orelse</span> b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+            </ul>
+          </td>
+          <td>If <code>a</code> is <code><span class="tok-null">null</span></code>,
+          returns <code>b</code> ("default value"),
+          otherwise returns the unwrapped value of <code>a</code>.
+          Note that <code>b</code> may be a value of type <a href="https://ziglang.org/documentation/0.15.2/#noreturn">noreturn</a>.
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+<span class="tok-kw">const</span> unwrapped = value <span class="tok-kw">orelse</span> <span class="tok-number">1234</span>;
+unwrapped == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Optional Unwrap</td>
+          <td><pre><code>a.?</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+            </ul>
+          </td>
+          <td>
+            Equivalent to:
+            <pre><code>a <span class="tok-kw">orelse</span> <span class="tok-kw">unreachable</span></code></pre>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-number">5678</span>;
+value.? == <span class="tok-number">5678</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Defaulting Error Unwrap</td>
+          <td><pre><code>a <span class="tok-kw">catch</span> b
+a <span class="tok-kw">catch</span> |err| b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Error Unions</a></li>
+            </ul>
+          </td>
+          <td>If <code>a</code> is an <code><span class="tok-kw">error</span></code>,
+          returns <code>b</code> ("default value"),
+          otherwise returns the unwrapped value of <code>a</code>.
+          Note that <code>b</code> may be a value of type <a href="https://ziglang.org/documentation/0.15.2/#noreturn">noreturn</a>.
+<code>err</code> is the <code><span class="tok-kw">error</span></code> and is in scope of the expression <code>b</code>.
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.Broken;
+<span class="tok-kw">const</span> unwrapped = value <span class="tok-kw">catch</span> <span class="tok-number">1234</span>;
+unwrapped == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Logical And</td>
+          <td><pre><code>a <span class="tok-kw">and</span> b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+            </ul>
+          </td>
+          <td>
+          If <code>a</code> is <code><span class="tok-null">false</span></code>, returns <code><span class="tok-null">false</span></code>
+          without evaluating <code>b</code>. Otherwise, returns <code>b</code>.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-null">false</span> <span class="tok-kw">and</span> <span class="tok-null">true</span>) == <span class="tok-null">false</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Logical Or</td>
+          <td><pre><code>a <span class="tok-kw">or</span> b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+            </ul>
+          </td>
+          <td>
+              If <code>a</code> is <code><span class="tok-null">true</span></code>,
+              returns <code><span class="tok-null">true</span></code> without evaluating
+              <code>b</code>. Otherwise, returns
+              <code>b</code>.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-null">false</span> <span class="tok-kw">or</span> <span class="tok-null">true</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Boolean Not</td>
+          <td><pre><code>!a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+            </ul>
+          </td>
+          <td></td>
+          <td>
+            <pre><code>!<span class="tok-null">false</span> == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Equality</td>
+          <td><pre><code>a == b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">type</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed struct</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">true</span></code> if a and b are equal, otherwise returns <code><span class="tok-null">false</span></code>.
+            Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> == <span class="tok-number">1</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Null Check</td>
+          <td><pre><code>a == <span class="tok-null">null</span></code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">true</span></code> if a is <code><span class="tok-null">null</span></code>, otherwise returns <code><span class="tok-null">false</span></code>.
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+(value == <span class="tok-null">null</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Inequality</td>
+          <td><pre><code>a != b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">type</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">false</span></code> if a and b are equal, otherwise returns <code><span class="tok-null">true</span></code>.
+            Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> != <span class="tok-number">1</span>) == <span class="tok-null">false</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Non-Null Check</td>
+          <td><pre><code>a != <span class="tok-null">null</span></code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">false</span></code> if a is <code><span class="tok-null">null</span></code>, otherwise returns <code><span class="tok-null">true</span></code>.
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+(value != <span class="tok-null">null</span>) == <span class="tok-null">false</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Greater Than</td>
+          <td><pre><code>a &gt; b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">true</span></code> if a is greater than b, otherwise returns <code><span class="tok-null">false</span></code>.
+            Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">2</span> &gt; <span class="tok-number">1</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Greater or Equal</td>
+          <td><pre><code>a &gt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">true</span></code> if a is greater than or equal to b, otherwise returns <code><span class="tok-null">false</span></code>.
+            Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">2</span> &gt;= <span class="tok-number">1</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Less Than</td>
+          <td><pre><code>a &lt; b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">true</span></code> if a is less than b, otherwise returns <code><span class="tok-null">false</span></code>.
+            Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> &lt; <span class="tok-number">2</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Lesser or Equal</td>
+          <td><pre><code>a &lt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+            </ul>
+          </td>
+          <td>
+              Returns <code><span class="tok-null">true</span></code> if a is less than or equal to b, otherwise returns <code><span class="tok-null">false</span></code>.
+            Invokes <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for the operands.
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> &lt;= <span class="tok-number">2</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Array Concatenation</td>
+          <td><pre><code>a ++ b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Only available when the lengths of both <code>a</code> and <code>b</code> are <a href="https://ziglang.org/documentation/0.15.2/#comptime">compile-time known</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+<span class="tok-kw">const</span> array1 = [_]<span class="tok-type">u32</span>{<span class="tok-number">1</span>,<span class="tok-number">2</span>};
+<span class="tok-kw">const</span> array2 = [_]<span class="tok-type">u32</span>{<span class="tok-number">3</span>,<span class="tok-number">4</span>};
+<span class="tok-kw">const</span> together = array1 ++ array2;
+mem.eql(<span class="tok-type">u32</span>, &amp;together, &amp;[_]<span class="tok-type">u32</span>{<span class="tok-number">1</span>,<span class="tok-number">2</span>,<span class="tok-number">3</span>,<span class="tok-number">4</span>})</code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Array Multiplication</td>
+          <td><pre><code>a ** b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>Only available when the length of <code>a</code> and <code>b</code> are <a href="https://ziglang.org/documentation/0.15.2/#comptime">compile-time known</a>.</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+<span class="tok-kw">const</span> pattern = <span class="tok-str">"ab"</span> ** <span class="tok-number">3</span>;
+mem.eql(<span class="tok-type">u8</span>, pattern, <span class="tok-str">"ababab"</span>)</code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Pointer Dereference</td>
+          <td><pre><code>a.*</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a></li>
+            </ul>
+          </td>
+          <td>
+            Pointer dereference.
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> x: <span class="tok-type">u32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> ptr = &amp;x;
+ptr.* == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Address Of</td>
+          <td><pre><code>&amp;a</code></pre></td>
+          <td>
+            All types
+          </td>
+          <td>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> x: <span class="tok-type">u32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> ptr = &amp;x;
+ptr.* == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>Error Set Merge</td>
+          <td><pre><code>a || b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">Error Set Type</a></li>
+            </ul>
+          </td>
+          <td>
+              <a href="https://ziglang.org/documentation/0.15.2/#Merging-Error-Sets">Merging Error Sets</a>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> A = <span class="tok-kw">error</span>{One};
+<span class="tok-kw">const</span> B = <span class="tok-kw">error</span>{Two};
+(A || B) == <span class="tok-kw">error</span>{One, Two}</code></pre>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+      
+      <h3 id="Precedence"><a href="https://ziglang.org/documentation/0.15.2/#toc-Precedence">Precedence</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Precedence">§</a></h3>
+
+      <pre><code>x() x[] x.y x.* x.?
+a!b
+x{}
+!x -x -%x ~x &amp;x ?x
+* / % ** *% *| ||
++ - ++ +% -% +| -|
+&lt;&lt; &gt;&gt; &lt;&lt;|
+&amp; ^ | <span class="tok-kw">orelse</span> <span class="tok-kw">catch</span>
+== != &lt; &gt; &lt;= &gt;=
+<span class="tok-kw">and</span>
+<span class="tok-kw">or</span>
+= *= *%= *|= /= %= += +%= +|= -= -%= -|= &lt;&lt;= &lt;&lt;|= &gt;&gt;= &amp;= ^= |=</code></pre>
+      
+      
+      <h2 id="Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Arrays">Arrays</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Arrays">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+<span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+<span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+
+<span class="tok-comment">// array literal</span>
+<span class="tok-kw">const</span> message = [_]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'o'</span> };
+
+<span class="tok-comment">// alternative initialization using result location</span>
+<span class="tok-kw">const</span> alt_message: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = .{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'o'</span> };
+
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, &amp;message, &amp;alt_message));
+}
+
+<span class="tok-comment">// get the size of an array</span>
+<span class="tok-kw">comptime</span> {
+    assert(message.len == <span class="tok-number">5</span>);
+}
+
+<span class="tok-comment">// A string literal is a single-item pointer to an array.</span>
+<span class="tok-kw">const</span> same_message = <span class="tok-str">"hello"</span>;
+
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, &amp;message, same_message));
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"iterate over an array"</span> {
+    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (message) |byte| {
+        sum += byte;
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-str">'h'</span> + <span class="tok-str">'e'</span> + <span class="tok-str">'l'</span> * <span class="tok-number">2</span> + <span class="tok-str">'o'</span>);
+}
+
+<span class="tok-comment">// modifiable array</span>
+<span class="tok-kw">var</span> some_integers: [<span class="tok-number">100</span>]<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"modify an array"</span> {
+    <span class="tok-kw">for</span> (&amp;some_integers, <span class="tok-number">0</span>..) |*item, i| {
+        item.* = <span class="tok-builtin">@intCast</span>(i);
+    }
+    <span class="tok-kw">try</span> expect(some_integers[<span class="tok-number">10</span>] == <span class="tok-number">10</span>);
+    <span class="tok-kw">try</span> expect(some_integers[<span class="tok-number">99</span>] == <span class="tok-number">99</span>);
+}
+
+<span class="tok-comment">// array concatenation works if the values are known</span>
+<span class="tok-comment">// at compile time</span>
+<span class="tok-kw">const</span> part_one = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+<span class="tok-kw">const</span> part_two = [_]<span class="tok-type">i32</span>{ <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span> };
+<span class="tok-kw">const</span> all_of_it = part_one ++ part_two;
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">i32</span>, &amp;all_of_it, &amp;[_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span> }));
+}
+
+<span class="tok-comment">// remember that string literals are arrays</span>
+<span class="tok-kw">const</span> hello = <span class="tok-str">"hello"</span>;
+<span class="tok-kw">const</span> world = <span class="tok-str">"world"</span>;
+<span class="tok-kw">const</span> hello_world = hello ++ <span class="tok-str">" "</span> ++ world;
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, hello_world, <span class="tok-str">"hello world"</span>));
+}
+
+<span class="tok-comment">// ** does repeating patterns</span>
+<span class="tok-kw">const</span> pattern = <span class="tok-str">"ab"</span> ** <span class="tok-number">3</span>;
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, pattern, <span class="tok-str">"ababab"</span>));
+}
+
+<span class="tok-comment">// initialize an array to zero</span>
+<span class="tok-kw">const</span> all_zero = [_]<span class="tok-type">u16</span>{<span class="tok-number">0</span>} ** <span class="tok-number">10</span>;
+
+<span class="tok-kw">comptime</span> {
+    assert(all_zero.len == <span class="tok-number">10</span>);
+    assert(all_zero[<span class="tok-number">5</span>] == <span class="tok-number">0</span>);
+}
+
+<span class="tok-comment">// use compile-time code to initialize an array</span>
+<span class="tok-kw">var</span> fancy_array = init: {
+    <span class="tok-kw">var</span> initial_value: [<span class="tok-number">10</span>]Point = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">for</span> (&amp;initial_value, <span class="tok-number">0</span>..) |*pt, i| {
+        pt.* = Point{
+            .x = <span class="tok-builtin">@intCast</span>(i),
+            .y = <span class="tok-builtin">@intCast</span>(i * <span class="tok-number">2</span>),
+        };
+    }
+    <span class="tok-kw">break</span> :init initial_value;
+};
+<span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> {
+    x: <span class="tok-type">i32</span>,
+    y: <span class="tok-type">i32</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"compile-time array initialization"</span> {
+    <span class="tok-kw">try</span> expect(fancy_array[<span class="tok-number">4</span>].x == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(fancy_array[<span class="tok-number">4</span>].y == <span class="tok-number">8</span>);
+}
+
+<span class="tok-comment">// call a function to initialize an array</span>
+<span class="tok-kw">var</span> more_points = [_]Point{makePoint(<span class="tok-number">3</span>)} ** <span class="tok-number">10</span>;
+<span class="tok-kw">fn</span> <span class="tok-fn">makePoint</span>(x: <span class="tok-type">i32</span>) Point {
+    <span class="tok-kw">return</span> Point{
+        .x = x,
+        .y = x * <span class="tok-number">2</span>,
+    };
+}
+<span class="tok-kw">test</span> <span class="tok-str">"array initialization with function calls"</span> {
+    <span class="tok-kw">try</span> expect(more_points[<span class="tok-number">4</span>].x == <span class="tok-number">3</span>);
+    <span class="tok-kw">try</span> expect(more_points[<span class="tok-number">4</span>].y == <span class="tok-number">6</span>);
+    <span class="tok-kw">try</span> expect(more_points.len == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_arrays.zig</kbd>
+1/4 test_arrays.test.iterate over an array...OK
+2/4 test_arrays.test.modify an array...OK
+3/4 test_arrays.test.compile-time array initialization...OK
+4/4 test_arrays.test.array initialization with function calls...OK
+All 4 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Slices">Slices</a></li>
+</ul>
+
+
+      <h3 id="Multidimensional-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Multidimensional-Arrays">Multidimensional Arrays</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Multidimensional-Arrays">§</a></h3>
+
+      <p>
+      Multidimensional arrays can be created by nesting arrays:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_multidimensional_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> expectEqual = std.testing.expectEqual;
+
+<span class="tok-kw">const</span> mat4x5 = [<span class="tok-number">4</span>][<span class="tok-number">5</span>]<span class="tok-type">f32</span>{
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span> },
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span> },
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span> },
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">9.9</span> },
+};
+<span class="tok-kw">test</span> <span class="tok-str">"multidimensional arrays"</span> {
+    <span class="tok-comment">// mat4x5 itself is a one-dimensional array of arrays.</span>
+    <span class="tok-kw">try</span> expectEqual(mat4x5[<span class="tok-number">1</span>], [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span> });
+
+    <span class="tok-comment">// Access the 2D array by indexing the outer array, and then the inner array.</span>
+    <span class="tok-kw">try</span> expect(mat4x5[<span class="tok-number">3</span>][<span class="tok-number">4</span>] == <span class="tok-number">9.9</span>);
+
+    <span class="tok-comment">// Here we iterate with for loops.</span>
+    <span class="tok-kw">for</span> (mat4x5, <span class="tok-number">0</span>..) |row, row_index| {
+        <span class="tok-kw">for</span> (row, <span class="tok-number">0</span>..) |cell, column_index| {
+            <span class="tok-kw">if</span> (row_index == column_index) {
+                <span class="tok-kw">try</span> expect(cell == <span class="tok-number">1.0</span>);
+            }
+        }
+    }
+
+    <span class="tok-comment">// Initialize a multidimensional array to zeros.</span>
+    <span class="tok-kw">const</span> all_zero: [<span class="tok-number">4</span>][<span class="tok-number">5</span>]<span class="tok-type">f32</span> = .{.{<span class="tok-number">0</span>} ** <span class="tok-number">5</span>} ** <span class="tok-number">4</span>;
+    <span class="tok-kw">try</span> expect(all_zero[<span class="tok-number">0</span>][<span class="tok-number">0</span>] == <span class="tok-number">0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_multidimensional_arrays.zig</kbd>
+1/1 test_multidimensional_arrays.test.multidimensional arrays...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Sentinel-Terminated-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Sentinel-Terminated-Arrays">Sentinel-Terminated Arrays</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Arrays">§</a></h3>
+
+      <p>
+      The syntax <code>[N:x]T</code> describes an array which has a sentinel element of value <code>x</code> at the
+      index corresponding to the length <code>N</code>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_null_terminated_array.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"0-terminated sentinel array"</span> {
+    <span class="tok-kw">const</span> array = [_:<span class="tok-number">0</span>]<span class="tok-type">u8</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(array) == [<span class="tok-number">4</span>:<span class="tok-number">0</span>]<span class="tok-type">u8</span>);
+    <span class="tok-kw">try</span> expect(array.len == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">4</span>] == <span class="tok-number">0</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"extra 0s in 0-terminated sentinel array"</span> {
+    <span class="tok-comment">// The sentinel value may appear earlier, but does not influence the compile-time 'len'.</span>
+    <span class="tok-kw">const</span> array = [_:<span class="tok-number">0</span>]<span class="tok-type">u8</span>{ <span class="tok-number">1</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">4</span> };
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(array) == [<span class="tok-number">4</span>:<span class="tok-number">0</span>]<span class="tok-type">u8</span>);
+    <span class="tok-kw">try</span> expect(array.len == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">4</span>] == <span class="tok-number">0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_null_terminated_array.zig</kbd>
+1/2 test_null_terminated_array.test.0-terminated sentinel array...OK
+2/2 test_null_terminated_array.test.extra 0s in 0-terminated sentinel array...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">Sentinel-Terminated Pointers</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Slices">Sentinel-Terminated Slices</a></li>
+</ul>
+
+      
+
+      <h3 id="Destructuring-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Destructuring-Arrays">Destructuring Arrays</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">§</a></h3>
+

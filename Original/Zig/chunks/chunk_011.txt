@@ -1,0 +1,1375 @@
+      <h3 id="Avoid-Redundancy-in-Names"><a href="https://ziglang.org/documentation/0.15.2/#toc-Avoid-Redundancy-in-Names">Avoid Redundancy in Names</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundancy-in-Names">§</a></h3>
+
+      <p>Avoid these words in type names:</p>
+      <ul>
+        <li>Value</li>
+        <li>Data</li>
+        <li>Context</li>
+        <li>Manager</li>
+        <li>utils, misc, or somebody's initials</li>
+      </ul>
+      <p>Everything is a value, all types are data, everything is context, all logic manages state.
+      Nothing is communicated by using a word that applies to all types.</p>
+      <p>Temptation to use "utilities", "miscellaneous", or somebody's initials
+      is a failure to categorize, or more commonly, overcategorization. Such
+      declarations can live at the root of a module that needs them with no
+      namespace needed.</p>
+      
+
+      <h3 id="Avoid-Redundant-Names-in-Fully-Qualified-Namespaces"><a href="https://ziglang.org/documentation/0.15.2/#toc-Avoid-Redundant-Names-in-Fully-Qualified-Namespaces">Avoid Redundant Names in Fully-Qualified Namespaces</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundant-Names-in-Fully-Qualified-Namespaces">§</a></h3>
+
+      <p>Every declaration is assigned a <strong>fully qualified
+      namespace</strong> by the compiler, creating a tree structure. Choose names based
+      on the fully-qualified namespace, and avoid redundant name segments.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">redundant_fqn.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> json = <span class="tok-kw">struct</span> {
+    <span class="tok-kw">pub</span> <span class="tok-kw">const</span> JsonValue = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+        number: <span class="tok-type">f64</span>,
+        boolean: <span class="tok-type">bool</span>,
+        <span class="tok-comment">// ...</span>
+    };
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    std.debug.print(<span class="tok-str">"{s}\n"</span>, .{<span class="tok-builtin">@typeName</span>(json.JsonValue)});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe redundant_fqn.zig</kbd>
+$ <kbd>./redundant_fqn</kbd>
+redundant_fqn.json.JsonValue
+</samp></pre></figure>
+
+      <p>In this example, "json" is repeated in the fully-qualified namespace. The solution
+      is to delete <code>Json</code> from <code>JsonValue</code>. In this example we have
+      an empty struct named <code>json</code> but remember that files also act
+      as part of the fully-qualified namespace.</p>
+      <p>This example is an exception to the rule specified in <a href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundancy-in-Names">Avoid Redundancy in Names</a>.
+      The meaning of the type has been reduced to its core: it is a json value. The name
+      cannot be any more specific without being incorrect.</p>
+      
+
+      <h3 id="Whitespace"><a href="https://ziglang.org/documentation/0.15.2/#toc-Whitespace">Whitespace</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Whitespace">§</a></h3>
+
+      <ul>
+        <li>
+          4 space indentation
+        </li>
+        <li>
+          Open braces on same line, unless you need to wrap.
+        </li>
+        <li>If a list of things is longer than 2, put each item on its own line and
+          exercise the ability to put an extra comma at the end.
+        </li>
+        <li>
+          Line length: aim for 100; use common sense.
+        </li>
+      </ul>
+      
+      <h3 id="Names"><a href="https://ziglang.org/documentation/0.15.2/#toc-Names">Names</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Names">§</a></h3>
+
+      <p>
+      Roughly speaking: <code>camelCaseFunctionName</code>, <code>TitleCaseTypeName</code>,
+              <code>snake_case_variable_name</code>. More precisely:
+      </p>
+      <ul>
+        <li>
+            If <code>x</code> is a <code><span class="tok-type">type</span></code>
+            then <code>x</code> should be <code>TitleCase</code>, unless it
+            is a <code><span class="tok-kw">struct</span></code> with 0 fields and is never meant to be instantiated,
+            in which case it is considered to be a "namespace" and uses <code>snake_case</code>.
+        </li>
+        <li>
+            If <code>x</code> is callable, and <code>x</code>'s return type is
+            <code><span class="tok-type">type</span></code>, then <code>x</code> should be <code>TitleCase</code>.
+        </li>
+        <li>
+            If <code>x</code> is otherwise callable, then <code>x</code> should
+            be <code>camelCase</code>.
+        </li>
+        <li>
+            Otherwise, <code>x</code> should be <code>snake_case</code>.
+        </li>
+      </ul>
+      <p>
+      Acronyms, initialisms, proper nouns, or any other word that has capitalization
+      rules in written English are subject to naming conventions just like any other
+      word. Even acronyms that are only 2 letters long are subject to these
+      conventions.
+      </p>
+      <p>
+      File names fall into two categories: types and namespaces. If the file
+      (implicitly a struct) has top level fields, it should be named like any
+      other struct with fields using <code class="file">TitleCase</code>. Otherwise,
+      it should use <code class="file">snake_case</code>. Directory names should be
+      <code class="file">snake_case</code>.
+      </p>
+      <p>
+      These are general rules of thumb; if it makes sense to do something different,
+      do what makes sense. For example, if there is an established convention such as
+      <code>ENOENT</code>, follow the established convention.
+      </p>
+      
+      <h3 id="Examples"><a href="https://ziglang.org/documentation/0.15.2/#toc-Examples">Examples</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Examples">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">style_example.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> namespace_name = <span class="tok-builtin">@import</span>(<span class="tok-str">"dir_name/file_name.zig"</span>);
+<span class="tok-kw">const</span> TypeName = <span class="tok-builtin">@import</span>(<span class="tok-str">"dir_name/TypeName.zig"</span>);
+<span class="tok-kw">var</span> global_var: <span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+<span class="tok-kw">const</span> const_name = <span class="tok-number">42</span>;
+<span class="tok-kw">const</span> primitive_type_alias = <span class="tok-type">f32</span>;
+<span class="tok-kw">const</span> string_alias = []<span class="tok-type">u8</span>;
+
+<span class="tok-kw">const</span> StructName = <span class="tok-kw">struct</span> {
+    field: <span class="tok-type">i32</span>,
+};
+<span class="tok-kw">const</span> StructAlias = StructName;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">functionName</span>(param_name: TypeName) <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> functionPointer = functionName;
+    functionPointer();
+    functionPointer = otherFunction;
+    functionPointer();
+}
+<span class="tok-kw">const</span> functionAlias = functionName;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">ListTemplateFunction</span>(<span class="tok-kw">comptime</span> ChildType: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> fixed_size: <span class="tok-type">usize</span>) <span class="tok-type">type</span> {
+    <span class="tok-kw">return</span> List(ChildType, fixed_size);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">ShortList</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> n: <span class="tok-type">usize</span>) <span class="tok-type">type</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {
+        field_name: [n]T,
+        <span class="tok-kw">fn</span> <span class="tok-fn">methodName</span>() <span class="tok-type">void</span> {}
+    };
+}
+
+<span class="tok-comment">// The word XML loses its casing when used in Zig identifiers.</span>
+<span class="tok-kw">const</span> xml_document =
+    <span class="tok-str">\\&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+    <span class="tok-str">\\&lt;document&gt;</span>
+    <span class="tok-str">\\&lt;/document&gt;</span>
+;
+<span class="tok-kw">const</span> XmlParser = <span class="tok-kw">struct</span> {
+    field: <span class="tok-type">i32</span>,
+};
+
+<span class="tok-comment">// The initials BE (Big Endian) are just another word in Zig identifier names.</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">readU32Be</span>() <span class="tok-type">u32</span> {}</code></pre></figure>
+      <p>
+      See the <a href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">Zig Standard Library</a> for more examples.
+      </p>
+      
+      <h3 id="Doc-Comment-Guidance"><a href="https://ziglang.org/documentation/0.15.2/#toc-Doc-Comment-Guidance">Doc Comment Guidance</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Doc-Comment-Guidance">§</a></h3>
+
+      <ul>
+        <li>Omit any information that is redundant based on the name of the thing being documented.</li>
+        <li>Duplicating information onto multiple similar functions is encouraged because it helps IDEs and other tools provide better help text.</li>
+        <li>Use the word <strong>assume</strong> to indicate invariants that cause <em>unchecked</em> <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a> when violated.</li>
+        <li>Use the word <strong>assert</strong> to indicate invariants that cause <em>safety-checked</em> <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a> when violated.</li>
+      </ul>
+      
+      
+      <h2 id="Source-Encoding"><a href="https://ziglang.org/documentation/0.15.2/#toc-Source-Encoding">Source Encoding</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">§</a></h2>
+
+      <p>Zig source code is encoded in UTF-8. An invalid UTF-8 byte sequence results in a compile error.</p>
+      <p>Throughout all zig source code (including in comments), some code points are never allowed:</p>
+      <ul>
+        <li>Ascii control characters, except for U+000a (LF), U+000d (CR), and U+0009 (HT): U+0000 - U+0008, U+000b - U+000c, U+000e - U+0001f, U+007f.</li>
+        <li>Non-Ascii Unicode line endings: U+0085 (NEL), U+2028 (LS), U+2029 (PS).</li>
+      </ul>
+      <p>
+      LF (byte value 0x0a, code point U+000a, <code><span class="tok-str">'\n'</span></code>) is the line terminator in Zig source code.
+      This byte value terminates every line of zig source code except the last line of the file.
+      It is recommended that non-empty source files end with an empty line, which means the last byte would be 0x0a (LF).
+      </p>
+      <p>
+      Each LF may be immediately preceded by a single CR (byte value 0x0d, code point U+000d, <code><span class="tok-str">'\r'</span></code>)
+      to form a Windows style line ending, but this is discouraged. Note that in multiline strings, CRLF sequences will
+      be encoded as LF when compiled into a zig program.
+      A CR in any other context is not allowed.
+      </p>
+      <p>
+      HT hard tabs (byte value 0x09, code point U+0009, <code><span class="tok-str">'\t'</span></code>) are interchangeable with
+      SP spaces (byte value 0x20, code point U+0020, <code><span class="tok-str">' '</span></code>) as a token separator,
+      but use of hard tabs is discouraged. See <a href="https://ziglang.org/documentation/0.15.2/#Grammar">Grammar</a>.
+      </p>
+      <p>
+      For compatibility with other tools, the compiler ignores a UTF-8-encoded byte order mark (U+FEFF)
+      if it is the first Unicode code point in the source text. A byte order mark is not allowed anywhere else in the source.
+      </p>
+      <p>
+      Note that running <kbd>zig fmt</kbd> on a source file will implement all recommendations mentioned here.
+      </p>
+      <p>
+      Note that a tool reading Zig source code can make assumptions if the source code is assumed to be correct Zig code.
+      For example, when identifying the ends of lines, a tool can use a naive search such as <code>/\n/</code>,
+      or an <a href="https://msdn.microsoft.com/en-us/library/dd409797.aspx">advanced</a>
+      search such as <code>/\r\n?|[\n\u0085\u2028\u2029]/</code>, and in either case line endings will be correctly identified.
+      For another example, when identifying the whitespace before the first token on a line,
+      a tool can either use a naive search such as <code>/[ \t]/</code>,
+      or an <a href="https://tc39.es/ecma262/#sec-characterclassescape">advanced</a> search such as <code>/\s/</code>,
+      and in either case whitespace will be correctly identified.
+      </p>
+      
+
+      <h2 id="Keyword-Reference"><a href="https://ziglang.org/documentation/0.15.2/#toc-Keyword-Reference">Keyword Reference</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Keyword-Reference">§</a></h2>
+
+      <div class="table-wrapper">
+      <table>
+        <thead>
+        <tr>
+          <th scope="col">Keyword</th>
+          <th scope="col">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">addrspace</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">addrspace</span></code> keyword.
+            <ul>
+              <li>TODO add documentation for addrspace</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">align</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">align</span></code> can be used to specify the alignment of a pointer.
+            It can also be used after a variable or function declaration to specify the alignment of pointers to that variable or function.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Alignment">Alignment</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">allowzero</span></code></pre>
+          </th>
+          <td>
+            The pointer attribute <code><span class="tok-kw">allowzero</span></code> allows a pointer to have address zero.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#allowzero">allowzero</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">and</span></code></pre>
+          </th>
+          <td>
+            The boolean operator <code><span class="tok-kw">and</span></code>.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Operators">Operators</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">anyframe</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">anyframe</span></code> can be used as a type for variables which hold pointers to function frames.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Async-Functions">Async Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">anytype</span></code></pre>
+          </th>
+          <td>
+            Function parameters can be declared with <code><span class="tok-kw">anytype</span></code> in place of the type.
+            The type will be inferred where the function is called.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Function-Parameter-Type-Inference">Function Parameter Type Inference</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">asm</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">asm</span></code> begins an inline assembly expression. This allows for directly controlling the machine code generated on compilation.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Assembly">Assembly</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">break</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">break</span></code> can be used with a block label to return a value from the block.
+            It can also be used to exit a loop before iteration completes naturally.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Blocks">Blocks</a>, <a href="https://ziglang.org/documentation/0.15.2/#while">while</a>, <a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">callconv</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">callconv</span></code> can be used to specify the calling convention in a function type.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">catch</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">catch</span></code> can be used to evaluate an expression if the expression before it evaluates to an error.
+            The expression after the <code><span class="tok-kw">catch</span></code> can optionally capture the error value.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#catch">catch</a>, <a href="https://ziglang.org/documentation/0.15.2/#Operators">Operators</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">comptime</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">comptime</span></code> before a declaration can be used to label variables or function parameters as known at compile time.
+            It can also be used to guarantee an expression is run at compile time.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">const</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">const</span></code> declares a variable that can not be modified.
+            Used as a pointer attribute, it denotes the value referenced by the pointer cannot be modified.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Variables">Variables</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">continue</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">continue</span></code> can be used in a loop to jump back to the beginning of the loop.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#while">while</a>, <a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">defer</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">defer</span></code> will execute an expression when control flow leaves the current block.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#defer">defer</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">else</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">else</span></code> can be used to provide an alternate branch for <code><span class="tok-kw">if</span></code>, <code><span class="tok-kw">switch</span></code>,
+            <code><span class="tok-kw">while</span></code>, and <code><span class="tok-kw">for</span></code> expressions.
+            <ul>
+              <li>If used after an if expression, the else branch will be executed if the test value returns false, null, or an error.</li>
+              <li>If used within a switch expression, the else branch will be executed if the test value matches no other cases.</li>
+              <li>If used after a loop expression, the else branch will be executed if the loop finishes without breaking.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#if">if</a>, <a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a>, <a href="https://ziglang.org/documentation/0.15.2/#while">while</a>, <a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">enum</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">enum</span></code> defines an enum type.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">errdefer</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">errdefer</span></code> will execute an expression when control flow leaves the current block if the function returns an error, the errdefer expression can capture the unwrapped value.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#errdefer">errdefer</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">error</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">error</span></code> defines an error type.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">export</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">export</span></code> makes a function or variable externally visible in the generated object file.
+            Exported functions default to the C calling convention.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">extern</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">extern</span></code> can be used to declare a function or variable that will be resolved at link time, when linking statically
+            or at runtime, when linking dynamically.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">fn</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">fn</span></code> declares a function.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">for</span></code></pre>
+          </th>
+          <td>
+            A <code><span class="tok-kw">for</span></code> expression can be used to iterate over the elements of a slice, array, or tuple.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">if</span></code></pre>
+          </th>
+          <td>
+            An <code><span class="tok-kw">if</span></code> expression can test boolean expressions, optional values, or error unions.
+            For optional values or error unions, the if expression can capture the unwrapped value.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#if">if</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">inline</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">inline</span></code> can be used to label a loop expression such that it will be unrolled at compile time.
+            It can also be used to force a function to be inlined at all call sites.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#inline-while">inline while</a>, <a href="https://ziglang.org/documentation/0.15.2/#inline-for">inline for</a>, <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">linksection</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">linksection</span></code> keyword can be used to specify what section the function or global variable will be put into (e.g. <code>.text</code>).
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">noalias</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">noalias</span></code> keyword.
+            <ul>
+              <li>TODO add documentation for noalias</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">noinline</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">noinline</span></code> disallows function to be inlined in all call sites.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">nosuspend</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">nosuspend</span></code> keyword can be used in front of a block, statement or expression, to mark a scope where no suspension points are reached.
+            In particular, inside a <code><span class="tok-kw">nosuspend</span></code> scope:
+            <ul>
+              <li>Using the <code><span class="tok-kw">suspend</span></code> keyword results in a compile error.</li>
+              <li>Using <code>await</code> on a function frame which hasn't completed yet results in safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.</li>
+              <li>Calling an async function may result in safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>, because it's equivalent to <code>await async some_async_fn()</code>, which contains an <code>await</code>.</li>
+            </ul>
+            Code inside a <code><span class="tok-kw">nosuspend</span></code> scope does not cause the enclosing function to become an <a href="https://ziglang.org/documentation/0.15.2/#Async-Functions">async function</a>.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Async-Functions">Async Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">opaque</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">opaque</span></code> defines an opaque type.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">or</span></code></pre>
+          </th>
+          <td>
+            The boolean operator <code><span class="tok-kw">or</span></code>.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Operators">Operators</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">orelse</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">orelse</span></code> can be used to evaluate an expression if the expression before it evaluates to null.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a>, <a href="https://ziglang.org/documentation/0.15.2/#Operators">Operators</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">packed</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">packed</span></code> keyword before a struct definition changes the struct's in-memory layout
+            to the guaranteed <code><span class="tok-kw">packed</span></code> layout.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed struct</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">pub</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">pub</span></code> in front of a top level declaration makes the declaration available
+            to reference from a different file than the one it is declared in.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#import">import</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">resume</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">resume</span></code> will continue execution of a function frame after the point the function was suspended.
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">return</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">return</span></code> exits a function with a value.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">struct</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">struct</span></code> defines a struct.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">suspend</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">suspend</span></code> will cause control flow to return to the call site or resumer of the function.
+            <code><span class="tok-kw">suspend</span></code> can also be used before a block within a function,
+            to allow the function access to its frame before control flow returns to the call site.
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">switch</span></code></pre>
+          </th>
+          <td>
+            A <code><span class="tok-kw">switch</span></code> expression can be used to test values of a common type.
+            <code><span class="tok-kw">switch</span></code> cases can capture field values of a <a href="https://ziglang.org/documentation/0.15.2/#Tagged-union">Tagged union</a>.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">test</span></code></pre>
+          </th>
+          <td>
+            The <code><span class="tok-kw">test</span></code> keyword can be used to denote a top-level block of code
+            used to make sure behavior meets expectations.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Zig-Test">Zig Test</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">threadlocal</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">threadlocal</span></code> can be used to specify a variable as thread-local.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Thread-Local-Variables">Thread Local Variables</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">try</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">try</span></code> evaluates an error union expression.
+            If it is an error, it returns from the current function with the same error.
+            Otherwise, the expression results in the unwrapped value.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#try">try</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">union</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">union</span></code> defines a union.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#union">union</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">unreachable</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">unreachable</span></code> can be used to assert that control flow will never happen upon a particular location.
+            Depending on the build mode, <code><span class="tok-kw">unreachable</span></code> may emit a panic.
+            <ul>
+              <li>Emits a panic in <code>Debug</code> and <code>ReleaseSafe</code> mode, or when using <kbd>zig test</kbd>.</li>
+              <li>Does not emit a panic in <code>ReleaseFast</code> and <code>ReleaseSmall</code> mode.</li>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#unreachable">unreachable</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">var</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">var</span></code> declares a variable that may be modified.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#Variables">Variables</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">volatile</span></code></pre>
+          </th>
+          <td>
+            <code><span class="tok-kw">volatile</span></code> can be used to denote loads or stores of a pointer have side effects.
+            It can also modify an inline assembly expression to denote it has side effects.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#volatile">volatile</a>, <a href="https://ziglang.org/documentation/0.15.2/#Assembly">Assembly</a></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <pre><code><span class="tok-kw">while</span></code></pre>
+          </th>
+          <td>
+            A <code><span class="tok-kw">while</span></code> expression can be used to repeatedly test a boolean, optional, or error union expression,
+            and cease looping when that expression evaluates to false, null, or an error, respectively.
+            <ul>
+              <li>See also <a href="https://ziglang.org/documentation/0.15.2/#while">while</a></li>
+            </ul>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+      
+
+      <h2 id="Appendix"><a href="https://ziglang.org/documentation/0.15.2/#toc-Appendix">Appendix</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Appendix">§</a></h2>
+
+      <h3 id="Containers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Containers">Containers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Containers">§</a></h3>
+
+      <p>
+      A <em>container</em> in Zig is any syntactical construct that acts as a namespace to hold <a href="https://ziglang.org/documentation/0.15.2/#Container-Level-Variables">variable</a> and <a href="https://ziglang.org/documentation/0.15.2/#Functions">function</a> declarations.
+      Containers are also type definitions which can be instantiated.
+      <a href="https://ziglang.org/documentation/0.15.2/#struct">Structs</a>, <a href="https://ziglang.org/documentation/0.15.2/#enum">enums</a>, <a href="https://ziglang.org/documentation/0.15.2/#union">unions</a>, <a href="https://ziglang.org/documentation/0.15.2/#opaque">opaques</a>, and even Zig source files themselves are containers.
+      </p>
+      <p>
+      Although containers (except Zig source files) use curly braces to surround their definition, they should not be confused with <a href="https://ziglang.org/documentation/0.15.2/#Blocks">blocks</a> or functions.
+      Containers do not contain statements.
+      </p>
+      
+
+      <h3 id="Grammar"><a href="https://ziglang.org/documentation/0.15.2/#toc-Grammar">Grammar</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Grammar">§</a></h3>
+
+      <figure><figcaption class="peg-cap"><cite class="file">grammar.y</cite></figcaption><pre><code>Root &lt;- skip container_doc_comment? ContainerMembers eof
+
+# *** Top level ***
+ContainerMembers &lt;- ContainerDeclaration* (ContainerField COMMA)* (ContainerField / ContainerDeclaration*)
+
+ContainerDeclaration &lt;- TestDecl / ComptimeDecl / doc_comment? KEYWORD_pub? Decl
+
+TestDecl &lt;- KEYWORD_test (STRINGLITERALSINGLE / IDENTIFIER)? Block
+
+ComptimeDecl &lt;- KEYWORD_comptime Block
+
+Decl
+    &lt;- (KEYWORD_export / KEYWORD_extern STRINGLITERALSINGLE? / KEYWORD_inline / KEYWORD_noinline)? FnProto (SEMICOLON / Block)
+     / (KEYWORD_export / KEYWORD_extern STRINGLITERALSINGLE?)? KEYWORD_threadlocal? GlobalVarDecl
+
+FnProto &lt;- KEYWORD_fn IDENTIFIER? LPAREN ParamDeclList RPAREN ByteAlign? AddrSpace? LinkSection? CallConv? EXCLAMATIONMARK? TypeExpr
+
+VarDeclProto &lt;- (KEYWORD_const / KEYWORD_var) IDENTIFIER (COLON TypeExpr)? ByteAlign? AddrSpace? LinkSection?
+
+GlobalVarDecl &lt;- VarDeclProto (EQUAL Expr)? SEMICOLON
+
+ContainerField &lt;- doc_comment? KEYWORD_comptime? !KEYWORD_fn (IDENTIFIER COLON)? TypeExpr ByteAlign? (EQUAL Expr)?
+
+# *** Block Level ***
+Statement
+    &lt;- KEYWORD_comptime ComptimeStatement
+     / KEYWORD_nosuspend BlockExprStatement
+     / KEYWORD_suspend BlockExprStatement
+     / KEYWORD_defer BlockExprStatement
+     / KEYWORD_errdefer Payload? BlockExprStatement
+     / IfStatement
+     / LabeledStatement
+     / SwitchExpr
+     / VarDeclExprStatement
+
+ComptimeStatement
+    &lt;- BlockExpr
+     / VarDeclExprStatement
+
+IfStatement
+    &lt;- IfPrefix BlockExpr ( KEYWORD_else Payload? Statement )?
+     / IfPrefix AssignExpr ( SEMICOLON / KEYWORD_else Payload? Statement )
+
+LabeledStatement &lt;- BlockLabel? (Block / LoopStatement)
+
+LoopStatement &lt;- KEYWORD_inline? (ForStatement / WhileStatement)
+
+ForStatement
+    &lt;- ForPrefix BlockExpr ( KEYWORD_else Statement )?
+     / ForPrefix AssignExpr ( SEMICOLON / KEYWORD_else Statement )
+
+WhileStatement
+    &lt;- WhilePrefix BlockExpr ( KEYWORD_else Payload? Statement )?
+     / WhilePrefix AssignExpr ( SEMICOLON / KEYWORD_else Payload? Statement )
+
+BlockExprStatement
+    &lt;- BlockExpr
+     / AssignExpr SEMICOLON
+
+BlockExpr &lt;- BlockLabel? Block
+
+# An expression, assignment, or any destructure, as a statement.
+VarDeclExprStatement
+    &lt;- VarDeclProto (COMMA (VarDeclProto / Expr))* EQUAL Expr SEMICOLON
+     / Expr (AssignOp Expr / (COMMA (VarDeclProto / Expr))+ EQUAL Expr)? SEMICOLON
+
+# *** Expression Level ***
+
+# An assignment or a destructure whose LHS are all lvalue expressions.
+AssignExpr &lt;- Expr (AssignOp Expr / (COMMA Expr)+ EQUAL Expr)?
+
+SingleAssignExpr &lt;- Expr (AssignOp Expr)?
+
+Expr &lt;- BoolOrExpr
+
+BoolOrExpr &lt;- BoolAndExpr (KEYWORD_or BoolAndExpr)*
+
+BoolAndExpr &lt;- CompareExpr (KEYWORD_and CompareExpr)*
+
+CompareExpr &lt;- BitwiseExpr (CompareOp BitwiseExpr)?
+
+BitwiseExpr &lt;- BitShiftExpr (BitwiseOp BitShiftExpr)*
+
+BitShiftExpr &lt;- AdditionExpr (BitShiftOp AdditionExpr)*
+
+AdditionExpr &lt;- MultiplyExpr (AdditionOp MultiplyExpr)*
+
+MultiplyExpr &lt;- PrefixExpr (MultiplyOp PrefixExpr)*
+
+PrefixExpr &lt;- PrefixOp* PrimaryExpr
+
+PrimaryExpr
+    &lt;- AsmExpr
+     / IfExpr
+     / KEYWORD_break BreakLabel? Expr?
+     / KEYWORD_comptime Expr
+     / KEYWORD_nosuspend Expr
+     / KEYWORD_continue BreakLabel?
+     / KEYWORD_resume Expr
+     / KEYWORD_return Expr?
+     / BlockLabel? LoopExpr
+     / Block
+     / CurlySuffixExpr
+
+IfExpr &lt;- IfPrefix Expr (KEYWORD_else Payload? Expr)?
+
+Block &lt;- LBRACE Statement* RBRACE
+
+LoopExpr &lt;- KEYWORD_inline? (ForExpr / WhileExpr)
+
+ForExpr &lt;- ForPrefix Expr (KEYWORD_else Expr)?
+
+WhileExpr &lt;- WhilePrefix Expr (KEYWORD_else Payload? Expr)?
+
+CurlySuffixExpr &lt;- TypeExpr InitList?
+
+InitList
+    &lt;- LBRACE FieldInit (COMMA FieldInit)* COMMA? RBRACE
+     / LBRACE Expr (COMMA Expr)* COMMA? RBRACE
+     / LBRACE RBRACE
+
+TypeExpr &lt;- PrefixTypeOp* ErrorUnionExpr
+
+ErrorUnionExpr &lt;- SuffixExpr (EXCLAMATIONMARK TypeExpr)?
+
+SuffixExpr
+    &lt;- PrimaryTypeExpr (SuffixOp / FnCallArguments)*
+
+PrimaryTypeExpr
+    &lt;- BUILTINIDENTIFIER FnCallArguments
+     / CHAR_LITERAL
+     / ContainerDecl
+     / DOT IDENTIFIER
+     / DOT InitList
+     / ErrorSetDecl
+     / FLOAT
+     / FnProto
+     / GroupedExpr
+     / LabeledTypeExpr
+     / IDENTIFIER
+     / IfTypeExpr
+     / INTEGER
+     / KEYWORD_comptime TypeExpr
+     / KEYWORD_error DOT IDENTIFIER
+     / KEYWORD_anyframe
+     / KEYWORD_unreachable
+     / STRINGLITERAL
+     / SwitchExpr
+
+ContainerDecl &lt;- (KEYWORD_extern / KEYWORD_packed)? ContainerDeclAuto
+
+ErrorSetDecl &lt;- KEYWORD_error LBRACE IdentifierList RBRACE
+
+GroupedExpr &lt;- LPAREN Expr RPAREN
+
+IfTypeExpr &lt;- IfPrefix TypeExpr (KEYWORD_else Payload? TypeExpr)?
+
+LabeledTypeExpr
+    &lt;- BlockLabel Block
+     / BlockLabel? LoopTypeExpr
+
+LoopTypeExpr &lt;- KEYWORD_inline? (ForTypeExpr / WhileTypeExpr)
+
+ForTypeExpr &lt;- ForPrefix TypeExpr (KEYWORD_else TypeExpr)?
+
+WhileTypeExpr &lt;- WhilePrefix TypeExpr (KEYWORD_else Payload? TypeExpr)?
+
+SwitchExpr &lt;- KEYWORD_switch LPAREN Expr RPAREN LBRACE SwitchProngList RBRACE
+
+# *** Assembly ***
+AsmExpr &lt;- KEYWORD_asm KEYWORD_volatile? LPAREN Expr AsmOutput? RPAREN
+
+AsmOutput &lt;- COLON AsmOutputList AsmInput?
+
+AsmOutputItem &lt;- LBRACKET IDENTIFIER RBRACKET STRINGLITERAL LPAREN (MINUSRARROW TypeExpr / IDENTIFIER) RPAREN
+
+AsmInput &lt;- COLON AsmInputList AsmClobbers?
+
+AsmInputItem &lt;- LBRACKET IDENTIFIER RBRACKET STRINGLITERAL LPAREN Expr RPAREN
+
+AsmClobbers &lt;- COLON Expr
+
+# *** Helper grammar ***
+BreakLabel &lt;- COLON IDENTIFIER
+
+BlockLabel &lt;- IDENTIFIER COLON
+
+FieldInit &lt;- DOT IDENTIFIER EQUAL Expr
+
+WhileContinueExpr &lt;- COLON LPAREN AssignExpr RPAREN
+
+LinkSection &lt;- KEYWORD_linksection LPAREN Expr RPAREN
+
+AddrSpace &lt;- KEYWORD_addrspace LPAREN Expr RPAREN
+
+# Fn specific
+CallConv &lt;- KEYWORD_callconv LPAREN Expr RPAREN
+
+ParamDecl
+    &lt;- doc_comment? (KEYWORD_noalias / KEYWORD_comptime)? (IDENTIFIER COLON)? ParamType
+     / DOT3
+
+ParamType
+    &lt;- KEYWORD_anytype
+     / TypeExpr
+
+# Control flow prefixes
+IfPrefix &lt;- KEYWORD_if LPAREN Expr RPAREN PtrPayload?
+
+WhilePrefix &lt;- KEYWORD_while LPAREN Expr RPAREN PtrPayload? WhileContinueExpr?
+
+ForPrefix &lt;- KEYWORD_for LPAREN ForArgumentsList RPAREN PtrListPayload
+
+# Payloads
+Payload &lt;- PIPE IDENTIFIER PIPE
+
+PtrPayload &lt;- PIPE ASTERISK? IDENTIFIER PIPE
+
+PtrIndexPayload &lt;- PIPE ASTERISK? IDENTIFIER (COMMA IDENTIFIER)? PIPE
+
+PtrListPayload &lt;- PIPE ASTERISK? IDENTIFIER (COMMA ASTERISK? IDENTIFIER)* COMMA? PIPE
+
+# Switch specific
+SwitchProng &lt;- KEYWORD_inline? SwitchCase EQUALRARROW PtrIndexPayload? SingleAssignExpr
+
+SwitchCase
+    &lt;- SwitchItem (COMMA SwitchItem)* COMMA?
+     / KEYWORD_else
+
+SwitchItem &lt;- Expr (DOT3 Expr)?
+
+# For specific
+ForArgumentsList &lt;- ForItem (COMMA ForItem)* COMMA?
+
+ForItem &lt;- Expr (DOT2 Expr?)?
+
+# Operators
+AssignOp
+    &lt;- ASTERISKEQUAL
+     / ASTERISKPIPEEQUAL
+     / SLASHEQUAL
+     / PERCENTEQUAL
+     / PLUSEQUAL
+     / PLUSPIPEEQUAL
+     / MINUSEQUAL
+     / MINUSPIPEEQUAL
+     / LARROW2EQUAL
+     / LARROW2PIPEEQUAL
+     / RARROW2EQUAL
+     / AMPERSANDEQUAL
+     / CARETEQUAL
+     / PIPEEQUAL
+     / ASTERISKPERCENTEQUAL
+     / PLUSPERCENTEQUAL
+     / MINUSPERCENTEQUAL
+     / EQUAL
+
+CompareOp
+    &lt;- EQUALEQUAL
+     / EXCLAMATIONMARKEQUAL
+     / LARROW
+     / RARROW
+     / LARROWEQUAL
+     / RARROWEQUAL
+
+BitwiseOp
+    &lt;- AMPERSAND
+     / CARET
+     / PIPE
+     / KEYWORD_orelse
+     / KEYWORD_catch Payload?
+
+BitShiftOp
+    &lt;- LARROW2
+     / RARROW2
+     / LARROW2PIPE
+
+AdditionOp
+    &lt;- PLUS
+     / MINUS
+     / PLUS2
+     / PLUSPERCENT
+     / MINUSPERCENT
+     / PLUSPIPE
+     / MINUSPIPE
+
+MultiplyOp
+    &lt;- PIPE2
+     / ASTERISK
+     / SLASH
+     / PERCENT
+     / ASTERISK2
+     / ASTERISKPERCENT
+     / ASTERISKPIPE
+
+PrefixOp
+    &lt;- EXCLAMATIONMARK
+     / MINUS
+     / TILDE
+     / MINUSPERCENT
+     / AMPERSAND
+     / KEYWORD_try
+
+PrefixTypeOp
+    &lt;- QUESTIONMARK
+     / KEYWORD_anyframe MINUSRARROW
+     / SliceTypeStart (ByteAlign / AddrSpace / KEYWORD_const / KEYWORD_volatile / KEYWORD_allowzero)*
+     / PtrTypeStart (AddrSpace / KEYWORD_align LPAREN Expr (COLON Expr COLON Expr)? RPAREN / KEYWORD_const / KEYWORD_volatile / KEYWORD_allowzero)*
+     / ArrayTypeStart
+
+SuffixOp
+    &lt;- LBRACKET Expr (DOT2 (Expr? (COLON Expr)?)?)? RBRACKET
+     / DOT IDENTIFIER
+     / DOTASTERISK
+     / DOTQUESTIONMARK
+
+FnCallArguments &lt;- LPAREN ExprList RPAREN
+
+# Ptr specific
+SliceTypeStart &lt;- LBRACKET (COLON Expr)? RBRACKET
+
+PtrTypeStart
+    &lt;- ASTERISK
+     / ASTERISK2
+     / LBRACKET ASTERISK (LETTERC / COLON Expr)? RBRACKET
+
+ArrayTypeStart &lt;- LBRACKET Expr (COLON Expr)? RBRACKET
+
+# ContainerDecl specific
+ContainerDeclAuto &lt;- ContainerDeclType LBRACE container_doc_comment? ContainerMembers RBRACE
+
+ContainerDeclType
+    &lt;- KEYWORD_struct (LPAREN Expr RPAREN)?
+     / KEYWORD_opaque
+     / KEYWORD_enum (LPAREN Expr RPAREN)?
+     / KEYWORD_union (LPAREN (KEYWORD_enum (LPAREN Expr RPAREN)? / Expr) RPAREN)?
+
+# Alignment
+ByteAlign &lt;- KEYWORD_align LPAREN Expr RPAREN
+
+# Lists
+IdentifierList &lt;- (doc_comment? IDENTIFIER COMMA)* (doc_comment? IDENTIFIER)?
+
+SwitchProngList &lt;- (SwitchProng COMMA)* SwitchProng?
+
+AsmOutputList &lt;- (AsmOutputItem COMMA)* AsmOutputItem?
+
+AsmInputList &lt;- (AsmInputItem COMMA)* AsmInputItem?
+
+StringList &lt;- (STRINGLITERAL COMMA)* STRINGLITERAL?
+
+ParamDeclList &lt;- (ParamDecl COMMA)* ParamDecl?
+
+ExprList &lt;- (Expr COMMA)* Expr?
+
+# *** Tokens ***
+eof &lt;- !.
+bin &lt;- [01]
+bin_ &lt;- '_'? bin
+oct &lt;- [0-7]
+oct_ &lt;- '_'? oct
+hex &lt;- [0-9a-fA-F]
+hex_ &lt;- '_'? hex
+dec &lt;- [0-9]
+dec_ &lt;- '_'? dec
+
+bin_int &lt;- bin bin_*
+oct_int &lt;- oct oct_*
+dec_int &lt;- dec dec_*
+hex_int &lt;- hex hex_*
+
+ox80_oxBF &lt;- [\200-\277]
+oxF4 &lt;- '\364'
+ox80_ox8F &lt;- [\200-\217]
+oxF1_oxF3 &lt;- [\361-\363]
+oxF0 &lt;- '\360'
+ox90_0xBF &lt;- [\220-\277]
+oxEE_oxEF &lt;- [\356-\357]
+oxED &lt;- '\355'
+ox80_ox9F &lt;- [\200-\237]
+oxE1_oxEC &lt;- [\341-\354]
+oxE0 &lt;- '\340'
+oxA0_oxBF &lt;- [\240-\277]
+oxC2_oxDF &lt;- [\302-\337]
+
+# From https://lemire.me/blog/2018/05/09/how-quickly-can-you-check-that-a-string-is-valid-unicode-utf-8/
+# First Byte      Second Byte     Third Byte      Fourth Byte
+# [0x00,0x7F]
+# [0xC2,0xDF]     [0x80,0xBF]
+#    0xE0         [0xA0,0xBF]     [0x80,0xBF]
+# [0xE1,0xEC]     [0x80,0xBF]     [0x80,0xBF]
+#    0xED         [0x80,0x9F]     [0x80,0xBF]
+# [0xEE,0xEF]     [0x80,0xBF]     [0x80,0xBF]
+#    0xF0         [0x90,0xBF]     [0x80,0xBF]     [0x80,0xBF]
+# [0xF1,0xF3]     [0x80,0xBF]     [0x80,0xBF]     [0x80,0xBF]
+#    0xF4         [0x80,0x8F]     [0x80,0xBF]     [0x80,0xBF]
+
+mb_utf8_literal &lt;-
+       oxF4      ox80_ox8F ox80_oxBF ox80_oxBF
+     / oxF1_oxF3 ox80_oxBF ox80_oxBF ox80_oxBF
+     / oxF0      ox90_0xBF ox80_oxBF ox80_oxBF
+     / oxEE_oxEF ox80_oxBF ox80_oxBF
+     / oxED      ox80_ox9F ox80_oxBF
+     / oxE1_oxEC ox80_oxBF ox80_oxBF
+     / oxE0      oxA0_oxBF ox80_oxBF
+     / oxC2_oxDF ox80_oxBF
+
+ascii_char_not_nl_slash_squote &lt;- [\000-\011\013-\046\050-\133\135-\177]
+
+char_escape
+    &lt;- "\\x" hex hex
+     / "\\u{" hex+ "}"
+     / "\\" [nr\\t'"]
+char_char
+    &lt;- mb_utf8_literal
+     / char_escape
+     / ascii_char_not_nl_slash_squote
+
+string_char
+    &lt;- char_escape
+     / [^\\"\n]
+
+container_doc_comment &lt;- ('//!' [^\n]* [ \n]* skip)+
+doc_comment &lt;- ('///' [^\n]* [ \n]* skip)+
+line_comment &lt;- '//' ![!/][^\n]* / '////' [^\n]*
+line_string &lt;- ("\\\\" [^\n]* [ \n]*)+
+skip &lt;- ([ \n] / line_comment)*
+
+CHAR_LITERAL &lt;- "'" char_char "'" skip
+FLOAT
+    &lt;- "0x" hex_int "." hex_int ([pP] [-+]? dec_int)? skip
+     /      dec_int "." dec_int ([eE] [-+]? dec_int)? skip
+     / "0x" hex_int [pP] [-+]? dec_int skip
+     /      dec_int [eE] [-+]? dec_int skip
+INTEGER
+    &lt;- "0b" bin_int skip
+     / "0o" oct_int skip
+     / "0x" hex_int skip
+     /      dec_int   skip
+STRINGLITERALSINGLE &lt;- "\"" string_char* "\"" skip
+STRINGLITERAL
+    &lt;- STRINGLITERALSINGLE
+     / (line_string                 skip)+
+IDENTIFIER
+    &lt;- !keyword [A-Za-z_] [A-Za-z0-9_]* skip
+     / "@" STRINGLITERALSINGLE
+BUILTINIDENTIFIER &lt;- "@"[A-Za-z_][A-Za-z0-9_]* skip
+
+
+AMPERSAND            &lt;- '&amp;'      ![=]      skip
+AMPERSANDEQUAL       &lt;- '&amp;='               skip
+ASTERISK             &lt;- '*'      ![*%=|]   skip
+ASTERISK2            &lt;- '**'               skip
+ASTERISKEQUAL        &lt;- '*='               skip
+ASTERISKPERCENT      &lt;- '*%'     ![=]      skip
+ASTERISKPERCENTEQUAL &lt;- '*%='              skip
+ASTERISKPIPE         &lt;- '*|'     ![=]      skip
+ASTERISKPIPEEQUAL    &lt;- '*|='              skip
+CARET                &lt;- '^'      ![=]      skip
+CARETEQUAL           &lt;- '^='               skip
+COLON                &lt;- ':'                skip
+COMMA                &lt;- ','                skip
+DOT                  &lt;- '.'      ![*.?]    skip
+DOT2                 &lt;- '..'     ![.]      skip
+DOT3                 &lt;- '...'              skip
+DOTASTERISK          &lt;- '.*'               skip
+DOTQUESTIONMARK      &lt;- '.?'               skip
+EQUAL                &lt;- '='      ![&gt;=]     skip
+EQUALEQUAL           &lt;- '=='               skip
+EQUALRARROW          &lt;- '=&gt;'               skip
+EXCLAMATIONMARK      &lt;- '!'      ![=]      skip
+EXCLAMATIONMARKEQUAL &lt;- '!='               skip
+LARROW               &lt;- '&lt;'      ![&lt;=]     skip
+LARROW2              &lt;- '&lt;&lt;'     ![=|]     skip
+LARROW2EQUAL         &lt;- '&lt;&lt;='              skip
+LARROW2PIPE          &lt;- '&lt;&lt;|'    ![=]      skip
+LARROW2PIPEEQUAL     &lt;- '&lt;&lt;|='             skip
+LARROWEQUAL          &lt;- '&lt;='               skip
+LBRACE               &lt;- '{'                skip
+LBRACKET             &lt;- '['                skip
+LPAREN               &lt;- '('                skip
+MINUS                &lt;- '-'      ![%=&gt;|]   skip
+MINUSEQUAL           &lt;- '-='               skip
+MINUSPERCENT         &lt;- '-%'     ![=]      skip
+MINUSPERCENTEQUAL    &lt;- '-%='              skip
+MINUSPIPE            &lt;- '-|'     ![=]      skip
+MINUSPIPEEQUAL       &lt;- '-|='              skip
+MINUSRARROW          &lt;- '-&gt;'               skip
+PERCENT              &lt;- '%'      ![=]      skip
+PERCENTEQUAL         &lt;- '%='               skip
+PIPE                 &lt;- '|'      ![|=]     skip
+PIPE2                &lt;- '||'               skip
+PIPEEQUAL            &lt;- '|='               skip
+PLUS                 &lt;- '+'      ![%+=|]   skip
+PLUS2                &lt;- '++'               skip
+PLUSEQUAL            &lt;- '+='               skip
+PLUSPERCENT          &lt;- '+%'     ![=]      skip
+PLUSPERCENTEQUAL     &lt;- '+%='              skip
+PLUSPIPE             &lt;- '+|'     ![=]      skip
+PLUSPIPEEQUAL        &lt;- '+|='              skip
+LETTERC              &lt;- 'c'                skip
+QUESTIONMARK         &lt;- '?'                skip
+RARROW               &lt;- '&gt;'      ![&gt;=]     skip
+RARROW2              &lt;- '&gt;&gt;'     ![=]      skip
+RARROW2EQUAL         &lt;- '&gt;&gt;='              skip
+RARROWEQUAL          &lt;- '&gt;='               skip
+RBRACE               &lt;- '}'                skip
+RBRACKET             &lt;- ']'                skip
+RPAREN               &lt;- ')'                skip
+SEMICOLON            &lt;- ';'                skip
+SLASH                &lt;- '/'      ![=]      skip
+SLASHEQUAL           &lt;- '/='               skip
+TILDE                &lt;- '~'                skip
+
+end_of_word &lt;- ![a-zA-Z0-9_] skip
+KEYWORD_addrspace   &lt;- 'addrspace'   end_of_word
+KEYWORD_align       &lt;- 'align'       end_of_word
+KEYWORD_allowzero   &lt;- 'allowzero'   end_of_word
+KEYWORD_and         &lt;- 'and'         end_of_word
+KEYWORD_anyframe    &lt;- 'anyframe'    end_of_word
+KEYWORD_anytype     &lt;- 'anytype'     end_of_word
+KEYWORD_asm         &lt;- 'asm'         end_of_word
+KEYWORD_break       &lt;- 'break'       end_of_word
+KEYWORD_callconv    &lt;- 'callconv'    end_of_word
+KEYWORD_catch       &lt;- 'catch'       end_of_word
+KEYWORD_comptime    &lt;- 'comptime'    end_of_word
+KEYWORD_const       &lt;- 'const'       end_of_word
+KEYWORD_continue    &lt;- 'continue'    end_of_word
+KEYWORD_defer       &lt;- 'defer'       end_of_word
+KEYWORD_else        &lt;- 'else'        end_of_word
+KEYWORD_enum        &lt;- 'enum'        end_of_word
+KEYWORD_errdefer    &lt;- 'errdefer'    end_of_word
+KEYWORD_error       &lt;- 'error'       end_of_word
+KEYWORD_export      &lt;- 'export'      end_of_word
+KEYWORD_extern      &lt;- 'extern'      end_of_word
+KEYWORD_fn          &lt;- 'fn'          end_of_word
+KEYWORD_for         &lt;- 'for'         end_of_word
+KEYWORD_if          &lt;- 'if'          end_of_word
+KEYWORD_inline      &lt;- 'inline'      end_of_word
+KEYWORD_noalias     &lt;- 'noalias'     end_of_word
+KEYWORD_nosuspend   &lt;- 'nosuspend'   end_of_word
+KEYWORD_noinline    &lt;- 'noinline'    end_of_word
+KEYWORD_opaque      &lt;- 'opaque'      end_of_word
+KEYWORD_or          &lt;- 'or'          end_of_word
+KEYWORD_orelse      &lt;- 'orelse'      end_of_word
+KEYWORD_packed      &lt;- 'packed'      end_of_word
+KEYWORD_pub         &lt;- 'pub'         end_of_word
+KEYWORD_resume      &lt;- 'resume'      end_of_word
+KEYWORD_return      &lt;- 'return'      end_of_word
+KEYWORD_linksection &lt;- 'linksection' end_of_word
+KEYWORD_struct      &lt;- 'struct'      end_of_word
+KEYWORD_suspend     &lt;- 'suspend'     end_of_word
+KEYWORD_switch      &lt;- 'switch'      end_of_word
+KEYWORD_test        &lt;- 'test'        end_of_word
+KEYWORD_threadlocal &lt;- 'threadlocal' end_of_word
+KEYWORD_try         &lt;- 'try'         end_of_word
+KEYWORD_union       &lt;- 'union'       end_of_word
+KEYWORD_unreachable &lt;- 'unreachable' end_of_word
+KEYWORD_var         &lt;- 'var'         end_of_word
+KEYWORD_volatile    &lt;- 'volatile'    end_of_word
+KEYWORD_while       &lt;- 'while'       end_of_word
+
+keyword &lt;- KEYWORD_addrspace / KEYWORD_align / KEYWORD_allowzero / KEYWORD_and
+         / KEYWORD_anyframe / KEYWORD_anytype / KEYWORD_asm
+         / KEYWORD_break / KEYWORD_callconv / KEYWORD_catch
+         / KEYWORD_comptime / KEYWORD_const / KEYWORD_continue / KEYWORD_defer
+         / KEYWORD_else / KEYWORD_enum / KEYWORD_errdefer / KEYWORD_error / KEYWORD_export
+         / KEYWORD_extern / KEYWORD_fn / KEYWORD_for / KEYWORD_if
+         / KEYWORD_inline / KEYWORD_noalias / KEYWORD_nosuspend / KEYWORD_noinline
+         / KEYWORD_opaque / KEYWORD_or / KEYWORD_orelse / KEYWORD_packed
+         / KEYWORD_pub / KEYWORD_resume / KEYWORD_return / KEYWORD_linksection
+         / KEYWORD_struct / KEYWORD_suspend / KEYWORD_switch / KEYWORD_test
+         / KEYWORD_threadlocal / KEYWORD_try / KEYWORD_union / KEYWORD_unreachable
+         / KEYWORD_var / KEYWORD_volatile / KEYWORD_while</code></pre></figure>
+      
+      <h3 id="Zen"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zen">Zen</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zen">§</a></h3>
+
+      <ul>
+        <li>Communicate intent precisely.</li>
+        <li>Edge cases matter.</li>
+        <li>Favor reading code over writing code.</li>
+        <li>Only one obvious way to do things.</li>
+        <li>Runtime crashes are better than bugs.</li>
+        <li>Compile errors are better than runtime crashes.</li>
+        <li>Incremental improvements.</li>
+        <li>Avoid local maximums.</li>
+        <li>Reduce the amount one must remember.</li>
+        <li>Focus on code rather than style.</li>
+        <li>Resource allocation may fail; resource deallocation must succeed.</li>
+        <li>Memory is a resource.</li>
+        <li>Together we serve the users.</li>
+      </ul>
+      
+      
+      </main></div>
+    </div>
+  
+
+</body></html>

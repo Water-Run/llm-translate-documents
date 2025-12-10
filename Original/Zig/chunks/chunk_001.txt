@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)https://ziglang.org/documentation/0.15.2/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Documentation - The Zig Programming Language</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      :root{
+         --nav-width: 26em;
+         --nav-margin-l: 1em;
+      }
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+      header {
+        padding: 0 1em;
+      }
+      #contents {
+        max-width: 60em;
+        margin: auto;
+        padding: 0 1em;
+      }
+      #navigation {
+        padding: 0 1em;
+      }
+      table ul {
+        list-style-type: none;
+        padding: 0em;
+      }
+      table li {
+        padding-bottom: 1em;
+        line-height:1.2em;
+      }
+      table, th, td {
+        border-collapse: collapse;
+        border: 1px solid grey;
+      }
+      th, td {
+        padding: 0.5em;
+      }
+      th[scope=row] {
+          text-align: left;
+          font-weight: normal;
+      }
+
+      @media screen and (min-width: 1025px) {
+        header {
+          margin-left: calc(var(--nav-width) + var(--nav-margin-l));
+        }
+        header h1 {
+          margin: auto;
+          max-width: 30em;
+        }
+        #navigation {
+          overflow: auto;
+          width: var(--nav-width);
+          height: 100vh;
+          position: fixed;
+          top:0;
+          left:0;
+          bottom:0;
+          padding: unset;
+          margin-left: var(--nav-margin-l);
+        }
+        #navigation nav ul {
+          padding-left: 1em;
+        }
+        #contents-wrapper {
+          margin-left: calc(var(--nav-width) + var(--nav-margin-l));
+        }
+      }
+
+      a:hover,a:focus {
+        background: #fff2a8;
+      }
+      dt {
+        font-weight: bold;
+      }
+      .sgr-1m {
+        font-weight: bold;
+      }
+      .sgr-2m {
+        color: #575757;
+      }
+      .sgr-31_1m {
+        color: #b40000;
+      }
+      .sgr-32_1m {
+        color: green;
+      }
+      .sgr-36_1m {
+        color: #005C7A;
+      }
+      .file {
+        font-weight: bold;
+        border: unset;
+      }
+      code {
+        background: #f8f8f8;
+        border: 1px dotted silver;
+        padding-left: 0.3em;
+        padding-right: 0.3em;
+      }
+      pre > code {
+        display: block;
+        overflow: auto;
+        padding: 0.5em;
+        border: 1px solid #eee;
+        line-height: normal;
+      }
+      samp {
+        background: #fafafa;
+      }
+      pre > samp {
+        display: block;
+        overflow: auto;
+        padding: 0.5em;
+        border: 1px solid #eee;
+        line-height: normal;
+      }
+      kbd {
+        font-weight: normal;
+      }
+      .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+
+      figure {
+        margin: auto 0;
+      }
+      figure pre {
+        margin-top: 0;
+      }
+
+      figcaption {
+        padding-left: 0.5em;
+        font-size: small;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      figcaption.zig-cap {
+        background: #fcdba5;
+      }
+      figcaption.c-cap {
+        background: #a8b9cc;
+        color: #000;
+      }
+      figcaption.peg-cap {
+        background: #fcdba5;
+      }
+      figcaption.javascript-cap {
+        background: #365d95;
+        color: #fff;
+      }
+      figcaption.shell-cap {
+        background: #ccc;
+        color: #000;
+      }
+
+      aside {
+        border-left: 0.25em solid #f7a41d;
+        padding: 0 1em 0 1em;
+      }
+
+      h1 a, h2 a, h3 a, h4 a, h5 a {
+        text-decoration: none;
+        color: #333;
+      }
+
+      a.hdr {
+        visibility: hidden;
+      }
+      h1:hover > a.hdr, h2:hover > a.hdr, h3:hover > a.hdr, h4:hover > a.hdr, h5:hover > a.hdr {
+        visibility: visible;
+      }
+
+      th pre code {
+          background: none;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#121212;
+            color: #ccc;
+        }
+        a {
+            color: #88f;
+        }
+        a:hover,a:focus {
+            color: #000;
+        }
+        table, th, td {
+            border-color: grey;
+        }
+        .sgr-2m {
+            color: grey;
+        }
+        .sgr-31_1m {
+            color: red;
+        }
+        .sgr-32_1m {
+            color: #00B800;
+        }
+        .sgr-36_1m {
+            color: #0086b3;
+        }
+        code {
+          background: #222;
+          border-color: #444;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        samp {
+          background: #000;
+          color: #ccc;
+        }
+        pre > samp {
+          border: unset;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+        h1 a, h2 a, h3 a, h4 a, h5 a {
+            color: #aaa;
+        }
+        figcaption.zig-cap {
+            background-color: #b27306;
+            color: #000;
+        }
+        figcaption.peg-cap {
+            background-color: #b27306;
+            color: #000;
+        }
+        figcaption.shell-cap {
+          background: #2a2a2a;
+          color: #fff;
+        }
+      }
+    </style>
+</head>
+<body>
+  <header><h1>Zig Language Reference</h1></header>
+  <div id="main-wrapper">
+      <div id="navigation">
+        <nav aria-labelledby="zig-version">
+          <h2 id="zig-version">Zig Version</h2>
+          <a href="https://ziglang.org/documentation/0.1.1/">0.1.1</a> |
+<a href="https://ziglang.org/documentation/0.2.0/">0.2.0</a> |
+<a href="https://ziglang.org/documentation/0.3.0/">0.3.0</a> |
+<a href="https://ziglang.org/documentation/0.4.0/">0.4.0</a> |
+<a href="https://ziglang.org/documentation/0.5.0/">0.5.0</a> |
+<a href="https://ziglang.org/documentation/0.6.0/">0.6.0</a> |
+<a href="https://ziglang.org/documentation/0.7.1/">0.7.1</a> |
+<a href="https://ziglang.org/documentation/0.8.1/">0.8.1</a> |
+<a href="https://ziglang.org/documentation/0.9.1/">0.9.1</a> |
+<a href="https://ziglang.org/documentation/0.10.1/">0.10.1</a> |
+<a href="https://ziglang.org/documentation/0.11.0/">0.11.0</a> |
+<a href="https://ziglang.org/documentation/0.12.1/">0.12.1</a> |
+<a href="https://ziglang.org/documentation/0.13.0/">0.13.0</a> |
+<a href="https://ziglang.org/documentation/0.14.1/">0.14.1</a> |
+0.15.2 |
+<a href="https://ziglang.org/documentation/master/">master</a>
+        </nav>
+        <nav aria-labelledby="table-of-contents">
+          <h2 id="table-of-contents">Table of Contents</h2>
+          
+
+    <ul>
+        <li><a id="toc-Introduction" href="https://ziglang.org/documentation/0.15.2/#Introduction">Introduction</a></li>
+        <li><a id="toc-Zig-Standard-Library" href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">Zig Standard Library</a></li>
+        <li><a id="toc-Hello-World" href="https://ziglang.org/documentation/0.15.2/#Hello-World">Hello World</a></li>
+        <li><a id="toc-Comments" href="https://ziglang.org/documentation/0.15.2/#Comments">Comments</a>
+        <ul>
+            <li><a id="toc-Doc-Comments" href="https://ziglang.org/documentation/0.15.2/#Doc-Comments">Doc Comments</a></li>
+            <li><a id="toc-Top-Level-Doc-Comments" href="https://ziglang.org/documentation/0.15.2/#Top-Level-Doc-Comments">Top-Level Doc Comments</a></li>
+        </ul></li>
+        <li><a id="toc-Values" href="https://ziglang.org/documentation/0.15.2/#Values">Values</a>
+        <ul>
+            <li><a id="toc-Primitive-Types" href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">Primitive Types</a></li>
+            <li><a id="toc-Primitive-Values" href="https://ziglang.org/documentation/0.15.2/#Primitive-Values">Primitive Values</a></li>
+            <li><a id="toc-String-Literals-and-Unicode-Code-Point-Literals" href="https://ziglang.org/documentation/0.15.2/#String-Literals-and-Unicode-Code-Point-Literals">String Literals and Unicode Code Point Literals</a>
+            <ul>
+                <li><a id="toc-Escape-Sequences" href="https://ziglang.org/documentation/0.15.2/#Escape-Sequences">Escape Sequences</a></li>
+                <li><a id="toc-Multiline-String-Literals" href="https://ziglang.org/documentation/0.15.2/#Multiline-String-Literals">Multiline String Literals</a></li>
+            </ul></li>
+            <li><a id="toc-Assignment" href="https://ziglang.org/documentation/0.15.2/#Assignment">Assignment</a>
+            <ul>
+                <li><a id="toc-undefined" href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a></li>
+                <li><a id="toc-Destructuring" href="https://ziglang.org/documentation/0.15.2/#Destructuring">Destructuring</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-Zig-Test" href="https://ziglang.org/documentation/0.15.2/#Zig-Test">Zig Test</a>
+        <ul>
+            <li><a id="toc-Test-Declarations" href="https://ziglang.org/documentation/0.15.2/#Test-Declarations">Test Declarations</a>
+            <ul>
+                <li><a id="toc-Doctests" href="https://ziglang.org/documentation/0.15.2/#Doctests">Doctests</a></li>
+            </ul></li>
+            <li><a id="toc-Test-Failure" href="https://ziglang.org/documentation/0.15.2/#Test-Failure">Test Failure</a></li>
+            <li><a id="toc-Skip-Tests" href="https://ziglang.org/documentation/0.15.2/#Skip-Tests">Skip Tests</a></li>
+            <li><a id="toc-Report-Memory-Leaks" href="https://ziglang.org/documentation/0.15.2/#Report-Memory-Leaks">Report Memory Leaks</a></li>
+            <li><a id="toc-Detecting-Test-Build" href="https://ziglang.org/documentation/0.15.2/#Detecting-Test-Build">Detecting Test Build</a></li>
+            <li><a id="toc-Test-Output-and-Logging" href="https://ziglang.org/documentation/0.15.2/#Test-Output-and-Logging">Test Output and Logging</a></li>
+            <li><a id="toc-The-Testing-Namespace" href="https://ziglang.org/documentation/0.15.2/#The-Testing-Namespace">The Testing Namespace</a></li>
+            <li><a id="toc-Test-Tool-Documentation" href="https://ziglang.org/documentation/0.15.2/#Test-Tool-Documentation">Test Tool Documentation</a></li>
+        </ul></li>
+        <li><a id="toc-Variables" href="https://ziglang.org/documentation/0.15.2/#Variables">Variables</a>
+        <ul>
+            <li><a id="toc-Identifiers" href="https://ziglang.org/documentation/0.15.2/#Identifiers">Identifiers</a></li>
+            <li><a id="toc-Container-Level-Variables" href="https://ziglang.org/documentation/0.15.2/#Container-Level-Variables">Container Level Variables</a></li>
+            <li><a id="toc-Static-Local-Variables" href="https://ziglang.org/documentation/0.15.2/#Static-Local-Variables">Static Local Variables</a></li>
+            <li><a id="toc-Thread-Local-Variables" href="https://ziglang.org/documentation/0.15.2/#Thread-Local-Variables">Thread Local Variables</a></li>
+            <li><a id="toc-Local-Variables" href="https://ziglang.org/documentation/0.15.2/#Local-Variables">Local Variables</a></li>
+        </ul></li>
+        <li><a id="toc-Integers" href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a>
+        <ul>
+            <li><a id="toc-Integer-Literals" href="https://ziglang.org/documentation/0.15.2/#Integer-Literals">Integer Literals</a></li>
+            <li><a id="toc-Runtime-Integer-Values" href="https://ziglang.org/documentation/0.15.2/#Runtime-Integer-Values">Runtime Integer Values</a></li>
+        </ul></li>
+        <li><a id="toc-Floats" href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a>
+        <ul>
+            <li><a id="toc-Float-Literals" href="https://ziglang.org/documentation/0.15.2/#Float-Literals">Float Literals</a></li>
+            <li><a id="toc-Floating-Point-Operations" href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">Floating Point Operations</a></li>
+        </ul></li>
+        <li><a id="toc-Operators" href="https://ziglang.org/documentation/0.15.2/#Operators">Operators</a>
+        <ul>
+            <li><a id="toc-Table-of-Operators" href="https://ziglang.org/documentation/0.15.2/#Table-of-Operators">Table of Operators</a></li>
+            <li><a id="toc-Precedence" href="https://ziglang.org/documentation/0.15.2/#Precedence">Precedence</a></li>
+        </ul></li>
+        <li><a id="toc-Arrays" href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a>
+        <ul>
+            <li><a id="toc-Multidimensional-Arrays" href="https://ziglang.org/documentation/0.15.2/#Multidimensional-Arrays">Multidimensional Arrays</a></li>
+            <li><a id="toc-Sentinel-Terminated-Arrays" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Arrays">Sentinel-Terminated Arrays</a></li>
+            <li><a id="toc-Destructuring-Arrays" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">Destructuring Arrays</a></li>
+        </ul></li>
+        <li><a id="toc-Vectors" href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a>
+        <ul>
+            <li><a id="toc-Destructuring-Vectors" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Vectors">Destructuring Vectors</a></li>
+        </ul></li>
+        <li><a id="toc-Pointers" href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a>
+        <ul>
+            <li><a id="toc-volatile" href="https://ziglang.org/documentation/0.15.2/#volatile">volatile</a></li>
+            <li><a id="toc-Alignment" href="https://ziglang.org/documentation/0.15.2/#Alignment">Alignment</a></li>
+            <li><a id="toc-allowzero" href="https://ziglang.org/documentation/0.15.2/#allowzero">allowzero</a></li>
+            <li><a id="toc-Sentinel-Terminated-Pointers" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">Sentinel-Terminated Pointers</a></li>
+        </ul></li>
+        <li><a id="toc-Slices" href="https://ziglang.org/documentation/0.15.2/#Slices">Slices</a>
+        <ul>
+            <li><a id="toc-Sentinel-Terminated-Slices" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Slices">Sentinel-Terminated Slices</a></li>
+        </ul></li>
+        <li><a id="toc-struct" href="https://ziglang.org/documentation/0.15.2/#struct">struct</a>
+        <ul>
+            <li><a id="toc-Default-Field-Values" href="https://ziglang.org/documentation/0.15.2/#Default-Field-Values">Default Field Values</a>
+            <ul>
+                <li><a id="toc-Faulty-Default-Field-Values" href="https://ziglang.org/documentation/0.15.2/#Faulty-Default-Field-Values">Faulty Default Field Values</a></li>
+            </ul></li>
+            <li><a id="toc-extern-struct" href="https://ziglang.org/documentation/0.15.2/#extern-struct">extern struct</a></li>
+            <li><a id="toc-packed-struct" href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed struct</a></li>
+            <li><a id="toc-Struct-Naming" href="https://ziglang.org/documentation/0.15.2/#Struct-Naming">Struct Naming</a></li>
+            <li><a id="toc-Anonymous-Struct-Literals" href="https://ziglang.org/documentation/0.15.2/#Anonymous-Struct-Literals">Anonymous Struct Literals</a></li>
+            <li><a id="toc-Tuples" href="https://ziglang.org/documentation/0.15.2/#Tuples">Tuples</a>
+            <ul>
+                <li><a id="toc-Destructuring-Tuples" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Tuples">Destructuring Tuples</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-enum" href="https://ziglang.org/documentation/0.15.2/#enum">enum</a>
+        <ul>
+            <li><a id="toc-extern-enum" href="https://ziglang.org/documentation/0.15.2/#extern-enum">extern enum</a></li>
+            <li><a id="toc-Enum-Literals" href="https://ziglang.org/documentation/0.15.2/#Enum-Literals">Enum Literals</a></li>
+            <li><a id="toc-Non-exhaustive-enum" href="https://ziglang.org/documentation/0.15.2/#Non-exhaustive-enum">Non-exhaustive enum</a></li>
+        </ul></li>
+        <li><a id="toc-union" href="https://ziglang.org/documentation/0.15.2/#union">union</a>
+        <ul>
+            <li><a id="toc-Tagged-union" href="https://ziglang.org/documentation/0.15.2/#Tagged-union">Tagged union</a></li>
+            <li><a id="toc-extern-union" href="https://ziglang.org/documentation/0.15.2/#extern-union">extern union</a></li>
+            <li><a id="toc-packed-union" href="https://ziglang.org/documentation/0.15.2/#packed-union">packed union</a></li>
+            <li><a id="toc-Anonymous-Union-Literals" href="https://ziglang.org/documentation/0.15.2/#Anonymous-Union-Literals">Anonymous Union Literals</a></li>
+        </ul></li>
+        <li><a id="toc-opaque" href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a></li>
+        <li><a id="toc-Blocks" href="https://ziglang.org/documentation/0.15.2/#Blocks">Blocks</a>
+        <ul>
+            <li><a id="toc-Shadowing" href="https://ziglang.org/documentation/0.15.2/#Shadowing">Shadowing</a></li>
+            <li><a id="toc-Empty-Blocks" href="https://ziglang.org/documentation/0.15.2/#Empty-Blocks">Empty Blocks</a></li>
+        </ul></li>
+        <li><a id="toc-switch" href="https://ziglang.org/documentation/0.15.2/#switch">switch</a>
+        <ul>
+            <li><a id="toc-Exhaustive-Switching" href="https://ziglang.org/documentation/0.15.2/#Exhaustive-Switching">Exhaustive Switching</a></li>
+            <li><a id="toc-Switching-with-Enum-Literals" href="https://ziglang.org/documentation/0.15.2/#Switching-with-Enum-Literals">Switching with Enum Literals</a></li>
+            <li><a id="toc-Labeled-switch" href="https://ziglang.org/documentation/0.15.2/#Labeled-switch">Labeled switch</a></li>
+            <li><a id="toc-Inline-Switch-Prongs" href="https://ziglang.org/documentation/0.15.2/#Inline-Switch-Prongs">Inline Switch Prongs</a></li>
+        </ul></li>
+        <li><a id="toc-while" href="https://ziglang.org/documentation/0.15.2/#while">while</a>
+        <ul>
+            <li><a id="toc-Labeled-while" href="https://ziglang.org/documentation/0.15.2/#Labeled-while">Labeled while</a></li>
+            <li><a id="toc-while-with-Optionals" href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">while with Optionals</a></li>
+            <li><a id="toc-while-with-Error-Unions" href="https://ziglang.org/documentation/0.15.2/#while-with-Error-Unions">while with Error Unions</a></li>
+            <li><a id="toc-inline-while" href="https://ziglang.org/documentation/0.15.2/#inline-while">inline while</a></li>
+        </ul></li>
+        <li><a id="toc-for" href="https://ziglang.org/documentation/0.15.2/#for">for</a>
+        <ul>
+            <li><a id="toc-Labeled-for" href="https://ziglang.org/documentation/0.15.2/#Labeled-for">Labeled for</a></li>
+            <li><a id="toc-inline-for" href="https://ziglang.org/documentation/0.15.2/#inline-for">inline for</a></li>
+        </ul></li>
+        <li><a id="toc-if" href="https://ziglang.org/documentation/0.15.2/#if">if</a>
+        <ul>
+            <li><a id="toc-if-with-Optionals" href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">if with Optionals</a></li>
+        </ul></li>
+        <li><a id="toc-defer" href="https://ziglang.org/documentation/0.15.2/#defer">defer</a></li>
+        <li><a id="toc-unreachable" href="https://ziglang.org/documentation/0.15.2/#unreachable">unreachable</a>
+        <ul>
+            <li><a id="toc-Basics" href="https://ziglang.org/documentation/0.15.2/#Basics">Basics</a></li>
+            <li><a id="toc-At-Compile-Time" href="https://ziglang.org/documentation/0.15.2/#At-Compile-Time">At Compile-Time</a></li>
+        </ul></li>
+        <li><a id="toc-noreturn" href="https://ziglang.org/documentation/0.15.2/#noreturn">noreturn</a></li>
+        <li><a id="toc-Functions" href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a>
+        <ul>
+            <li><a id="toc-Pass-by-value-Parameters" href="https://ziglang.org/documentation/0.15.2/#Pass-by-value-Parameters">Pass-by-value Parameters</a></li>
+            <li><a id="toc-Function-Parameter-Type-Inference" href="https://ziglang.org/documentation/0.15.2/#Function-Parameter-Type-Inference">Function Parameter Type Inference</a></li>
+            <li><a id="toc-inline-fn" href="https://ziglang.org/documentation/0.15.2/#inline-fn">inline fn</a></li>
+            <li><a id="toc-Function-Reflection" href="https://ziglang.org/documentation/0.15.2/#Function-Reflection">Function Reflection</a></li>
+        </ul></li>
+        <li><a id="toc-Errors" href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a>
+        <ul>
+            <li><a id="toc-Error-Set-Type" href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">Error Set Type</a>
+            <ul>
+                <li><a id="toc-The-Global-Error-Set" href="https://ziglang.org/documentation/0.15.2/#The-Global-Error-Set">The Global Error Set</a></li>
+            </ul></li>
+            <li><a id="toc-Error-Union-Type" href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a>
+            <ul>
+                <li><a id="toc-catch" href="https://ziglang.org/documentation/0.15.2/#catch">catch</a></li>
+                <li><a id="toc-try" href="https://ziglang.org/documentation/0.15.2/#try">try</a></li>
+                <li><a id="toc-errdefer" href="https://ziglang.org/documentation/0.15.2/#errdefer">errdefer</a></li>
+                <li><a id="toc-Merging-Error-Sets" href="https://ziglang.org/documentation/0.15.2/#Merging-Error-Sets">Merging Error Sets</a></li>
+                <li><a id="toc-Inferred-Error-Sets" href="https://ziglang.org/documentation/0.15.2/#Inferred-Error-Sets">Inferred Error Sets</a></li>
+            </ul></li>
+            <li><a id="toc-Error-Return-Traces" href="https://ziglang.org/documentation/0.15.2/#Error-Return-Traces">Error Return Traces</a>
+            <ul>
+                <li><a id="toc-Implementation-Details" href="https://ziglang.org/documentation/0.15.2/#Implementation-Details">Implementation Details</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-Optionals" href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a>
+        <ul>
+            <li><a id="toc-Optional-Type" href="https://ziglang.org/documentation/0.15.2/#Optional-Type">Optional Type</a></li>
+            <li><a id="toc-null" href="https://ziglang.org/documentation/0.15.2/#null">null</a></li>
+            <li><a id="toc-Optional-Pointers" href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">Optional Pointers</a></li>
+        </ul></li>
+        <li><a id="toc-Casting" href="https://ziglang.org/documentation/0.15.2/#Casting">Casting</a>
+        <ul>
+            <li><a id="toc-Type-Coercion" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">Type Coercion</a>
+            <ul>
+                <li><a id="toc-Type-Coercion-Stricter-Qualification" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Stricter-Qualification">Type Coercion: Stricter Qualification</a></li>
+                <li><a id="toc-Type-Coercion-Integer-and-Float-Widening" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Integer-and-Float-Widening">Type Coercion: Integer and Float Widening</a></li>
+                <li><a id="toc-Type-Coercion-Float-to-Int" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Float-to-Int">Type Coercion: Float to Int</a></li>
+                <li><a id="toc-Type-Coercion-Slices-Arrays-and-Pointers" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Slices-Arrays-and-Pointers">Type Coercion: Slices, Arrays and Pointers</a></li>
+                <li><a id="toc-Type-Coercion-Optionals" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Optionals">Type Coercion: Optionals</a></li>
+                <li><a id="toc-Type-Coercion-Error-Unions" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Error-Unions">Type Coercion: Error Unions</a></li>
+                <li><a id="toc-Type-Coercion-Compile-Time-Known-Numbers" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Compile-Time-Known-Numbers">Type Coercion: Compile-Time Known Numbers</a></li>
+                <li><a id="toc-Type-Coercion-Unions-and-Enums" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Unions-and-Enums">Type Coercion: Unions and Enums</a></li>
+                <li><a id="toc-Type-Coercion-undefined" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-undefined">Type Coercion: undefined</a></li>
+                <li><a id="toc-Type-Coercion-Tuples-to-Arrays" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Tuples-to-Arrays">Type Coercion: Tuples to Arrays</a></li>
+            </ul></li>
+            <li><a id="toc-Explicit-Casts" href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">Explicit Casts</a></li>
+            <li><a id="toc-Peer-Type-Resolution" href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a></li>
+        </ul></li>
+        <li><a id="toc-Zero-Bit-Types" href="https://ziglang.org/documentation/0.15.2/#Zero-Bit-Types">Zero Bit Types</a>
+        <ul>
+            <li><a id="toc-void" href="https://ziglang.org/documentation/0.15.2/#void">void</a></li>
+        </ul></li>
+        <li><a id="toc-Result-Location-Semantics" href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">Result Location Semantics</a>
+        <ul>
+            <li><a id="toc-Result-Types" href="https://ziglang.org/documentation/0.15.2/#Result-Types">Result Types</a></li>
+            <li><a id="toc-Result-Locations" href="https://ziglang.org/documentation/0.15.2/#Result-Locations">Result Locations</a></li>
+        </ul></li>
+        <li><a id="toc-comptime" href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>
+        <ul>
+            <li><a id="toc-Introducing-the-Compile-Time-Concept" href="https://ziglang.org/documentation/0.15.2/#Introducing-the-Compile-Time-Concept">Introducing the Compile-Time Concept</a>
+            <ul>
+                <li><a id="toc-Compile-Time-Parameters" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Parameters">Compile-Time Parameters</a></li>
+                <li><a id="toc-Compile-Time-Variables" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Variables">Compile-Time Variables</a></li>
+                <li><a id="toc-Compile-Time-Expressions" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Expressions">Compile-Time Expressions</a></li>
+            </ul></li>
+            <li><a id="toc-Generic-Data-Structures" href="https://ziglang.org/documentation/0.15.2/#Generic-Data-Structures">Generic Data Structures</a></li>
+            <li><a id="toc-Case-Study-print-in-Zig" href="https://ziglang.org/documentation/0.15.2/#Case-Study-print-in-Zig">Case Study: print in Zig</a></li>
+        </ul></li>
+        <li><a id="toc-Assembly" href="https://ziglang.org/documentation/0.15.2/#Assembly">Assembly</a>
+        <ul>
+            <li><a id="toc-Output-Constraints" href="https://ziglang.org/documentation/0.15.2/#Output-Constraints">Output Constraints</a></li>
+            <li><a id="toc-Input-Constraints" href="https://ziglang.org/documentation/0.15.2/#Input-Constraints">Input Constraints</a></li>
+            <li><a id="toc-Clobbers" href="https://ziglang.org/documentation/0.15.2/#Clobbers">Clobbers</a></li>
+            <li><a id="toc-Global-Assembly" href="https://ziglang.org/documentation/0.15.2/#Global-Assembly">Global Assembly</a></li>
+        </ul></li>
+        <li><a id="toc-Atomics" href="https://ziglang.org/documentation/0.15.2/#Atomics">Atomics</a></li>
+        <li><a id="toc-Async-Functions" href="https://ziglang.org/documentation/0.15.2/#Async-Functions">Async Functions</a></li>
+        <li><a id="toc-Builtin-Functions" href="https://ziglang.org/documentation/0.15.2/#Builtin-Functions">Builtin Functions</a>
+        <ul style="columns: 2">
+            <li><a id="toc-addrSpaceCast" href="https://ziglang.org/documentation/0.15.2/#addrSpaceCast">@addrSpaceCast</a></li>
+            <li><a id="toc-addWithOverflow" href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a></li>
+            <li><a id="toc-alignCast" href="https://ziglang.org/documentation/0.15.2/#alignCast">@alignCast</a></li>
+            <li><a id="toc-alignOf" href="https://ziglang.org/documentation/0.15.2/#alignOf">@alignOf</a></li>
+            <li><a id="toc-as" href="https://ziglang.org/documentation/0.15.2/#as">@as</a></li>
+            <li><a id="toc-atomicLoad" href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+            <li><a id="toc-atomicRmw" href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+            <li><a id="toc-atomicStore" href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+            <li><a id="toc-bitCast" href="https://ziglang.org/documentation/0.15.2/#bitCast">@bitCast</a></li>
+            <li><a id="toc-bitOffsetOf" href="https://ziglang.org/documentation/0.15.2/#bitOffsetOf">@bitOffsetOf</a></li>
+            <li><a id="toc-bitSizeOf" href="https://ziglang.org/documentation/0.15.2/#bitSizeOf">@bitSizeOf</a></li>
+            <li><a id="toc-branchHint" href="https://ziglang.org/documentation/0.15.2/#branchHint">@branchHint</a></li>
+            <li><a id="toc-breakpoint" href="https://ziglang.org/documentation/0.15.2/#breakpoint">@breakpoint</a></li>
+            <li><a id="toc-mulAdd" href="https://ziglang.org/documentation/0.15.2/#mulAdd">@mulAdd</a></li>
+            <li><a id="toc-byteSwap" href="https://ziglang.org/documentation/0.15.2/#byteSwap">@byteSwap</a></li>
+            <li><a id="toc-bitReverse" href="https://ziglang.org/documentation/0.15.2/#bitReverse">@bitReverse</a></li>
+            <li><a id="toc-offsetOf" href="https://ziglang.org/documentation/0.15.2/#offsetOf">@offsetOf</a></li>
+            <li><a id="toc-call" href="https://ziglang.org/documentation/0.15.2/#call">@call</a></li>
+            <li><a id="toc-cDefine" href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+            <li><a id="toc-cImport" href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+            <li><a id="toc-cInclude" href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+            <li><a id="toc-clz" href="https://ziglang.org/documentation/0.15.2/#clz">@clz</a></li>
+            <li><a id="toc-cmpxchgStrong" href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+            <li><a id="toc-cmpxchgWeak" href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+            <li><a id="toc-compileError" href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+            <li><a id="toc-compileLog" href="https://ziglang.org/documentation/0.15.2/#compileLog">@compileLog</a></li>
+            <li><a id="toc-constCast" href="https://ziglang.org/documentation/0.15.2/#constCast">@constCast</a></li>
+            <li><a id="toc-ctz" href="https://ziglang.org/documentation/0.15.2/#ctz">@ctz</a></li>
+            <li><a id="toc-cUndef" href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+            <li><a id="toc-cVaArg" href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a></li>
+            <li><a id="toc-cVaCopy" href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a></li>
+            <li><a id="toc-cVaEnd" href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a></li>
+            <li><a id="toc-cVaStart" href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a></li>
+            <li><a id="toc-divExact" href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a></li>
+            <li><a id="toc-divFloor" href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a></li>
+            <li><a id="toc-divTrunc" href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a></li>
+            <li><a id="toc-embedFile" href="https://ziglang.org/documentation/0.15.2/#embedFile">@embedFile</a></li>
+            <li><a id="toc-enumFromInt" href="https://ziglang.org/documentation/0.15.2/#enumFromInt">@enumFromInt</a></li>
+            <li><a id="toc-errorFromInt" href="https://ziglang.org/documentation/0.15.2/#errorFromInt">@errorFromInt</a></li>
+            <li><a id="toc-errorName" href="https://ziglang.org/documentation/0.15.2/#errorName">@errorName</a></li>
+            <li><a id="toc-errorReturnTrace" href="https://ziglang.org/documentation/0.15.2/#errorReturnTrace">@errorReturnTrace</a></li>
+            <li><a id="toc-errorCast" href="https://ziglang.org/documentation/0.15.2/#errorCast">@errorCast</a></li>
+            <li><a id="toc-export" href="https://ziglang.org/documentation/0.15.2/#export">@export</a></li>
+            <li><a id="toc-extern" href="https://ziglang.org/documentation/0.15.2/#extern">@extern</a></li>
+            <li><a id="toc-field" href="https://ziglang.org/documentation/0.15.2/#field">@field</a></li>
+            <li><a id="toc-fieldParentPtr" href="https://ziglang.org/documentation/0.15.2/#fieldParentPtr">@fieldParentPtr</a></li>
+            <li><a id="toc-FieldType" href="https://ziglang.org/documentation/0.15.2/#FieldType">@FieldType</a></li>
+            <li><a id="toc-floatCast" href="https://ziglang.org/documentation/0.15.2/#floatCast">@floatCast</a></li>
+            <li><a id="toc-floatFromInt" href="https://ziglang.org/documentation/0.15.2/#floatFromInt">@floatFromInt</a></li>
+            <li><a id="toc-frameAddress" href="https://ziglang.org/documentation/0.15.2/#frameAddress">@frameAddress</a></li>
+            <li><a id="toc-hasDecl" href="https://ziglang.org/documentation/0.15.2/#hasDecl">@hasDecl</a></li>
+            <li><a id="toc-hasField" href="https://ziglang.org/documentation/0.15.2/#hasField">@hasField</a></li>
+            <li><a id="toc-import" href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+            <li><a id="toc-inComptime" href="https://ziglang.org/documentation/0.15.2/#inComptime">@inComptime</a></li>
+            <li><a id="toc-intCast" href="https://ziglang.org/documentation/0.15.2/#intCast">@intCast</a></li>
+            <li><a id="toc-intFromBool" href="https://ziglang.org/documentation/0.15.2/#intFromBool">@intFromBool</a></li>
+            <li><a id="toc-intFromEnum" href="https://ziglang.org/documentation/0.15.2/#intFromEnum">@intFromEnum</a></li>
+            <li><a id="toc-intFromError" href="https://ziglang.org/documentation/0.15.2/#intFromError">@intFromError</a></li>
+            <li><a id="toc-intFromFloat" href="https://ziglang.org/documentation/0.15.2/#intFromFloat">@intFromFloat</a></li>
+            <li><a id="toc-intFromPtr" href="https://ziglang.org/documentation/0.15.2/#intFromPtr">@intFromPtr</a></li>
+            <li><a id="toc-max" href="https://ziglang.org/documentation/0.15.2/#max">@max</a></li>
+            <li><a id="toc-memcpy" href="https://ziglang.org/documentation/0.15.2/#memcpy">@memcpy</a></li>
+            <li><a id="toc-memset" href="https://ziglang.org/documentation/0.15.2/#memset">@memset</a></li>
+            <li><a id="toc-memmove" href="https://ziglang.org/documentation/0.15.2/#memmove">@memmove</a></li>
+            <li><a id="toc-min" href="https://ziglang.org/documentation/0.15.2/#min">@min</a></li>
+            <li><a id="toc-wasmMemorySize" href="https://ziglang.org/documentation/0.15.2/#wasmMemorySize">@wasmMemorySize</a></li>
+            <li><a id="toc-wasmMemoryGrow" href="https://ziglang.org/documentation/0.15.2/#wasmMemoryGrow">@wasmMemoryGrow</a></li>
+            <li><a id="toc-mod" href="https://ziglang.org/documentation/0.15.2/#mod">@mod</a></li>
+            <li><a id="toc-mulWithOverflow" href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a></li>
+            <li><a id="toc-panic" href="https://ziglang.org/documentation/0.15.2/#panic">@panic</a></li>
+            <li><a id="toc-popCount" href="https://ziglang.org/documentation/0.15.2/#popCount">@popCount</a></li>
+            <li><a id="toc-prefetch" href="https://ziglang.org/documentation/0.15.2/#prefetch">@prefetch</a></li>
+            <li><a id="toc-ptrCast" href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a></li>
+            <li><a id="toc-ptrFromInt" href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">@ptrFromInt</a></li>
+            <li><a id="toc-rem" href="https://ziglang.org/documentation/0.15.2/#rem">@rem</a></li>
+            <li><a id="toc-returnAddress" href="https://ziglang.org/documentation/0.15.2/#returnAddress">@returnAddress</a></li>
+            <li><a id="toc-select" href="https://ziglang.org/documentation/0.15.2/#select">@select</a></li>
+            <li><a id="toc-setEvalBranchQuota" href="https://ziglang.org/documentation/0.15.2/#setEvalBranchQuota">@setEvalBranchQuota</a></li>
+            <li><a id="toc-setFloatMode" href="https://ziglang.org/documentation/0.15.2/#setFloatMode">@setFloatMode</a></li>
+            <li><a id="toc-setRuntimeSafety" href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">@setRuntimeSafety</a></li>
+            <li><a id="toc-shlExact" href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a></li>
+            <li><a id="toc-shlWithOverflow" href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a></li>
+            <li><a id="toc-shrExact" href="https://ziglang.org/documentation/0.15.2/#shrExact">@shrExact</a></li>
+            <li><a id="toc-shuffle" href="https://ziglang.org/documentation/0.15.2/#shuffle">@shuffle</a></li>
+            <li><a id="toc-sizeOf" href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a></li>
+            <li><a id="toc-splat" href="https://ziglang.org/documentation/0.15.2/#splat">@splat</a></li>
+            <li><a id="toc-reduce" href="https://ziglang.org/documentation/0.15.2/#reduce">@reduce</a></li>
+            <li><a id="toc-src" href="https://ziglang.org/documentation/0.15.2/#src">@src</a></li>
+            <li><a id="toc-sqrt" href="https://ziglang.org/documentation/0.15.2/#sqrt">@sqrt</a></li>
+            <li><a id="toc-sin" href="https://ziglang.org/documentation/0.15.2/#sin">@sin</a></li>
+            <li><a id="toc-cos" href="https://ziglang.org/documentation/0.15.2/#cos">@cos</a></li>
+            <li><a id="toc-tan" href="https://ziglang.org/documentation/0.15.2/#tan">@tan</a></li>
+            <li><a id="toc-exp" href="https://ziglang.org/documentation/0.15.2/#exp">@exp</a></li>
+            <li><a id="toc-exp2" href="https://ziglang.org/documentation/0.15.2/#exp2">@exp2</a></li>
+            <li><a id="toc-log" href="https://ziglang.org/documentation/0.15.2/#log">@log</a></li>
+            <li><a id="toc-log2" href="https://ziglang.org/documentation/0.15.2/#log2">@log2</a></li>
+            <li><a id="toc-log10" href="https://ziglang.org/documentation/0.15.2/#log10">@log10</a></li>
+            <li><a id="toc-abs" href="https://ziglang.org/documentation/0.15.2/#abs">@abs</a></li>
+            <li><a id="toc-floor" href="https://ziglang.org/documentation/0.15.2/#floor">@floor</a></li>
+            <li><a id="toc-ceil" href="https://ziglang.org/documentation/0.15.2/#ceil">@ceil</a></li>
+            <li><a id="toc-trunc" href="https://ziglang.org/documentation/0.15.2/#trunc">@trunc</a></li>
+            <li><a id="toc-round" href="https://ziglang.org/documentation/0.15.2/#round">@round</a></li>
+            <li><a id="toc-subWithOverflow" href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a></li>
+            <li><a id="toc-tagName" href="https://ziglang.org/documentation/0.15.2/#tagName">@tagName</a></li>
+            <li><a id="toc-This" href="https://ziglang.org/documentation/0.15.2/#This">@This</a></li>
+            <li><a id="toc-trap" href="https://ziglang.org/documentation/0.15.2/#trap">@trap</a></li>
+            <li><a id="toc-truncate" href="https://ziglang.org/documentation/0.15.2/#truncate">@truncate</a></li>
+            <li><a id="toc-Type" href="https://ziglang.org/documentation/0.15.2/#Type">@Type</a></li>
+            <li><a id="toc-typeInfo" href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a></li>
+            <li><a id="toc-typeName" href="https://ziglang.org/documentation/0.15.2/#typeName">@typeName</a></li>
+            <li><a id="toc-TypeOf" href="https://ziglang.org/documentation/0.15.2/#TypeOf">@TypeOf</a></li>
+            <li><a id="toc-unionInit" href="https://ziglang.org/documentation/0.15.2/#unionInit">@unionInit</a></li>
+            <li><a id="toc-Vector" href="https://ziglang.org/documentation/0.15.2/#Vector">@Vector</a></li>
+            <li><a id="toc-volatileCast" href="https://ziglang.org/documentation/0.15.2/#volatileCast">@volatileCast</a></li>
+            <li><a id="toc-workGroupId" href="https://ziglang.org/documentation/0.15.2/#workGroupId">@workGroupId</a></li>
+            <li><a id="toc-workGroupSize" href="https://ziglang.org/documentation/0.15.2/#workGroupSize">@workGroupSize</a></li>
+            <li><a id="toc-workItemId" href="https://ziglang.org/documentation/0.15.2/#workItemId">@workItemId</a></li>
+        </ul></li>
+        <li><a id="toc-Build-Mode" href="https://ziglang.org/documentation/0.15.2/#Build-Mode">Build Mode</a>
+        <ul>
+            <li><a id="toc-Debug" href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a></li>
+            <li><a id="toc-ReleaseFast" href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a></li>
+            <li><a id="toc-ReleaseSafe" href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a></li>
+            <li><a id="toc-ReleaseSmall" href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a></li>
+        </ul></li>
+        <li><a id="toc-Single-Threaded-Builds" href="https://ziglang.org/documentation/0.15.2/#Single-Threaded-Builds">Single Threaded Builds</a></li>
+        <li><a id="toc-Illegal-Behavior" href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>
+        <ul>
+            <li><a id="toc-Reaching-Unreachable-Code" href="https://ziglang.org/documentation/0.15.2/#Reaching-Unreachable-Code">Reaching Unreachable Code</a></li>
+            <li><a id="toc-Index-out-of-Bounds" href="https://ziglang.org/documentation/0.15.2/#Index-out-of-Bounds">Index out of Bounds</a></li>
+            <li><a id="toc-Cast-Negative-Number-to-Unsigned-Integer" href="https://ziglang.org/documentation/0.15.2/#Cast-Negative-Number-to-Unsigned-Integer">Cast Negative Number to Unsigned Integer</a></li>
+            <li><a id="toc-Cast-Truncates-Data" href="https://ziglang.org/documentation/0.15.2/#Cast-Truncates-Data">Cast Truncates Data</a></li>
+            <li><a id="toc-Integer-Overflow" href="https://ziglang.org/documentation/0.15.2/#Integer-Overflow">Integer Overflow</a>
+            <ul>
+                <li><a id="toc-Default-Operations" href="https://ziglang.org/documentation/0.15.2/#Default-Operations">Default Operations</a></li>
+                <li><a id="toc-Standard-Library-Math-Functions" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Math-Functions">Standard Library Math Functions</a></li>
+                <li><a id="toc-Builtin-Overflow-Functions" href="https://ziglang.org/documentation/0.15.2/#Builtin-Overflow-Functions">Builtin Overflow Functions</a></li>
+                <li><a id="toc-Wrapping-Operations" href="https://ziglang.org/documentation/0.15.2/#Wrapping-Operations">Wrapping Operations</a></li>
+            </ul></li>
+            <li><a id="toc-Exact-Left-Shift-Overflow" href="https://ziglang.org/documentation/0.15.2/#Exact-Left-Shift-Overflow">Exact Left Shift Overflow</a></li>
+            <li><a id="toc-Exact-Right-Shift-Overflow" href="https://ziglang.org/documentation/0.15.2/#Exact-Right-Shift-Overflow">Exact Right Shift Overflow</a></li>
+            <li><a id="toc-Division-by-Zero" href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">Division by Zero</a></li>
+            <li><a id="toc-Remainder-Division-by-Zero" href="https://ziglang.org/documentation/0.15.2/#Remainder-Division-by-Zero">Remainder Division by Zero</a></li>
+            <li><a id="toc-Exact-Division-Remainder" href="https://ziglang.org/documentation/0.15.2/#Exact-Division-Remainder">Exact Division Remainder</a></li>
+            <li><a id="toc-Attempt-to-Unwrap-Null" href="https://ziglang.org/documentation/0.15.2/#Attempt-to-Unwrap-Null">Attempt to Unwrap Null</a></li>
+            <li><a id="toc-Attempt-to-Unwrap-Error" href="https://ziglang.org/documentation/0.15.2/#Attempt-to-Unwrap-Error">Attempt to Unwrap Error</a></li>
+            <li><a id="toc-Invalid-Error-Code" href="https://ziglang.org/documentation/0.15.2/#Invalid-Error-Code">Invalid Error Code</a></li>
+            <li><a id="toc-Invalid-Enum-Cast" href="https://ziglang.org/documentation/0.15.2/#Invalid-Enum-Cast">Invalid Enum Cast</a></li>
+            <li><a id="toc-Invalid-Error-Set-Cast" href="https://ziglang.org/documentation/0.15.2/#Invalid-Error-Set-Cast">Invalid Error Set Cast</a></li>
+            <li><a id="toc-Incorrect-Pointer-Alignment" href="https://ziglang.org/documentation/0.15.2/#Incorrect-Pointer-Alignment">Incorrect Pointer Alignment</a></li>
+            <li><a id="toc-Wrong-Union-Field-Access" href="https://ziglang.org/documentation/0.15.2/#Wrong-Union-Field-Access">Wrong Union Field Access</a></li>
+            <li><a id="toc-Out-of-Bounds-Float-to-Integer-Cast" href="https://ziglang.org/documentation/0.15.2/#Out-of-Bounds-Float-to-Integer-Cast">Out of Bounds Float to Integer Cast</a></li>
+            <li><a id="toc-Pointer-Cast-Invalid-Null" href="https://ziglang.org/documentation/0.15.2/#Pointer-Cast-Invalid-Null">Pointer Cast Invalid Null</a></li>
+        </ul></li>
+        <li><a id="toc-Memory" href="https://ziglang.org/documentation/0.15.2/#Memory">Memory</a>
+        <ul>
+            <li><a id="toc-Choosing-an-Allocator" href="https://ziglang.org/documentation/0.15.2/#Choosing-an-Allocator">Choosing an Allocator</a></li>
+            <li><a id="toc-Where-are-the-bytes" href="https://ziglang.org/documentation/0.15.2/#Where-are-the-bytes">Where are the bytes?</a></li>
+            <li><a id="toc-Heap-Allocation-Failure" href="https://ziglang.org/documentation/0.15.2/#Heap-Allocation-Failure">Heap Allocation Failure</a></li>
+            <li><a id="toc-Recursion" href="https://ziglang.org/documentation/0.15.2/#Recursion">Recursion</a></li>
+            <li><a id="toc-Lifetime-and-Ownership" href="https://ziglang.org/documentation/0.15.2/#Lifetime-and-Ownership">Lifetime and Ownership</a></li>
+        </ul></li>
+        <li><a id="toc-Compile-Variables" href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">Compile Variables</a></li>
+        <li><a id="toc-Compilation-Model" href="https://ziglang.org/documentation/0.15.2/#Compilation-Model">Compilation Model</a>
+        <ul>
+            <li><a id="toc-Source-File-Structs" href="https://ziglang.org/documentation/0.15.2/#Source-File-Structs">Source File Structs</a></li>
+            <li><a id="toc-File-and-Declaration-Discovery" href="https://ziglang.org/documentation/0.15.2/#File-and-Declaration-Discovery">File and Declaration Discovery</a></li>
+            <li><a id="toc-Special-Root-Declarations" href="https://ziglang.org/documentation/0.15.2/#Special-Root-Declarations">Special Root Declarations</a>
+            <ul>
+                <li><a id="toc-Entry-Point" href="https://ziglang.org/documentation/0.15.2/#Entry-Point">Entry Point</a></li>
+                <li><a id="toc-Standard-Library-Options" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Options">Standard Library Options</a></li>
+                <li><a id="toc-Panic-Handler" href="https://ziglang.org/documentation/0.15.2/#Panic-Handler">Panic Handler</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-Zig-Build-System" href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">Zig Build System</a></li>
+        <li><a id="toc-C" href="https://ziglang.org/documentation/0.15.2/#C">C</a>
+        <ul>
+            <li><a id="toc-C-Type-Primitives" href="https://ziglang.org/documentation/0.15.2/#C-Type-Primitives">C Type Primitives</a></li>
+            <li><a id="toc-Import-from-C-Header-File" href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">Import from C Header File</a></li>
+            <li><a id="toc-C-Translation-CLI" href="https://ziglang.org/documentation/0.15.2/#C-Translation-CLI">C Translation CLI</a>
+            <ul>
+                <li><a id="toc-Command-line-flags" href="https://ziglang.org/documentation/0.15.2/#Command-line-flags">Command line flags</a></li>
+                <li><a id="toc-Using--target-and--cflags" href="https://ziglang.org/documentation/0.15.2/#Using--target-and--cflags">Using -target and -cflags</a></li>
+                <li><a id="toc-cImport-vs-translate-c" href="https://ziglang.org/documentation/0.15.2/#cImport-vs-translate-c">@cImport vs translate-c</a></li>
+            </ul></li>
+            <li><a id="toc-C-Translation-Caching" href="https://ziglang.org/documentation/0.15.2/#C-Translation-Caching">C Translation Caching</a></li>
+            <li><a id="toc-Translation-failures" href="https://ziglang.org/documentation/0.15.2/#Translation-failures">Translation failures</a></li>
+            <li><a id="toc-C-Macros" href="https://ziglang.org/documentation/0.15.2/#C-Macros">C Macros</a></li>
+            <li><a id="toc-C-Pointers" href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C Pointers</a></li>
+            <li><a id="toc-C-Variadic-Functions" href="https://ziglang.org/documentation/0.15.2/#C-Variadic-Functions">C Variadic Functions</a></li>
+            <li><a id="toc-Exporting-a-C-Library" href="https://ziglang.org/documentation/0.15.2/#Exporting-a-C-Library">Exporting a C Library</a></li>
+            <li><a id="toc-Mixing-Object-Files" href="https://ziglang.org/documentation/0.15.2/#Mixing-Object-Files">Mixing Object Files</a></li>
+        </ul></li>
+        <li><a id="toc-WebAssembly" href="https://ziglang.org/documentation/0.15.2/#WebAssembly">WebAssembly</a>
+        <ul>
+            <li><a id="toc-Freestanding" href="https://ziglang.org/documentation/0.15.2/#Freestanding">Freestanding</a></li>
+            <li><a id="toc-WASI" href="https://ziglang.org/documentation/0.15.2/#WASI">WASI</a></li>
+        </ul></li>
+        <li><a id="toc-Targets" href="https://ziglang.org/documentation/0.15.2/#Targets">Targets</a></li>
+        <li><a id="toc-Style-Guide" href="https://ziglang.org/documentation/0.15.2/#Style-Guide">Style Guide</a>
+        <ul>
+            <li><a id="toc-Avoid-Redundancy-in-Names" href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundancy-in-Names">Avoid Redundancy in Names</a></li>
+            <li><a id="toc-Avoid-Redundant-Names-in-Fully-Qualified-Namespaces" href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundant-Names-in-Fully-Qualified-Namespaces">Avoid Redundant Names in Fully-Qualified Namespaces</a></li>
+            <li><a id="toc-Whitespace" href="https://ziglang.org/documentation/0.15.2/#Whitespace">Whitespace</a></li>
+            <li><a id="toc-Names" href="https://ziglang.org/documentation/0.15.2/#Names">Names</a></li>
+            <li><a id="toc-Examples" href="https://ziglang.org/documentation/0.15.2/#Examples">Examples</a></li>
+            <li><a id="toc-Doc-Comment-Guidance" href="https://ziglang.org/documentation/0.15.2/#Doc-Comment-Guidance">Doc Comment Guidance</a></li>
+        </ul></li>
+        <li><a id="toc-Source-Encoding" href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">Source Encoding</a></li>
+        <li><a id="toc-Keyword-Reference" href="https://ziglang.org/documentation/0.15.2/#Keyword-Reference">Keyword Reference</a></li>
+        <li><a id="toc-Appendix" href="https://ziglang.org/documentation/0.15.2/#Appendix">Appendix</a>
+        <ul>
+            <li><a id="toc-Containers" href="https://ziglang.org/documentation/0.15.2/#Containers">Containers</a></li>
+            <li><a id="toc-Grammar" href="https://ziglang.org/documentation/0.15.2/#Grammar">Grammar</a></li>
+            <li><a id="toc-Zen" href="https://ziglang.org/documentation/0.15.2/#Zen">Zen</a></li>
+        </ul></li>
+    </ul>
+
+        </nav>
+      </div>
+      <div id="contents-wrapper"><main id="contents">
+      <h2 id="Introduction"><a href="https://ziglang.org/documentation/0.15.2/#toc-Introduction">Introduction</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Introduction">§</a></h2>
+
+      <p>
+      <a href="https://ziglang.org/">Zig</a> is a general-purpose programming language and toolchain for maintaining
+      <strong>robust</strong>, <strong>optimal</strong>, and <strong>reusable</strong> software.
+      </p>
+      <dl>
+        <dt>Robust</dt><dd>Behavior is correct even for edge cases such as out of memory.</dd>
+        <dt>Optimal</dt><dd>Write programs the best way they can behave and perform.</dd>
+        <dt>Reusable</dt><dd>The same code works in many environments which have different
+          constraints.</dd>
+        <dt>Maintainable</dt><dd>Precisely communicate intent to the compiler and
+          other programmers. The language imposes a low overhead to reading code and is
+          resilient to changing requirements and environments.</dd>
+      </dl>
+      <p>
+      Often the most efficient way to learn something new is to see examples, so
+      this documentation shows how to use each of Zig's features. It is
+      all on one page so you can search with your browser's search tool.
+      </p>
+      <p>
+      The code samples in this document are compiled and tested as part of the main test suite of Zig.
+      </p>
+      <p>
+      This HTML document depends on no external files, so you can use it offline.
+      </p>
+      
+
+      <h2 id="Zig-Standard-Library"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zig-Standard-Library">Zig Standard Library</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">§</a></h2>
+
+      <p>
+        The <a href="https://ziglang.org/documentation/0.15.2/std/">Zig Standard Library</a> has its own documentation.
+      </p>
+      <p>
+        Zig's Standard Library contains commonly used algorithms, data structures, and definitions to help you build programs or libraries.
+        You will see many examples of Zig's Standard Library used in this documentation. To learn more about the Zig Standard Library,
+        visit the link above.
+      </p>
+      <p>
+        Alternatively, the Zig Standard Library documentation is provided with each Zig distribution. It can be rendered via a local webserver with:
+      </p>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>zig std
+</samp></pre></figure>
+      
+
+      <h2 id="Hello-World"><a href="https://ziglang.org/documentation/0.15.2/#toc-Hello-World">Hello World</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Hello-World">§</a></h2>
+
+
+      <figure><figcaption class="zig-cap"><cite class="file">hello.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> std.fs.File.stdout().writeAll(<span class="tok-str">"Hello, World!\n"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe hello.zig</kbd>
+$ <kbd>./hello</kbd>
+Hello, World!
+</samp></pre></figure>
+
+      <p>
+      Most of the time, it is more appropriate to write to stderr rather than stdout, and
+      whether or not the message is successfully written to the stream is irrelevant.
+      Also, formatted printing often comes in handy. For this common case,
+      there is a simpler API:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">hello_again.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    std.debug.print(<span class="tok-str">"Hello, {s}!\n"</span>, .{<span class="tok-str">"World"</span>});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe hello_again.zig</kbd>
+$ <kbd>./hello_again</kbd>
+Hello, World!
+</samp></pre></figure>
+
+      <p>
+      In this case, the <code>!</code> may be omitted from the return
+      type of <code>main</code> because no errors are returned from the function.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Values">Values</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Tuples">Tuples</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Entry-Point">Entry Point</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">Source Encoding</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#try">try</a></li>
+</ul>
+
+      
+      <h2 id="Comments"><a href="https://ziglang.org/documentation/0.15.2/#toc-Comments">Comments</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Comments">§</a></h2>
+
+      <p>
+      Zig supports 3 types of comments. Normal comments are ignored, but doc comments
+      and top-level doc comments are used by the compiler to generate the package documentation.
+      </p>
+      <p>
+      The generated documentation is still experimental, and can be produced with:
+      </p>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>zig test -femit-docs main.zig
+</samp></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">comments.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-comment">// Comments in Zig start with "//" and end at the next LF byte (end of line).</span>
+    <span class="tok-comment">// The line below is a comment and won't be executed.</span>
+
+    <span class="tok-comment">//print("Hello?", .{});</span>
+
+    print(<span class="tok-str">"Hello, world!\n"</span>, .{}); <span class="tok-comment">// another comment</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe comments.zig</kbd>
+$ <kbd>./comments</kbd>
+Hello, world!
+</samp></pre></figure>
+
+      <p>
+      There are no multiline comments in Zig (e.g. like <code class="c">/* */</code>
+      comments in C).  This allows Zig to have the property that each line
+      of code can be tokenized out of context.
+      </p>
+      <h3 id="Doc-Comments"><a href="https://ziglang.org/documentation/0.15.2/#toc-Doc-Comments">Doc Comments</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Doc-Comments">§</a></h3>
+
+      <p>
+      A doc comment is one that begins with exactly three slashes (i.e.
+      <code><span class="tok-comment">///</span></code> but not <code><span class="tok-comment">////</span></code>);
+      multiple doc comments in a row are merged together to form a multiline
+      doc comment.  The doc comment documents whatever immediately follows it.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">doc_comments.zig</cite></figcaption><pre><code><span class="tok-comment">/// A structure for storing a timestamp, with nanosecond precision (this is a</span>
+<span class="tok-comment">/// multiline doc comment).</span>
+<span class="tok-kw">const</span> Timestamp = <span class="tok-kw">struct</span> {
+    <span class="tok-comment">/// The number of seconds since the epoch (this is also a doc comment).</span>
+    seconds: <span class="tok-type">i64</span>, <span class="tok-comment">// signed so we can represent pre-1970 (not a doc comment)</span>
+    <span class="tok-comment">/// The number of nanoseconds past the second (doc comment again).</span>
+    nanos: <span class="tok-type">u32</span>,
+
+    <span class="tok-comment">/// Returns a `Timestamp` struct representing the Unix epoch; that is, the</span>
+    <span class="tok-comment">/// moment of 1970 Jan 1 00:00:00 UTC (this is a doc comment too).</span>
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">unixEpoch</span>() Timestamp {
+        <span class="tok-kw">return</span> Timestamp{
+            .seconds = <span class="tok-number">0</span>,
+            .nanos = <span class="tok-number">0</span>,
+        };
+    }
+};</code></pre></figure>
+
+      <p>
+      Doc comments are only allowed in certain places; it is a compile error to
+      have a doc comment in an unexpected place, such as in the middle of an expression,
+      or just before a non-doc comment.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">invalid_doc-comment.zig</cite></figcaption><pre><code><span class="tok-comment">/// doc-comment</span>
+<span class="tok-comment">//! top-level doc-comment</span>
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj invalid_doc-comment.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/invalid_doc-comment.zig:1:16: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type expression, found 'a document comment'
+</span>/// doc-comment
+               <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <figure><figcaption class="zig-cap"><cite class="file">unattached_doc-comment.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {}
+
+<span class="tok-comment">/// End of file</span></code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj unattached_doc-comment.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/unattached_doc-comment.zig:3:1: </span><span class="sgr-31m">error: </span><span class="sgr-1m">unattached documentation comment
+</span>/// End of file
+<span class="sgr-32m">^~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>
+      Doc comments can be interleaved with normal comments. Currently, when producing
+      the package documentation, normal comments are merged with doc comments.
+      </p>
+      
+      <h3 id="Top-Level-Doc-Comments"><a href="https://ziglang.org/documentation/0.15.2/#toc-Top-Level-Doc-Comments">Top-Level Doc Comments</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Top-Level-Doc-Comments">§</a></h3>
+
+      <p>
+      A top-level doc comment is one that begins with two slashes and an exclamation
+      point: <code><span class="tok-comment">//!</span></code>; it documents the current module.
+      </p>
+      <p>
+      It is a compile error if a top-level doc comment is not placed at the start
+      of a <a href="https://ziglang.org/documentation/0.15.2/#Containers">container</a>, before any expressions.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">tldoc_comments.zig</cite></figcaption><pre><code><span class="tok-comment">//! This module provides functions for retrieving the current date and</span>
+<span class="tok-comment">//! time with varying degrees of precision and accuracy. It does not</span>
+<span class="tok-comment">//! depend on libc, but will use functions from it if available.</span>
+
+<span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> {
+    <span class="tok-comment">//! Top level comments are allowed inside a container other than a module,</span>
+    <span class="tok-comment">//! but it is not very useful.  Currently, when producing the package</span>
+    <span class="tok-comment">//! documentation, these comments are ignored.</span>
+};</code></pre></figure>
+
+      
+      
+      <h2 id="Values"><a href="https://ziglang.org/documentation/0.15.2/#toc-Values">Values</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Values">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">values.zig</cite></figcaption><pre><code><span class="tok-comment">// Top-level declarations are order-independent:</span>
+<span class="tok-kw">const</span> print = std.debug.print;
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> os = std.os;
+<span class="tok-kw">const</span> assert = std.debug.assert;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-comment">// integers</span>
+    <span class="tok-kw">const</span> one_plus_one: <span class="tok-type">i32</span> = <span class="tok-number">1</span> + <span class="tok-number">1</span>;
+    print(<span class="tok-str">"1 + 1 = {}\n"</span>, .{one_plus_one});
+
+    <span class="tok-comment">// floats</span>
+    <span class="tok-kw">const</span> seven_div_three: <span class="tok-type">f32</span> = <span class="tok-number">7.0</span> / <span class="tok-number">3.0</span>;
+    print(<span class="tok-str">"7.0 / 3.0 = {}\n"</span>, .{seven_div_three});
+
+    <span class="tok-comment">// boolean</span>
+    print(<span class="tok-str">"{}\n{}\n{}\n"</span>, .{
+        <span class="tok-null">true</span> <span class="tok-kw">and</span> <span class="tok-null">false</span>,
+        <span class="tok-null">true</span> <span class="tok-kw">or</span> <span class="tok-null">false</span>,
+        !<span class="tok-null">true</span>,
+    });
+
+    <span class="tok-comment">// optional</span>
+    <span class="tok-kw">var</span> optional_value: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;
+    assert(optional_value == <span class="tok-null">null</span>);
+
+    print(<span class="tok-str">"\noptional 1\ntype: {}\nvalue: {?s}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(optional_value), optional_value,
+    });
+
+    optional_value = <span class="tok-str">"hi"</span>;
+    assert(optional_value != <span class="tok-null">null</span>);
+
+    print(<span class="tok-str">"\noptional 2\ntype: {}\nvalue: {?s}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(optional_value), optional_value,
+    });
+
+    <span class="tok-comment">// error union</span>
+    <span class="tok-kw">var</span> number_or_error: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-kw">error</span>.ArgNotFound;
+
+    print(<span class="tok-str">"\nerror union 1\ntype: {}\nvalue: {!}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(number_or_error),
+        number_or_error,
+    });
+
+    number_or_error = <span class="tok-number">1234</span>;
+
+    print(<span class="tok-str">"\nerror union 2\ntype: {}\nvalue: {!}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(number_or_error), number_or_error,
+    });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe values.zig</kbd>
+$ <kbd>./values</kbd>
+1 + 1 = 2
+7.0 / 3.0 = 2.3333333
+false
+true
+false
+
+optional 1
+type: ?[]const u8
+value: null
+
+optional 2
+type: ?[]const u8
+value: hi
+
+error union 1
+type: anyerror!i32
+value: error.ArgNotFound
+
+error union 2
+type: anyerror!i32
+value: 1234
+</samp></pre></figure>
+
+      <h3 id="Primitive-Types"><a href="https://ziglang.org/documentation/0.15.2/#toc-Primitive-Types">Primitive Types</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">§</a></h3>
+
+      <div class="table-wrapper">
+      <table>
+        <caption>Primitive Types</caption>
+        <thead>
+            <tr>
+            <th scope="col">Type</th>
+            <th scope="col">C Equivalent</th>
+            <th scope="col">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row"><code><span class="tok-type">i8</span></code></th>
+          <td><code class="c">int8_t</code></td>
+          <td>signed 8-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">u8</span></code></th>
+          <td><code class="c">uint8_t</code></td>
+          <td>unsigned 8-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">i16</span></code></th>
+          <td><code class="c">int16_t</code></td>
+          <td>signed 16-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">u16</span></code></th>
+          <td><code class="c">uint16_t</code></td>
+          <td>unsigned 16-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">i32</span></code></th>
+          <td><code class="c">int32_t</code></td>
+          <td>signed 32-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">u32</span></code></th>
+          <td><code class="c">uint32_t</code></td>
+          <td>unsigned 32-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">i64</span></code></th>
+          <td><code class="c">int64_t</code></td>
+          <td>signed 64-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">u64</span></code></th>
+          <td><code class="c">uint64_t</code></td>
+          <td>unsigned 64-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">i128</span></code></th>
+          <td><code class="c">__int128</code></td>
+          <td>signed 128-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">u128</span></code></th>
+          <td><code class="c">unsigned __int128</code></td>
+          <td>unsigned 128-bit integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">isize</span></code></th>
+          <td><code class="c">intptr_t</code></td>
+          <td>signed pointer sized integer</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">usize</span></code></th>
+          <td><code class="c">uintptr_t</code>, <code class="c">size_t</code></td>
+          <td>unsigned pointer sized integer. Also see <a href="https://github.com/ziglang/zig/issues/5185">#5185</a></td>
+        </tr>
+
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_char</span></code></th>
+          <td><code class="c">char</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_short</span></code></th>
+          <td><code class="c">short</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_ushort</span></code></th>
+          <td><code class="c">unsigned short</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_int</span></code></th>
+          <td><code class="c">int</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_uint</span></code></th>
+          <td><code class="c">unsigned int</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_long</span></code></th>
+          <td><code class="c">long</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_ulong</span></code></th>
+          <td><code class="c">unsigned long</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_longlong</span></code></th>
+          <td><code class="c">long long</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_ulonglong</span></code></th>
+          <td><code class="c">unsigned long long</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">c_longdouble</span></code></th>
+          <td><code class="c">long double</code></td>
+          <td>for ABI compatibility with C</td>
+        </tr>
+
+        <tr>
+            <th scope="row"><code><span class="tok-type">f16</span></code></th>
+          <td><code class="c">_Float16</code></td>
+          <td>16-bit floating point (10-bit mantissa) IEEE-754-2008 binary16</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">f32</span></code></th>
+          <td><code class="c">float</code></td>
+          <td>32-bit floating point (23-bit mantissa) IEEE-754-2008 binary32</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">f64</span></code></th>
+          <td><code class="c">double</code></td>
+          <td>64-bit floating point (52-bit mantissa) IEEE-754-2008 binary64</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">f80</span></code></th>
+          <td><code class="c">long double</code></td>
+          <td>80-bit floating point (64-bit mantissa) IEEE-754-2008 80-bit extended precision</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">f128</span></code></th>
+            <td><code class="c">_Float128</code></td>
+          <td>128-bit floating point (112-bit mantissa) IEEE-754-2008 binary128</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">bool</span></code></th>
+          <td><code class="c">bool</code></td>
+          <td><code><span class="tok-null">true</span></code> or <code><span class="tok-null">false</span></code></td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">anyopaque</span></code></th>
+          <td><code class="c">void</code></td>
+          <td>Used for type-erased pointers.</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">void</span></code></th>
+          <td>(none)</td>
+          <td>Always the value <code><span class="tok-type">void</span>{}</code></td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">noreturn</span></code></th>
+          <td>(none)</td>
+          <td>the type of <code><span class="tok-kw">break</span></code>, <code><span class="tok-kw">continue</span></code>, <code><span class="tok-kw">return</span></code>, <code><span class="tok-kw">unreachable</span></code>, and <code><span class="tok-kw">while</span> (<span class="tok-null">true</span>) {}</code></td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">type</span></code></th>
+          <td>(none)</td>
+          <td>the type of types</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">anyerror</span></code></th>
+          <td>(none)</td>
+          <td>an error code</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">comptime_int</span></code></th>
+          <td>(none)</td>
+          <td>Only allowed for <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known values. The type of integer literals.</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-type">comptime_float</span></code></th>
+          <td>(none)</td>
+          <td>Only allowed for <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known values. The type of float literals.</td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+      <p>
+      In addition to the integer types above, arbitrary bit-width integers can be referenced by using
+      an identifier of <code>i</code> or <code>u</code> followed by digits. For example, the identifier
+      <code><span class="tok-type">i7</span></code> refers to a signed 7-bit integer. The maximum allowed bit-width of an
+      integer type is <code><span class="tok-number">65535</span></code>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#void">void</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Type">@Type</a></li>
+</ul>
+
+      
+      <h3 id="Primitive-Values"><a href="https://ziglang.org/documentation/0.15.2/#toc-Primitive-Values">Primitive Values</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Primitive-Values">§</a></h3>
+
+      <div class="table-wrapper">
+      <table>
+        <caption>Primitive Values</caption>
+        <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row"><code><span class="tok-null">true</span></code> and <code><span class="tok-null">false</span></code></th>
+            <td><code><span class="tok-type">bool</span></code> values</td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-null">null</span></code></th>
+            <td>used to set an optional type to <code><span class="tok-null">null</span></code></td>
+        </tr>
+        <tr>
+            <th scope="row"><code><span class="tok-null">undefined</span></code></th>
+          <td>used to leave a value unspecified</td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a></li>
+</ul>
+
+      
+      <h3 id="String-Literals-and-Unicode-Code-Point-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-String-Literals-and-Unicode-Code-Point-Literals">String Literals and Unicode Code Point Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#String-Literals-and-Unicode-Code-Point-Literals">§</a></h3>
+
+      <p>
+      String literals are constant single-item <a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a> to null-terminated byte arrays.
+      The type of string literals encodes both the length, and the fact that they are null-terminated,
+      and thus they can be <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">coerced</a> to both <a href="https://ziglang.org/documentation/0.15.2/#Slices">Slices</a> and
+      <a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">Null-Terminated Pointers</a>.
+      Dereferencing string literals converts them to <a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a>.
+      </p>
+      <p>
+      Because Zig source code is <a href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">UTF-8 encoded</a>, any
+      non-ASCII bytes appearing within a string literal in source code carry
+      their UTF-8 meaning into the content of the string in the Zig program;
+      the bytes are not modified by the compiler. It is possible to embed
+      non-UTF-8 bytes into a string literal using <code>\xNN</code> notation.
+      </p>
+      <p>Indexing into a string containing non-ASCII bytes returns individual
+      bytes, whether valid UTF-8 or not.</p>
+      <p>
+      Unicode code point literals have type <code><span class="tok-type">comptime_int</span></code>, the same as
+      <a href="https://ziglang.org/documentation/0.15.2/#Integer-Literals">Integer Literals</a>. All <a href="https://ziglang.org/documentation/0.15.2/#Escape-Sequences">Escape Sequences</a> are valid in both string literals
+      and Unicode code point literals.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">string_literals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+<span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem; <span class="tok-comment">// will be used to compare bytes</span>
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> bytes = <span class="tok-str">"hello"</span>;
+    print(<span class="tok-str">"{}\n"</span>, .{<span class="tok-builtin">@TypeOf</span>(bytes)}); <span class="tok-comment">// *const [5:0]u8</span>
+    print(<span class="tok-str">"{d}\n"</span>, .{bytes.len}); <span class="tok-comment">// 5</span>
+    print(<span class="tok-str">"{c}\n"</span>, .{bytes[<span class="tok-number">1</span>]}); <span class="tok-comment">// 'e'</span>
+    print(<span class="tok-str">"{d}\n"</span>, .{bytes[<span class="tok-number">5</span>]}); <span class="tok-comment">// 0</span>
+    print(<span class="tok-str">"{}\n"</span>, .{<span class="tok-str">'e'</span> == <span class="tok-str">'\x65'</span>}); <span class="tok-comment">// true</span>
+    print(<span class="tok-str">"{d}\n"</span>, .{<span class="tok-str">'\u{1f4a9}'</span>}); <span class="tok-comment">// 128169</span>
+    print(<span class="tok-str">"{d}\n"</span>, .{<span class="tok-str">'💯'</span>}); <span class="tok-comment">// 128175</span>
+    print(<span class="tok-str">"{u}\n"</span>, .{<span class="tok-str">'⚡'</span>});
+    print(<span class="tok-str">"{}\n"</span>, .{mem.eql(<span class="tok-type">u8</span>, <span class="tok-str">"hello"</span>, <span class="tok-str">"h\x65llo"</span>)}); <span class="tok-comment">// true</span>
+    print(<span class="tok-str">"{}\n"</span>, .{mem.eql(<span class="tok-type">u8</span>, <span class="tok-str">"💯"</span>, <span class="tok-str">"\xf0\x9f\x92\xaf"</span>)}); <span class="tok-comment">// also true</span>
+    <span class="tok-kw">const</span> invalid_utf8 = <span class="tok-str">"\xff\xfe"</span>; <span class="tok-comment">// non-UTF-8 strings are possible with \xNN notation.</span>
+    print(<span class="tok-str">"0x{x}\n"</span>, .{invalid_utf8[<span class="tok-number">1</span>]}); <span class="tok-comment">// indexing them returns individual bytes...</span>
+    print(<span class="tok-str">"0x{x}\n"</span>, .{<span class="tok-str">"💯"</span>[<span class="tok-number">1</span>]}); <span class="tok-comment">// ...as does indexing part-way through non-ASCII characters</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe string_literals.zig</kbd>
+$ <kbd>./string_literals</kbd>
+*const [5:0]u8
+5
+e
+0
+true
+128169
+128175
+⚡
+true
+true
+0xfe
+0x9f
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">Source Encoding</a></li>
+</ul>
+
+      <h4 id="Escape-Sequences"><a href="https://ziglang.org/documentation/0.15.2/#toc-Escape-Sequences">Escape Sequences</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Escape-Sequences">§</a></h4>
+
+      <div class="table-wrapper">
+      <table>
+        <caption>Escape Sequences</caption>
+        <thead>
+        <tr>
+          <th scope="col">Escape Sequence</th>
+          <th scope="col">Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row"><code>\n</code></th>
+          <td>Newline</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\r</code></th>
+          <td>Carriage Return</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\t</code></th>
+          <td>Tab</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\\</code></th>
+          <td>Backslash</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\'</code></th>
+          <td>Single Quote</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\"</code></th>
+          <td>Double Quote</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\xNN</code></th>
+          <td>hexadecimal 8-bit byte value (2 digits)</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>\u{NNNNNN}</code></th>
+          <td>hexadecimal Unicode scalar value UTF-8 encoded (1 or more digits)</td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Note that the maximum valid Unicode scalar value is <code><span class="tok-number">0x10ffff</span></code>.</p>
+      
+      <h4 id="Multiline-String-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Multiline-String-Literals">Multiline String Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Multiline-String-Literals">§</a></h4>
+
+      <p>
+      Multiline string literals have no escapes and can span across multiple lines.
+      To start a multiline string literal, use the <code><span class="tok-str">\\</span></code> token. Just like a comment,
+      the string literal goes until the end of the line. The end of the line is
+      not included in the string literal.
+      However, if the next line begins with <code><span class="tok-str">\\</span></code> then a newline is appended and
+      the string literal continues.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">multiline_string_literals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> hello_world_in_c =
+    <span class="tok-str">\\#include &lt;stdio.h&gt;</span>
+    <span class="tok-str">\\</span>
+    <span class="tok-str">\\int main(int argc, char **argv) {</span>
+    <span class="tok-str">\\    printf("hello world\n");</span>
+    <span class="tok-str">\\    return 0;</span>
+    <span class="tok-str">\\}</span>
+;</code></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#embedFile">@embedFile</a></li>
+</ul>
+
+      
+      
+      <h3 id="Assignment"><a href="https://ziglang.org/documentation/0.15.2/#toc-Assignment">Assignment</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Assignment">§</a></h3>
+
+      <p>Use the <code><span class="tok-kw">const</span></code> keyword to assign a value to an identifier:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">constant_identifier_cannot_change.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> x = <span class="tok-number">1234</span>;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">void</span> {
+    <span class="tok-comment">// It works at file scope as well as inside functions.</span>
+    <span class="tok-kw">const</span> y = <span class="tok-number">5678</span>;
+
+    <span class="tok-comment">// Once assigned, an identifier cannot be changed.</span>
+    y += <span class="tok-number">1</span>;
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    foo();
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe constant_identifier_cannot_change.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/constant_identifier_cannot_change.zig:8:5: </span><span class="sgr-31m">error: </span><span class="sgr-1m">cannot assign to constant
+</span>    y += 1;
+    <span class="sgr-32m">^
+</span><span class="sgr-2m">referenced by:
+    main: /home/andy/dev/zig/doc/langref/constant_identifier_cannot_change.zig:12:8
+    callMain [inlined]: /home/andy/dev/zig/lib/std/start.zig:618:22
+    callMainWithArgs [inlined]: /home/andy/dev/zig/lib/std/start.zig:587:20
+    posixCallMainAndExit: /home/andy/dev/zig/lib/std/start.zig:542:36
+    2 reference(s) hidden; use '-freference-trace=6' to see all references
+</span>
+</samp></pre></figure>
+
+      <p><code><span class="tok-kw">const</span></code> applies to all of the bytes that the identifier immediately addresses. <a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a> have their own const-ness.</p>
+      <p>If you need a variable that you can modify, use the <code><span class="tok-kw">var</span></code> keyword:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">mutable_var.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> y: <span class="tok-type">i32</span> = <span class="tok-number">5678</span>;
+
+    y += <span class="tok-number">1</span>;
+
+    print(<span class="tok-str">"{d}"</span>, .{y});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe mutable_var.zig</kbd>
+$ <kbd>./mutable_var</kbd>
+5679
+</samp></pre></figure>
+
+      <p>Variables must be initialized:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">var_must_be_initialized.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span>;
+
+    x = <span class="tok-number">1</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe var_must_be_initialized.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/var_must_be_initialized.zig:2:15: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected '=', found ';'
+</span>    var x: i32;
+              <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <h4 id="undefined"><a href="https://ziglang.org/documentation/0.15.2/#toc-undefined">undefined</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#undefined">§</a></h4>
+
+      <p>Use <code><span class="tok-null">undefined</span></code> to leave variables uninitialized:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">assign_undefined.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+    x = <span class="tok-number">1</span>;
+    print(<span class="tok-str">"{d}"</span>, .{x});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe assign_undefined.zig</kbd>
+$ <kbd>./assign_undefined</kbd>
+1
+</samp></pre></figure>
+
+      <p>
+      <code><span class="tok-null">undefined</span></code> can be <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">coerced</a> to any type.
+          Once this happens, it is no longer possible to detect that the value is <code><span class="tok-null">undefined</span></code>.
+              <code><span class="tok-null">undefined</span></code> means the value could be anything, even something that is nonsense
+                  according to the type. Translated into English, <code><span class="tok-null">undefined</span></code> means "Not a meaningful
+      value. Using this value would be a bug. The value will be unused, or overwritten before being used."
+      </p>
+      <p>
+      In <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> mode, Zig writes <code><span class="tok-number">0xaa</span></code> bytes to undefined memory. This is to catch
+      bugs early, and to help detect use of undefined memory in a debugger. However, this behavior is only an
+      implementation feature, not a language semantic, so it is not guaranteed to be observable to code.
+      </p>
+      
+
+      <h4 id="Destructuring"><a href="https://ziglang.org/documentation/0.15.2/#toc-Destructuring">Destructuring</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Destructuring">§</a></h4>
+
+      <p>
+        A destructuring assignment can separate elements of indexable aggregate types
+        (<a href="https://ziglang.org/documentation/0.15.2/#Tuples">Tuples</a>, <a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a>, <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a>):
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">destructuring_to_existing.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> y: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> z: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+
+    <span class="tok-kw">const</span> tuple = .{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span> };
+
+    x, y, z = tuple;
+
+    print(<span class="tok-str">"tuple: x = {}, y = {}, z = {}\n"</span>, .{x, y, z});
+
+    <span class="tok-kw">const</span> array = [_]<span class="tok-type">u32</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span> };
+
+    x, y, z = array;
+
+    print(<span class="tok-str">"array: x = {}, y = {}, z = {}\n"</span>, .{x, y, z});
+
+    <span class="tok-kw">const</span> vector: <span class="tok-builtin">@Vector</span>(<span class="tok-number">3</span>, <span class="tok-type">u32</span>) = .{ <span class="tok-number">7</span>, <span class="tok-number">8</span>, <span class="tok-number">9</span> };
+
+    x, y, z = vector;
+
+    print(<span class="tok-str">"vector: x = {}, y = {}, z = {}\n"</span>, .{x, y, z});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe destructuring_to_existing.zig</kbd>
+$ <kbd>./destructuring_to_existing</kbd>
+tuple: x = 1, y = 2, z = 3
+array: x = 4, y = 5, z = 6
+vector: x = 7, y = 8, z = 9
+</samp></pre></figure>
+
