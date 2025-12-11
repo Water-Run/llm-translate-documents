@@ -1,4 +1,5 @@
 import os
+import re
 
 # 根目录（根据你的路径）
 root_dir = r"D:\数据\etc\llm-translate-documents"
@@ -50,8 +51,21 @@ for idx, part_path in enumerate(parts):
 # 3. 拼成一个大字符串
 final_html = "\n".join(merged_fragments)
 
-# 4. 写出到目标文件（UTF-8）
+# 4. 替换链接：将完整 URL 改为本地锚点
+# 匹配 href="https://ziglang.org/documentation/0.15.2/#xxx" 替换为 href="#xxx"
+pattern = r'href="https://ziglang\.org/documentation/0\.15\.2/(#[^"]+)"'
+replacement = r'href="\1"'
+
+# 统计替换次数
+original_html = final_html
+final_html = re.sub(pattern, replacement, final_html)
+
+# 计算替换了多少个链接
+replaced_count = len(re.findall(pattern, original_html))
+
+# 5. 写出到目标文件（UTF-8）
 with open(output_path, "w", encoding="utf-8", newline="\n") as f:
     f.write(final_html)
 
 print(f"合并完成: {output_path}")
+print(f"已将 {replaced_count} 个外部链接转换为本地锚点")
