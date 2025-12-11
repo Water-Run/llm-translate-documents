@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)https://ziglang.org/documentation/0.15.2/ -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>文档 - Zig 编程语言</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      :root{
+         --nav-width: 26em;
+         --nav-margin-l: 1em;
+      }
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+      header {
+        padding: 0 1em;
+      }
+      #contents {
+        max-width: 60em;
+        margin: auto;
+        padding: 0 1em;
+      }
+      #navigation {
+        padding: 0 1em;
+      }
+      table ul {
+        list-style-type: none;
+        padding: 0em;
+      }
+      table li {
+        padding-bottom: 1em;
+        line-height:1.2em;
+      }
+      table, th, td {
+        border-collapse: collapse;
+        border: 1px solid grey;
+      }
+      th, td {
+        padding: 0.5em;
+      }
+      th[scope=row] {
+          text-align: left;
+          font-weight: normal;
+      }
+
+      @media screen and (min-width: 1025px) {
+        header {
+          margin-left: calc(var(--nav-width) + var(--nav-margin-l));
+        }
+        header h1 {
+          margin: auto;
+          max-width: 30em;
+        }
+        #navigation {
+          overflow: auto;
+          width: var(--nav-width);
+          height: 100vh;
+          position: fixed;
+          top:0;
+          left:0;
+          bottom:0;
+          padding: unset;
+          margin-left: var(--nav-margin-l);
+        }
+        #navigation nav ul {
+          padding-left: 1em;
+        }
+        #contents-wrapper {
+          margin-left: calc(var(--nav-width) + var(--nav-margin-l));
+        }
+      }
+
+      a:hover,a:focus {
+        background: #fff2a8;
+      }
+      dt {
+        font-weight: bold;
+      }
+      .sgr-1m {
+        font-weight: bold;
+      }
+      .sgr-2m {
+        color: #575757;
+      }
+      .sgr-31_1m {
+        color: #b40000;
+      }
+      .sgr-32_1m {
+        color: green;
+      }
+      .sgr-36_1m {
+        color: #005C7A;
+      }
+      .file {
+        font-weight: bold;
+        border: unset;
+      }
+      code {
+        background: #f8f8f8;
+        border: 1px dotted silver;
+        padding-left: 0.3em;
+        padding-right: 0.3em;
+      }
+      pre > code {
+        display: block;
+        overflow: auto;
+        padding: 0.5em;
+        border: 1px solid #eee;
+        line-height: normal;
+      }
+      samp {
+        background: #fafafa;
+      }
+      pre > samp {
+        display: block;
+        overflow: auto;
+        padding: 0.5em;
+        border: 1px solid #eee;
+        line-height: normal;
+      }
+      kbd {
+        font-weight: normal;
+      }
+      .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+
+      figure {
+        margin: auto 0;
+      }
+      figure pre {
+        margin-top: 0;
+      }
+
+      figcaption {
+        padding-left: 0.5em;
+        font-size: small;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      figcaption.zig-cap {
+        background: #fcdba5;
+      }
+      figcaption.c-cap {
+        background: #a8b9cc;
+        color: #000;
+      }
+      figcaption.peg-cap {
+        background: #fcdba5;
+      }
+      figcaption.javascript-cap {
+        background: #365d95;
+        color: #fff;
+      }
+      figcaption.shell-cap {
+        background: #ccc;
+        color: #000;
+      }
+
+      aside {
+        border-left: 0.25em solid #f7a41d;
+        padding: 0 1em 0 1em;
+      }
+
+      h1 a, h2 a, h3 a, h4 a, h5 a {
+        text-decoration: none;
+        color: #333;
+      }
+
+      a.hdr {
+        visibility: hidden;
+      }
+      h1:hover > a.hdr, h2:hover > a.hdr, h3:hover > a.hdr, h4:hover > a.hdr, h5:hover > a.hdr {
+        visibility: visible;
+      }
+
+      th pre code {
+          background: none;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#121212;
+            color: #ccc;
+        }
+        a {
+            color: #88f;
+        }
+        a:hover,a:focus {
+            color: #000;
+        }
+        table, th, td {
+            border-color: grey;
+        }
+        .sgr-2m {
+            color: grey;
+        }
+        .sgr-31_1m {
+            color: red;
+        }
+        .sgr-32_1m {
+            color: #00B800;
+        }
+        .sgr-36_1m {
+            color: #0086b3;
+        }
+        code {
+          background: #222;
+          border-color: #444;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        samp {
+          background: #000;
+          color: #ccc;
+        }
+        pre > samp {
+          border: unset;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+        h1 a, h2 a, h3 a, h4 a, h5 a {
+            color: #aaa;
+        }
+        figcaption.zig-cap {
+            background-color: #b27306;
+            color: #000;
+        }
+        figcaption.peg-cap {
+            background-color: #b27306;
+            color: #000;
+        }
+        figcaption.shell-cap {
+          background: #2a2a2a;
+          color: #fff;
+        }
+      }
+    </style>
+</head>
+<body>
+  <header><h1>Zig 语言参考</h1></header>
+  <div id="main-wrapper">
+      <div id="navigation">
+        <nav aria-labelledby="zig-version">
+          <h2 id="zig-version">Zig 版本</h2>
+          <a href="https://ziglang.org/documentation/0.1.1/">0.1.1</a> |
+<a href="https://ziglang.org/documentation/0.2.0/">0.2.0</a> |
+<a href="https://ziglang.org/documentation/0.3.0/">0.3.0</a> |
+<a href="https://ziglang.org/documentation/0.4.0/">0.4.0</a> |
+<a href="https://ziglang.org/documentation/0.5.0/">0.5.0</a> |
+<a href="https://ziglang.org/documentation/0.6.0/">0.6.0</a> |
+<a href="https://ziglang.org/documentation/0.7.1/">0.7.1</a> |
+<a href="https://ziglang.org/documentation/0.8.1/">0.8.1</a> |
+<a href="https://ziglang.org/documentation/0.9.1/">0.9.1</a> |
+<a href="https://ziglang.org/documentation/0.10.1/">0.10.1</a> |
+<a href="https://ziglang.org/documentation/0.11.0/">0.11.0</a> |
+<a href="https://ziglang.org/documentation/0.12.1/">0.12.1</a> |
+<a href="https://ziglang.org/documentation/0.13.0/">0.13.0</a> |
+<a href="https://ziglang.org/documentation/0.14.1/">0.14.1</a> |
+0.15.2 |
+<a href="https://ziglang.org/documentation/master/">master</a>
+        </nav>
+        <nav aria-labelledby="table-of-contents">
+          <h2 id="table-of-contents">目录</h2>
+          
+
+    <ul>
+        <li><a id="toc-Introduction" href="https://ziglang.org/documentation/0.15.2/#Introduction">简介</a></li>
+        <li><a id="toc-Zig-Standard-Library" href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">Zig 标准库</a></li>
+        <li><a id="toc-Hello-World" href="https://ziglang.org/documentation/0.15.2/#Hello-World">Hello World</a></li>
+        <li><a id="toc-Comments" href="https://ziglang.org/documentation/0.15.2/#Comments">注释</a>
+        <ul>
+            <li><a id="toc-Doc-Comments" href="https://ziglang.org/documentation/0.15.2/#Doc-Comments">文档注释</a></li>
+            <li><a id="toc-Top-Level-Doc-Comments" href="https://ziglang.org/documentation/0.15.2/#Top-Level-Doc-Comments">顶级文档注释</a></li>
+        </ul></li>
+        <li><a id="toc-Values" href="https://ziglang.org/documentation/0.15.2/#Values">值</a>
+        <ul>
+            <li><a id="toc-Primitive-Types" href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">基本类型</a></li>
+            <li><a id="toc-Primitive-Values" href="https://ziglang.org/documentation/0.15.2/#Primitive-Values">基本值</a></li>
+            <li><a id="toc-String-Literals-and-Unicode-Code-Point-Literals" href="https://ziglang.org/documentation/0.15.2/#String-Literals-and-Unicode-Code-Point-Literals">字符串字面量和 Unicode 码点字面量</a>
+            <ul>
+                <li><a id="toc-Escape-Sequences" href="https://ziglang.org/documentation/0.15.2/#Escape-Sequences">转义序列</a></li>
+                <li><a id="toc-Multiline-String-Literals" href="https://ziglang.org/documentation/0.15.2/#Multiline-String-Literals">多行字符串字面量</a></li>
+            </ul></li>
+            <li><a id="toc-Assignment" href="https://ziglang.org/documentation/0.15.2/#Assignment">赋值</a>
+            <ul>
+                <li><a id="toc-undefined" href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a></li>
+                <li><a id="toc-Destructuring" href="https://ziglang.org/documentation/0.15.2/#Destructuring">解构</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-Zig-Test" href="https://ziglang.org/documentation/0.15.2/#Zig-Test">Zig 测试</a>
+        <ul>
+            <li><a id="toc-Test-Declarations" href="https://ziglang.org/documentation/0.15.2/#Test-Declarations">测试声明</a>
+            <ul>
+                <li><a id="toc-Doctests" href="https://ziglang.org/documentation/0.15.2/#Doctests">文档测试</a></li>
+            </ul></li>
+            <li><a id="toc-Test-Failure" href="https://ziglang.org/documentation/0.15.2/#Test-Failure">测试失败</a></li>
+            <li><a id="toc-Skip-Tests" href="https://ziglang.org/documentation/0.15.2/#Skip-Tests">跳过测试</a></li>
+            <li><a id="toc-Report-Memory-Leaks" href="https://ziglang.org/documentation/0.15.2/#Report-Memory-Leaks">报告内存泄漏</a></li>
+            <li><a id="toc-Detecting-Test-Build" href="https://ziglang.org/documentation/0.15.2/#Detecting-Test-Build">检测测试构建</a></li>
+            <li><a id="toc-Test-Output-and-Logging" href="https://ziglang.org/documentation/0.15.2/#Test-Output-and-Logging">测试输出和日志</a></li>
+            <li><a id="toc-The-Testing-Namespace" href="https://ziglang.org/documentation/0.15.2/#The-Testing-Namespace">测试命名空间</a></li>
+            <li><a id="toc-Test-Tool-Documentation" href="https://ziglang.org/documentation/0.15.2/#Test-Tool-Documentation">测试工具文档</a></li>
+        </ul></li>
+        <li><a id="toc-Variables" href="https://ziglang.org/documentation/0.15.2/#Variables">变量</a>
+        <ul>
+            <li><a id="toc-Identifiers" href="https://ziglang.org/documentation/0.15.2/#Identifiers">标识符</a></li>
+            <li><a id="toc-Container-Level-Variables" href="https://ziglang.org/documentation/0.15.2/#Container-Level-Variables">容器级变量</a></li>
+            <li><a id="toc-Static-Local-Variables" href="https://ziglang.org/documentation/0.15.2/#Static-Local-Variables">静态局部变量</a></li>
+            <li><a id="toc-Thread-Local-Variables" href="https://ziglang.org/documentation/0.15.2/#Thread-Local-Variables">线程局部变量</a></li>
+            <li><a id="toc-Local-Variables" href="https://ziglang.org/documentation/0.15.2/#Local-Variables">局部变量</a></li>
+        </ul></li>
+        <li><a id="toc-Integers" href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a>
+        <ul>
+            <li><a id="toc-Integer-Literals" href="https://ziglang.org/documentation/0.15.2/#Integer-Literals">整数字面量</a></li>
+            <li><a id="toc-Runtime-Integer-Values" href="https://ziglang.org/documentation/0.15.2/#Runtime-Integer-Values">运行时整数值</a></li>
+        </ul></li>
+        <li><a id="toc-Floats" href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a>
+        <ul>
+            <li><a id="toc-Float-Literals" href="https://ziglang.org/documentation/0.15.2/#Float-Literals">浮点数字面量</a></li>
+            <li><a id="toc-Floating-Point-Operations" href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">浮点数操作</a></li>
+        </ul></li>
+        <li><a id="toc-Operators" href="https://ziglang.org/documentation/0.15.2/#Operators">运算符</a>
+        <ul>
+            <li><a id="toc-Table-of-Operators" href="https://ziglang.org/documentation/0.15.2/#Table-of-Operators">运算符表</a></li>
+            <li><a id="toc-Precedence" href="https://ziglang.org/documentation/0.15.2/#Precedence">优先级</a></li>
+        </ul></li>
+        <li><a id="toc-Arrays" href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a>
+        <ul>
+            <li><a id="toc-Multidimensional-Arrays" href="https://ziglang.org/documentation/0.15.2/#Multidimensional-Arrays">多维数组</a></li>
+            <li><a id="toc-Sentinel-Terminated-Arrays" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Arrays">哨兵终止数组</a></li>
+            <li><a id="toc-Destructuring-Arrays" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">解构数组</a></li>
+        </ul></li>
+        <li><a id="toc-Vectors" href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a>
+        <ul>
+            <li><a id="toc-Destructuring-Vectors" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Vectors">解构向量</a></li>
+        </ul></li>
+        <li><a id="toc-Pointers" href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>
+        <ul>
+            <li><a id="toc-volatile" href="https://ziglang.org/documentation/0.15.2/#volatile">volatile</a></li>
+            <li><a id="toc-Alignment" href="https://ziglang.org/documentation/0.15.2/#Alignment">对齐</a></li>
+            <li><a id="toc-allowzero" href="https://ziglang.org/documentation/0.15.2/#allowzero">allowzero</a></li>
+            <li><a id="toc-Sentinel-Terminated-Pointers" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">哨兵终止指针</a></li>
+        </ul></li>
+        <li><a id="toc-Slices" href="https://ziglang.org/documentation/0.15.2/#Slices">切片</a>
+        <ul>
+            <li><a id="toc-Sentinel-Terminated-Slices" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Slices">哨兵终止切片</a></li>
+        </ul></li>
+        <li><a id="toc-struct" href="https://ziglang.org/documentation/0.15.2/#struct">struct</a>
+        <ul>
+            <li><a id="toc-Default-Field-Values" href="https://ziglang.org/documentation/0.15.2/#Default-Field-Values">默认字段值</a>
+            <ul>
+                <li><a id="toc-Faulty-Default-Field-Values" href="https://ziglang.org/documentation/0.15.2/#Faulty-Default-Field-Values">错误的默认字段值</a></li>
+            </ul></li>
+            <li><a id="toc-extern-struct" href="https://ziglang.org/documentation/0.15.2/#extern-struct">extern struct</a></li>
+            <li><a id="toc-packed-struct" href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed struct</a></li>
+            <li><a id="toc-Struct-Naming" href="https://ziglang.org/documentation/0.15.2/#Struct-Naming">结构体命名</a></li>
+            <li><a id="toc-Anonymous-Struct-Literals" href="https://ziglang.org/documentation/0.15.2/#Anonymous-Struct-Literals">匿名结构体字面量</a></li>
+            <li><a id="toc-Tuples" href="https://ziglang.org/documentation/0.15.2/#Tuples">元组</a>
+            <ul>
+                <li><a id="toc-Destructuring-Tuples" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Tuples">解构元组</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-enum" href="https://ziglang.org/documentation/0.15.2/#enum">enum</a>
+        <ul>
+            <li><a id="toc-extern-enum" href="https://ziglang.org/documentation/0.15.2/#extern-enum">extern enum</a></li>
+            <li><a id="toc-Enum-Literals" href="https://ziglang.org/documentation/0.15.2/#Enum-Literals">枚举字面量</a></li>
+            <li><a id="toc-Non-exhaustive-enum" href="https://ziglang.org/documentation/0.15.2/#Non-exhaustive-enum">非穷尽枚举</a></li>
+        </ul></li>
+        <li><a id="toc-union" href="https://ziglang.org/documentation/0.15.2/#union">union</a>
+        <ul>
+            <li><a id="toc-Tagged-union" href="https://ziglang.org/documentation/0.15.2/#Tagged-union">标记联合</a></li>
+            <li><a id="toc-extern-union" href="https://ziglang.org/documentation/0.15.2/#extern-union">extern union</a></li>
+            <li><a id="toc-packed-union" href="https://ziglang.org/documentation/0.15.2/#packed-union">packed union</a></li>
+            <li><a id="toc-Anonymous-Union-Literals" href="https://ziglang.org/documentation/0.15.2/#Anonymous-Union-Literals">匿名联合字面量</a></li>
+        </ul></li>
+        <li><a id="toc-opaque" href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a></li>
+        <li><a id="toc-Blocks" href="https://ziglang.org/documentation/0.15.2/#Blocks">块</a>
+        <ul>
+            <li><a id="toc-Shadowing" href="https://ziglang.org/documentation/0.15.2/#Shadowing">遮蔽</a></li>
+            <li><a id="toc-Empty-Blocks" href="https://ziglang.org/documentation/0.15.2/#Empty-Blocks">空块</a></li>
+        </ul></li>
+        <li><a id="toc-switch" href="https://ziglang.org/documentation/0.15.2/#switch">switch</a>
+        <ul>
+            <li><a id="toc-Exhaustive-Switching" href="https://ziglang.org/documentation/0.15.2/#Exhaustive-Switching">穷尽切换</a></li>
+            <li><a id="toc-Switching-with-Enum-Literals" href="https://ziglang.org/documentation/0.15.2/#Switching-with-Enum-Literals">使用枚举字面量切换</a></li>
+            <li><a id="toc-Labeled-switch" href="https://ziglang.org/documentation/0.15.2/#Labeled-switch">带标签的 switch</a></li>
+            <li><a id="toc-Inline-Switch-Prongs" href="https://ziglang.org/documentation/0.15.2/#Inline-Switch-Prongs">内联 Switch 分支</a></li>
+        </ul></li>
+        <li><a id="toc-while" href="https://ziglang.org/documentation/0.15.2/#while">while</a>
+        <ul>
+            <li><a id="toc-Labeled-while" href="https://ziglang.org/documentation/0.15.2/#Labeled-while">带标签的 while</a></li>
+            <li><a id="toc-while-with-Optionals" href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">while 与可选值</a></li>
+            <li><a id="toc-while-with-Error-Unions" href="https://ziglang.org/documentation/0.15.2/#while-with-Error-Unions">while 与错误联合</a></li>
+            <li><a id="toc-inline-while" href="https://ziglang.org/documentation/0.15.2/#inline-while">inline while</a></li>
+        </ul></li>
+        <li><a id="toc-for" href="https://ziglang.org/documentation/0.15.2/#for">for</a>
+        <ul>
+            <li><a id="toc-Labeled-for" href="https://ziglang.org/documentation/0.15.2/#Labeled-for">带标签的 for</a></li>
+            <li><a id="toc-inline-for" href="https://ziglang.org/documentation/0.15.2/#inline-for">inline for</a></li>
+        </ul></li>
+        <li><a id="toc-if" href="https://ziglang.org/documentation/0.15.2/#if">if</a>
+        <ul>
+            <li><a id="toc-if-with-Optionals" href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">if 与可选值</a></li>
+        </ul></li>
+        <li><a id="toc-defer" href="https://ziglang.org/documentation/0.15.2/#defer">defer</a></li>
+        <li><a id="toc-unreachable" href="https://ziglang.org/documentation/0.15.2/#unreachable">unreachable</a>
+        <ul>
+            <li><a id="toc-Basics" href="https://ziglang.org/documentation/0.15.2/#Basics">基础</a></li>
+            <li><a id="toc-At-Compile-Time" href="https://ziglang.org/documentation/0.15.2/#At-Compile-Time">编译时</a></li>
+        </ul></li>
+        <li><a id="toc-noreturn" href="https://ziglang.org/documentation/0.15.2/#noreturn">noreturn</a></li>
+        <li><a id="toc-Functions" href="https://ziglang.org/documentation/0.15.2/#Functions">函数</a>
+        <ul>
+            <li><a id="toc-Pass-by-value-Parameters" href="https://ziglang.org/documentation/0.15.2/#Pass-by-value-Parameters">按值传递参数</a></li>
+            <li><a id="toc-Function-Parameter-Type-Inference" href="https://ziglang.org/documentation/0.15.2/#Function-Parameter-Type-Inference">函数参数类型推断</a></li>
+            <li><a id="toc-inline-fn" href="https://ziglang.org/documentation/0.15.2/#inline-fn">inline fn</a></li>
+            <li><a id="toc-Function-Reflection" href="https://ziglang.org/documentation/0.15.2/#Function-Reflection">函数反射</a></li>
+        </ul></li>
+        <li><a id="toc-Errors" href="https://ziglang.org/documentation/0.15.2/#Errors">错误</a>
+        <ul>
+            <li><a id="toc-Error-Set-Type" href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">错误集类型</a>
+            <ul>
+                <li><a id="toc-The-Global-Error-Set" href="https://ziglang.org/documentation/0.15.2/#The-Global-Error-Set">全局错误集</a></li>
+            </ul></li>
+            <li><a id="toc-Error-Union-Type" href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">错误联合类型</a>
+            <ul>
+                <li><a id="toc-catch" href="https://ziglang.org/documentation/0.15.2/#catch">catch</a></li>
+                <li><a id="toc-try" href="https://ziglang.org/documentation/0.15.2/#try">try</a></li>
+                <li><a id="toc-errdefer" href="https://ziglang.org/documentation/0.15.2/#errdefer">errdefer</a></li>
+                <li><a id="toc-Merging-Error-Sets" href="https://ziglang.org/documentation/0.15.2/#Merging-Error-Sets">合并错误集</a></li>
+                <li><a id="toc-Inferred-Error-Sets" href="https://ziglang.org/documentation/0.15.2/#Inferred-Error-Sets">推断错误集</a></li>
+            </ul></li>
+            <li><a id="toc-Error-Return-Traces" href="https://ziglang.org/documentation/0.15.2/#Error-Return-Traces">错误返回跟踪</a>
+            <ul>
+                <li><a id="toc-Implementation-Details" href="https://ziglang.org/documentation/0.15.2/#Implementation-Details">实现细节</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-Optionals" href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a>
+        <ul>
+            <li><a id="toc-Optional-Type" href="https://ziglang.org/documentation/0.15.2/#Optional-Type">可选值类型</a></li>
+            <li><a id="toc-null" href="https://ziglang.org/documentation/0.15.2/#null">null</a></li>
+            <li><a id="toc-Optional-Pointers" href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a></li>
+        </ul></li>
+        <li><a id="toc-Casting" href="https://ziglang.org/documentation/0.15.2/#Casting">类型转换</a>
+        <ul>
+            <li><a id="toc-Type-Coercion" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">类型强制转换</a>
+            <ul>
+                <li><a id="toc-Type-Coercion-Stricter-Qualification" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Stricter-Qualification">类型强制转换:更严格的限定</a></li>
+                <li><a id="toc-Type-Coercion-Integer-and-Float-Widening" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Integer-and-Float-Widening">类型强制转换:整数和浮点数扩展</a></li>
+                <li><a id="toc-Type-Coercion-Float-to-Int" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Float-to-Int">类型强制转换:浮点数到整数</a></li>
+                <li><a id="toc-Type-Coercion-Slices-Arrays-and-Pointers" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Slices-Arrays-and-Pointers">类型强制转换:切片、数组和指针</a></li>
+                <li><a id="toc-Type-Coercion-Optionals" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Optionals">类型强制转换:可选值</a></li>
+                <li><a id="toc-Type-Coercion-Error-Unions" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Error-Unions">类型强制转换:错误联合</a></li>
+                <li><a id="toc-Type-Coercion-Compile-Time-Known-Numbers" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Compile-Time-Known-Numbers">类型强制转换:编译时已知数字</a></li>
+                <li><a id="toc-Type-Coercion-Unions-and-Enums" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Unions-and-Enums">类型强制转换:联合和枚举</a></li>
+                <li><a id="toc-Type-Coercion-undefined" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-undefined">类型强制转换:undefined</a></li>
+                <li><a id="toc-Type-Coercion-Tuples-to-Arrays" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Tuples-to-Arrays">类型强制转换:元组到数组</a></li>
+            </ul></li>
+            <li><a id="toc-Explicit-Casts" href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">显式转换</a></li>
+            <li><a id="toc-Peer-Type-Resolution" href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a></li>
+        </ul></li>
+        <li><a id="toc-Zero-Bit-Types" href="https://ziglang.org/documentation/0.15.2/#Zero-Bit-Types">零位类型</a>
+        <ul>
+            <li><a id="toc-void" href="https://ziglang.org/documentation/0.15.2/#void">void</a></li>
+        </ul></li>
+        <li><a id="toc-Result-Location-Semantics" href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">结果位置语义</a>
+        <ul>
+            <li><a id="toc-Result-Types" href="https://ziglang.org/documentation/0.15.2/#Result-Types">结果类型</a></li>
+            <li><a id="toc-Result-Locations" href="https://ziglang.org/documentation/0.15.2/#Result-Locations">结果位置</a></li>
+        </ul></li>
+        <li><a id="toc-comptime" href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>
+        <ul>
+            <li><a id="toc-Introducing-the-Compile-Time-Concept" href="https://ziglang.org/documentation/0.15.2/#Introducing-the-Compile-Time-Concept">引入编译时概念</a>
+            <ul>
+                <li><a id="toc-Compile-Time-Parameters" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Parameters">编译时参数</a></li>
+                <li><a id="toc-Compile-Time-Variables" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Variables">编译时变量</a></li>
+                <li><a id="toc-Compile-Time-Expressions" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Expressions">编译时表达式</a></li>
+            </ul></li>
+            <li><a id="toc-Generic-Data-Structures" href="https://ziglang.org/documentation/0.15.2/#Generic-Data-Structures">泛型数据结构</a></li>
+            <li><a id="toc-Case-Study-print-in-Zig" href="https://ziglang.org/documentation/0.15.2/#Case-Study-print-in-Zig">案例研究:Zig 中的 print</a></li>
+        </ul></li>
+        <li><a id="toc-Assembly" href="https://ziglang.org/documentation/0.15.2/#Assembly">汇编</a>
+        <ul>
+            <li><a id="toc-Output-Constraints" href="https://ziglang.org/documentation/0.15.2/#Output-Constraints">输出约束</a></li>
+            <li><a id="toc-Input-Constraints" href="https://ziglang.org/documentation/0.15.2/#Input-Constraints">输入约束</a></li>
+            <li><a id="toc-Clobbers" href="https://ziglang.org/documentation/0.15.2/#Clobbers">破坏列表</a></li>
+            <li><a id="toc-Global-Assembly" href="https://ziglang.org/documentation/0.15.2/#Global-Assembly">全局汇编</a></li>
+        </ul></li>
+        <li><a id="toc-Atomics" href="https://ziglang.org/documentation/0.15.2/#Atomics">原子操作</a></li>
+        <li><a id="toc-Async-Functions" href="https://ziglang.org/documentation/0.15.2/#Async-Functions">异步函数</a></li>
+        <li><a id="toc-Builtin-Functions" href="https://ziglang.org/documentation/0.15.2/#Builtin-Functions">内置函数</a>
+        <ul style="columns: 2">
+            <li><a id="toc-addrSpaceCast" href="https://ziglang.org/documentation/0.15.2/#addrSpaceCast">@addrSpaceCast</a></li>
+            <li><a id="toc-addWithOverflow" href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a></li>
+            <li><a id="toc-alignCast" href="https://ziglang.org/documentation/0.15.2/#alignCast">@alignCast</a></li>
+            <li><a id="toc-alignOf" href="https://ziglang.org/documentation/0.15.2/#alignOf">@alignOf</a></li>
+            <li><a id="toc-as" href="https://ziglang.org/documentation/0.15.2/#as">@as</a></li>
+            <li><a id="toc-atomicLoad" href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+            <li><a id="toc-atomicRmw" href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+            <li><a id="toc-atomicStore" href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+            <li><a id="toc-bitCast" href="https://ziglang.org/documentation/0.15.2/#bitCast">@bitCast</a></li>
+            <li><a id="toc-bitOffsetOf" href="https://ziglang.org/documentation/0.15.2/#bitOffsetOf">@bitOffsetOf</a></li>
+            <li><a id="toc-bitSizeOf" href="https://ziglang.org/documentation/0.15.2/#bitSizeOf">@bitSizeOf</a></li>
+            <li><a id="toc-branchHint" href="https://ziglang.org/documentation/0.15.2/#branchHint">@branchHint</a></li>
+            <li><a id="toc-breakpoint" href="https://ziglang.org/documentation/0.15.2/#breakpoint">@breakpoint</a></li>
+            <li><a id="toc-mulAdd" href="https://ziglang.org/documentation/0.15.2/#mulAdd">@mulAdd</a></li>
+            <li><a id="toc-byteSwap" href="https://ziglang.org/documentation/0.15.2/#byteSwap">@byteSwap</a></li>
+            <li><a id="toc-bitReverse" href="https://ziglang.org/documentation/0.15.2/#bitReverse">@bitReverse</a></li>
+            <li><a id="toc-offsetOf" href="https://ziglang.org/documentation/0.15.2/#offsetOf">@offsetOf</a></li>
+            <li><a id="toc-call" href="https://ziglang.org/documentation/0.15.2/#call">@call</a></li>
+            <li><a id="toc-cDefine" href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+            <li><a id="toc-cImport" href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+            <li><a id="toc-cInclude" href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+            <li><a id="toc-clz" href="https://ziglang.org/documentation/0.15.2/#clz">@clz</a></li>
+            <li><a id="toc-cmpxchgStrong" href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+            <li><a id="toc-cmpxchgWeak" href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+            <li><a id="toc-compileError" href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+            <li><a id="toc-compileLog" href="https://ziglang.org/documentation/0.15.2/#compileLog">@compileLog</a></li>
+            <li><a id="toc-constCast" href="https://ziglang.org/documentation/0.15.2/#constCast">@constCast</a></li>
+            <li><a id="toc-ctz" href="https://ziglang.org/documentation/0.15.2/#ctz">@ctz</a></li>
+            <li><a id="toc-cUndef" href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+            <li><a id="toc-cVaArg" href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a></li>
+            <li><a id="toc-cVaCopy" href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a></li>
+            <li><a id="toc-cVaEnd" href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a></li>
+            <li><a id="toc-cVaStart" href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a></li>
+            <li><a id="toc-divExact" href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a></li>
+            <li><a id="toc-divFloor" href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a></li>
+            <li><a id="toc-divTrunc" href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a></li>
+            <li><a id="toc-embedFile" href="https://ziglang.org/documentation/0.15.2/#embedFile">@embedFile</a></li>
+            <li><a id="toc-enumFromInt" href="https://ziglang.org/documentation/0.15.2/#enumFromInt">@enumFromInt</a></li>
+            <li><a id="toc-errorFromInt" href="https://ziglang.org/documentation/0.15.2/#errorFromInt">@errorFromInt</a></li>
+            <li><a id="toc-errorName" href="https://ziglang.org/documentation/0.15.2/#errorName">@errorName</a></li>
+            <li><a id="toc-errorReturnTrace" href="https://ziglang.org/documentation/0.15.2/#errorReturnTrace">@errorReturnTrace</a></li>
+            <li><a id="toc-errorCast" href="https://ziglang.org/documentation/0.15.2/#errorCast">@errorCast</a></li>
+            <li><a id="toc-export" href="https://ziglang.org/documentation/0.15.2/#export">@export</a></li>
+            <li><a id="toc-extern" href="https://ziglang.org/documentation/0.15.2/#extern">@extern</a></li>
+            <li><a id="toc-field" href="https://ziglang.org/documentation/0.15.2/#field">@field</a></li>
+            <li><a id="toc-fieldParentPtr" href="https://ziglang.org/documentation/0.15.2/#fieldParentPtr">@fieldParentPtr</a></li>
+            <li><a id="toc-FieldType" href="https://ziglang.org/documentation/0.15.2/#FieldType">@FieldType</a></li>
+            <li><a id="toc-floatCast" href="https://ziglang.org/documentation/0.15.2/#floatCast">@floatCast</a></li>
+            <li><a id="toc-floatFromInt" href="https://ziglang.org/documentation/0.15.2/#floatFromInt">@floatFromInt</a></li>
+            <li><a id="toc-frameAddress" href="https://ziglang.org/documentation/0.15.2/#frameAddress">@frameAddress</a></li>
+            <li><a id="toc-hasDecl" href="https://ziglang.org/documentation/0.15.2/#hasDecl">@hasDecl</a></li>
+            <li><a id="toc-hasField" href="https://ziglang.org/documentation/0.15.2/#hasField">@hasField</a></li>
+            <li><a id="toc-import" href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+            <li><a id="toc-inComptime" href="https://ziglang.org/documentation/0.15.2/#inComptime">@inComptime</a></li>
+            <li><a id="toc-intCast" href="https://ziglang.org/documentation/0.15.2/#intCast">@intCast</a></li>
+            <li><a id="toc-intFromBool" href="https://ziglang.org/documentation/0.15.2/#intFromBool">@intFromBool</a></li>
+            <li><a id="toc-intFromEnum" href="https://ziglang.org/documentation/0.15.2/#intFromEnum">@intFromEnum</a></li>
+            <li><a id="toc-intFromError" href="https://ziglang.org/documentation/0.15.2/#intFromError">@intFromError</a></li>
+            <li><a id="toc-intFromFloat" href="https://ziglang.org/documentation/0.15.2/#intFromFloat">@intFromFloat</a></li>
+            <li><a id="toc-intFromPtr" href="https://ziglang.org/documentation/0.15.2/#intFromPtr">@intFromPtr</a></li>
+            <li><a id="toc-max" href="https://ziglang.org/documentation/0.15.2/#max">@max</a></li>
+            <li><a id="toc-memcpy" href="https://ziglang.org/documentation/0.15.2/#memcpy">@memcpy</a></li>
+            <li><a id="toc-memset" href="https://ziglang.org/documentation/0.15.2/#memset">@memset</a></li>
+            <li><a id="toc-memmove" href="https://ziglang.org/documentation/0.15.2/#memmove">@memmove</a></li>
+            <li><a id="toc-min" href="https://ziglang.org/documentation/0.15.2/#min">@min</a></li>
+            <li><a id="toc-wasmMemorySize" href="https://ziglang.org/documentation/0.15.2/#wasmMemorySize">@wasmMemorySize</a></li>
+            <li><a id="toc-wasmMemoryGrow" href="https://ziglang.org/documentation/0.15.2/#wasmMemoryGrow">@wasmMemoryGrow</a></li>
+            <li><a id="toc-mod" href="https://ziglang.org/documentation/0.15.2/#mod">@mod</a></li>
+            <li><a id="toc-mulWithOverflow" href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a></li>
+            <li><a id="toc-panic" href="https://ziglang.org/documentation/0.15.2/#panic">@panic</a></li>
+            <li><a id="toc-popCount" href="https://ziglang.org/documentation/0.15.2/#popCount">@popCount</a></li>
+            <li><a id="toc-prefetch" href="https://ziglang.org/documentation/0.15.2/#prefetch">@prefetch</a></li>
+            <li><a id="toc-ptrCast" href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a></li>
+            <li><a id="toc-ptrFromInt" href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">@ptrFromInt</a></li>
+            <li><a id="toc-rem" href="https://ziglang.org/documentation/0.15.2/#rem">@rem</a></li>
+            <li><a id="toc-returnAddress" href="https://ziglang.org/documentation/0.15.2/#returnAddress">@returnAddress</a></li>
+            <li><a id="toc-select" href="https://ziglang.org/documentation/0.15.2/#select">@select</a></li>
+            <li><a id="toc-setEvalBranchQuota" href="https://ziglang.org/documentation/0.15.2/#setEvalBranchQuota">@setEvalBranchQuota</a></li>
+            <li><a id="toc-setFloatMode" href="https://ziglang.org/documentation/0.15.2/#setFloatMode">@setFloatMode</a></li>
+            <li><a id="toc-setRuntimeSafety" href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">@setRuntimeSafety</a></li>
+            <li><a id="toc-shlExact" href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a></li>
+            <li><a id="toc-shlWithOverflow" href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a></li>
+            <li><a id="toc-shrExact" href="https://ziglang.org/documentation/0.15.2/#shrExact">@shrExact</a></li>
+            <li><a id="toc-shuffle" href="https://ziglang.org/documentation/0.15.2/#shuffle">@shuffle</a></li>
+            <li><a id="toc-sizeOf" href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a></li>
+            <li><a id="toc-splat" href="https://ziglang.org/documentation/0.15.2/#splat">@splat</a></li>
+            <li><a id="toc-reduce" href="https://ziglang.org/documentation/0.15.2/#reduce">@reduce</a></li>
+            <li><a id="toc-src" href="https://ziglang.org/documentation/0.15.2/#src">@src</a></li>
+            <li><a id="toc-sqrt" href="https://ziglang.org/documentation/0.15.2/#sqrt">@sqrt</a></li>
+            <li><a id="toc-sin" href="https://ziglang.org/documentation/0.15.2/#sin">@sin</a></li>
+            <li><a id="toc-cos" href="https://ziglang.org/documentation/0.15.2/#cos">@cos</a></li>
+            <li><a id="toc-tan" href="https://ziglang.org/documentation/0.15.2/#tan">@tan</a></li>
+            <li><a id="toc-exp" href="https://ziglang.org/documentation/0.15.2/#exp">@exp</a></li>
+            <li><a id="toc-exp2" href="https://ziglang.org/documentation/0.15.2/#exp2">@exp2</a></li>
+            <li><a id="toc-log" href="https://ziglang.org/documentation/0.15.2/#log">@log</a></li>
+            <li><a id="toc-log2" href="https://ziglang.org/documentation/0.15.2/#log2">@log2</a></li>
+            <li><a id="toc-log10" href="https://ziglang.org/documentation/0.15.2/#log10">@log10</a></li>
+            <li><a id="toc-abs" href="https://ziglang.org/documentation/0.15.2/#abs">@abs</a></li>
+            <li><a id="toc-floor" href="https://ziglang.org/documentation/0.15.2/#floor">@floor</a></li>
+            <li><a id="toc-ceil" href="https://ziglang.org/documentation/0.15.2/#ceil">@ceil</a></li>
+            <li><a id="toc-trunc" href="https://ziglang.org/documentation/0.15.2/#trunc">@trunc</a></li>
+            <li><a id="toc-round" href="https://ziglang.org/documentation/0.15.2/#round">@round</a></li>
+            <li><a id="toc-subWithOverflow" href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a></li>
+            <li><a id="toc-tagName" href="https://ziglang.org/documentation/0.15.2/#tagName">@tagName</a></li>
+            <li><a id="toc-This" href="https://ziglang.org/documentation/0.15.2/#This">@This</a></li>
+            <li><a id="toc-trap" href="https://ziglang.org/documentation/0.15.2/#trap">@trap</a></li>
+            <li><a id="toc-truncate" href="https://ziglang.org/documentation/0.15.2/#truncate">@truncate</a></li>
+            <li><a id="toc-Type" href="https://ziglang.org/documentation/0.15.2/#Type">@Type</a></li>
+            <li><a id="toc-typeInfo" href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a></li>
+            <li><a id="toc-typeName" href="https://ziglang.org/documentation/0.15.2/#typeName">@typeName</a></li>
+            <li><a id="toc-TypeOf" href="https://ziglang.org/documentation/0.15.2/#TypeOf">@TypeOf</a></li>
+            <li><a id="toc-unionInit" href="https://ziglang.org/documentation/0.15.2/#unionInit">@unionInit</a></li>
+            <li><a id="toc-Vector" href="https://ziglang.org/documentation/0.15.2/#Vector">@Vector</a></li>
+            <li><a id="toc-volatileCast" href="https://ziglang.org/documentation/0.15.2/#volatileCast">@volatileCast</a></li>
+            <li><a id="toc-workGroupId" href="https://ziglang.org/documentation/0.15.2/#workGroupId">@workGroupId</a></li>
+            <li><a id="toc-workGroupSize" href="https://ziglang.org/documentation/0.15.2/#workGroupSize">@workGroupSize</a></li>
+            <li><a id="toc-workItemId" href="https://ziglang.org/documentation/0.15.2/#workItemId">@workItemId</a></li>
+        </ul></li>
+        <li><a id="toc-Build-Mode" href="https://ziglang.org/documentation/0.15.2/#Build-Mode">构建模式</a>
+        <ul>
+            <li><a id="toc-Debug" href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a></li>
+            <li><a id="toc-ReleaseFast" href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a></li>
+            <li><a id="toc-ReleaseSafe" href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a></li>
+            <li><a id="toc-ReleaseSmall" href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a></li>
+        </ul></li>
+        <li><a id="toc-Single-Threaded-Builds" href="https://ziglang.org/documentation/0.15.2/#Single-Threaded-Builds">单线程构建</a></li>
+        <li><a id="toc-Illegal-Behavior" href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>
+        <ul>
+            <li><a id="toc-Reaching-Unreachable-Code" href="https://ziglang.org/documentation/0.15.2/#Reaching-Unreachable-Code">到达不可达代码</a></li>
+            <li><a id="toc-Index-out-of-Bounds" href="https://ziglang.org/documentation/0.15.2/#Index-out-of-Bounds">索引越界</a></li>
+            <li><a id="toc-Cast-Negative-Number-to-Unsigned-Integer" href="https://ziglang.org/documentation/0.15.2/#Cast-Negative-Number-to-Unsigned-Integer">将负数转换为无符号整数</a></li>
+            <li><a id="toc-Cast-Truncates-Data" href="https://ziglang.org/documentation/0.15.2/#Cast-Truncates-Data">转换截断数据</a></li>
+            <li><a id="toc-Integer-Overflow" href="https://ziglang.org/documentation/0.15.2/#Integer-Overflow">整数溢出</a>
+            <ul>
+                <li><a id="toc-Default-Operations" href="https://ziglang.org/documentation/0.15.2/#Default-Operations">默认操作</a></li>
+                <li><a id="toc-Standard-Library-Math-Functions" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Math-Functions">标准库数学函数</a></li>
+                <li><a id="toc-Builtin-Overflow-Functions" href="https://ziglang.org/documentation/0.15.2/#Builtin-Overflow-Functions">内置溢出函数</a></li>
+                <li><a id="toc-Wrapping-Operations" href="https://ziglang.org/documentation/0.15.2/#Wrapping-Operations">环绕操作</a></li>
+            </ul></li>
+            <li><a id="toc-Exact-Left-Shift-Overflow" href="https://ziglang.org/documentation/0.15.2/#Exact-Left-Shift-Overflow">精确左移溢出</a></li>
+            <li><a id="toc-Exact-Right-Shift-Overflow" href="https://ziglang.org/documentation/0.15.2/#Exact-Right-Shift-Overflow">精确右移溢出</a></li>
+            <li><a id="toc-Division-by-Zero" href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">除以零</a></li>
+            <li><a id="toc-Remainder-Division-by-Zero" href="https://ziglang.org/documentation/0.15.2/#Remainder-Division-by-Zero">余数除以零</a></li>
+            <li><a id="toc-Exact-Division-Remainder" href="https://ziglang.org/documentation/0.15.2/#Exact-Division-Remainder">精确除法余数</a></li>
+            <li><a id="toc-Attempt-to-Unwrap-Null" href="https://ziglang.org/documentation/0.15.2/#Attempt-to-Unwrap-Null">尝试解包 Null</a></li>
+            <li><a id="toc-Attempt-to-Unwrap-Error" href="https://ziglang.org/documentation/0.15.2/#Attempt-to-Unwrap-Error">尝试解包错误</a></li>
+            <li><a id="toc-Invalid-Error-Code" href="https://ziglang.org/documentation/0.15.2/#Invalid-Error-Code">无效错误代码</a></li>
+            <li><a id="toc-Invalid-Enum-Cast" href="https://ziglang.org/documentation/0.15.2/#Invalid-Enum-Cast">无效枚举转换</a></li>
+            <li><a id="toc-Invalid-Error-Set-Cast" href="https://ziglang.org/documentation/0.15.2/#Invalid-Error-Set-Cast">无效错误集转换</a></li>
+            <li><a id="toc-Incorrect-Pointer-Alignment" href="https://ziglang.org/documentation/0.15.2/#Incorrect-Pointer-Alignment">指针对齐不正确</a></li>
+            <li><a id="toc-Wrong-Union-Field-Access" href="https://ziglang.org/documentation/0.15.2/#Wrong-Union-Field-Access">错误的联合字段访问</a></li>
+            <li><a id="toc-Out-of-Bounds-Float-to-Integer-Cast" href="https://ziglang.org/documentation/0.15.2/#Out-of-Bounds-Float-to-Integer-Cast">浮点数到整数转换越界</a></li>
+            <li><a id="toc-Pointer-Cast-Invalid-Null" href="https://ziglang.org/documentation/0.15.2/#Pointer-Cast-Invalid-Null">指针转换无效 Null</a></li>
+        </ul></li>
+        <li><a id="toc-Memory" href="https://ziglang.org/documentation/0.15.2/#Memory">内存</a>
+        <ul>
+            <li><a id="toc-Choosing-an-Allocator" href="https://ziglang.org/documentation/0.15.2/#Choosing-an-Allocator">选择分配器</a></li>
+            <li><a id="toc-Where-are-the-bytes" href="https://ziglang.org/documentation/0.15.2/#Where-are-the-bytes">字节在哪里?</a></li>
+            <li><a id="toc-Heap-Allocation-Failure" href="https://ziglang.org/documentation/0.15.2/#Heap-Allocation-Failure">堆分配失败</a></li>
+            <li><a id="toc-Recursion" href="https://ziglang.org/documentation/0.15.2/#Recursion">递归</a></li>
+            <li><a id="toc-Lifetime-and-Ownership" href="https://ziglang.org/documentation/0.15.2/#Lifetime-and-Ownership">生命周期和所有权</a></li>
+        </ul></li>
+        <li><a id="toc-Compile-Variables" href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">编译变量</a></li>
+        <li><a id="toc-Compilation-Model" href="https://ziglang.org/documentation/0.15.2/#Compilation-Model">编译模型</a>
+        <ul>
+            <li><a id="toc-Source-File-Structs" href="https://ziglang.org/documentation/0.15.2/#Source-File-Structs">源文件结构</a></li>
+            <li><a id="toc-File-and-Declaration-Discovery" href="https://ziglang.org/documentation/0.15.2/#File-and-Declaration-Discovery">文件和声明发现</a></li>
+            <li><a id="toc-Special-Root-Declarations" href="https://ziglang.org/documentation/0.15.2/#Special-Root-Declarations">特殊根声明</a>
+            <ul>
+                <li><a id="toc-Entry-Point" href="https://ziglang.org/documentation/0.15.2/#Entry-Point">入口点</a></li>
+                <li><a id="toc-Standard-Library-Options" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Options">标准库选项</a></li>
+                <li><a id="toc-Panic-Handler" href="https://ziglang.org/documentation/0.15.2/#Panic-Handler">Panic 处理器</a></li>
+            </ul></li>
+        </ul></li>
+        <li><a id="toc-Zig-Build-System" href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">Zig 构建系统</a></li>
+        <li><a id="toc-C" href="https://ziglang.org/documentation/0.15.2/#C">C</a>
+        <ul>
+            <li><a id="toc-C-Type-Primitives" href="https://ziglang.org/documentation/0.15.2/#C-Type-Primitives">C 类型基本类型</a></li>
+            <li><a id="toc-Import-from-C-Header-File" href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+            <li><a id="toc-C-Translation-CLI" href="https://ziglang.org/documentation/0.15.2/#C-Translation-CLI">C 翻译 CLI</a>
+            <ul>
+                <li><a id="toc-Command-line-flags" href="https://ziglang.org/documentation/0.15.2/#Command-line-flags">命令行标志</a></li>
+                <li><a id="toc-Using--target-and--cflags" href="https://ziglang.org/documentation/0.15.2/#Using--target-and--cflags">使用 -target 和 -cflags</a></li>
+                <li><a id="toc-cImport-vs-translate-c" href="https://ziglang.org/documentation/0.15.2/#cImport-vs-translate-c">@cImport 对比 translate-c</a></li>
+            </ul></li>
+            <li><a id="toc-C-Translation-Caching" href="https://ziglang.org/documentation/0.15.2/#C-Translation-Caching">C 翻译缓存</a></li>
+            <li><a id="toc-Translation-failures" href="https://ziglang.org/documentation/0.15.2/#Translation-failures">翻译失败</a></li>
+            <li><a id="toc-C-Macros" href="https://ziglang.org/documentation/0.15.2/#C-Macros">C 宏</a></li>
+            <li><a id="toc-C-Pointers" href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C 指针</a></li>
+            <li><a id="toc-C-Variadic-Functions" href="https://ziglang.org/documentation/0.15.2/#C-Variadic-Functions">C 可变参数函数</a></li>
+            <li><a id="toc-Exporting-a-C-Library" href="https://ziglang.org/documentation/0.15.2/#Exporting-a-C-Library">导出 C 库</a></li>
+            <li><a id="toc-Mixing-Object-Files" href="https://ziglang.org/documentation/0.15.2/#Mixing-Object-Files">混合目标文件</a></li>
+        </ul></li>
+        <li><a id="toc-WebAssembly" href="https://ziglang.org/documentation/0.15.2/#WebAssembly">WebAssembly</a>
+        <ul>
+            <li><a id="toc-Freestanding" href="https://ziglang.org/documentation/0.15.2/#Freestanding">独立模式</a></li>
+            <li><a id="toc-WASI" href="https://ziglang.org/documentation/0.15.2/#WASI">WASI</a></li>
+        </ul></li>
+        <li><a id="toc-Targets" href="https://ziglang.org/documentation/0.15.2/#Targets">目标</a></li>
+        <li><a id="toc-Style-Guide" href="https://ziglang.org/documentation/0.15.2/#Style-Guide">风格指南</a>
+        <ul>
+            <li><a id="toc-Avoid-Redundancy-in-Names" href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundancy-in-Names">避免名称冗余</a></li>
+            <li><a id="toc-Avoid-Redundant-Names-in-Fully-Qualified-Namespaces" href="https://ziglang.org/documentation/0.15.2/#Avoid-Redundant-Names-in-Fully-Qualified-Namespaces">避免完全限定命名空间中的冗余名称</a></li>
+            <li><a id="toc-Whitespace" href="https://ziglang.org/documentation/0.15.2/#Whitespace">空白</a></li>
+            <li><a id="toc-Names" href="https://ziglang.org/documentation/0.15.2/#Names">命名</a></li>
+            <li><a id="toc-Examples" href="https://ziglang.org/documentation/0.15.2/#Examples">示例</a></li>
+            <li><a id="toc-Doc-Comment-Guidance" href="https://ziglang.org/documentation/0.15.2/#Doc-Comment-Guidance">文档注释指南</a></li>
+        </ul></li>
+        <li><a id="toc-Source-Encoding" href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">源代码编码</a></li>
+        <li><a id="toc-Keyword-Reference" href="https://ziglang.org/documentation/0.15.2/#Keyword-Reference">关键字参考</a></li>
+        <li><a id="toc-Appendix" href="https://ziglang.org/documentation/0.15.2/#Appendix">附录</a>
+        <ul>
+            <li><a id="toc-Containers" href="https://ziglang.org/documentation/0.15.2/#Containers">容器</a></li>
+            <li><a id="toc-Grammar" href="https://ziglang.org/documentation/0.15.2/#Grammar">语法</a></li>
+            <li><a id="toc-Zen" href="https://ziglang.org/documentation/0.15.2/#Zen">Zen</a></li>
+        </ul></li>
+    </ul>
+
+        </nav>
+      </div>
+      <div id="contents-wrapper"><main id="contents">
+      <h2 id="Introduction"><a href="https://ziglang.org/documentation/0.15.2/#toc-Introduction">简介</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Introduction">§</a></h2>
+
+      <p>
+      <a href="https://ziglang.org/">Zig</a> 是一种通用编程语言和工具链,用于维护<strong>健壮</strong>、<strong>优化</strong>和<strong>可重用</strong>的软件。
+      </p>
+      <dl>
+        <dt>健壮</dt><dd>即使在边缘情况(如内存不足)下,行为也是正确的。</dd>
+        <dt>优化</dt><dd>以最佳方式编写程序,使其行为和性能达到最优。</dd>
+        <dt>可重用</dt><dd>相同的代码可以在具有不同约束的多种环境中工作。</dd>
+        <dt>可维护</dt><dd>向编译器和其他程序员精确传达意图。该语言在阅读代码时施加的开销很低,并且对不断变化的需求和环境具有弹性。</dd>
+      </dl>
+      <p>
+      通常,学习新事物最有效的方法是查看示例,因此本文档展示了如何使用 Zig 的每个特性。它全部在一个页面上,因此您可以使用浏览器的搜索工具进行搜索。
+      </p>
+      <p>
+      本文档中的代码示例作为 Zig 主测试套件的一部分进行编译和测试。
+      </p>
+      <p>
+      此 HTML 文档不依赖于任何外部文件,因此您可以离线使用它。
+      </p>
+      
+
+      <h2 id="Zig-Standard-Library"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zig-Standard-Library">Zig 标准库</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zig-Standard-Library">§</a></h2>
+
+      <p>
+        <a href="https://ziglang.org/documentation/0.15.2/std/">Zig 标准库</a>有自己的文档。
+      </p>
+      <p>
+        Zig 标准库包含常用的算法、数据结构和定义,可帮助您构建程序或库。您将在本文档中看到许多使用 Zig 标准库的示例。要了解有关 Zig 标准库的更多信息,请访问上面的链接。
+      </p>
+      <p>
+        或者,每个 Zig 发行版都提供 Zig 标准库文档。可以通过本地 Web 服务器渲染它:
+      </p>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>zig std
+</samp></pre></figure>
+      
+
+      <h2 id="Hello-World"><a href="https://ziglang.org/documentation/0.15.2/#toc-Hello-World">Hello World</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Hello-World">§</a></h2>
+
+
+      <figure><figcaption class="zig-cap"><cite class="file">hello.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> std.fs.File.stdout().writeAll(<span class="tok-str">"Hello, World!\n"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe hello.zig</kbd>
+$ <kbd>./hello</kbd>
+Hello, World!
+</samp></pre></figure>
+
+      <p>
+      大多数时候,写入 stderr 而不是 stdout 更合适,并且消息是否成功写入流并不相关。此外,格式化打印通常也很方便。对于这种常见情况,有一个更简单的 API:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">hello_again.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    std.debug.print(<span class="tok-str">"Hello, {s}!\n"</span>, .{<span class="tok-str">"World"</span>});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe hello_again.zig</kbd>
+$ <kbd>./hello_again</kbd>
+Hello, World!
+</samp></pre></figure>
+
+      <p>
+      在这种情况下,可以从 <code>main</code> 的返回类型中省略 <code>!</code>,因为该函数不会返回错误。
+      </p>
+      <p>另见:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Values">值</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Tuples">元组</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">错误</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Entry-Point">入口点</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Source-Encoding">源代码编码</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#try">try</a></li>
+</ul>
+
+      
+      <h2 id="Comments"><a href="https://ziglang.org/documentation/0.15.2/#toc-Comments">注释</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Comments">§</a></h2>
+
+      <p>
+      Zig 支持 3 种注释类型。普通注释会被忽略,但文档注释和顶级文档注释被编译器用于生成包文档。
+      </p>
+      <p>
+      生成的文档仍处于实验阶段,可以使用以下命令生成:
+      </p>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>zig test -femit-docs main.zig
+</samp></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">comments.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-comment">// Zig 中的注释以 "//" 开头,在下一个 LF 字节(行尾)结束。</span>
+    <span class="tok-comment">// 下面的行是注释,不会被执行。</span>
+
+    <span class="tok-comment">//print("Hello?", .{});</span>
+
+    print(<span class="tok-str">"Hello, world!\n"</span>, .{}); <span class="tok-comment">// 另一个注释</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe comments.zig</kbd>
+$ <kbd>./comments</kbd>
+Hello, world!
+</samp></pre></figure>
+
+      <p>
+      Zig 中没有多行注释(例如 C 中的 <code class="c">/* */</code> 注释)。这使得 Zig 具有这样的特性:每行代码都可以在没有上下文的情况下进行标记化。
+      </p>
+      <h3 id="Doc-Comments"><a href="https://ziglang.org/documentation/0.15.2/#toc-Doc-Comments">文档注释</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Doc-Comments">§</a></h3>
+
+      <p>
+      文档注释是以恰好三个斜杠开头的注释(即 <code><span class="tok-comment">///</span></code> 但不是 <code><span class="tok-comment">////</span></code>);连续的多个文档注释会合并在一起形成多行文档注释。文档注释记录紧随其后的内容。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">doc_comments.zig</cite></figcaption><pre><code><span class="tok-comment">/// 用于存储时间戳的结构,具有纳秒精度(这是一个</span>
+<span class="tok-comment">/// 多行文档注释)。</span>
+<span class="tok-kw">const</span> Timestamp = <span class="tok-kw">struct</span> {
+    <span class="tok-comment">/// 自纪元以来的秒数(这也是一个文档注释)。</span>
+    seconds: <span class="tok-type">i64</span>, <span class="tok-comment">// 有符号,所以我们可以表示 1970 年之前(不是文档注释)</span>
+    <span class="tok-comment">/// 超过秒数的纳秒数(又是文档注释)。</span>
+    nanos: <span class="tok-type">u32</span>,
+
+    <span class="tok-comment">/// 返回表示 Unix 纪元的 `Timestamp` 结构;即</span>
+    <span class="tok-comment">/// 1970 年 1 月 1 日 00:00:00 UTC 的时刻(这也是文档注释)。</span>
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">unixEpoch</span>() Timestamp {
+        <span class="tok-kw">return</span> Timestamp{
+            .seconds = <span class="tok-number">0</span>,
+            .nanos = <span class="tok-number">0</span>,
+        };
+    }
+};</code></pre></figure>
+
+      <p>
+      文档注释只允许在某些位置;在意外位置出现文档注释是编译错误,例如在表达式的中间,或在非文档注释之前。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">invalid_doc-comment.zig</cite></figcaption><pre><code><span class="tok-comment">/// 文档注释</span>
+<span class="tok-comment">//! 顶级文档注释</span>
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj invalid_doc-comment.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/invalid_doc-comment.zig:1:16: </span><span class="sgr-31m">error: </span><span class="sgr-1m">期望类型表达式,发现 '文档注释'
+</span>/// 文档注释
+               <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <figure><figcaption class="zig-cap"><cite class="file">unattached_doc-comment.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {}
+
+<span class="tok-comment">/// 文件结束</span></code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj unattached_doc-comment.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/unattached_doc-comment.zig:3:1: </span><span class="sgr-31m">error: </span><span class="sgr-1m">未附加的文档注释
+</span>/// 文件结束
+<span class="sgr-32m">^~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>
+      文档注释可以与普通注释交错。目前,在生成包文档时,普通注释会与文档注释合并。
+      </p>
+      
+      <h3 id="Top-Level-Doc-Comments"><a href="https://ziglang.org/documentation/0.15.2/#toc-Top-Level-Doc-Comments">顶级文档注释</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Top-Level-Doc-Comments">§</a></h3>
+
+      <p>
+      顶级文档注释是以两个斜杠和一个感叹号开头的注释:<code><span class="tok-comment">//!</span></code>;它记录当前模块。
+      </p>
+      <p>
+      如果顶级文档注释未放置在<a href="https://ziglang.org/documentation/0.15.2/#Containers">容器</a>的开头、任何表达式之前,则是编译错误。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">tldoc_comments.zig</cite></figcaption><pre><code><span class="tok-comment">//! 此模块提供用于检索当前日期和</span>
+<span class="tok-comment">//! 时间的函数,具有不同程度的精度和准确性。它不</span>
+<span class="tok-comment">//! 依赖于 libc,但如果可用,将使用其中的函数。</span>
+
+<span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> {
+    <span class="tok-comment">//! 顶级注释允许出现在模块以外的容器中,</span>
+    <span class="tok-comment">//! 但这并不是很有用。目前,在生成包</span>
+    <span class="tok-comment">//! 文档时,这些注释会被忽略。</span>
+};</code></pre></figure>
+
+      
+      
+      <h2 id="Values"><a href="https://ziglang.org/documentation/0.15.2/#toc-Values">值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Values">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">values.zig</cite></figcaption><pre><code><span class="tok-comment">// 顶级声明与顺序无关:</span>
+<span class="tok-kw">const</span> print = std.debug.print;
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> os = std.os;
+<span class="tok-kw">const</span> assert = std.debug.assert;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-comment">// 整数</span>
+    <span class="tok-kw">const</span> one_plus_one: <span class="tok-type">i32</span> = <span class="tok-number">1</span> + <span class="tok-number">1</span>;
+    print(<span class="tok-str">"1 + 1 = {}\n"</span>, .{one_plus_one});
+
+    <span class="tok-comment">// 浮点数</span>
+    <span class="tok-kw">const</span> seven_div_three: <span class="tok-type">f32</span> = <span class="tok-number">7.0</span> / <span class="tok-number">3.0</span>;
+    print(<span class="tok-str">"7.0 / 3.0 = {}\n"</span>, .{seven_div_three});
+
+    <span class="tok-comment">// 布尔值</span>
+    print(<span class="tok-str">"{}\n{}\n{}\n"</span>, .{
+        <span class="tok-null">true</span> <span class="tok-kw">and</span> <span class="tok-null">false</span>,
+        <span class="tok-null">true</span> <span class="tok-kw">or</span> <span class="tok-null">false</span>,
+        !<span class="tok-null">true</span>,
+    });
+
+    <span class="tok-comment">// 可选值</span>
+    <span class="tok-kw">var</span> optional_value: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;
+    assert(optional_value == <span class="tok-null">null</span>);
+
+    print(<span class="tok-str">"\n可选值 1\n类型: {}\n值: {?s}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(optional_value), optional_value,
+    });
+
+    optional_value = <span class="tok-str">"hi"</span>;
+    assert(optional_value != <span class="tok-null">null</span>);
+
+    print(<span class="tok-str">"\n可选值 2\n类型: {}\n值: {?s}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(optional_value), optional_value,
+    });
+
+    <span class="tok-comment">// 错误联合</span>
+    <span class="tok-kw">var</span> number_or_error: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-kw">error</span>.ArgNotFound;
+
+    print(<span class="tok-str">"\n错误联合 1\n类型: {}\n值: {!}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(number_or_error),
+        number_or_error,
+    });
+
+    number_or_error = <span class="tok-number">1234</span>;
+
+    print(<span class="tok-str">"\n错误联合 2\n类型: {}\n值: {!}\n"</span>, .{
+        <span class="tok-builtin">@TypeOf</span>(number_or_error), number_or_error,
+    });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe values.zig</kbd>
+$ <kbd>./values</kbd>
+1 + 1 = 2
+7.0 / 3.0 = 2.3333333
+false
+true
+false
+
+可选值 1
+类型: ?[]const u8
+值: null
+
+可选值 2
+类型: ?[]const u8
+值: hi
+
+错误联合 1
+类型: anyerror!i32
+值: error.ArgNotFound
+
+错误联合 2
+类型: anyerror!i32
+值: 1234
+</samp></pre></figure>
+
+      <h3 id="Primitive-Types"><a href="https://ziglang.org/documentation/0.15.2/#toc-Primitive-Types">基本类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">§</a></h3>
+
+      <div class="table-wrapper">

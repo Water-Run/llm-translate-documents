@@ -1,0 +1,1066 @@
+      <pre><code><span class="tok-builtin">@popCount</span>(operand: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p><code><span class="tok-builtin">@TypeOf</span>(operand)</code> must be an integer type.</p>
+      <p><code>operand</code> may be an <a href="https://ziglang.org/documentation/0.15.2/#Integers">integer</a> or <a href="https://ziglang.org/documentation/0.15.2/#Vectors">vector</a>.</p>
+      <p>
+      Counts the number of bits set in an integer - "population count".
+      </p>
+      <p>
+      The return type is an unsigned integer or vector of unsigned integers with the minimum number
+      of bits that can represent the bit count of the integer type.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#ctz">@ctz</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#clz">@clz</a></li>
+</ul>
+
+      
+
+      <h3 id="prefetch"><a href="https://ziglang.org/documentation/0.15.2/#toc-prefetch">@prefetch</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#prefetch">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@prefetch</span>(ptr: <span class="tok-kw">anytype</span>, <span class="tok-kw">comptime</span> options: PrefetchOptions) <span class="tok-type">void</span></code></pre>
+      <p>
+      This builtin tells the compiler to emit a prefetch instruction if supported by the
+      target CPU. If the target CPU does not support the requested prefetch instruction,
+      this builtin is a no-op. This function has no effect on the behavior of the program,
+      only on the performance characteristics.
+      </p>
+      <p>
+      The <code>ptr</code> argument may be any pointer type and determines the memory
+      address to prefetch. This function does not dereference the pointer, it is perfectly legal
+      to pass a pointer to invalid memory to this function and no Illegal Behavior will result.
+      </p>
+      <p><code>PrefetchOptions</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.PrefetchOptions</code>.</p>
+      
+
+      <h3 id="ptrCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-ptrCast">@ptrCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ptrCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@ptrCast</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      Converts a pointer of one type to a pointer of another type. The return type is the inferred result type.
+      </p>
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">Optional Pointers</a> are allowed. Casting an optional pointer which is <a href="https://ziglang.org/documentation/0.15.2/#null">null</a>
+      to a non-optional pointer invokes safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      <p>
+      <code><span class="tok-builtin">@ptrCast</span></code> cannot be used for:
+      </p>
+      <ul>
+          <li>Removing <code><span class="tok-kw">const</span></code> qualifier, use <a href="https://ziglang.org/documentation/0.15.2/#constCast">@constCast</a>.</li>
+          <li>Removing <code><span class="tok-kw">volatile</span></code> qualifier, use <a href="https://ziglang.org/documentation/0.15.2/#volatileCast">@volatileCast</a>.</li>
+          <li>Changing pointer address space, use <a href="https://ziglang.org/documentation/0.15.2/#addrSpaceCast">@addrSpaceCast</a>.</li>
+          <li>Increasing pointer alignment, use <a href="https://ziglang.org/documentation/0.15.2/#alignCast">@alignCast</a>.</li>
+          <li>Casting a non-slice pointer to a slice, use slicing syntax <code>ptr[start..end]</code>.</li>
+      </ul>
+      
+
+      <h3 id="ptrFromInt"><a href="https://ziglang.org/documentation/0.15.2/#toc-ptrFromInt">@ptrFromInt</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@ptrFromInt</span>(address: <span class="tok-type">usize</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      Converts an integer to a <a href="https://ziglang.org/documentation/0.15.2/#Pointers">pointer</a>. The return type is the inferred result type.
+			To convert the other way, use <a href="https://ziglang.org/documentation/0.15.2/#intFromPtr">@intFromPtr</a>. Casting an address of 0 to a destination type
+      which in not <a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">optional</a> and does not have the <code><span class="tok-kw">allowzero</span></code> attribute will result in a
+      <a href="https://ziglang.org/documentation/0.15.2/#Pointer-Cast-Invalid-Null">Pointer Cast Invalid Null</a> panic when runtime safety checks are enabled.
+      </p>
+      <p>
+      If the destination pointer type does not allow address zero and <code>address</code>
+      is zero, this invokes safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      
+
+      <h3 id="rem"><a href="https://ziglang.org/documentation/0.15.2/#toc-rem">@rem</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#rem">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@rem</span>(numerator: T, denominator: T) T</code></pre>
+      <p>
+      Remainder division. For unsigned integers this is the same as
+      <code>numerator % denominator</code>. Caller guarantees <code>denominator != <span class="tok-number">0</span></code>, otherwise the
+      operation will result in a <a href="https://ziglang.org/documentation/0.15.2/#Remainder-Division-by-Zero">Remainder Division by Zero</a> when runtime safety checks are enabled.
+      </p>
+      <ul>
+          <li><code><span class="tok-builtin">@rem</span>(-<span class="tok-number">5</span>, <span class="tok-number">3</span>) == -<span class="tok-number">2</span></code></li>
+          <li><code>(<span class="tok-builtin">@divTrunc</span>(a, b) * b) + <span class="tok-builtin">@rem</span>(a, b) == a</code></li>
+      </ul>
+      <p>For a function that returns an error code, see <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.rem</code>.</p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#mod">@mod</a></li>
+</ul>
+
+      
+
+      <h3 id="returnAddress"><a href="https://ziglang.org/documentation/0.15.2/#toc-returnAddress">@returnAddress</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#returnAddress">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@returnAddress</span>() <span class="tok-type">usize</span></code></pre>
+      <p>
+      This function returns the address of the next machine code instruction that will be executed
+      when the current function returns.
+      </p>
+      <p>
+      The implications of this are target-specific and not consistent across
+      all platforms.
+      </p>
+      <p>
+      This function is only valid within function scope. If the function gets inlined into
+      a calling function, the returned address will apply to the calling function.
+      </p>
+      
+
+      <h3 id="select"><a href="https://ziglang.org/documentation/0.15.2/#toc-select">@select</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#select">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@select</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, pred: <span class="tok-builtin">@Vector</span>(len, <span class="tok-type">bool</span>), a: <span class="tok-builtin">@Vector</span>(len, T), b: <span class="tok-builtin">@Vector</span>(len, T)) <span class="tok-builtin">@Vector</span>(len, T)</code></pre>
+      <p>
+      Selects values element-wise from <code>a</code> or <code>b</code> based on <code>pred</code>. If <code>pred[i]</code> is <code><span class="tok-null">true</span></code>, the corresponding element in the result will be <code>a[i]</code> and otherwise <code>b[i]</code>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a></li>
+</ul>
+
+      
+
+      <h3 id="setEvalBranchQuota"><a href="https://ziglang.org/documentation/0.15.2/#toc-setEvalBranchQuota">@setEvalBranchQuota</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#setEvalBranchQuota">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@setEvalBranchQuota</span>(<span class="tok-kw">comptime</span> new_quota: <span class="tok-type">u32</span>) <span class="tok-type">void</span></code></pre>
+      <p>
+      Increase the maximum number of backwards branches that compile-time code
+      execution can use before giving up and making a compile error.
+      </p>
+      <p>
+      If the <code>new_quota</code> is smaller than the default quota (<code><span class="tok-number">1000</span></code>) or
+      a previously explicitly set quota, it is ignored.
+      </p>
+      <p>
+      Example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_without_setEvalBranchQuota_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"foo"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">var</span> i = <span class="tok-number">0</span>;
+        <span class="tok-kw">while</span> (i &lt; <span class="tok-number">1001</span>) : (i += <span class="tok-number">1</span>) {}
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_without_setEvalBranchQuota_builtin.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_without_setEvalBranchQuota_builtin.zig:4:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">evaluation exceeded 1000 backwards branches
+</span>        while (i &lt; 1001) : (i += 1) {}
+        <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_without_setEvalBranchQuota_builtin.zig:4:9: </span><span class="sgr-36m">note: </span><span class="sgr-1m">use @setEvalBranchQuota() to raise the branch limit from 1000
+</span>
+</samp></pre></figure>
+
+      <p>Now we use <code><span class="tok-builtin">@setEvalBranchQuota</span></code>:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_setEvalBranchQuota_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"foo"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-builtin">@setEvalBranchQuota</span>(<span class="tok-number">1001</span>);
+        <span class="tok-kw">var</span> i = <span class="tok-number">0</span>;
+        <span class="tok-kw">while</span> (i &lt; <span class="tok-number">1001</span>) : (i += <span class="tok-number">1</span>) {}
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_setEvalBranchQuota_builtin.zig</kbd>
+1/1 test_setEvalBranchQuota_builtin.test.foo...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+</ul>
+
+      
+
+      <h3 id="setFloatMode"><a href="https://ziglang.org/documentation/0.15.2/#toc-setFloatMode">@setFloatMode</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#setFloatMode">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@setFloatMode</span>(<span class="tok-kw">comptime</span> mode: FloatMode) <span class="tok-type">void</span></code></pre>
+      <p>Changes the current scope's rules about how floating point operations are defined.</p>
+      <ul>
+        <li>
+            <code>Strict</code> (default) - Floating point operations follow strict IEEE compliance.
+        </li>
+        <li>
+            <code>Optimized</code> - Floating point operations may do all of the following:
+          <ul>
+            <li>Assume the arguments and result are not NaN. Optimizations are required to retain legal behavior over NaNs, but the value of the result is undefined.</li>
+            <li>Assume the arguments and result are not +/-Inf. Optimizations are required to retain legal behavior over +/-Inf, but the value of the result is undefined.</li>
+            <li>Treat the sign of a zero argument or result as insignificant.</li>
+            <li>Use the reciprocal of an argument rather than perform division.</li>
+            <li>Perform floating-point contraction (e.g. fusing a multiply followed by an addition into a fused multiply-add).</li>
+            <li>Perform algebraically equivalent transformations that may change results in floating point (e.g. reassociate).</li>
+          </ul>
+          This is equivalent to <code>-ffast-math</code> in GCC.
+        </li>
+      </ul>
+      <p>
+      The floating point mode is inherited by child scopes, and can be overridden in any scope.
+      You can set the floating point mode in a struct or module scope by using a comptime block.
+      </p>
+      <p><code>FloatMode</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.FloatMode</code>.</p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">Floating Point Operations</a></li>
+</ul>
+
+      
+
+      <h3 id="setRuntimeSafety"><a href="https://ziglang.org/documentation/0.15.2/#toc-setRuntimeSafety">@setRuntimeSafety</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@setRuntimeSafety</span>(<span class="tok-kw">comptime</span> safety_on: <span class="tok-type">bool</span>) <span class="tok-type">void</span></code></pre>
+      <p>
+      Sets whether runtime safety checks are enabled for the scope that contains the function call.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_setRuntimeSafety_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"@setRuntimeSafety"</span> {
+    <span class="tok-comment">// The builtin applies to the scope that it is called in. So here, integer overflow</span>
+    <span class="tok-comment">// will not be caught in ReleaseFast and ReleaseSmall modes:</span>
+    <span class="tok-comment">// var x: u8 = 255;</span>
+    <span class="tok-comment">// x += 1; // Unchecked Illegal Behavior in ReleaseFast/ReleaseSmall modes.</span>
+    {
+        <span class="tok-comment">// However this block has safety enabled, so safety checks happen here,</span>
+        <span class="tok-comment">// even in ReleaseFast and ReleaseSmall modes.</span>
+        <span class="tok-builtin">@setRuntimeSafety</span>(<span class="tok-null">true</span>);
+        <span class="tok-kw">var</span> x: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+        x += <span class="tok-number">1</span>;
+
+        {
+            <span class="tok-comment">// The value can be overridden at any scope. So here integer overflow</span>
+            <span class="tok-comment">// would not be caught in any build mode.</span>
+            <span class="tok-builtin">@setRuntimeSafety</span>(<span class="tok-null">false</span>);
+            <span class="tok-comment">// var x: u8 = 255;</span>
+            <span class="tok-comment">// x += 1; // Unchecked Illegal Behavior in all build modes.</span>
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_setRuntimeSafety_builtin.zig -OReleaseFast</kbd>
+1/1 test_setRuntimeSafety_builtin.test.@setRuntimeSafety...thread 2902624 panic: integer overflow
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_setRuntimeSafety_builtin.zig:11:11</span>: <span class="sgr-2m">0x103dc78 in test.@setRuntimeSafety (test)</span>
+        x += 1;
+          <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x10312bf in main (test)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x102ee5d in posixCallMainAndExit (test)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x102e95d in _start (test)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/7c580cf55e0b1cb6bb40fde0c61723ab/test --seed=0x2879e8a6
+</samp></pre></figure>
+
+      <p>Note: it is <a href="https://github.com/ziglang/zig/issues/978">planned</a> to replace
+      <code><span class="tok-builtin">@setRuntimeSafety</span></code> with <code>@optimizeFor</code></p>
+
+      
+
+      <h3 id="shlExact"><a href="https://ziglang.org/documentation/0.15.2/#toc-shlExact">@shlExact</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#shlExact">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@shlExact</span>(value: T, shift_amt: Log2T) T</code></pre>
+      <p>
+      Performs the left shift operation (<code>&lt;&lt;</code>).
+      For unsigned integers, the result is <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a> if any 1 bits
+      are shifted out. For signed integers, the result is <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a> if
+      any bits that disagree with the resultant sign bit are shifted out.
+      </p>
+      <p>
+      The type of <code>shift_amt</code> is an unsigned integer with <code>log2(<span class="tok-builtin">@typeInfo</span>(T).int.bits)</code> bits.
+      This is because <code>shift_amt &gt;= <span class="tok-builtin">@typeInfo</span>(T).int.bits</code> triggers safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      <p>
+      <code><span class="tok-type">comptime_int</span></code> is modeled as an integer with an infinite number of bits,
+      meaning that in such case, <code><span class="tok-builtin">@shlExact</span></code> always produces a result and
+      cannot produce a compile error.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shrExact">@shrExact</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a></li>
+</ul>
+
+      
+
+      <h3 id="shlWithOverflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-shlWithOverflow">@shlWithOverflow</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@shlWithOverflow</span>(a: <span class="tok-kw">anytype</span>, shift_amt: Log2T) <span class="tok-kw">struct</span> { <span class="tok-builtin">@TypeOf</span>(a), <span class="tok-type">u1</span> }</code></pre>
+      <p>
+      Performs <code>a &lt;&lt; b</code> and returns a tuple with the result and a possible overflow bit.
+      </p>
+      <p>
+      The type of <code>shift_amt</code> is an unsigned integer with <code>log2(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(a)).int.bits)</code> bits.
+      This is because <code>shift_amt &gt;= <span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(a)).int.bits</code> triggers safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shrExact">@shrExact</a></li>
+</ul>
+
+      
+
+      <h3 id="shrExact"><a href="https://ziglang.org/documentation/0.15.2/#toc-shrExact">@shrExact</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#shrExact">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@shrExact</span>(value: T, shift_amt: Log2T) T</code></pre>
+      <p>
+      Performs the right shift operation (<code>&gt;&gt;</code>). Caller guarantees
+      that the shift will not shift any 1 bits out.
+      </p>
+      <p>
+      The type of <code>shift_amt</code> is an unsigned integer with <code>log2(<span class="tok-builtin">@typeInfo</span>(T).int.bits)</code> bits.
+      This is because <code>shift_amt &gt;= <span class="tok-builtin">@typeInfo</span>(T).int.bits</code> triggers safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a></li>
+</ul>
+
+      
+
+      <h3 id="shuffle"><a href="https://ziglang.org/documentation/0.15.2/#toc-shuffle">@shuffle</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#shuffle">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@shuffle</span>(<span class="tok-kw">comptime</span> E: <span class="tok-type">type</span>, a: <span class="tok-builtin">@Vector</span>(a_len, E), b: <span class="tok-builtin">@Vector</span>(b_len, E), <span class="tok-kw">comptime</span> mask: <span class="tok-builtin">@Vector</span>(mask_len, <span class="tok-type">i32</span>)) <span class="tok-builtin">@Vector</span>(mask_len, E)</code></pre>
+      <p>
+      Constructs a new <a href="https://ziglang.org/documentation/0.15.2/#Vectors">vector</a> by selecting elements from <code>a</code> and
+      <code>b</code> based on <code>mask</code>.
+      </p>
+      <p>
+      Each element in <code>mask</code> selects an element from either <code>a</code> or
+      <code>b</code>. Positive numbers select from <code>a</code> starting at 0.
+      Negative values select from <code>b</code>, starting at <code>-<span class="tok-number">1</span></code> and going down.
+      It is recommended to use the <code>~</code> operator for indexes from <code>b</code>
+      so that both indexes can start from <code><span class="tok-number">0</span></code> (i.e. <code>~<span class="tok-builtin">@as</span>(<span class="tok-type">i32</span>, <span class="tok-number">0</span>)</code> is
+      <code>-<span class="tok-number">1</span></code>).
+      </p>
+      <p>
+      For each element of <code>mask</code>, if it or the selected value from
+      <code>a</code> or <code>b</code> is <code><span class="tok-null">undefined</span></code>,
+      then the resulting element is <code><span class="tok-null">undefined</span></code>.
+      </p>
+      <p>
+      <code>a_len</code> and <code>b_len</code> may differ in length. Out-of-bounds element
+      indexes in <code>mask</code> result in compile errors.
+      </p>
+      <p>
+      If <code>a</code> or <code>b</code> is <code><span class="tok-null">undefined</span></code>, it
+      is equivalent to a vector of all <code><span class="tok-null">undefined</span></code> with the same length as the other vector.
+      If both vectors are <code><span class="tok-null">undefined</span></code>, <code><span class="tok-builtin">@shuffle</span></code> returns
+      a vector with all elements <code><span class="tok-null">undefined</span></code>.
+      </p>
+      <p>
+      <code>E</code> must be an <a href="https://ziglang.org/documentation/0.15.2/#Integers">integer</a>, <a href="https://ziglang.org/documentation/0.15.2/#Floats">float</a>,
+      <a href="https://ziglang.org/documentation/0.15.2/#Pointers">pointer</a>, or <code><span class="tok-type">bool</span></code>. The mask may be any vector length, and its
+      length determines the result length.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_shuffle_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"vector @shuffle"</span> {
+    <span class="tok-kw">const</span> a = <span class="tok-builtin">@Vector</span>(<span class="tok-number">7</span>, <span class="tok-type">u8</span>){ <span class="tok-str">'o'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'r'</span>, <span class="tok-str">'z'</span>, <span class="tok-str">'w'</span> };
+    <span class="tok-kw">const</span> b = <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">u8</span>){ <span class="tok-str">'w'</span>, <span class="tok-str">'d'</span>, <span class="tok-str">'!'</span>, <span class="tok-str">'x'</span> };
+
+    <span class="tok-comment">// To shuffle within a single vector, pass undefined as the second argument.</span>
+    <span class="tok-comment">// Notice that we can re-order, duplicate, or omit elements of the input vector</span>
+    <span class="tok-kw">const</span> mask1 = <span class="tok-builtin">@Vector</span>(<span class="tok-number">5</span>, <span class="tok-type">i32</span>){ <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-number">0</span> };
+    <span class="tok-kw">const</span> res1: <span class="tok-builtin">@Vector</span>(<span class="tok-number">5</span>, <span class="tok-type">u8</span>) = <span class="tok-builtin">@shuffle</span>(<span class="tok-type">u8</span>, a, <span class="tok-null">undefined</span>, mask1);
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, &amp;<span class="tok-builtin">@as</span>([<span class="tok-number">5</span>]<span class="tok-type">u8</span>, res1), <span class="tok-str">"hello"</span>));
+
+    <span class="tok-comment">// Combining two vectors</span>
+    <span class="tok-kw">const</span> mask2 = <span class="tok-builtin">@Vector</span>(<span class="tok-number">6</span>, <span class="tok-type">i32</span>){ -<span class="tok-number">1</span>, <span class="tok-number">0</span>, <span class="tok-number">4</span>, <span class="tok-number">1</span>, -<span class="tok-number">2</span>, -<span class="tok-number">3</span> };
+    <span class="tok-kw">const</span> res2: <span class="tok-builtin">@Vector</span>(<span class="tok-number">6</span>, <span class="tok-type">u8</span>) = <span class="tok-builtin">@shuffle</span>(<span class="tok-type">u8</span>, a, b, mask2);
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, &amp;<span class="tok-builtin">@as</span>([<span class="tok-number">6</span>]<span class="tok-type">u8</span>, res2), <span class="tok-str">"world!"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_shuffle_builtin.zig</kbd>
+1/1 test_shuffle_builtin.test.vector @shuffle...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a></li>
+</ul>
+
+      
+
+      <h3 id="sizeOf"><a href="https://ziglang.org/documentation/0.15.2/#toc-sizeOf">@sizeOf</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#sizeOf">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@sizeOf</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">comptime_int</span></code></pre>
+      <p>
+      This function returns the number of bytes it takes to store <code>T</code> in memory.
+      The result is a target-specific compile time constant.
+      </p>
+      <p>
+      This size may contain padding bytes. If there were two consecutive T in memory, the padding would be the offset
+      in bytes between element at index 0 and the element at index 1. For <a href="https://ziglang.org/documentation/0.15.2/#Integers">integer</a>,
+      consider whether you want to use <code><span class="tok-builtin">@sizeOf</span>(T)</code> or
+      <code><span class="tok-builtin">@typeInfo</span>(T).int.bits</code>.
+      </p>
+      <p>
+      This function measures the size at runtime. For types that are disallowed at runtime, such as
+      <code><span class="tok-type">comptime_int</span></code> and <code><span class="tok-type">type</span></code>, the result is <code><span class="tok-number">0</span></code>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#bitSizeOf">@bitSizeOf</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a></li>
+</ul>
+
+      
+
+      <h3 id="splat"><a href="https://ziglang.org/documentation/0.15.2/#toc-splat">@splat</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#splat">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@splat</span>(scalar: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      Produces an array or vector where each element is the value
+      <code>scalar</code>. The return type and thus the length of the
+      vector is inferred.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_splat_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"vector @splat"</span> {
+    <span class="tok-kw">const</span> scalar: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">const</span> result: <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">u32</span>) = <span class="tok-builtin">@splat</span>(scalar);
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u32</span>, &amp;<span class="tok-builtin">@as</span>([<span class="tok-number">4</span>]<span class="tok-type">u32</span>, result), &amp;[_]<span class="tok-type">u32</span>{ <span class="tok-number">5</span>, <span class="tok-number">5</span>, <span class="tok-number">5</span>, <span class="tok-number">5</span> }));
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"array @splat"</span> {
+    <span class="tok-kw">const</span> scalar: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">const</span> result: [<span class="tok-number">4</span>]<span class="tok-type">u32</span> = <span class="tok-builtin">@splat</span>(scalar);
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u32</span>, &amp;<span class="tok-builtin">@as</span>([<span class="tok-number">4</span>]<span class="tok-type">u32</span>, result), &amp;[_]<span class="tok-type">u32</span>{ <span class="tok-number">5</span>, <span class="tok-number">5</span>, <span class="tok-number">5</span>, <span class="tok-number">5</span> }));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_splat_builtin.zig</kbd>
+1/2 test_splat_builtin.test.vector @splat...OK
+2/2 test_splat_builtin.test.array @splat...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+      <code>scalar</code> must be an <a href="https://ziglang.org/documentation/0.15.2/#Integers">integer</a>, <a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a>,
+      <a href="https://ziglang.org/documentation/0.15.2/#Floats">float</a>, or <a href="https://ziglang.org/documentation/0.15.2/#Pointers">pointer</a>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shuffle">@shuffle</a></li>
+</ul>
+
+      
+
+      <h3 id="reduce"><a href="https://ziglang.org/documentation/0.15.2/#toc-reduce">@reduce</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#reduce">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@reduce</span>(<span class="tok-kw">comptime</span> op: std.builtin.ReduceOp, value: <span class="tok-kw">anytype</span>) E</code></pre>
+      <p>
+      Transforms a <a href="https://ziglang.org/documentation/0.15.2/#Vectors">vector</a> into a scalar value (of type <code>E</code>)
+      by performing a sequential horizontal reduction of its elements using the
+      specified operator <code>op</code>.
+      </p>
+      <p>
+      Not every operator is available for every vector element type:
+      </p>
+      <ul>
+          <li>Every operator is available for <a href="https://ziglang.org/documentation/0.15.2/#Integers">integer</a> vectors.</li>
+          <li><code>.And</code>, <code>.Or</code>,
+            <code>.Xor</code> are additionally available for
+            <code><span class="tok-type">bool</span></code> vectors,</li>
+          <li><code>.Min</code>, <code>.Max</code>,
+            <code>.Add</code>, <code>.Mul</code> are
+            additionally available for <a href="https://ziglang.org/documentation/0.15.2/#Floats">floating point</a> vectors,</li>
+      </ul>
+      <p>
+      Note that <code>.Add</code> and <code>.Mul</code>
+      reductions on integral types are wrapping; when applied on floating point
+      types the operation associativity is preserved, unless the float mode is
+      set to <code>Optimized</code>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_reduce_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"vector @reduce"</span> {
+    <span class="tok-kw">const</span> V = <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">i32</span>);
+    <span class="tok-kw">const</span> value = V{ <span class="tok-number">1</span>, -<span class="tok-number">1</span>, <span class="tok-number">1</span>, -<span class="tok-number">1</span> };
+    <span class="tok-kw">const</span> result = value &gt; <span class="tok-builtin">@as</span>(V, <span class="tok-builtin">@splat</span>(<span class="tok-number">0</span>));
+    <span class="tok-comment">// result is { true, false, true, false };</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@TypeOf</span>(result) == <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">bool</span>));
+    <span class="tok-kw">const</span> is_all_true = <span class="tok-builtin">@reduce</span>(.And, result);
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@TypeOf</span>(is_all_true) == <span class="tok-type">bool</span>);
+    <span class="tok-kw">try</span> expect(is_all_true == <span class="tok-null">false</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_reduce_builtin.zig</kbd>
+1/1 test_reduce_builtin.test.vector @reduce...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#setFloatMode">@setFloatMode</a></li>
+</ul>
+
+      
+
+      <h3 id="src"><a href="https://ziglang.org/documentation/0.15.2/#toc-src">@src</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#src">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@src</span>() std.builtin.SourceLocation</code></pre>
+      <p>
+      Returns a <code>SourceLocation</code> struct representing the function's name and location in the source code. This must be called in a function.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_src_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"@src"</span> {
+    <span class="tok-kw">try</span> doTheTest();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doTheTest</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> src = <span class="tok-builtin">@src</span>();
+
+    <span class="tok-kw">try</span> expect(src.line == <span class="tok-number">9</span>);
+    <span class="tok-kw">try</span> expect(src.column == <span class="tok-number">17</span>);
+    <span class="tok-kw">try</span> expect(std.mem.endsWith(<span class="tok-type">u8</span>, src.fn_name, <span class="tok-str">"doTheTest"</span>));
+    <span class="tok-kw">try</span> expect(std.mem.endsWith(<span class="tok-type">u8</span>, src.file, <span class="tok-str">"test_src_builtin.zig"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_src_builtin.zig</kbd>
+1/1 test_src_builtin.test.@src...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="sqrt"><a href="https://ziglang.org/documentation/0.15.2/#toc-sqrt">@sqrt</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#sqrt">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@sqrt</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Performs the square root of a floating point number. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="sin"><a href="https://ziglang.org/documentation/0.15.2/#toc-sin">@sin</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#sin">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@sin</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Sine trigonometric function on a floating point number in radians. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+
+      <h3 id="cos"><a href="https://ziglang.org/documentation/0.15.2/#toc-cos">@cos</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cos">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cos</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Cosine trigonometric function on a floating point number in radians. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+
+      <h3 id="tan"><a href="https://ziglang.org/documentation/0.15.2/#toc-tan">@tan</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#tan">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@tan</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Tangent trigonometric function on a floating point number in radians.
+      Uses a dedicated hardware instruction when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+
+      <h3 id="exp"><a href="https://ziglang.org/documentation/0.15.2/#toc-exp">@exp</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#exp">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@exp</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Base-e exponential function on a floating point number. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="exp2"><a href="https://ziglang.org/documentation/0.15.2/#toc-exp2">@exp2</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#exp2">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@exp2</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Base-2 exponential function on a floating point number. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="log"><a href="https://ziglang.org/documentation/0.15.2/#toc-log">@log</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#log">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@log</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Returns the natural logarithm of a floating point number. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="log2"><a href="https://ziglang.org/documentation/0.15.2/#toc-log2">@log2</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#log2">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@log2</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Returns the logarithm to the base 2 of a floating point number. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="log10"><a href="https://ziglang.org/documentation/0.15.2/#toc-log10">@log10</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#log10">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@log10</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Returns the logarithm to the base 10 of a floating point number. Uses a dedicated hardware instruction
+      when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="abs"><a href="https://ziglang.org/documentation/0.15.2/#toc-abs">@abs</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#abs">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@abs</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      Returns the absolute value of an integer or a floating point number. Uses a dedicated hardware instruction
+      when available.
+
+      The return type is always an unsigned integer of the same bit width as the operand if the operand is an integer.
+      Unsigned integer operands are supported. The builtin cannot overflow for signed integer operands.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a>, <a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats or integers.
+      </p>
+      
+      <h3 id="floor"><a href="https://ziglang.org/documentation/0.15.2/#toc-floor">@floor</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#floor">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@floor</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Returns the largest integral value not greater than the given floating point number.
+      Uses a dedicated hardware instruction when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="ceil"><a href="https://ziglang.org/documentation/0.15.2/#toc-ceil">@ceil</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ceil">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@ceil</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Returns the smallest integral value not less than the given floating point number.
+      Uses a dedicated hardware instruction when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="trunc"><a href="https://ziglang.org/documentation/0.15.2/#toc-trunc">@trunc</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#trunc">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@trunc</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Rounds the given floating point number to an integer, towards zero.
+      Uses a dedicated hardware instruction when available.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+      <h3 id="round"><a href="https://ziglang.org/documentation/0.15.2/#toc-round">@round</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#round">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@round</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(value)</code></pre>
+      <p>
+      Rounds the given floating point number to the nearest integer. If two integers are equally close, rounds away from zero.
+      Uses a dedicated hardware instruction when available.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_round_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"@round"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@round</span>(<span class="tok-number">1.4</span>) == <span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@round</span>(<span class="tok-number">1.5</span>) == <span class="tok-number">2</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@round</span>(-<span class="tok-number">1.4</span>) == -<span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@round</span>(-<span class="tok-number">2.5</span>) == -<span class="tok-number">3</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_round_builtin.zig</kbd>
+1/1 test_round_builtin.test.@round...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+
+      <h3 id="subWithOverflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-subWithOverflow">@subWithOverflow</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@subWithOverflow</span>(a: <span class="tok-kw">anytype</span>, b: <span class="tok-kw">anytype</span>) <span class="tok-kw">struct</span> { <span class="tok-builtin">@TypeOf</span>(a, b), <span class="tok-type">u1</span> }</code></pre>
+      <p>
+      Performs <code>a - b</code> and returns a tuple with the result and a possible overflow bit.
+      </p>
+      
+
+      <h3 id="tagName"><a href="https://ziglang.org/documentation/0.15.2/#toc-tagName">@tagName</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#tagName">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@tagName</span>(value: <span class="tok-kw">anytype</span>) [:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span></code></pre>
+      <p>
+      Converts an enum value or union value to a string literal representing the name.</p><p>If the enum is non-exhaustive and the tag value does not map to a name, it invokes safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      
+
+      <h3 id="This"><a href="https://ziglang.org/documentation/0.15.2/#toc-This">@This</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#This">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@This</span>() <span class="tok-type">type</span></code></pre>
+      <p>
+      Returns the innermost struct, enum, or union that this function call is inside.
+      This can be useful for an anonymous struct that needs to refer to itself:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_this_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"@This()"</span> {
+    <span class="tok-kw">var</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+    <span class="tok-kw">const</span> list = List(<span class="tok-type">i32</span>){ .items = items[<span class="tok-number">0</span>..] };
+    <span class="tok-kw">try</span> expect(list.length() == <span class="tok-number">4</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">List</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {
+        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();
+
+        items: []T,
+
+        <span class="tok-kw">fn</span> <span class="tok-fn">length</span>(self: Self) <span class="tok-type">usize</span> {
+            <span class="tok-kw">return</span> self.items.len;
+        }
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_this_builtin.zig</kbd>
+1/1 test_this_builtin.test.@This()...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      When <code><span class="tok-builtin">@This</span>()</code> is used at file scope, it returns a reference to the
+      struct that corresponds to the current file.
+      </p>
+      
+
+      <h3 id="trap"><a href="https://ziglang.org/documentation/0.15.2/#toc-trap">@trap</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#trap">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@trap</span>() <span class="tok-type">noreturn</span></code></pre>
+      <p>
+      This function inserts a platform-specific trap/jam instruction which can be used to exit the program abnormally.
+      This may be implemented by explicitly emitting an invalid instruction which may cause an illegal instruction exception of some sort.
+      Unlike for <code><span class="tok-builtin">@breakpoint</span>()</code>, execution does not continue after this point.
+      </p>
+      <p>
+      Outside function scope, this builtin causes a compile error.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#breakpoint">@breakpoint</a></li>
+</ul>
+
+      
+
+      <h3 id="truncate"><a href="https://ziglang.org/documentation/0.15.2/#toc-truncate">@truncate</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#truncate">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@truncate</span>(integer: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      This function truncates bits from an integer type, resulting in a smaller
+      or same-sized integer type. The return type is the inferred result type.
+      </p>
+      <p>
+      This function always truncates the significant bits of the integer, regardless
+      of endianness on the target platform.
+      </p>
+      <p>
+      Calling <code><span class="tok-builtin">@truncate</span></code> on a number out of range of the destination type is well defined and working code:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_truncate_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"integer truncation"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u16</span> = <span class="tok-number">0xabcd</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u8</span> = <span class="tok-builtin">@truncate</span>(a);
+    <span class="tok-kw">try</span> expect(b == <span class="tok-number">0xcd</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_truncate_builtin.zig</kbd>
+1/1 test_truncate_builtin.test.integer truncation...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Use <a href="https://ziglang.org/documentation/0.15.2/#intCast">@intCast</a> to convert numbers guaranteed to fit the destination type.
+      </p>
+      
+
+      <h3 id="Type"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type">@Type</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@Type</span>(<span class="tok-kw">comptime</span> info: std.builtin.Type) <span class="tok-type">type</span></code></pre>
+      <p>
+      This function is the inverse of <a href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a>. It reifies type information
+      into a <code><span class="tok-type">type</span></code>.
+      </p>
+      <p>
+      It is available for the following types:
+      </p>
+      <ul>
+          <li><code><span class="tok-type">type</span></code></li>
+          <li><code><span class="tok-type">noreturn</span></code></li>
+          <li><code><span class="tok-type">void</span></code></li>
+          <li><code><span class="tok-type">bool</span></code></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">Integers</a> - The maximum bit count for an integer type is <code><span class="tok-number">65535</span></code>.</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a></li>
+          <li><code><span class="tok-type">comptime_int</span></code></li>
+          <li><code><span class="tok-type">comptime_float</span></code></li>
+          <li><code><span class="tok-builtin">@TypeOf</span>(<span class="tok-null">undefined</span>)</code></li>
+          <li><code><span class="tok-builtin">@TypeOf</span>(<span class="tok-null">null</span>)</code></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">Error Set Type</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a></li>
+          <li><code><span class="tok-kw">anyframe</span></code></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Enum-Literals">Enum Literals</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#union">union</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Functions">Functions</a></li>
+      </ul>
+      
+      <h3 id="typeInfo"><a href="https://ziglang.org/documentation/0.15.2/#toc-typeInfo">@typeInfo</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#typeInfo">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@typeInfo</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) std.builtin.Type</code></pre>
+      <p>
+      Provides type reflection.
+      </p>
+      <p>
+      Type information of <a href="https://ziglang.org/documentation/0.15.2/#struct">structs</a>, <a href="https://ziglang.org/documentation/0.15.2/#union">unions</a>, <a href="https://ziglang.org/documentation/0.15.2/#enum">enums</a>, and
+      <a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">error sets</a> has fields which are guaranteed to be in the same
+      order as appearance in the source file.
+      </p>
+      <p>
+      Type information of <a href="https://ziglang.org/documentation/0.15.2/#struct">structs</a>, <a href="https://ziglang.org/documentation/0.15.2/#union">unions</a>, <a href="https://ziglang.org/documentation/0.15.2/#enum">enums</a>, and
+      <a href="https://ziglang.org/documentation/0.15.2/#opaque">opaques</a> has declarations, which are also guaranteed to be in the same
+      order as appearance in the source file.
+      </p>
+      
+
+      <h3 id="typeName"><a href="https://ziglang.org/documentation/0.15.2/#toc-typeName">@typeName</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#typeName">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@typeName</span>(T: <span class="tok-type">type</span>) *<span class="tok-kw">const</span> [N:<span class="tok-number">0</span>]<span class="tok-type">u8</span></code></pre>
+      <p>
+      This function returns the string representation of a type, as
+      an array. It is equivalent to a string literal of the type name.
+      The returned type name is fully qualified with the parent namespace included
+      as part of the type name with a series of dots.
+      </p>
+      
+
+      <h3 id="TypeOf"><a href="https://ziglang.org/documentation/0.15.2/#toc-TypeOf">@TypeOf</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#TypeOf">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@TypeOf</span>(...) <span class="tok-type">type</span></code></pre>
+      <p>
+      <code><span class="tok-builtin">@TypeOf</span></code> is a special builtin function that takes any (non-zero) number of expressions
+      as parameters and returns the type of the result, using <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a>.
+      </p>
+      <p>
+      The expressions are evaluated, however they are guaranteed to have no <em>runtime</em> side-effects:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_TypeOf_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"no runtime side effects"</span> {
+    <span class="tok-kw">var</span> data: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">const</span> T = <span class="tok-builtin">@TypeOf</span>(foo(<span class="tok-type">i32</span>, &amp;data));
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(T == <span class="tok-type">i32</span>);
+    <span class="tok-kw">try</span> expect(data == <span class="tok-number">0</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T) T {
+    ptr.* += <span class="tok-number">1</span>;
+    <span class="tok-kw">return</span> ptr.*;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_TypeOf_builtin.zig</kbd>
+1/1 test_TypeOf_builtin.test.no runtime side effects...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="unionInit"><a href="https://ziglang.org/documentation/0.15.2/#toc-unionInit">@unionInit</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#unionInit">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@unionInit</span>(<span class="tok-kw">comptime</span> Union: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> active_field_name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, init_expr) Union</code></pre>
+      <p>
+      This is the same thing as <a href="https://ziglang.org/documentation/0.15.2/#union">union</a> initialization syntax, except that the field name is a
+      <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known value rather than an identifier token.
+      </p>
+      <p>
+      <code><span class="tok-builtin">@unionInit</span></code> forwards its <a href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">result location</a> to <code>init_expr</code>.
+      </p>
+      
+
+
+      <h3 id="Vector"><a href="https://ziglang.org/documentation/0.15.2/#toc-Vector">@Vector</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Vector">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@Vector</span>(len: <span class="tok-type">comptime_int</span>, Element: <span class="tok-type">type</span>) <span class="tok-type">type</span></code></pre>
+      <p>Creates <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a>.</p>
+      
+
+      <h3 id="volatileCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-volatileCast">@volatileCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#volatileCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@volatileCast</span>(value: <span class="tok-kw">anytype</span>) DestType</code></pre>
+      <p>
+      Remove <code><span class="tok-kw">volatile</span></code> qualifier from a pointer.
+      </p>
+      
+
+      <h3 id="workGroupId"><a href="https://ziglang.org/documentation/0.15.2/#toc-workGroupId">@workGroupId</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#workGroupId">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@workGroupId</span>(<span class="tok-kw">comptime</span> dimension: <span class="tok-type">u32</span>) <span class="tok-type">u32</span></code></pre>
+      <p>
+      Returns the index of the work group in the current kernel invocation in dimension <code>dimension</code>.
+      </p>
+      
+
+      <h3 id="workGroupSize"><a href="https://ziglang.org/documentation/0.15.2/#toc-workGroupSize">@workGroupSize</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#workGroupSize">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@workGroupSize</span>(<span class="tok-kw">comptime</span> dimension: <span class="tok-type">u32</span>) <span class="tok-type">u32</span></code></pre>
+      <p>
+      Returns the number of work items that a work group has in dimension <code>dimension</code>.
+      </p>
+      
+
+      <h3 id="workItemId"><a href="https://ziglang.org/documentation/0.15.2/#toc-workItemId">@workItemId</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#workItemId">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@workItemId</span>(<span class="tok-kw">comptime</span> dimension: <span class="tok-type">u32</span>) <span class="tok-type">u32</span></code></pre>
+      <p>
+      Returns the index of the work item in the work group in dimension <code>dimension</code>. This function returns values between <code><span class="tok-number">0</span></code> (inclusive) and <code><span class="tok-builtin">@workGroupSize</span>(dimension)</code> (exclusive).
+      </p>
+      
+
+      
+
+      <h2 id="Build-Mode"><a href="https://ziglang.org/documentation/0.15.2/#toc-Build-Mode">Build Mode</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Build-Mode">§</a></h2>
+
+      <p>
+      Zig has four build modes:
+      </p>
+      <ul>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> (default)</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a></li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a></li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a></li>
+      </ul>
+      <p>
+      To add standard build options to a <code class="file">build.zig</code> file:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">build.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">build</span>(b: *std.Build) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> optimize = b.standardOptimizeOption(.{});
+    <span class="tok-kw">const</span> exe = b.addExecutable(.{
+        .name = <span class="tok-str">"example"</span>,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path(<span class="tok-str">"example.zig"</span>),
+            .optimize = optimize,
+        }),
+    });
+    b.default_step.dependOn(&amp;exe.step);
+}</code></pre></figure>
+
+      <p>
+      This causes these options to be available:
+      </p>
+      <dl>
+        <dt><kbd>-Doptimize=Debug</kbd></dt><dd>Optimizations off and safety on (default)</dd>
+        <dt><kbd>-Doptimize=ReleaseSafe</kbd></dt><dd>Optimizations on and safety on</dd>
+        <dt><kbd>-Doptimize=ReleaseFast</kbd></dt><dd>Optimizations on and safety off</dd>
+        <dt><kbd>-Doptimize=ReleaseSmall</kbd></dt><dd>Size optimizations on and safety off</dd>
+      </dl>
+      <h3 id="Debug"><a href="https://ziglang.org/documentation/0.15.2/#toc-Debug">Debug</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Debug">§</a></h3>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe example.zig</kbd>
+</samp></pre></figure>
+      <ul>
+        <li>Fast compilation speed</li>
+        <li>Safety checks enabled</li>
+        <li>Slow runtime performance</li>
+        <li>Large binary size</li>
+        <li>No reproducible build requirement</li>
+      </ul>
+      
+      <h3 id="ReleaseFast"><a href="https://ziglang.org/documentation/0.15.2/#toc-ReleaseFast">ReleaseFast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">§</a></h3>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe example.zig -O ReleaseFast</kbd>
+</samp></pre></figure>
+      <ul>
+        <li>Fast runtime performance</li>
+        <li>Safety checks disabled</li>
+        <li>Slow compilation speed</li>
+        <li>Large binary size</li>
+        <li>Reproducible build</li>
+      </ul>
+      
+      <h3 id="ReleaseSafe"><a href="https://ziglang.org/documentation/0.15.2/#toc-ReleaseSafe">ReleaseSafe</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">§</a></h3>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe example.zig -O ReleaseSafe</kbd>
+</samp></pre></figure>
+      <ul>
+        <li>Medium runtime performance</li>
+        <li>Safety checks enabled</li>
+        <li>Slow compilation speed</li>
+        <li>Large binary size</li>
+        <li>Reproducible build</li>
+      </ul>
+      
+      <h3 id="ReleaseSmall"><a href="https://ziglang.org/documentation/0.15.2/#toc-ReleaseSmall">ReleaseSmall</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">§</a></h3>
+
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe example.zig -O ReleaseSmall</kbd>
+</samp></pre></figure>
+      <ul>
+        <li>Medium runtime performance</li>
+        <li>Safety checks disabled</li>
+        <li>Slow compilation speed</li>
+        <li>Small binary size</li>
+        <li>Reproducible build</li>
+      </ul>
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">Compile Variables</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">Zig Build System</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a></li>
+</ul>
+
+      
+
+      <h2 id="Single-Threaded-Builds"><a href="https://ziglang.org/documentation/0.15.2/#toc-Single-Threaded-Builds">Single Threaded Builds</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Single-Threaded-Builds">§</a></h2>
+
+      <p>Zig has a compile option <kbd>-fsingle-threaded</kbd> which has the following effects:</p>
+      <ul>
+        <li>All <a href="https://ziglang.org/documentation/0.15.2/#Thread-Local-Variables">Thread Local Variables</a> are treated as regular <a href="https://ziglang.org/documentation/0.15.2/#Container-Level-Variables">Container Level Variables</a>.</li>
+        <li>The overhead of <a href="https://ziglang.org/documentation/0.15.2/#Async-Functions">Async Functions</a> becomes equivalent to function call overhead.</li>
+        <li>The <code><span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>).single_threaded</code> becomes <code><span class="tok-null">true</span></code>
+          and therefore various userland APIs which read this variable become more efficient.
+          For example <code>std.Mutex</code> becomes
+          an empty data structure and all of its functions become no-ops.</li>
+      </ul>
+      
+
+      <h2 id="Illegal-Behavior"><a href="https://ziglang.org/documentation/0.15.2/#toc-Illegal-Behavior">Illegal Behavior</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">§</a></h2>
+
+      <p>
+      Many operations in Zig trigger what is known as "Illegal Behavior" (IB). If Illegal Behavior is detected at
+      compile-time, Zig emits a compile error and refuses to continue. Otherwise, when Illegal Behavior is not caught
+      at compile-time, it falls into one of two categories.
+      </p>
+      <p>
+      Some Illegal Behavior is <em>safety-checked</em>: this means that the compiler will insert "safety checks"
+      anywhere that the Illegal Behavior may occur at runtime, to determine whether it is about to happen. If it
+      is, the safety check "fails", which triggers a panic.
+      </p>
+      <p>
+      All other Illegal Behavior is <em>unchecked</em>, meaning the compiler is unable to insert safety checks for
+      it. If Unchecked Illegal Behavior is invoked at runtime, anything can happen: usually that will be some kind of
+      crash, but the optimizer is free to make Unchecked Illegal Behavior do anything, such as calling arbitrary functions
+      or clobbering arbitrary data. This is similar to the concept of "undefined behavior" in some other languages. Note that
+      Unchecked Illegal Behavior still always results in a compile error if evaluated at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>, because the Zig
+      compiler is able to perform more sophisticated checks at compile-time than at runtime.
+      </p>
+      <p>
+      Most Illegal Behavior is safety-checked. However, to facilitate optimizations, safety checks are disabled by default
+      in the <a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a> optimization modes. Safety checks can also be enabled or disabled
+      on a per-block basis, overriding the default for the current optimization mode, using <a href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">@setRuntimeSafety</a>. When
+      safety checks are disabled, Safety-Checked Illegal Behavior behaves like Unchecked Illegal Behavior; that is, any behavior
+      may result from invoking it.
+      </p>
+      <p>
+      When a safety check fails, Zig's default panic handler crashes with a stack trace, like this:
+      </p>

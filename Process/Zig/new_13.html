@@ -1,0 +1,908 @@
+<h3 id="Pointer-Cast-Invalid-Null"><a href="https://ziglang.org/documentation/0.15.2/#toc-Pointer-Cast-Invalid-Null">指针转换无效空值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Pointer-Cast-Invalid-Null">§</a></h3>
+
+      <p>
+      当将地址为 0 的指针转换为不允许地址为 0 的指针时会发生这种情况。
+      例如,<a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C 指针</a>、<a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a>和 <a href="https://ziglang.org/documentation/0.15.2/#allowzero">allowzero</a> 指针
+      允许地址为零,但普通的<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>不允许。
+      </p>
+      <p>在编译期:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_null_pointer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> opt_ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">const</span> ptr: *<span class="tok-type">i32</span> = <span class="tok-builtin">@ptrCast</span>(opt_ptr);
+    _ = ptr;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_null_pointer_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_null_pointer_cast.zig:3:32: </span><span class="sgr-31m">error: </span><span class="sgr-1m">null pointer casted to type '*i32'
+</span>    const ptr: *i32 = @ptrCast(opt_ptr);
+                               <span class="sgr-32m">^~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_null_pointer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> opt_ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+    _ = &amp;opt_ptr;
+    <span class="tok-kw">const</span> ptr: *<span class="tok-type">i32</span> = <span class="tok-builtin">@ptrCast</span>(opt_ptr);
+    _ = ptr;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_null_pointer_cast.zig</kbd>
+$ <kbd>./runtime_invalid_null_pointer_cast</kbd>
+thread 2892939 panic: cast causes pointer to be null
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_null_pointer_cast.zig:4:23</span>: <span class="sgr-2m">0x113e88a in main (runtime_invalid_null_pointer_cast.zig)</span>
+    const ptr: *i32 = @ptrCast(opt_ptr);
+                      <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      
+
+      
+      <h2 id="Memory"><a href="https://ziglang.org/documentation/0.15.2/#toc-Memory">内存</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Memory">§</a></h2>
+
+      <p>
+      Zig 语言不代表程序员执行任何内存管理。这就是为什么 Zig 没有运行时,以及为什么 Zig 代码可以在如此多的环境中无缝工作,包括实时软件、操作系统内核、嵌入式设备和低延迟服务器。因此,Zig 程序员必须始终能够回答这个问题:
+      </p>
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Where-are-the-bytes">字节在哪里?</a></p>
+      <p>
+      与 Zig 一样,C 编程语言具有手动内存管理。但是,与 Zig 不同,C 有一个默认分配器 - <code>malloc</code>、<code>realloc</code> 和 <code>free</code>。
+      当链接 libc 时,Zig 通过 <code>std.heap.c_allocator</code> 公开此分配器。
+      但是,按照惯例,Zig 中没有默认分配器。相反,需要分配内存的函数接受一个 <code>Allocator</code> 参数。同样,一些数据结构在其初始化函数中接受 <code>Allocator</code> 参数:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_allocator.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> Allocator = std.mem.Allocator;
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"using an allocator"</span> {
+    <span class="tok-kw">var</span> buffer: [<span class="tok-number">100</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> fba = std.heap.FixedBufferAllocator.init(&amp;buffer);
+    <span class="tok-kw">const</span> allocator = fba.allocator();
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> concat(allocator, <span class="tok-str">"foo"</span>, <span class="tok-str">"bar"</span>);
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, <span class="tok-str">"foobar"</span>, result));
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">concat</span>(allocator: Allocator, a: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, b: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) ![]<span class="tok-type">u8</span> {
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> allocator.alloc(<span class="tok-type">u8</span>, a.len + b.len);
+    <span class="tok-builtin">@memcpy</span>(result[<span class="tok-number">0</span>..a.len], a);
+    <span class="tok-builtin">@memcpy</span>(result[a.len..], b);
+    <span class="tok-kw">return</span> result;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_allocator.zig</kbd>
+1/1 test_allocator.test.using an allocator...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      在上面的示例中,100 字节的栈内存用于初始化 <code>FixedBufferAllocator</code>,然后将其传递给函数。
+      为了方便起见,在 <code>std.testing.allocator</code> 有一个全局 <code>FixedBufferAllocator</code> 可用于快速测试,它还将执行基本的泄漏检测。
+      </p>
+      <p>
+      Zig 有一个通用的分配器可以通过 <code>std.heap.GeneralPurposeAllocator</code> 导入。但是,仍然建议遵循<a href="https://ziglang.org/documentation/0.15.2/#Choosing-an-Allocator">选择分配器</a>指南。
+      </p>
+
+      <h3 id="Choosing-an-Allocator"><a href="https://ziglang.org/documentation/0.15.2/#toc-Choosing-an-Allocator">选择分配器</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Choosing-an-Allocator">§</a></h3>
+
+      <p>使用什么分配器取决于许多因素。这里有一个流程图可以帮助你决定:
+      </p>
+      <ol>
+          <li>
+              你在创建一个库吗?在这种情况下,最好接受一个 <code>Allocator</code> 作为参数,并允许库的用户决定使用什么分配器。
+          </li>
+          <li>你在链接 libc 吗?在这种情况下,<code>std.heap.c_allocator</code> 可能是正确的选择,至少对于你的主分配器来说是这样。</li>
+          <li>
+              你需要的最大字节数是否由在<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>已知的数字限定?在这种情况下,使用 <code>std.heap.FixedBufferAllocator</code>。
+          </li>
+          <li>
+              你的程序是一个命令行应用程序,它从头到尾运行,没有任何基本的循环模式(例如视频游戏主循环或 Web 服务器请求处理程序),以至于在最后一次性释放所有内容是有意义的吗?
+              在这种情况下,建议遵循此模式:
+              <figure><figcaption class="zig-cap"><cite class="file">cli_allocation.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    <span class="tok-kw">defer</span> arena.deinit();
+
+    <span class="tok-kw">const</span> allocator = arena.allocator();
+
+    <span class="tok-kw">const</span> ptr = <span class="tok-kw">try</span> allocator.create(<span class="tok-type">i32</span>);
+    std.debug.print(<span class="tok-str">"ptr={*}\n"</span>, .{ptr});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe cli_allocation.zig</kbd>
+$ <kbd>./cli_allocation</kbd>
+ptr=i32@7f1a3ed8e010
+</samp></pre></figure>
+
+              当使用这种分配器时,不需要手动释放任何东西。一切都通过调用 <code>arena.deinit()</code> 一次性释放。
+          </li>
+          <li>
+              分配是否是循环模式的一部分,例如视频游戏主循环或 Web 服务器请求处理程序?如果可以在循环结束时一次性释放所有分配,例如一旦视频游戏帧已完全渲染,或者 Web 服务器请求已得到服务,那么 <code>std.heap.ArenaAllocator</code> 是一个很好的候选者。如前面的项目符号所示,这允许你一次释放整个 arena。
+              还要注意,如果可以建立内存的上限,那么 <code>std.heap.FixedBufferAllocator</code> 可以用作进一步的优化。
+          </li>
+          <li>
+              你在编写测试,并且想要确保正确处理 <code><span class="tok-kw">error</span>.OutOfMemory</code>?在这种情况下,使用 <code>std.testing.FailingAllocator</code>。
+          </li>
+          <li>
+              你在编写测试吗?在这种情况下,使用 <code>std.testing.allocator</code>。
+          </li>
+          <li>
+              最后,如果上述情况都不适用,你需要一个通用的分配器。
+              如果你处于 Debug 模式,<code>std.heap.DebugAllocator</code> 可用作一个函数,该函数接受一个<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a> <a href="https://ziglang.org/documentation/0.15.2/#struct">结构体</a>的配置选项并返回一个类型。
+              通常,你将在主函数中恰好设置一个,然后将其或子分配器传递给应用程序的各个部分。
+          </li>
+          <li>
+              如果你在 ReleaseFast 模式下编译,<code>std.heap.smp_allocator</code> 是通用分配器的可靠选择。
+          </li>
+          <li>
+              你也可以考虑实现一个分配器。
+          </li>
+      </ol>
+      
+
+      <h3 id="Where-are-the-bytes"><a href="https://ziglang.org/documentation/0.15.2/#toc-Where-are-the-bytes">字节在哪里?</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Where-are-the-bytes">§</a></h3>
+
+      <p>诸如 <code><span class="tok-str">"hello"</span></code> 之类的字符串字面量位于全局常量数据段中。
+      这就是为什么将字符串字面量传递给可变切片会出错,如下所示:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_string_literal_to_slice.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(s: []<span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    _ = s;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"string literal to mutable slice"</span> {
+    foo(<span class="tok-str">"hello"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_string_literal_to_slice.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_string_literal_to_slice.zig:6:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type '[]u8', found '*const [5:0]u8'
+</span>    foo("hello");
+        <span class="sgr-32m">^~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_string_literal_to_slice.zig:6:9: </span><span class="sgr-36m">note: </span><span class="sgr-1m">cast discards const qualifier
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_string_literal_to_slice.zig:1:11: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter type declared here
+</span>fn foo(s: []u8) void {
+          <span class="sgr-32m">^~~~
+</span>
+</samp></pre></figure>
+
+      <p>但是,如果你将切片设为常量,那么它就可以工作:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_string_literal_to_const_slice.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(s: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    _ = s;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"string literal to constant slice"</span> {
+    foo(<span class="tok-str">"hello"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_string_literal_to_const_slice.zig</kbd>
+1/1 test_string_literal_to_const_slice.test.string literal to constant slice...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      就像字符串字面量一样,当值在<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>已知时,<code><span class="tok-kw">const</span></code> 声明存储在全局常量数据段中。此外,<a href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Variables">编译期变量</a>也存储在全局常量数据段中。
+      </p>
+      <p>
+      函数内的 <code><span class="tok-kw">var</span></code> 声明存储在函数的栈帧中。一旦函数返回,任何指向函数栈帧中变量的<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>都会成为无效引用,取消引用它们会成为未经检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      <p>
+      顶层或<a href="https://ziglang.org/documentation/0.15.2/#struct">结构体</a>声明中的 <code><span class="tok-kw">var</span></code> 声明存储在全局数据段中。
+      </p>
+      <p>
+      使用 <code>allocator.alloc</code> 或 <code>allocator.create</code> 分配的内存的位置由分配器的实现确定。
+      </p>
+      <p>TODO: 线程局部变量</p>
+      
+
+      <h3 id="Heap-Allocation-Failure"><a href="https://ziglang.org/documentation/0.15.2/#toc-Heap-Allocation-Failure">堆分配失败</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Heap-Allocation-Failure">§</a></h3>
+
+      <p>
+      许多编程语言选择通过无条件崩溃来处理堆分配失败的可能性。按照惯例,Zig 程序员不认为这是一个令人满意的解决方案。相反,<code><span class="tok-kw">error</span>.OutOfMemory</code> 表示堆分配失败,并且当堆分配失败阻止操作成功完成时,Zig 库会返回此错误代码。
+      </p>
+      <p>
+      有些人认为,由于某些操作系统(如 Linux)默认启用了内存过度提交,因此处理堆分配失败是毫无意义的。这种推理有许多问题:
+      </p>
+      <ul>
+          <li>只有某些操作系统具有过度提交功能。
+              <ul>
+                  <li>Linux 默认启用它,但它是可配置的。</li>
+                  <li>Windows 不会过度提交。</li>
+                  <li>嵌入式系统没有过度提交。</li>
+                  <li>业余操作系统可能有或没有过度提交。</li>
+              </ul>
+          </li>
+          <li>
+              对于实时系统,不仅没有过度提交,而且通常每个应用程序的最大内存量是提前确定的。
+          </li>
+          <li>
+              在编写库时,主要目标之一是代码重用。通过使代码正确处理分配失败,库就有资格在更多环境中重用。
+          </li>
+          <li>
+              尽管某些软件已经开始依赖启用过度提交,但它的存在是无数用户体验灾难的根源。当启用过度提交的系统(如默认设置的 Linux)接近内存耗尽时,系统会锁定并变得无法使用。此时,OOM Killer 根据启发式算法选择要杀死的应用程序。这种非确定性决定通常会导致重要进程被杀死,并且通常无法使系统恢复到工作状态。
+          </li>
+      </ul>
+      
+
+      <h3 id="Recursion"><a href="https://ziglang.org/documentation/0.15.2/#toc-Recursion">递归</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Recursion">§</a></h3>
+
+      <p>
+      递归是建模软件的基本工具。但是,它有一个经常被忽视的问题:无限内存分配。
+      </p>
+      <p>
+      递归是 Zig 中活跃实验的领域,因此这里的文档并不是最终的。
+      你可以在 <a href="https://ziglang.org/download/0.3.0/release-notes.html#recursion">0.3.0 发布说明中阅读递归状态摘要</a>。
+      </p>
+      <p>
+      简短的摘要是,目前递归可以像你期望的那样正常工作。尽管 Zig 代码尚未受到栈溢出的保护,但计划在 Zig 的未来版本中提供此类保护,需要 Zig 代码进行一定程度的配合。
+      </p>
+      
+
+      <h3 id="Lifetime-and-Ownership"><a href="https://ziglang.org/documentation/0.15.2/#toc-Lifetime-and-Ownership">生命周期和所有权</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Lifetime-and-Ownership">§</a></h3>
+
+      <p>
+      确保在指向的内存不再可用时不访问<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>是 Zig 程序员的责任。注意,<a href="https://ziglang.org/documentation/0.15.2/#Slices">切片</a>是指针的一种形式,因为它引用其他内存。
+      </p>
+      <p>
+      为了防止错误,在处理指针时遵循一些有用的约定。通常,当函数返回指针时,函数的文档应该解释谁"拥有"该指针。这个概念帮助程序员决定何时释放指针(如果有的话)是合适的。
+      </p>
+      <p>
+      例如,函数的文档可能会说"调用者拥有返回的内存",在这种情况下,调用函数的代码必须有一个计划来决定何时释放该内存。在这种情况下,函数可能会接受一个 <code>Allocator</code> 参数。
+      </p>
+      <p>
+      有时指针的生命周期可能更复杂。例如,<code>std.ArrayList(T).items</code> 切片的生命周期在列表下次调整大小之前保持有效,例如通过追加新元素。
+      </p>
+      <p>
+      函数和数据结构的 API 文档应该非常注意解释指针的所有权和生命周期语义。所有权决定谁有责任释放指针引用的内存,生命周期决定内存变得不可访问的时间点(以免发生<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>)。
+      </p>
+      
+
+      
+      <h2 id="Compile-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compile-Variables">编译变量</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">§</a></h2>
+
+      <p>
+      通过导入 <code><span class="tok-str">"builtin"</span></code> 包可以访问编译变量,编译器使该包对每个 Zig 源文件都可用。它包含编译时常量,例如当前目标、字节序和发布模式。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">compile_variables.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> separator = <span class="tok-kw">if</span> (builtin.os.tag == .windows) <span class="tok-str">'\\'</span> <span class="tok-kw">else</span> <span class="tok-str">'/'</span>;</code></pre></figure>
+
+      <p>
+      使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>)</code> 导入的内容示例:
+      </p>
+      <figure><figcaption class="zig-cap"><cite>@import("builtin")</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-comment">/// Zig 版本。在编写支持多个 Zig 版本的代码时,更倾向于</span>
+<span class="tok-comment">/// 功能检测(即使用 `@hasDecl` 或 `@hasField`)而不是版本检查。</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> zig_version = std.SemanticVersion.parse(zig_version_string) <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> zig_version_string = <span class="tok-str">"0.15.2"</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> zig_backend = std.builtin.CompilerBackend.stage2_x86_64;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> output_mode: std.builtin.OutputMode = .Exe;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> link_mode: std.builtin.LinkMode = .static;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> unwind_tables: std.builtin.UnwindTables = .async;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> is_test = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> single_threaded = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> abi: std.Target.Abi = .gnu;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> cpu: std.Target.Cpu = .{
+    .arch = .x86_64,
+    .model = &amp;std.Target.x86.cpu.znver4,
+    .features = std.Target.x86.featureSet(&amp;.{
+        .@"64bit",
+        .adx,
+        .aes,
+        .allow_light_256_bit,
+        .avx,
+        .avx2,
+        .avx512bf16,
+        .avx512bitalg,
+        .avx512bw,
+        .avx512cd,
+        .avx512dq,
+        .avx512f,
+        .avx512ifma,
+        .avx512vbmi,
+        .avx512vbmi2,
+        .avx512vl,
+        .avx512vnni,
+        .avx512vpopcntdq,
+        .bmi,
+        .bmi2,
+        .branchfusion,
+        .clflushopt,
+        .clwb,
+        .clzero,
+        .cmov,
+        .crc32,
+        .cx16,
+        .cx8,
+        .evex512,
+        .f16c,
+        .fast_15bytenop,
+        .fast_bextr,
+        .fast_dpwssd,
+        .fast_imm16,
+        .fast_lzcnt,
+        .fast_movbe,
+        .fast_scalar_fsqrt,
+        .fast_scalar_shift_masks,
+        .fast_variable_perlane_shuffle,
+        .fast_vector_fsqrt,
+        .fma,
+        .fsgsbase,
+        .fsrm,
+        .fxsr,
+        .gfni,
+        .idivq_to_divl,
+        .invpcid,
+        .lzcnt,
+        .macrofusion,
+        .mmx,
+        .movbe,
+        .mwaitx,
+        .nopl,
+        .pclmul,
+        .pku,
+        .popcnt,
+        .prfchw,
+        .rdpid,
+        .rdpru,
+        .rdrnd,
+        .rdseed,
+        .sahf,
+        .sbb_dep_breaking,
+        .sha,
+        .shstk,
+        .slow_shld,
+        .smap,
+        .smep,
+        .sse,
+        .sse2,
+        .sse3,
+        .sse4_1,
+        .sse4_2,
+        .sse4a,
+        .ssse3,
+        .vaes,
+        .vpclmulqdq,
+        .vzeroupper,
+        .wbnoinvd,
+        .x87,
+        .xsave,
+        .xsavec,
+        .xsaveopt,
+        .xsaves,
+    }),
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> os: std.Target.Os = .{
+    .tag = .linux,
+    .version_range = .{ .linux = .{
+        .range = .{
+            .min = .{
+                .major = <span class="tok-number">6</span>,
+                .minor = <span class="tok-number">16</span>,
+                .patch = <span class="tok-number">0</span>,
+            },
+            .max = .{
+                .major = <span class="tok-number">6</span>,
+                .minor = <span class="tok-number">16</span>,
+                .patch = <span class="tok-number">0</span>,
+            },
+        },
+        .glibc = .{
+            .major = <span class="tok-number">2</span>,
+            .minor = <span class="tok-number">39</span>,
+            .patch = <span class="tok-number">0</span>,
+        },
+        .android = <span class="tok-number">29</span>,
+    }},
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> target: std.Target = .{
+    .cpu = cpu,
+    .os = os,
+    .abi = abi,
+    .ofmt = object_format,
+    .dynamic_linker = .init(<span class="tok-str">"/nix/store/zdpby3l6azi78sl83cpad2qjpfj25aqx-glibc-2.40-66/lib/ld-linux-x86-64.so.2"</span>),
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> object_format: std.Target.ObjectFormat = .elf;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> mode: std.builtin.OptimizeMode = .Debug;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> link_libc = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> link_libcpp = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> have_error_return_tracing = <span class="tok-null">true</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> valgrind_support = <span class="tok-null">true</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> sanitize_thread = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> fuzz = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> position_independent_code = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> position_independent_executable = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> strip_debug_info = <span class="tok-null">false</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> code_model: std.builtin.CodeModel = .default;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> omit_frame_pointer = <span class="tok-null">false</span>;</code></pre></figure>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Build-Mode">构建模式</a></li>
+</ul>
+
+      
+      <h2 id="Compilation-Model"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compilation-Model">编译模型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compilation-Model">§</a></h2>
+
+      <p>
+      Zig 编译被分为<em>模块</em>。每个模块是 Zig 源文件的集合,其中之一是模块的<em>根源文件</em>。每个模块可以<em>依赖</em>任意数量的其他模块,形成一个有向图(模块之间允许依赖循环)。如果模块 A 依赖于模块 B,那么模块 A 中的任何 Zig 源文件都可以使用 <code><span class="tok-builtin">@import</span></code> 和模块名称导入模块 B 的<em>根源文件</em>。本质上,模块充当导入 Zig 源文件(可能存在于文件系统的完全不同部分)的别名。
+      </p>
+      <p>
+      使用 <code>zig build-exe</code> 编译的简单 Zig 程序有两个关键模块:包含你代码的模块,称为"main"或"root"模块,以及标准库。你的模块在名称"std"下<em>依赖于</em>标准库模块,这就是允许你编写 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>)</code> 的原因!事实上,Zig 编译中的每个模块 — 包括标准库本身 — 都隐式依赖于名称"std"下的标准库模块。
+      </p>
+      <p>
+      "根模块"(在 <code>zig build-exe</code> 示例中由你提供的模块)具有一个特殊属性。与标准库一样,它被隐式地提供给所有模块(包括它自己),这次使用名称"root"。因此,<code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code> 将始终等同于 <code><span class="tok-builtin">@import</span></code> 你的"main"源文件(通常但不一定命名为 <code>main.zig</code>)。
+      </p>
+      <h3 id="Source-File-Structs"><a href="https://ziglang.org/documentation/0.15.2/#toc-Source-File-Structs">源文件结构体</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Source-File-Structs">§</a></h3>
+
+      <p>
+      每个 Zig 源文件都隐式地是一个 <code><span class="tok-kw">struct</span></code> 声明;你可以想象文件的内容实际上被 <code><span class="tok-kw">struct</span> { ... }</code> 包围。这意味着除了声明之外,文件的顶层还允许包含字段:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">TopLevelFields.zig</cite></figcaption><pre><code><span class="tok-comment">//! 因为此文件包含字段,它是一个旨在被实例化的类型,因此</span>
+<span class="tok-comment">//! 按照惯例使用 TitleCase 命名,而不是 snake_case。</span>
+
+foo: <span class="tok-type">u32</span>,
+bar: <span class="tok-type">u64</span>,
+
+<span class="tok-comment">/// `@This()` 可用于引用此结构体类型。在有字段的文件中,通常会</span>
+<span class="tok-comment">/// 在这里命名类型,以便此文件中的其他声明可以轻松引用它。</span>
+<span class="tok-kw">const</span> TopLevelFields = <span class="tok-builtin">@This</span>();
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(val: <span class="tok-type">u32</span>) TopLevelFields {
+    <span class="tok-kw">return</span> .{
+        .foo = val,
+        .bar = val * <span class="tok-number">10</span>,
+    };
+}</code></pre></figure>
+      <p>
+      这样的文件可以像任何其他 <code><span class="tok-kw">struct</span></code> 类型一样被实例化。文件的"根结构体类型"可以在该文件中使用 <a href="https://ziglang.org/documentation/0.15.2/#This">@This</a> 引用。
+      </p>
+      
+      <h3 id="File-and-Declaration-Discovery"><a href="https://ziglang.org/documentation/0.15.2/#toc-File-and-Declaration-Discovery">文件和声明发现</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#File-and-Declaration-Discovery">§</a></h3>
+
+      <p>
+      Zig 重视任何代码片段是否被<em>语义分析</em>的概念;本质上,编译器是否"查看"它。哪些代码被分析是基于从某个点"发现"了哪些文件和声明。这个"发现"过程基于一组简单的递归规则:
+      </p>
+      <ul>
+        <li>如果分析了对 <code><span class="tok-builtin">@import</span></code> 的调用,则会分析被导入的文件。</li>
+        <li>如果分析了一个类型(包括文件),则会分析其中的所有 <code><span class="tok-kw">comptime</span></code> 和 <code><span class="tok-kw">export</span></code> 声明。</li>
+        <li>如果分析了一个类型(包括文件),并且编译是用于<a href="https://ziglang.org/documentation/0.15.2/#Zig-Test">测试</a>,并且该类型所在的模块是编译的根模块,则还会分析其中的所有 <code><span class="tok-kw">test</span></code> 声明。</li>
+        <li>如果分析了对命名声明的引用(即使用它),则会分析被引用的声明。声明是顺序无关的,因此此引用可能在被引用声明的上方或下方,甚至在完全不同的文件中。</li>
+      </ul>
+      <p>
+      就是这样!这些规则定义了如何发现 Zig 文件和声明。剩下的就是理解这个过程从哪里<em>开始</em>。
+      </p>
+      <p>
+      答案是标准库的根:每次 Zig 编译都从分析文件 <code>lib/std/std.zig</code> 开始。此文件包含一个 <code><span class="tok-kw">comptime</span></code> 声明,该声明导入 <code>lib/std/start.zig</code>,该文件又使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code> 引用"根模块";因此,你作为主模块的根源文件提供的文件实际上也是一个根,因为标准库总是会引用它。
+      </p>
+      <p>
+      通常需要确保某些声明 — 特别是 <code><span class="tok-kw">test</span></code> 或 <code><span class="tok-kw">export</span></code> 声明 — 被发现。根据上述规则,一个常见的策略是在 <code><span class="tok-kw">comptime</span></code> 或 <code><span class="tok-kw">test</span></code> 块中使用 <code><span class="tok-builtin">@import</span></code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">force_file_discovery.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-comment">// 这将确保文件 'api.zig' 始终被发现(只要此文件被发现)。</span>
+    <span class="tok-comment">// 如果 'api.zig' 包含重要的导出声明,这很有用。</span>
+    _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"api.zig"</span>);
+
+    <span class="tok-comment">// 我们也可以有一个文件,其中包含我们只想根据 comptime 条件导出的声明。</span>
+    <span class="tok-comment">// 在这种情况下,我们可以在这里使用 `if` 语句:</span>
+    <span class="tok-kw">if</span> (builtin.os.tag == .windows) {
+        _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"windows_api.zig"</span>);
+    }
+}
+
+<span class="tok-kw">test</span> {
+    <span class="tok-comment">// 这将确保文件 'tests.zig' 始终被发现(只要此文件被发现),</span>
+    <span class="tok-comment">// 如果此编译是测试。如果 'tests.zig' 包含我们想要确保运行的测试,这很有用。</span>
+    _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"tests.zig"</span>);
+
+    <span class="tok-comment">// 我们也可以有一个文件,其中包含我们只想根据 comptime 条件运行的测试。</span>
+    <span class="tok-comment">// 在这种情况下,我们可以在这里使用 `if` 语句:</span>
+    <span class="tok-kw">if</span> (builtin.os.tag == .windows) {
+        _ = <span class="tok-builtin">@import</span>(<span class="tok-str">"windows_tests.zig"</span>);
+    }
+}
+
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);</code></pre></figure>
+      
+      <h3 id="Special-Root-Declarations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Special-Root-Declarations">特殊根声明</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Special-Root-Declarations">§</a></h3>
+
+      <p>
+      因为根模块的根源文件始终可以使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code> 访问,所以它有时被库 — 包括 Zig 标准库 — 用作程序向该库公开某些"全局"信息的地方。Zig 标准库将在此文件中查找几个声明。
+      </p>
+      <h4 id="Entry-Point"><a href="https://ziglang.org/documentation/0.15.2/#toc-Entry-Point">入口点</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Entry-Point">§</a></h4>
+
+      <p>
+      在构建可执行文件时,在此文件中查找的最重要的内容是程序的<em>入口点</em>。最常见的是一个名为 <code>main</code> 的函数,<code>std.start</code> 将在执行重要的初始化工作后调用它。
+      </p>
+      <p>
+      或者,名为 <code>_start</code> 的声明的存在(例如,<code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> _start = {};</code>)将禁用默认的 <code>std.start</code> 逻辑,允许你的根源文件根据需要导出低级入口点。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">entry_point.zig</cite></figcaption><pre><code><span class="tok-comment">/// `std.start` 使用 `@import("root")` 导入此文件,并将此声明用作程序的</span>
+<span class="tok-comment">/// 用户提供的入口点。它可以返回以下任何类型:</span>
+<span class="tok-comment">/// * `void`</span>
+<span class="tok-comment">/// * `E!void`,对于任何错误集 `E`</span>
+<span class="tok-comment">/// * `u8`</span>
+<span class="tok-comment">/// * `E!u8`,对于任何错误集 `E`</span>
+<span class="tok-comment">/// 从此函数返回 `void` 值将以代码 0 退出。</span>
+<span class="tok-comment">/// 从此函数返回 `u8` 值将以给定的状态代码退出。</span>
+<span class="tok-comment">/// 从此函数返回错误值将打印错误返回跟踪并以代码 1 退出。</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    std.debug.print(<span class="tok-str">"Hello, World!\n"</span>, .{});
+}
+
+<span class="tok-comment">// 如果取消注释,此声明将抑制通常的 std.start 逻辑,导致</span>
+<span class="tok-comment">// 上面的 `main` 声明被忽略。</span>
+<span class="tok-comment">//pub const _start = {};</span>
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe entry_point.zig</kbd>
+$ <kbd>./entry_point</kbd>
+Hello, World!
+</samp></pre></figure>
+      <p>
+      如果 Zig 编译链接 libc,<code>main</code> 函数可以选择是一个 <code><span class="tok-kw">export</span> <span class="tok-kw">fn</span></code>,它匹配 C <code>main</code> 函数的签名:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">libc_export_entry_point.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>(argc: <span class="tok-type">c_int</span>, argv: [*]<span class="tok-kw">const</span> [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">c_int</span> {
+    <span class="tok-kw">const</span> args = argv[<span class="tok-number">0</span>..<span class="tok-builtin">@intCast</span>(argc)];
+    std.debug.print(<span class="tok-str">"Hello! argv[0] is '{s}'\n"</span>, .{args[<span class="tok-number">0</span>]});
+    <span class="tok-kw">return</span> <span class="tok-number">0</span>;
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe libc_export_entry_point.zig -lc</kbd>
+$ <kbd>./libc_export_entry_point</kbd>
+Hello! argv[0] is './libc_export_entry_point'
+</samp></pre></figure>
+      <p>
+      在某些情况下,<code>std.start</code> 还可能使用其他入口点声明,例如 <code>wWinMain</code> 或 <code>EfiMain</code>。有关这些声明的详细信息,请参阅 <code>lib/std/start.zig</code> 逻辑。
+      </p>
+      
+      <h4 id="Standard-Library-Options"><a href="https://ziglang.org/documentation/0.15.2/#toc-Standard-Library-Options">标准库选项</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Options">§</a></h4>
+
+      <p>
+      标准库还在根模块的根源文件中查找名为 <code>std_options</code> 的声明。如果存在,此声明应该是类型为 <code>std.Options</code> 的结构体,并允许程序自定义某些标准库功能,例如 <code>std.log</code> 实现。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">std_options.zig</cite></figcaption><pre><code><span class="tok-comment">/// 此声明的存在允许程序覆盖标准库的某些行为。</span>
+<span class="tok-comment">/// 有关可用选项的完整列表,请参阅 `std.Options` 的文档。</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> std_options: std.Options = .{
+    <span class="tok-comment">// 默认情况下,在安全构建模式下,标准库将为程序附加一个段错误处理程序,以</span>
+    <span class="tok-comment">// 在发生段错误时打印有用的堆栈跟踪。在这里,我们可以禁用它,甚至在不安全的构建模式下启用它。</span>
+    .enable_segfault_handler = <span class="tok-null">true</span>,
+    <span class="tok-comment">// 这是 `std.log` 使用的日志函数。</span>
+    .logFn = myLogFn,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">myLogFn</span>(
+    <span class="tok-kw">comptime</span> level: std.log.Level,
+    <span class="tok-kw">comptime</span> scope: <span class="tok-builtin">@Type</span>(.enum_literal),
+    <span class="tok-kw">comptime</span> format: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+    args: <span class="tok-kw">anytype</span>,
+) <span class="tok-type">void</span> {
+    <span class="tok-comment">// 我们可以在这里做任何我们想做的事情!</span>
+    <span class="tok-comment">// ...但实际上,让我们只调用默认实现。</span>
+    std.log.defaultLog(level, scope, format, args);
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure>
+      
+      <h4 id="Panic-Handler"><a href="https://ziglang.org/documentation/0.15.2/#toc-Panic-Handler">恐慌处理程序</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Panic-Handler">§</a></h4>
+
+      <p>
+      Zig 标准库在根模块的根源文件中查找名为 <code>panic</code> 的声明。如果存在,它应该是一个命名空间(容器类型),其中包含提供不同恐慌处理程序的声明。
+      </p>
+      <p>
+      有关此命名空间的基本实现,请参阅 <code>std.debug.simple_panic</code>。
+      </p>
+      <p>
+      覆盖恐慌处理程序实际输出消息的方式,但保留默认启用的格式化安全恐慌,可以通过 <code>std.debug.FullPanic</code> 轻松实现:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">panic_handler.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-builtin">@setRuntimeSafety</span>(<span class="tok-null">true</span>);
+    <span class="tok-kw">var</span> x: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+    <span class="tok-comment">// 让我们溢出这个整数!</span>
+    x += <span class="tok-number">1</span>;
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> panic = std.debug.FullPanic(myPanic);
+
+<span class="tok-kw">fn</span> <span class="tok-fn">myPanic</span>(msg: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, first_trace_addr: ?<span class="tok-type">usize</span>) <span class="tok-type">noreturn</span> {
+    _ = first_trace_addr;
+    std.debug.print(<span class="tok-str">"Panic! {s}\n"</span>, .{msg});
+    std.process.exit(<span class="tok-number">1</span>);
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe panic_handler.zig</kbd>
+$ <kbd>./panic_handler</kbd>
+Panic! integer overflow
+</samp></pre></figure>
+      
+      
+      
+      <h2 id="Zig-Build-System"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zig-Build-System">Zig 构建系统</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zig-Build-System">§</a></h2>
+
+      <p>
+      Zig 构建系统提供了一种跨平台、无依赖的方式来声明构建项目所需的逻辑。使用此系统,构建项目的逻辑在 build.zig 文件中编写,使用 Zig 构建系统 API 来声明和配置构建工件和其他任务。
+      </p>
+      <p>
+      构建系统可以帮助完成的一些任务示例:
+      </p>
+      <ul>
+        <li>并行执行任务并缓存结果。</li>
+        <li>依赖于其他项目。</li>
+        <li>为其他项目提供一个包以供依赖。</li>
+        <li>通过执行 Zig 编译器创建构建工件。这包括构建 Zig 源代码以及 C 和 C++ 源代码。</li>
+        <li>捕获用户配置的选项并使用这些选项来配置构建。</li>
+        <li>通过提供一个可以被 Zig 代码<a href="https://ziglang.org/documentation/0.15.2/#import">导入</a>的文件,将构建配置作为<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>值公开。</li>
+        <li>缓存构建工件以避免不必要地重复步骤。</li>
+        <li>执行构建工件或系统安装的工具。</li>
+        <li>运行测试并验证执行构建工件的输出与预期值匹配。</li>
+        <li>在代码库或其子集上运行 <code>zig fmt</code>。</li>
+        <li>自定义任务。</li>
+      </ul>
+      <p>
+      要使用构建系统,请运行 <kbd>zig build --help</kbd> 以查看命令行使用帮助菜单。这将包括在 build.zig 脚本中声明的项目特定选项。
+      </p>
+      <p>
+      目前,构建系统文档托管在外部:
+      <a href="https://ziglang.org/learn/build-system/">构建系统文档</a>
+      </p>
+      
+      <h2 id="C"><a href="https://ziglang.org/documentation/0.15.2/#toc-C">C</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C">§</a></h2>
+
+      <p>
+      尽管 Zig 独立于 C,并且与大多数其他语言不同,不依赖于 libc,但 Zig 承认与现有 C 代码交互的重要性。
+      </p>
+      <p>
+      Zig 通过几种方式促进 C 互操作。
+      </p>
+      <h3 id="C-Type-Primitives"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Type-Primitives">C 类型原语</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Type-Primitives">§</a></h3>
+
+      <p>
+      这些具有保证的 C ABI 兼容性,并且可以像任何其他类型一样使用。
+      </p>
+      <ul>
+          <li><code><span class="tok-type">c_char</span></code></li>
+          <li><code><span class="tok-type">c_short</span></code></li>
+          <li><code><span class="tok-type">c_ushort</span></code></li>
+          <li><code><span class="tok-type">c_int</span></code></li>
+          <li><code><span class="tok-type">c_uint</span></code></li>
+          <li><code><span class="tok-type">c_long</span></code></li>
+          <li><code><span class="tok-type">c_ulong</span></code></li>
+          <li><code><span class="tok-type">c_longlong</span></code></li>
+          <li><code><span class="tok-type">c_ulonglong</span></code></li>
+          <li><code><span class="tok-type">c_longdouble</span></code></li>
+      </ul>
+      <p>
+      要与 C <code><span class="tok-type">void</span></code> 类型互操作,请使用 <code><span class="tok-type">anyopaque</span></code>。
+      </p>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">原语类型</a></li>
+</ul>
+
+      
+      <h3 id="Import-from-C-Header-File"><a href="https://ziglang.org/documentation/0.15.2/#toc-Import-from-C-Header-File">从 C 头文件导入</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">§</a></h3>
+
+      <p>
+      <code><span class="tok-builtin">@cImport</span></code> 内置函数可用于直接从 <code class="file">.h</code> 文件导入符号:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">cImport_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> c = <span class="tok-builtin">@cImport</span>({
+    <span class="tok-comment">// 参见 https://github.com/ziglang/zig/issues/515</span>
+    <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_NO_CRT_STDIO_INLINE"</span>, <span class="tok-str">"1"</span>);
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"stdio.h"</span>);
+});
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    _ = c.printf(<span class="tok-str">"hello\n"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe cImport_builtin.zig -lc</kbd>
+$ <kbd>./cImport_builtin</kbd>
+hello
+</samp></pre></figure>
+
+      <p>
+      <code><span class="tok-builtin">@cImport</span></code> 函数将表达式作为参数。此表达式在编译时求值,用于控制预处理器指令并包含多个 <code class="file">.h</code> 文件:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">@cImport 表达式</cite></figcaption><pre><code><span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+
+<span class="tok-kw">const</span> c = <span class="tok-builtin">@cImport</span>({
+    <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"NDEBUG"</span>, builtin.mode == .ReleaseFast);
+    <span class="tok-kw">if</span> (something) {
+        <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_GNU_SOURCE"</span>, {});
+    }
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"stdlib.h"</span>);
+    <span class="tok-kw">if</span> (something) {
+        <span class="tok-builtin">@cUndef</span>(<span class="tok-str">"_GNU_SOURCE"</span>);
+    }
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"soundio.h"</span>);
+});</code></pre></figure>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+</ul>
+
+      
+
+      <h3 id="C-Translation-CLI"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Translation-CLI">C 翻译 CLI</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Translation-CLI">§</a></h3>
+
+      <p>
+      Zig 的 C 翻译功能可通过 <kbd>zig translate-c</kbd> 作为 CLI 工具使用。它需要一个文件名作为参数。它还可能接受一组可选的标志,这些标志被转发到 clang。它将翻译后的文件写入 stdout。
+      </p>
+      <h4 id="Command-line-flags"><a href="https://ziglang.org/documentation/0.15.2/#toc-Command-line-flags">命令行标志</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Command-line-flags">§</a></h4>
+
+      <ul>
+        <li>
+          <kbd>-I</kbd>:
+          指定包含文件的搜索目录。可以多次使用。等同于 <a href="https://releases.llvm.org/12.0.0/tools/clang/docs/ClangCommandLineReference.html#cmdoption-clang-i-dir">clang 的 <kbd>-I</kbd> 标志</a>。默认情况下<em>不</em>包括当前目录;使用 <kbd>-I.</kbd> 包含它。
+        </li>
+        <li>
+          <kbd>-D</kbd>: 定义预处理器宏。等同于 <a href="https://releases.llvm.org/12.0.0/tools/clang/docs/ClangCommandLineReference.html#cmdoption-clang-d-macro">clang 的 <kbd>-D</kbd> 标志</a>。
+        </li>
+        <li>
+          <kbd>-cflags [flags] --</kbd>: 将任意附加的<a href="https://releases.llvm.org/12.0.0/tools/clang/docs/ClangCommandLineReference.html">命令行标志</a>传递给 clang。注意:标志列表必须以 <kbd>--</kbd> 结束
+        </li>
+        <li>
+          <kbd>-target</kbd>: 翻译后的 Zig 代码的<a href="https://ziglang.org/documentation/0.15.2/#Targets">目标三元组</a>。如果未指定目标,将使用当前主机目标。
+        </li>
+      </ul>
+      
+      <h4 id="Using--target-and--cflags"><a href="https://ziglang.org/documentation/0.15.2/#toc-Using--target-and--cflags">使用 -target 和 -cflags</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Using--target-and--cflags">§</a></h4>
+
+      <p>
+        <strong>重要!</strong> 使用 <kbd>zig translate-c</kbd> 翻译 C 代码时,你<strong>必须</strong>使用与编译翻译后的代码时将使用的相同的 <kbd>-target</kbd> 三元组。此外,你<strong>必须</strong>确保使用的 <kbd>-cflags</kbd>(如果有)与目标系统上代码使用的 cflags 匹配。使用不正确的 <kbd>-target</kbd> 或 <kbd>-cflags</kbd> 可能导致 clang 或 Zig 解析失败,或在与 C 代码链接时出现细微的 ABI 不兼容性。
+      </p>
+      <figure><figcaption class="c-cap"><cite class="file">varytarget.h</cite></figcaption><pre><code>long FOO = __LONG_MAX__;</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig translate-c -target thumb-freestanding-gnueabihf varytarget.h|grep FOO</kbd>
+pub export var FOO: c_long = 2147483647;
+$ <kbd>zig translate-c -target x86_64-macos-gnu varytarget.h|grep FOO</kbd>
+pub export var FOO: c_long = 9223372036854775807;
+</samp></pre></figure>
+      <figure><figcaption class="c-cap"><cite class="file">varycflags.h</cite></figcaption><pre><code>enum FOO { BAR };
+int do_something(enum FOO foo);</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig translate-c varycflags.h|grep -B1 do_something</kbd>
+pub const enum_FOO = c_uint;
+pub extern fn do_something(foo: enum_FOO) c_int;
+$ <kbd>zig translate-c -cflags -fshort-enums -- varycflags.h|grep -B1 do_something</kbd>
+pub const enum_FOO = u8;
+pub extern fn do_something(foo: enum_FOO) c_int;
+</samp></pre></figure>
+      
+      <h4 id="cImport-vs-translate-c"><a href="https://ziglang.org/documentation/0.15.2/#toc-cImport-vs-translate-c">@cImport vs translate-c</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cImport-vs-translate-c">§</a></h4>
+
+      <p><code><span class="tok-builtin">@cImport</span></code> 和 <kbd>zig translate-c</kbd> 使用相同的底层 C 翻译功能,因此在技术层面上它们是等效的。在实践中,<code><span class="tok-builtin">@cImport</span></code> 作为一种快速轻松地访问数字常量、typedef 和记录类型的方式很有用,无需任何额外设置。如果你需要将 <a href="https://ziglang.org/documentation/0.15.2/#Using--target-and--cflags">cflags</a> 传递给 clang,或者如果你想编辑翻译后的代码,建议使用 <kbd>zig translate-c</kbd> 并将结果保存到文件中。编辑生成的代码的常见原因包括:将函数类宏中的 <code><span class="tok-kw">anytype</span></code> 参数更改为更具体的类型;将 <code>[*c]T</code> 指针更改为 <code>[*]T</code> 或 <code>*T</code> 指针以提高类型安全性;以及在特定函数中<a href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">启用或禁用运行时安全</a>。
+      </p>
+      
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Targets">目标</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Type-Primitives">C 类型原语</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C 指针</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#setRuntimeSafety">@setRuntimeSafety</a></li>
+</ul>
+
+      
+      <h3 id="C-Translation-Caching"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Translation-Caching">C 翻译缓存</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Translation-Caching">§</a></h3>
+
+      <p>
+        C 翻译功能(无论是通过 <kbd>zig translate-c</kbd> 还是 <code><span class="tok-builtin">@cImport</span></code> 使用)都与 Zig 缓存系统集成。使用相同的源文件、目标和 cflags 的后续运行将使用缓存,而不是重复翻译相同的代码。
+      </p>
+      <p>
+        要查看在编译使用 <code><span class="tok-builtin">@cImport</span></code> 的代码时缓存文件的存储位置,请使用 <kbd>--verbose-cimport</kbd> 标志:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">verbose_cimport_flag.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> c = <span class="tok-builtin">@cImport</span>({
+    <span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_NO_CRT_STDIO_INLINE"</span>, <span class="tok-str">"1"</span>);
+    <span class="tok-builtin">@cInclude</span>(<span class="tok-str">"stdio.h"</span>);
+});
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    _ = c;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe verbose_cimport_flag.zig -lc --verbose-cimport</kbd>
+info(compilation): C import source: /home/andy/dev/zig/.zig-cache/o/f9216ef6681abef94b056af4b875b0bd/cimport.h
+info(compilation): C import .d file: /home/andy/dev/zig/.zig-cache/o/f9216ef6681abef94b056af4b875b0bd/cimport.h.d
+$ <kbd>./verbose_cimport_flag</kbd>
+</samp></pre></figure>
+
+      <p>
+        <code class="file">cimport.h</code> 包含要翻译的文件(由对 <code><span class="tok-builtin">@cInclude</span></code>、<code><span class="tok-builtin">@cDefine</span></code> 和 <code><span class="tok-builtin">@cUndef</span></code> 的调用构造),<code class="file">cimport.h.d</code> 是文件依赖项列表,<code class="file">cimport.zig</code> 包含翻译后的输出。
+      </p>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Translation-CLI">C 翻译 CLI</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+</ul>
+
+      
+      <h3 id="Translation-failures"><a href="https://ziglang.org/documentation/0.15.2/#toc-Translation-failures">翻译失败</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Translation-failures">§</a></h3>
+
+      <p>
+        某些 C 构造无法翻译为 Zig - 例如,<em>goto</em>、带位域的结构体和标记粘贴宏。Zig 使用<em>降级</em>来允许在遇到不可翻译的实体时继续翻译。
+      </p>
+      <p>
+        降级有三种变体 - <a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a>、<em>extern</em> 和 <code><span class="tok-builtin">@compileError</span></code>。
+
+        无法正确翻译的 C 结构体和联合体将被翻译为 <code><span class="tok-kw">opaque</span>{}</code>。
+        包含不透明类型或无法翻译的代码构造的函数将被降级为 <code><span class="tok-kw">extern</span></code> 声明。
+
+        因此,不可翻译的类型仍然可以用作指针,并且只要链接器知道编译后的函数,就可以调用不可翻译的函数。
+      </p>
+      <p>
+        当顶级定义(全局变量、函数原型、宏)无法翻译或降级时,使用 <code><span class="tok-builtin">@compileError</span></code>。由于 Zig 对顶级声明使用惰性分析,因此不可翻译的实体不会导致代码中的编译错误,除非你实际使用它们。
+      </p>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#opaque">opaque</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern">extern</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+</ul>
+
+      
+      <h3 id="C-Macros"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Macros">C 宏</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Macros">§</a></h3>
+
+      <p>
+        C 翻译尽最大努力尝试将类函数宏翻译为等效的 Zig 函数。由于 C 宏在词法标记级别运行,因此并非所有 C 宏都可以翻译为 Zig。无法翻译的宏将被降级为 <code><span class="tok-builtin">@compileError</span></code>。注意,<em>使用</em>宏的 C 代码将被翻译而不会出现任何额外的问题(因为 Zig 对宏展开后的预处理源进行操作)。仅仅是宏本身可能无法翻译为 Zig。
+      </p>
+      <p>考虑以下示例:</p>
+      <figure><figcaption class="c-cap"><cite class="file">macro.c</cite></figcaption><pre><code>#define MAKELOCAL(NAME, INIT) int NAME = INIT
+int foo(void) {
+   MAKELOCAL(a, 1);
+   MAKELOCAL(b, 2);
+   return a + b;
+}</code></pre></figure>
+      <figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig translate-c macro.c &gt; macro.zig</kbd>
+</samp></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">macro.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">c_int</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">c_int</span> = <span class="tok-number">1</span>;
+    _ = &amp;a;
+    <span class="tok-kw">var</span> b: <span class="tok-type">c_int</span> = <span class="tok-number">2</span>;
+    _ = &amp;b;
+    <span class="tok-kw">return</span> a + b;
+}
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> MAKELOCAL = <span class="tok-builtin">@compileError</span>(<span class="tok-str">"unable to translate C expr: unexpected token .Equal"</span>); <span class="tok-comment">// macro.c:1:9</span></code></pre></figure>
+
+      <p>注意,尽管使用了不可翻译的宏,<code>foo</code> 仍被正确翻译。<code>MAKELOCAL</code> 被降级为 <code><span class="tok-builtin">@compileError</span></code>,因为它不能表示为 Zig 函数;这仅仅意味着你不能直接从 Zig 使用 <code>MAKELOCAL</code>。
+      </p>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+</ul>
+
+      
+
+      <h3 id="C-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Pointers">C 指针</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Pointers">§</a></h3>
+
+      <p>
+      应尽可能避免使用此类型。使用 C 指针的唯一有效理由是在从翻译 C 代码生成的自动生成代码中。
+      </p>
+      <p>
+      在导入 C 头文件时,指针应该翻译为单项指针(<code>*T</code>)还是多项指针(<code>[*]T</code>)是不明确的。
+      C 指针是一种折衷方案,以便 Zig 代码可以直接利用翻译后的头文件。
+      </p>
+      <p><code>[*c]T</code> - C 指针。</p>
+      <ul>
+        <li>支持其他两种指针类型(<code>*T</code>)和(<code>[*]T</code>)的所有语法。</li>
+        <li>强制转换为其他指针类型,以及<a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a>。
+            当 C 指针强制转换为非可选指针时,如果地址为 0,则会发生安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+        </li>
+        <li>允许地址 0。在非独立目标上,取消引用地址 0 是安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。可选 C 指针引入另一个位来跟踪 null,就像 <code>?<span class="tok-type">usize</span></code> 一样。注意,创建可选 C 指针是不必要的,因为可以使用普通的<a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a>。
+        </li>
+        <li>支持与整数之间的<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">类型强制转换</a>。</li>
+        <li>支持与整数的比较。</li>
+        <li>不支持仅限 Zig 的指针属性,例如对齐。请使用普通<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>!</li>
+      </ul>
+      <p>当 C 指针指向单个结构体(不是数组)时,取消引用 C 指针以访问结构体的字段或成员数据。该语法如下所示: </p>
+        <p><code>ptr_to_struct.*.struct_member</code></p>
+        <p>这相当于在 C 中执行 <code>-&gt;</code>。</p>
+        <p> 当 C 指针指向结构体数组时,语法恢复为:</p>
+        <p><code>ptr_to_struct_array[index].struct_member</code></p>
+      
+
+      <h3 id="C-Variadic-Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-C-Variadic-Functions">C 可变参数函数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#C-Variadic-Functions">§</a></h3>
+
+      <p>Zig 支持 extern 可变参数函数。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_variadic_function.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> testing = std.testing;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-str">"c"</span> <span class="tok-kw">fn</span> <span class="tok-fn">printf</span>(format: [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, ...) <span class="tok-type">c_int</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"variadic function"</span> {
+    <span class="tok-kw">try</span> testing.expect(printf(<span class="tok-str">"Hello, world!\n"</span>) == <span class="tok-number">14</span>);
+    <span class="tok-kw">try</span> testing.expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(printf)).@"fn".is_var_args);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_variadic_function.zig -lc</kbd>
+1/1 test_variadic_function.test.variadic function...OK
+All 1 tests passed.
+Hello, world!
+</samp></pre></figure>
+
+      <p>
+        可以使用 <a href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a>、<a href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a>、<a href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a> 来实现可变参数函数。
+      </p>

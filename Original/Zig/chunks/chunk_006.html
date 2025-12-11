@@ -1,0 +1,1185 @@
+      <figure><figcaption class="zig-cap"><cite class="file">test_unhandled_enumeration_value.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Color = <span class="tok-kw">enum</span> {
+    auto,
+    off,
+    on,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"exhaustive switching"</span> {
+    <span class="tok-kw">const</span> color = Color.off;
+    <span class="tok-kw">switch</span> (color) {
+        Color.auto =&gt; {},
+        Color.on =&gt; {},
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unhandled_enumeration_value.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unhandled_enumeration_value.zig:9:5: </span><span class="sgr-31m">error: </span><span class="sgr-1m">switch must handle all possibilities
+</span>    switch (color) {
+    <span class="sgr-32m">^~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unhandled_enumeration_value.zig:3:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">unhandled enumeration value: 'off'
+</span>    off,
+    <span class="sgr-32m">^~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unhandled_enumeration_value.zig:1:15: </span><span class="sgr-36m">note: </span><span class="sgr-1m">enum 'test_unhandled_enumeration_value.Color' declared here
+</span>const Color = enum {
+              <span class="sgr-32m">^~~~
+</span>
+</samp></pre></figure>
+
+      
+
+      <h3 id="Switching-with-Enum-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Switching-with-Enum-Literals">Switching with Enum Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Switching-with-Enum-Literals">§</a></h3>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Enum-Literals">Enum Literals</a> can be useful to use with <code><span class="tok-kw">switch</span></code> to avoid
+      repetitively specifying <a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a> or <a href="https://ziglang.org/documentation/0.15.2/#union">union</a> types:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_exhaustive_switch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Color = <span class="tok-kw">enum</span> {
+    auto,
+    off,
+    on,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"enum literals with switch"</span> {
+    <span class="tok-kw">const</span> color = Color.off;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">switch</span> (color) {
+        .auto =&gt; <span class="tok-null">false</span>,
+        .on =&gt; <span class="tok-null">false</span>,
+        .off =&gt; <span class="tok-null">true</span>,
+    };
+    <span class="tok-kw">try</span> expect(result);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_exhaustive_switch.zig</kbd>
+1/1 test_exhaustive_switch.test.enum literals with switch...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Labeled-switch"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-switch">Labeled switch</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-switch">§</a></h3>
+
+      <p>
+      When a switch statement is labeled, it can be referenced from a
+      <code><span class="tok-kw">break</span></code> or <code><span class="tok-kw">continue</span></code>.
+      <code><span class="tok-kw">break</span></code> will return a value from the <code><span class="tok-kw">switch</span></code>.
+      </p>
+      <p>
+      A <code><span class="tok-kw">continue</span></code> targeting a switch must have an
+      operand. When executed, it will jump to the matching prong, as if the
+      <code><span class="tok-kw">switch</span></code> were executed again with the <code><span class="tok-kw">continue</span></code>'s operand replacing the initial switch value.
+      </p>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_continue.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch continue"</span> {
+    sw: <span class="tok-kw">switch</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">i32</span>, <span class="tok-number">5</span>)) {
+        <span class="tok-number">5</span> =&gt; <span class="tok-kw">continue</span> :sw <span class="tok-number">4</span>,
+
+        <span class="tok-comment">// `continue` can occur multiple times within a single switch prong.</span>
+        <span class="tok-number">2</span>...<span class="tok-number">4</span> =&gt; |v| {
+            <span class="tok-kw">if</span> (v &gt; <span class="tok-number">3</span>) {
+                <span class="tok-kw">continue</span> :sw <span class="tok-number">2</span>;
+            } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (v == <span class="tok-number">3</span>) {
+
+                <span class="tok-comment">// `break` can target labeled loops.</span>
+                <span class="tok-kw">break</span> :sw;
+            }
+
+            <span class="tok-kw">continue</span> :sw <span class="tok-number">1</span>;
+        },
+
+        <span class="tok-number">1</span> =&gt; <span class="tok-kw">return</span>,
+
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_continue.zig</kbd>
+1/1 test_switch_continue.test.switch continue...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Semantically, this is equivalent to the following loop:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_continue_equivalent.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch continue, equivalent loop"</span> {
+    <span class="tok-kw">var</span> sw: <span class="tok-type">i32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        <span class="tok-kw">switch</span> (sw) {
+            <span class="tok-number">5</span> =&gt; {
+                sw = <span class="tok-number">4</span>;
+                <span class="tok-kw">continue</span>;
+            },
+            <span class="tok-number">2</span>...<span class="tok-number">4</span> =&gt; |v| {
+                <span class="tok-kw">if</span> (v &gt; <span class="tok-number">3</span>) {
+                    sw = <span class="tok-number">2</span>;
+                    <span class="tok-kw">continue</span>;
+                } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (v == <span class="tok-number">3</span>) {
+                    <span class="tok-kw">break</span>;
+                }
+
+                sw = <span class="tok-number">1</span>;
+                <span class="tok-kw">continue</span>;
+            },
+            <span class="tok-number">1</span> =&gt; <span class="tok-kw">return</span>,
+            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_continue_equivalent.zig</kbd>
+1/1 test_switch_continue_equivalent.test.switch continue, equivalent loop...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      This can improve clarity of (for example) state machines, where the syntax <code><span class="tok-kw">continue</span> :sw .next_state</code> is unambiguous, explicit, and immediately understandable.
+      </p>
+      <p>
+      However, the motivating example is a switch on each element of an array, where using a single switch can improve clarity and performance:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_dispatch_loop.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expectEqual = std.testing.expectEqual;
+
+<span class="tok-kw">const</span> Instruction = <span class="tok-kw">enum</span> {
+    add,
+    mul,
+    end,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">evaluate</span>(initial_stack: []<span class="tok-kw">const</span> <span class="tok-type">i32</span>, code: []<span class="tok-kw">const</span> Instruction) !<span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> buffer: [<span class="tok-number">8</span>]<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> stack = std.ArrayListUnmanaged(<span class="tok-type">i32</span>).initBuffer(&amp;buffer);
+    <span class="tok-kw">try</span> stack.appendSliceBounded(initial_stack);
+    <span class="tok-kw">var</span> ip: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-kw">return</span> vm: <span class="tok-kw">switch</span> (code[ip]) {
+        <span class="tok-comment">// Because all code after `continue` is unreachable, this branch does</span>
+        <span class="tok-comment">// not provide a result.</span>
+        .add =&gt; {
+            <span class="tok-kw">try</span> stack.appendBounded(stack.pop().? + stack.pop().?);
+
+            ip += <span class="tok-number">1</span>;
+            <span class="tok-kw">continue</span> :vm code[ip];
+        },
+        .mul =&gt; {
+            <span class="tok-kw">try</span> stack.appendBounded(stack.pop().? * stack.pop().?);
+
+            ip += <span class="tok-number">1</span>;
+            <span class="tok-kw">continue</span> :vm code[ip];
+        },
+        .end =&gt; stack.pop().?,
+    };
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"evaluate"</span> {
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> evaluate(&amp;.{ <span class="tok-number">7</span>, <span class="tok-number">2</span>, -<span class="tok-number">3</span> }, &amp;.{ .mul, .add, .end });
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">1</span>, result);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_dispatch_loop.zig</kbd>
+1/1 test_switch_dispatch_loop.test.evaluate...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      If the operand to <code><span class="tok-kw">continue</span></code> is
+      <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known, then it can be lowered to an unconditional branch
+      to the relevant case. Such a branch is perfectly predicted, and hence
+      typically very fast to execute.
+      </p>
+
+      <p>
+      If the operand is runtime-known, each <code><span class="tok-kw">continue</span></code> can
+      embed a conditional branch inline (ideally through a jump table), which
+      allows a CPU to predict its target independently of any other prong. A
+      loop-based lowering would force every branch through the same dispatch
+      point, hindering branch prediction.
+      </p>
+
+
+      
+
+      <h3 id="Inline-Switch-Prongs"><a href="https://ziglang.org/documentation/0.15.2/#toc-Inline-Switch-Prongs">Inline Switch Prongs</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Inline-Switch-Prongs">§</a></h3>
+
+      <p>
+      Switch prongs can be marked as <code><span class="tok-kw">inline</span></code> to generate
+      the prong's body for each possible value it could have, making the
+      captured value <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_switch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> expectError = std.testing.expectError;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">isFieldOptional</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, field_index: <span class="tok-type">usize</span>) !<span class="tok-type">bool</span> {
+    <span class="tok-kw">const</span> fields = <span class="tok-builtin">@typeInfo</span>(T).@"struct".fields;
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (field_index) {
+        <span class="tok-comment">// This prong is analyzed twice with `idx` being a</span>
+        <span class="tok-comment">// comptime-known value each time.</span>
+        <span class="tok-kw">inline</span> <span class="tok-number">0</span>, <span class="tok-number">1</span> =&gt; |idx| <span class="tok-builtin">@typeInfo</span>(fields[idx].<span class="tok-type">type</span>) == .optional,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> <span class="tok-kw">error</span>.IndexOutOfBounds,
+    };
+}
+
+<span class="tok-kw">const</span> Struct1 = <span class="tok-kw">struct</span> { a: <span class="tok-type">u32</span>, b: ?<span class="tok-type">u32</span> };
+
+<span class="tok-kw">test</span> <span class="tok-str">"using @typeInfo with runtime values"</span> {
+    <span class="tok-kw">var</span> index: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">try</span> expect(!<span class="tok-kw">try</span> isFieldOptional(Struct1, index));
+    index += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(<span class="tok-kw">try</span> isFieldOptional(Struct1, index));
+    index += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expectError(<span class="tok-kw">error</span>.IndexOutOfBounds, isFieldOptional(Struct1, index));
+}
+
+<span class="tok-comment">// Calls to `isFieldOptional` on `Struct1` get unrolled to an equivalent</span>
+<span class="tok-comment">// of this function:</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">isFieldOptionalUnrolled</span>(field_index: <span class="tok-type">usize</span>) !<span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (field_index) {
+        <span class="tok-number">0</span> =&gt; <span class="tok-null">false</span>,
+        <span class="tok-number">1</span> =&gt; <span class="tok-null">true</span>,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> <span class="tok-kw">error</span>.IndexOutOfBounds,
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_switch.zig</kbd>
+1/1 test_inline_switch.test.using @typeInfo with runtime values...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>The <code><span class="tok-kw">inline</span></code> keyword may also be combined with ranges:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">inline_prong_range.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">isFieldOptional</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, field_index: <span class="tok-type">usize</span>) !<span class="tok-type">bool</span> {
+    <span class="tok-kw">const</span> fields = <span class="tok-builtin">@typeInfo</span>(T).@"struct".fields;
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (field_index) {
+        <span class="tok-kw">inline</span> <span class="tok-number">0</span>...fields.len - <span class="tok-number">1</span> =&gt; |idx| <span class="tok-builtin">@typeInfo</span>(fields[idx].<span class="tok-type">type</span>) == .optional,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> <span class="tok-kw">error</span>.IndexOutOfBounds,
+    };
+}</code></pre></figure>
+
+      <p>
+      <code><span class="tok-kw">inline</span> <span class="tok-kw">else</span></code> prongs can be used as a type safe
+      alternative to <code><span class="tok-kw">inline</span> <span class="tok-kw">for</span></code> loops:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_else.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> SliceTypeA = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {
+    len: <span class="tok-type">usize</span>,
+    ptr: [*]<span class="tok-type">u32</span>,
+};
+<span class="tok-kw">const</span> SliceTypeB = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {
+    ptr: [*]SliceTypeA,
+    len: <span class="tok-type">usize</span>,
+};
+<span class="tok-kw">const</span> AnySlice = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: SliceTypeA,
+    b: SliceTypeB,
+    c: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+    d: []AnySlice,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">withFor</span>(any: AnySlice) <span class="tok-type">usize</span> {
+    <span class="tok-kw">const</span> Tag = <span class="tok-builtin">@typeInfo</span>(AnySlice).@"union".tag_type.?;
+    <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (<span class="tok-builtin">@typeInfo</span>(Tag).@"enum".fields) |field| {
+        <span class="tok-comment">// With `inline for` the function gets generated as</span>
+        <span class="tok-comment">// a series of `if` statements relying on the optimizer</span>
+        <span class="tok-comment">// to convert it to a switch.</span>
+        <span class="tok-kw">if</span> (field.value == <span class="tok-builtin">@intFromEnum</span>(any)) {
+            <span class="tok-kw">return</span> <span class="tok-builtin">@field</span>(any, field.name).len;
+        }
+    }
+    <span class="tok-comment">// When using `inline for` the compiler doesn't know that every</span>
+    <span class="tok-comment">// possible case has been handled requiring an explicit `unreachable`.</span>
+    <span class="tok-kw">unreachable</span>;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">withSwitch</span>(any: AnySlice) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (any) {
+        <span class="tok-comment">// With `inline else` the function is explicitly generated</span>
+        <span class="tok-comment">// as the desired switch and the compiler can check that</span>
+        <span class="tok-comment">// every possible case is handled.</span>
+        <span class="tok-kw">inline</span> <span class="tok-kw">else</span> =&gt; |slice| slice.len,
+    };
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"inline for and inline else similarity"</span> {
+    <span class="tok-kw">const</span> any = AnySlice{ .c = <span class="tok-str">"hello"</span> };
+    <span class="tok-kw">try</span> expect(withFor(any) == <span class="tok-number">5</span>);
+    <span class="tok-kw">try</span> expect(withSwitch(any) == <span class="tok-number">5</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_else.zig</kbd>
+1/1 test_inline_else.test.inline for and inline else similarity...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      When using an inline prong switching on an union an additional
+      capture can be used to obtain the union's enum tag value.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_switch_union_tag.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> U = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: <span class="tok-type">u32</span>,
+    b: <span class="tok-type">f32</span>,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">getNum</span>(u: U) <span class="tok-type">u32</span> {
+    <span class="tok-kw">switch</span> (u) {
+        <span class="tok-comment">// Here `num` is a runtime-known value that is either</span>
+        <span class="tok-comment">// `u.a` or `u.b` and `tag` is `u`'s comptime-known tag value.</span>
+        <span class="tok-kw">inline</span> <span class="tok-kw">else</span> =&gt; |num, tag| {
+            <span class="tok-kw">if</span> (tag == .b) {
+                <span class="tok-kw">return</span> <span class="tok-builtin">@intFromFloat</span>(num);
+            }
+            <span class="tok-kw">return</span> num;
+        },
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"test"</span> {
+    <span class="tok-kw">const</span> u = U{ .b = <span class="tok-number">42</span> };
+    <span class="tok-kw">try</span> expect(getNum(u) == <span class="tok-number">42</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_switch_union_tag.zig</kbd>
+1/1 test_inline_switch_union_tag.test.test...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#inline-while">inline while</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#inline-for">inline for</a></li>
+</ul>
+
+      
+      
+
+      <h2 id="while"><a href="https://ziglang.org/documentation/0.15.2/#toc-while">while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while">§</a></h2>
+
+      <p>
+      A while loop is used to repeatedly execute an expression until
+      some condition is no longer true.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while basic"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) {
+        i += <span class="tok-number">1</span>;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while.zig</kbd>
+1/1 test_while.test.while basic...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Use <code><span class="tok-kw">break</span></code> to exit a while loop early.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_break.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while break"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        <span class="tok-kw">if</span> (i == <span class="tok-number">10</span>)
+            <span class="tok-kw">break</span>;
+        i += <span class="tok-number">1</span>;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_break.zig</kbd>
+1/1 test_while_break.test.while break...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Use <code><span class="tok-kw">continue</span></code> to jump back to the beginning of the loop.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_continue.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while continue"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        i += <span class="tok-number">1</span>;
+        <span class="tok-kw">if</span> (i &lt; <span class="tok-number">10</span>)
+            <span class="tok-kw">continue</span>;
+        <span class="tok-kw">break</span>;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_continue.zig</kbd>
+1/1 test_while_continue.test.while continue...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      While loops support a continue expression which is executed when the loop
+      is continued. The <code><span class="tok-kw">continue</span></code> keyword respects this expression.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_continue_expression.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while loop continue expression"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) : (i += <span class="tok-number">1</span>) {}
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"while loop continue expression, more complicated"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">var</span> j: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">while</span> (i * j &lt; <span class="tok-number">2000</span>) : ({
+        i *= <span class="tok-number">2</span>;
+        j *= <span class="tok-number">3</span>;
+    }) {
+        <span class="tok-kw">const</span> my_ij = i * j;
+        <span class="tok-kw">try</span> expect(my_ij &lt; <span class="tok-number">2000</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_continue_expression.zig</kbd>
+1/2 test_while_continue_expression.test.while loop continue expression...OK
+2/2 test_while_continue_expression.test.while loop continue expression, more complicated...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+      While loops are expressions. The result of the expression is the
+      result of the <code><span class="tok-kw">else</span></code> clause of a while loop, which is executed when
+      the condition of the while loop is tested as false.
+      </p>
+      <p>
+      <code><span class="tok-kw">break</span></code>, like <code><span class="tok-kw">return</span></code>, accepts a value
+              parameter. This is the result of the <code><span class="tok-kw">while</span></code> expression.
+                  When you <code><span class="tok-kw">break</span></code> from a while loop, the <code><span class="tok-kw">else</span></code> branch is not
+      evaluated.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_else.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while else"</span> {
+    <span class="tok-kw">try</span> expect(rangeHasNumber(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">5</span>));
+    <span class="tok-kw">try</span> expect(!rangeHasNumber(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">15</span>));
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">rangeHasNumber</span>(begin: <span class="tok-type">usize</span>, end: <span class="tok-type">usize</span>, number: <span class="tok-type">usize</span>) <span class="tok-type">bool</span> {
+    <span class="tok-kw">var</span> i = begin;
+    <span class="tok-kw">return</span> <span class="tok-kw">while</span> (i &lt; end) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">if</span> (i == number) {
+            <span class="tok-kw">break</span> <span class="tok-null">true</span>;
+        }
+    } <span class="tok-kw">else</span> <span class="tok-null">false</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_else.zig</kbd>
+1/1 test_while_else.test.while else...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <h3 id="Labeled-while"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-while">Labeled while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-while">§</a></h3>
+
+      <p>When a <code><span class="tok-kw">while</span></code> loop is labeled, it can be referenced from a <code><span class="tok-kw">break</span></code>
+              or <code><span class="tok-kw">continue</span></code> from within a nested loop:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_nested_break.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"nested break"</span> {
+    outer: <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+            <span class="tok-kw">break</span> :outer;
+        }
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"nested continue"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    outer: <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+            <span class="tok-kw">continue</span> :outer;
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_nested_break.zig</kbd>
+1/2 test_while_nested_break.test.nested break...OK
+2/2 test_while_nested_break.test.nested continue...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="while-with-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-while-with-Optionals">while with Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">§</a></h3>
+
+      <p>
+      Just like <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> expressions, while loops can take an optional as the
+      condition and capture the payload. When <a href="https://ziglang.org/documentation/0.15.2/#null">null</a> is encountered the loop
+      exits.
+      </p>
+      <p>
+      When the <code>|x|</code> syntax is present on a <code><span class="tok-kw">while</span></code> expression,
+      the while condition must have an <a href="https://ziglang.org/documentation/0.15.2/#Optional-Type">Optional Type</a>.
+      </p>
+      <p>
+      The <code><span class="tok-kw">else</span></code> branch is allowed on optional iteration. In this case, it will
+      be executed on the first null value encountered.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_null_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while null capture"</span> {
+    <span class="tok-kw">var</span> sum1: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| {
+        sum1 += value;
+    }
+    <span class="tok-kw">try</span> expect(sum1 == <span class="tok-number">3</span>);
+
+    <span class="tok-comment">// null capture with an else block</span>
+    <span class="tok-kw">var</span> sum2: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| {
+        sum2 += value;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> expect(sum2 == <span class="tok-number">3</span>);
+    }
+
+    <span class="tok-comment">// null capture with a continue expression</span>
+    <span class="tok-kw">var</span> i: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> sum3: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| : (i += <span class="tok-number">1</span>) {
+        sum3 += value;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">3</span>);
+}
+
+<span class="tok-kw">var</span> numbers_left: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+<span class="tok-kw">fn</span> <span class="tok-fn">eventuallyNullSequence</span>() ?<span class="tok-type">u32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (numbers_left == <span class="tok-number">0</span>) <span class="tok-null">null</span> <span class="tok-kw">else</span> blk: {
+        numbers_left -= <span class="tok-number">1</span>;
+        <span class="tok-kw">break</span> :blk numbers_left;
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_null_capture.zig</kbd>
+1/1 test_while_null_capture.test.while null capture...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="while-with-Error-Unions"><a href="https://ziglang.org/documentation/0.15.2/#toc-while-with-Error-Unions">while with Error Unions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while-with-Error-Unions">§</a></h3>
+
+      <p>
+      Just like <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> expressions, while loops can take an error union as
+      the condition and capture the payload or the error code. When the
+      condition results in an error code the else branch is evaluated and
+      the loop is finished.
+      </p>
+      <p>
+      When the <code><span class="tok-kw">else</span> |x|</code> syntax is present on a <code><span class="tok-kw">while</span></code> expression,
+      the while condition must have an <a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_error_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while error union capture"</span> {
+    <span class="tok-kw">var</span> sum1: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyErrorSequence()) |value| {
+        sum1 += value;
+    } <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.ReachedZero);
+    }
+}
+
+<span class="tok-kw">var</span> numbers_left: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">eventuallyErrorSequence</span>() <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (numbers_left == <span class="tok-number">0</span>) <span class="tok-kw">error</span>.ReachedZero <span class="tok-kw">else</span> blk: {
+        numbers_left -= <span class="tok-number">1</span>;
+        <span class="tok-kw">break</span> :blk numbers_left;
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_error_capture.zig</kbd>
+1/1 test_while_error_capture.test.while error union capture...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="inline-while"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-while">inline while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-while">§</a></h3>
+
+      <p>
+      While loops can be inlined. This causes the loop to be unrolled, which
+      allows the code to do some things which only work at compile time,
+      such as use types as first class values.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_while.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"inline while loop"</span> {
+    <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> i = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">inline</span> <span class="tok-kw">while</span> (i &lt; <span class="tok-number">3</span>) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">const</span> T = <span class="tok-kw">switch</span> (i) {
+            <span class="tok-number">0</span> =&gt; <span class="tok-type">f32</span>,
+            <span class="tok-number">1</span> =&gt; <span class="tok-type">i8</span>,
+            <span class="tok-number">2</span> =&gt; <span class="tok-type">bool</span>,
+            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+        };
+        sum += typeNameLength(T);
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">9</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">typeNameLength</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-builtin">@typeName</span>(T).len;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_while.zig</kbd>
+1/1 test_inline_while.test.inline while loop...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      It is recommended to use <code><span class="tok-kw">inline</span></code> loops only for one of these reasons:
+      </p>
+      <ul>
+        <li>You need the loop to execute at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> for the semantics to work.</li>
+        <li>
+        You have a benchmark to prove that forcibly unrolling the loop in this way is measurably faster.
+        </li>
+      </ul>
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#if">if</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#unreachable">unreachable</a></li>
+</ul>
+
+      
+      <h2 id="for"><a href="https://ziglang.org/documentation/0.15.2/#toc-for">for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#for">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_for.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"for basics"</span> {
+    <span class="tok-kw">const</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">0</span> };
+    <span class="tok-kw">var</span> sum: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-comment">// For loops iterate over slices and arrays.</span>
+    <span class="tok-kw">for</span> (items) |value| {
+        <span class="tok-comment">// Break and continue are supported.</span>
+        <span class="tok-kw">if</span> (value == <span class="tok-number">0</span>) {
+            <span class="tok-kw">continue</span>;
+        }
+        sum += value;
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">16</span>);
+
+    <span class="tok-comment">// To iterate over a portion of a slice, reslice.</span>
+    <span class="tok-kw">for</span> (items[<span class="tok-number">0</span>..<span class="tok-number">1</span>]) |value| {
+        sum += value;
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">20</span>);
+
+    <span class="tok-comment">// To access the index of iteration, specify a second condition as well</span>
+    <span class="tok-comment">// as a second capture value.</span>
+    <span class="tok-kw">var</span> sum2: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (items, <span class="tok-number">0</span>..) |_, i| {
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(i) == <span class="tok-type">usize</span>);
+        sum2 += <span class="tok-builtin">@as</span>(<span class="tok-type">i32</span>, <span class="tok-builtin">@intCast</span>(i));
+    }
+    <span class="tok-kw">try</span> expect(sum2 == <span class="tok-number">10</span>);
+
+    <span class="tok-comment">// To iterate over consecutive integers, use the range syntax.</span>
+    <span class="tok-comment">// Unbounded range is always a compile error.</span>
+    <span class="tok-kw">var</span> sum3: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (<span class="tok-number">0</span>..<span class="tok-number">5</span>) |i| {
+        sum3 += i;
+    }
+    <span class="tok-kw">try</span> expect(sum3 == <span class="tok-number">10</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"multi object for"</span> {
+    <span class="tok-kw">const</span> items = [_]<span class="tok-type">usize</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span> };
+    <span class="tok-kw">const</span> items2 = [_]<span class="tok-type">usize</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span> };
+    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-comment">// Iterate over multiple objects.</span>
+    <span class="tok-comment">// All lengths must be equal at the start of the loop, otherwise detectable</span>
+    <span class="tok-comment">// illegal behavior occurs.</span>
+    <span class="tok-kw">for</span> (items, items2) |i, j| {
+        count += i + j;
+    }
+
+    <span class="tok-kw">try</span> expect(count == <span class="tok-number">21</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"for reference"</span> {
+    <span class="tok-kw">var</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">2</span> };
+
+    <span class="tok-comment">// Iterate over the slice by reference by</span>
+    <span class="tok-comment">// specifying that the capture value is a pointer.</span>
+    <span class="tok-kw">for</span> (&amp;items) |*value| {
+        value.* += <span class="tok-number">1</span>;
+    }
+
+    <span class="tok-kw">try</span> expect(items[<span class="tok-number">0</span>] == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(items[<span class="tok-number">1</span>] == <span class="tok-number">5</span>);
+    <span class="tok-kw">try</span> expect(items[<span class="tok-number">2</span>] == <span class="tok-number">3</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"for else"</span> {
+    <span class="tok-comment">// For allows an else attached to it, the same as a while loop.</span>
+    <span class="tok-kw">const</span> items = [_]?<span class="tok-type">i32</span>{ <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-null">null</span>, <span class="tok-number">5</span> };
+
+    <span class="tok-comment">// For loops can also be used as expressions.</span>
+    <span class="tok-comment">// Similar to while loops, when you break from a for loop, the else branch is not evaluated.</span>
+    <span class="tok-kw">var</span> sum: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">for</span> (items) |value| {
+        <span class="tok-kw">if</span> (value != <span class="tok-null">null</span>) {
+            sum += value.?;
+        }
+    } <span class="tok-kw">else</span> blk: {
+        <span class="tok-kw">try</span> expect(sum == <span class="tok-number">12</span>);
+        <span class="tok-kw">break</span> :blk sum;
+    };
+    <span class="tok-kw">try</span> expect(result == <span class="tok-number">12</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_for.zig</kbd>
+1/4 test_for.test.for basics...OK
+2/4 test_for.test.multi object for...OK
+3/4 test_for.test.for reference...OK
+4/4 test_for.test.for else...OK
+All 4 tests passed.
+</samp></pre></figure>
+
+      <h3 id="Labeled-for"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-for">Labeled for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-for">§</a></h3>
+
+      <p>When a <code><span class="tok-kw">for</span></code> loop is labeled, it can be referenced from a <code><span class="tok-kw">break</span></code>
+              or <code><span class="tok-kw">continue</span></code> from within a nested loop:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_for_nested_break.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"nested break"</span> {
+    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    outer: <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
+        <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
+            count += <span class="tok-number">1</span>;
+            <span class="tok-kw">break</span> :outer;
+        }
+    }
+    <span class="tok-kw">try</span> expect(count == <span class="tok-number">1</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"nested continue"</span> {
+    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    outer: <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">9</span>) |_| {
+        <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
+            count += <span class="tok-number">1</span>;
+            <span class="tok-kw">continue</span> :outer;
+        }
+    }
+
+    <span class="tok-kw">try</span> expect(count == <span class="tok-number">8</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_for_nested_break.zig</kbd>
+1/2 test_for_nested_break.test.nested break...OK
+2/2 test_for_nested_break.test.nested continue...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="inline-for"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-for">inline for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-for">§</a></h3>
+
+      <p>
+      For loops can be inlined. This causes the loop to be unrolled, which
+      allows the code to do some things which only work at compile time,
+      such as use types as first class values.
+      The capture value and iterator value of inlined for loops are
+      compile-time known.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_for.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"inline for loop"</span> {
+    <span class="tok-kw">const</span> nums = [_]<span class="tok-type">i32</span>{ <span class="tok-number">2</span>, <span class="tok-number">4</span>, <span class="tok-number">6</span> };
+    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (nums) |i| {
+        <span class="tok-kw">const</span> T = <span class="tok-kw">switch</span> (i) {
+            <span class="tok-number">2</span> =&gt; <span class="tok-type">f32</span>,
+            <span class="tok-number">4</span> =&gt; <span class="tok-type">i8</span>,
+            <span class="tok-number">6</span> =&gt; <span class="tok-type">bool</span>,
+            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+        };
+        sum += typeNameLength(T);
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">9</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">typeNameLength</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-builtin">@typeName</span>(T).len;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_for.zig</kbd>
+1/1 test_inline_for.test.inline for loop...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      It is recommended to use <code><span class="tok-kw">inline</span></code> loops only for one of these reasons:
+      </p>
+      <ul>
+        <li>You need the loop to execute at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> for the semantics to work.</li>
+        <li>
+        You have a benchmark to prove that forcibly unrolling the loop in this way is measurably faster.
+        </li>
+      </ul>
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#while">while</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Slices">Slices</a></li>
+</ul>
+
+      
+      <h2 id="if"><a href="https://ziglang.org/documentation/0.15.2/#toc-if">if</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#if">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_if.zig</cite></figcaption><pre><code><span class="tok-comment">// If expressions have three uses, corresponding to the three types:</span>
+<span class="tok-comment">// * bool</span>
+<span class="tok-comment">// * ?T</span>
+<span class="tok-comment">// * anyerror!T</span>
+
+<span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"if expression"</span> {
+    <span class="tok-comment">// If expressions are used instead of a ternary expression.</span>
+    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">4</span>;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">if</span> (a != b) <span class="tok-number">47</span> <span class="tok-kw">else</span> <span class="tok-number">3089</span>;
+    <span class="tok-kw">try</span> expect(result == <span class="tok-number">47</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"if boolean"</span> {
+    <span class="tok-comment">// If expressions test boolean conditions.</span>
+    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">4</span>;
+    <span class="tok-kw">if</span> (a != b) {
+        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
+    } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (a == <span class="tok-number">9</span>) {
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">unreachable</span>;
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"if error union"</span> {
+    <span class="tok-comment">// If expressions test for errors.</span>
+    <span class="tok-comment">// Note the |err| capture on the else.</span>
+
+    <span class="tok-kw">const</span> a: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> |err| {
+        _ = err;
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> b: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.BadValue;
+    <span class="tok-kw">if</span> (b) |value| {
+        _ = value;
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
+    }
+
+    <span class="tok-comment">// The else and |err| capture is strictly required.</span>
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> |_| {}
+
+    <span class="tok-comment">// To check only the error value, use an empty block expression.</span>
+    <span class="tok-kw">if</span> (b) |_| {} <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
+    }
+
+    <span class="tok-comment">// Access the value by reference using a pointer capture.</span>
+    <span class="tok-kw">var</span> c: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">if</span> (c) |*value| {
+        value.* = <span class="tok-number">9</span>;
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">if</span> (c) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">9</span>);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_if.zig</kbd>
+1/3 test_if.test.if expression...OK
+2/3 test_if.test.if boolean...OK
+3/3 test_if.test.if error union...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      <h3 id="if-with-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-if-with-Optionals">if with Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">§</a></h3>
+
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_if_optionals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"if optional"</span> {
+    <span class="tok-comment">// If expressions test for null.</span>
+
+    <span class="tok-kw">const</span> a: ?<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> b: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">if</span> (b) |_| {
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
+    }
+
+    <span class="tok-comment">// The else is not required.</span>
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    }
+
+    <span class="tok-comment">// To test against null only, use the binary equality operator.</span>
+    <span class="tok-kw">if</span> (b == <span class="tok-null">null</span>) {
+        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
+    }
+
+    <span class="tok-comment">// Access the value by reference using a pointer capture.</span>
+    <span class="tok-kw">var</span> c: ?<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">if</span> (c) |*value| {
+        value.* = <span class="tok-number">2</span>;
+    }
+
+    <span class="tok-kw">if</span> (c) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">2</span>);
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">unreachable</span>;
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"if error union with optional"</span> {
+    <span class="tok-comment">// If expressions test for errors before unwrapping optionals.</span>
+    <span class="tok-comment">// The |optional_value| capture's type is ?u32.</span>
+
+    <span class="tok-kw">const</span> a: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">if</span> (a) |optional_value| {
+        <span class="tok-kw">try</span> expect(optional_value.? == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> |err| {
+        _ = err;
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> b: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">if</span> (b) |optional_value| {
+        <span class="tok-kw">try</span> expect(optional_value == <span class="tok-null">null</span>);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> c: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.BadValue;
+    <span class="tok-kw">if</span> (c) |optional_value| {
+        _ = optional_value;
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
+    }
+
+    <span class="tok-comment">// Access the value by reference by using a pointer capture each time.</span>
+    <span class="tok-kw">var</span> d: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">if</span> (d) |*optional_value| {
+        <span class="tok-kw">if</span> (optional_value.*) |*value| {
+            value.* = <span class="tok-number">9</span>;
+        }
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">if</span> (d) |optional_value| {
+        <span class="tok-kw">try</span> expect(optional_value.? == <span class="tok-number">9</span>);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_if_optionals.zig</kbd>
+1/2 test_if_optionals.test.if optional...OK
+2/2 test_if_optionals.test.if error union with optional...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
+</ul>
+
+      
+      <h2 id="defer"><a href="https://ziglang.org/documentation/0.15.2/#toc-defer">defer</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#defer">§</a></h2>
+
+      <p>Executes an expression unconditionally at scope exit.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_defer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> print = std.debug.print;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">deferExample</span>() !<span class="tok-type">usize</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+
+    {
+        <span class="tok-kw">defer</span> a = <span class="tok-number">2</span>;
+        a = <span class="tok-number">1</span>;
+    }
+    <span class="tok-kw">try</span> expect(a == <span class="tok-number">2</span>);
+
+    a = <span class="tok-number">5</span>;
+    <span class="tok-kw">return</span> a;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"defer basics"</span> {
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> deferExample()) == <span class="tok-number">5</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_defer.zig</kbd>
+1/1 test_defer.test.defer basics...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>Defer expressions are evaluated in reverse order.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">defer_unwind.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> print = std.debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    print(<span class="tok-str">"\n"</span>, .{});
+
+    <span class="tok-kw">defer</span> {
+        print(<span class="tok-str">"1 "</span>, .{});
+    }
+    <span class="tok-kw">defer</span> {
+        print(<span class="tok-str">"2 "</span>, .{});
+    }
+    <span class="tok-kw">if</span> (<span class="tok-null">false</span>) {
+        <span class="tok-comment">// defers are not run if they are never executed.</span>
+        <span class="tok-kw">defer</span> {
+            print(<span class="tok-str">"3 "</span>, .{});
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe defer_unwind.zig</kbd>
+$ <kbd>./defer_unwind</kbd>
+
+2 1
+</samp></pre></figure>
+
+      <p>Inside a defer expression the return statement is not allowed.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_invalid_defer.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">deferInvalidExample</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">defer</span> {
+        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.DeferError;
+    }
+
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.DeferError;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_invalid_defer.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_invalid_defer.zig:3:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">cannot return from defer expression
+</span>        return error.DeferError;
+        <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_invalid_defer.zig:2:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">defer expression here
+</span>    defer {
+    <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
+</ul>
+
+      
+      <h2 id="unreachable"><a href="https://ziglang.org/documentation/0.15.2/#toc-unreachable">unreachable</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#unreachable">§</a></h2>
+
+      <p>
+      In <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> mode
+      <code><span class="tok-kw">unreachable</span></code> emits a call to <code>panic</code> with the message <code>reached unreachable code</code>.
+      </p>
+      <p>
+      In <a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a> mode, the optimizer uses the assumption that <code><span class="tok-kw">unreachable</span></code> code
+      will never be hit to perform optimizations.
+      </p>
+      <h3 id="Basics"><a href="https://ziglang.org/documentation/0.15.2/#toc-Basics">Basics</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Basics">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_unreachable.zig</cite></figcaption><pre><code><span class="tok-comment">// unreachable is used to assert that control flow will never reach a</span>
+<span class="tok-comment">// particular location:</span>
+<span class="tok-kw">test</span> <span class="tok-str">"basic math"</span> {
+    <span class="tok-kw">const</span> x = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> y = <span class="tok-number">2</span>;
+    <span class="tok-kw">if</span> (x + y != <span class="tok-number">3</span>) {
+        <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unreachable.zig</kbd>
+1/1 test_unreachable.test.basic math...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>In fact, this is how <code>std.debug.assert</code> is implemented:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_assertion_failure.zig</cite></figcaption><pre><code><span class="tok-comment">// This is how std.debug.assert is implemented</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">assert</span>(ok: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (!ok) <span class="tok-kw">unreachable</span>; <span class="tok-comment">// assertion failure</span>
+}
+
+<span class="tok-comment">// This test will fail because we hit unreachable.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"this will fail"</span> {
+    assert(<span class="tok-null">false</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_assertion_failure.zig</kbd>
+1/1 test_assertion_failure.test.this will fail...thread 2902460 panic: reached unreachable code
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_assertion_failure.zig:3:14</span>: <span class="sgr-2m">0x102c039 in assert (test_assertion_failure.zig)</span>
+    if (!ok) unreachable; // assertion failure
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_assertion_failure.zig:8:11</span>: <span class="sgr-2m">0x102c00e in test.this will fail (test_assertion_failure.zig)</span>
+    assert(false);
+          <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cb50 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155d71 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fb0d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f3a1 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/2d8b23c255add16f67e238437a2ca75f/test --seed=0xf5bf1bba
+</samp></pre></figure>
+
+      
+      <h3 id="At-Compile-Time"><a href="https://ziglang.org/documentation/0.15.2/#toc-At-Compile-Time">At Compile-Time</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#At-Compile-Time">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_unreachable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+
+<span class="tok-kw">test</span> <span class="tok-str">"type of unreachable"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-comment">// The type of unreachable is noreturn.</span>
+
+        <span class="tok-comment">// However this assertion will still fail to compile because</span>
+        <span class="tok-comment">// unreachable expressions are compile errors.</span>
+
+        assert(<span class="tok-builtin">@TypeOf</span>(<span class="tok-kw">unreachable</span>) == <span class="tok-type">noreturn</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_unreachable.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unreachable.zig:10:16: </span><span class="sgr-31m">error: </span><span class="sgr-1m">unreachable code
+</span>        assert(@TypeOf(unreachable) == noreturn);
+               <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unreachable.zig:10:24: </span><span class="sgr-36m">note: </span><span class="sgr-1m">control flow is diverted here
+</span>        assert(@TypeOf(unreachable) == noreturn);
+                       <span class="sgr-32m">^~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Zig-Test">Zig Test</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Build-Mode">Build Mode</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+</ul>
+
+      
+      
+      <h2 id="noreturn"><a href="https://ziglang.org/documentation/0.15.2/#toc-noreturn">noreturn</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#noreturn">§</a></h2>
+
+      <p>
+      <code><span class="tok-type">noreturn</span></code> is the type of:
+      </p>
+      <ul>
+          <li><code><span class="tok-kw">break</span></code></li>
+          <li><code><span class="tok-kw">continue</span></code></li>
+          <li><code><span class="tok-kw">return</span></code></li>
+          <li><code><span class="tok-kw">unreachable</span></code></li>
+          <li><code><span class="tok-kw">while</span> (<span class="tok-null">true</span>) {}</code></li>
+      </ul>
+      <p>When resolving types together, such as <code><span class="tok-kw">if</span></code> clauses or <code><span class="tok-kw">switch</span></code> prongs,
+              the <code><span class="tok-type">noreturn</span></code> type is compatible with every other type. Consider:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_noreturn.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(condition: <span class="tok-type">bool</span>, b: <span class="tok-type">u32</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> a = <span class="tok-kw">if</span> (condition) b <span class="tok-kw">else</span> <span class="tok-kw">return</span>;
+    _ = a;
+    <span class="tok-builtin">@panic</span>(<span class="tok-str">"do something with a"</span>);
+}
+<span class="tok-kw">test</span> <span class="tok-str">"noreturn"</span> {
+    foo(<span class="tok-null">false</span>, <span class="tok-number">1</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_noreturn.zig</kbd>
+1/1 test_noreturn.test.noreturn...OK
+All 1 tests passed.
+</samp></pre></figure>
+

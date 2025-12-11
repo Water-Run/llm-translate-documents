@@ -1,0 +1,1161 @@
+<figure><figcaption class="zig-cap"><cite class="file">test_unhandled_enumeration_value.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Color = <span class="tok-kw">enum</span> {
+    auto,
+    off,
+    on,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"穷尽切换"</span> {
+    <span class="tok-kw">const</span> color = Color.off;
+    <span class="tok-kw">switch</span> (color) {
+        Color.auto =&gt; {},
+        Color.on =&gt; {},
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unhandled_enumeration_value.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unhandled_enumeration_value.zig:9:5: </span><span class="sgr-31m">error: </span><span class="sgr-1m">switch 必须处理所有可能性
+</span>    switch (color) {
+    <span class="sgr-32m">^~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unhandled_enumeration_value.zig:3:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">未处理的枚举值: 'off'
+</span>    off,
+    <span class="sgr-32m">^~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unhandled_enumeration_value.zig:1:15: </span><span class="sgr-36m">note: </span><span class="sgr-1m">枚举 'test_unhandled_enumeration_value.Color' 在此声明
+</span>const Color = enum {
+              <span class="sgr-32m">^~~~
+</span>
+</samp></pre></figure>
+
+      
+
+      <h3 id="Switching-with-Enum-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Switching-with-Enum-Literals">使用枚举字面量进行切换</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Switching-with-Enum-Literals">§</a></h3>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Enum-Literals">枚举字面量</a>可以方便地与 <code><span class="tok-kw">switch</span></code> 一起使用，以避免
+      重复指定<a href="https://ziglang.org/documentation/0.15.2/#enum">枚举</a>或<a href="https://ziglang.org/documentation/0.15.2/#union">联合</a>类型:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_exhaustive_switch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Color = <span class="tok-kw">enum</span> {
+    auto,
+    off,
+    on,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch 中的枚举字面量"</span> {
+    <span class="tok-kw">const</span> color = Color.off;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">switch</span> (color) {
+        .auto =&gt; <span class="tok-null">false</span>,
+        .on =&gt; <span class="tok-null">false</span>,
+        .off =&gt; <span class="tok-null">true</span>,
+    };
+    <span class="tok-kw">try</span> expect(result);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_exhaustive_switch.zig</kbd>
+1/1 test_exhaustive_switch.test.switch 中的枚举字面量...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Labeled-switch"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-switch">带标签的 switch</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-switch">§</a></h3>
+
+      <p>
+      当 switch 语句带有标签时，可以从
+      <code><span class="tok-kw">break</span></code> 或 <code><span class="tok-kw">continue</span></code> 中引用它。
+      <code><span class="tok-kw">break</span></code> 将从 <code><span class="tok-kw">switch</span></code> 返回一个值。
+      </p>
+      <p>
+      针对 switch 的 <code><span class="tok-kw">continue</span></code> 必须有一个
+      操作数。当执行时，它将跳转到匹配的分支，就好像
+      <code><span class="tok-kw">switch</span></code> 使用 <code><span class="tok-kw">continue</span></code> 的操作数替换初始 switch 值再次执行一样。
+      </p>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_continue.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch continue"</span> {
+    sw: <span class="tok-kw">switch</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">i32</span>, <span class="tok-number">5</span>)) {
+        <span class="tok-number">5</span> =&gt; <span class="tok-kw">continue</span> :sw <span class="tok-number">4</span>,
+
+        <span class="tok-comment">// `continue` 可以在单个 switch 分支中多次出现。</span>
+        <span class="tok-number">2</span>...<span class="tok-number">4</span> =&gt; |v| {
+            <span class="tok-kw">if</span> (v &gt; <span class="tok-number">3</span>) {
+                <span class="tok-kw">continue</span> :sw <span class="tok-number">2</span>;
+            } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (v == <span class="tok-number">3</span>) {
+
+                <span class="tok-comment">// `break` 可以针对带标签的循环。</span>
+                <span class="tok-kw">break</span> :sw;
+            }
+
+            <span class="tok-kw">continue</span> :sw <span class="tok-number">1</span>;
+        },
+
+        <span class="tok-number">1</span> =&gt; <span class="tok-kw">return</span>,
+
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_continue.zig</kbd>
+1/1 test_switch_continue.test.switch continue...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      从语义上讲，这等价于以下循环:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_continue_equivalent.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch continue, 等价循环"</span> {
+    <span class="tok-kw">var</span> sw: <span class="tok-type">i32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        <span class="tok-kw">switch</span> (sw) {
+            <span class="tok-number">5</span> =&gt; {
+                sw = <span class="tok-number">4</span>;
+                <span class="tok-kw">continue</span>;
+            },
+            <span class="tok-number">2</span>...<span class="tok-number">4</span> =&gt; |v| {
+                <span class="tok-kw">if</span> (v &gt; <span class="tok-number">3</span>) {
+                    sw = <span class="tok-number">2</span>;
+                    <span class="tok-kw">continue</span>;
+                } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (v == <span class="tok-number">3</span>) {
+                    <span class="tok-kw">break</span>;
+                }
+
+                sw = <span class="tok-number">1</span>;
+                <span class="tok-kw">continue</span>;
+            },
+            <span class="tok-number">1</span> =&gt; <span class="tok-kw">return</span>,
+            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_continue_equivalent.zig</kbd>
+1/1 test_switch_continue_equivalent.test.switch continue, 等价循环...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      这可以提高(例如)状态机的清晰度，其中语法 <code><span class="tok-kw">continue</span> :sw .next_state</code> 是明确的、显式的且易于理解。
+      </p>
+      <p>
+      然而，这个功能的设计初衷是对数组的每个元素进行 switch，其中使用单个 switch 可以提高清晰度和性能:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_dispatch_loop.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expectEqual = std.testing.expectEqual;
+
+<span class="tok-kw">const</span> Instruction = <span class="tok-kw">enum</span> {
+    add,
+    mul,
+    end,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">evaluate</span>(initial_stack: []<span class="tok-kw">const</span> <span class="tok-type">i32</span>, code: []<span class="tok-kw">const</span> Instruction) !<span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> buffer: [<span class="tok-number">8</span>]<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> stack = std.ArrayListUnmanaged(<span class="tok-type">i32</span>).initBuffer(&amp;buffer);
+    <span class="tok-kw">try</span> stack.appendSliceBounded(initial_stack);
+    <span class="tok-kw">var</span> ip: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-kw">return</span> vm: <span class="tok-kw">switch</span> (code[ip]) {
+        <span class="tok-comment">// 因为 `continue` 之后的所有代码都是不可达的，这个分支不会</span>
+        <span class="tok-comment">// 提供结果。</span>
+        .add =&gt; {
+            <span class="tok-kw">try</span> stack.appendBounded(stack.pop().? + stack.pop().?);
+
+            ip += <span class="tok-number">1</span>;
+            <span class="tok-kw">continue</span> :vm code[ip];
+        },
+        .mul =&gt; {
+            <span class="tok-kw">try</span> stack.appendBounded(stack.pop().? * stack.pop().?);
+
+            ip += <span class="tok-number">1</span>;
+            <span class="tok-kw">continue</span> :vm code[ip];
+        },
+        .end =&gt; stack.pop().?,
+    };
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"evaluate"</span> {
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> evaluate(&amp;.{ <span class="tok-number">7</span>, <span class="tok-number">2</span>, -<span class="tok-number">3</span> }, &amp;.{ .mul, .add, .end });
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">1</span>, result);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_dispatch_loop.zig</kbd>
+1/1 test_switch_dispatch_loop.test.evaluate...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      如果 <code><span class="tok-kw">continue</span></code> 的操作数是
+      <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> 已知的，那么它可以被降低为对相关 case 的无条件分支。这样的分支被完美预测，因此
+      通常执行速度非常快。
+      </p>
+
+      <p>
+      如果操作数是运行时已知的，每个 <code><span class="tok-kw">continue</span></code> 都可以
+      内联嵌入条件分支(理想情况下通过跳转表)，这
+      允许 CPU 独立于任何其他分支预测其目标。基于
+      循环的降低会强制每个分支通过相同的分派点，阻碍分支预测。
+      </p>
+
+
+      
+
+      <h3 id="Inline-Switch-Prongs"><a href="https://ziglang.org/documentation/0.15.2/#toc-Inline-Switch-Prongs">内联 Switch 分支</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Inline-Switch-Prongs">§</a></h3>
+
+      <p>
+      Switch 分支可以标记为 <code><span class="tok-kw">inline</span></code> 以为其可能具有的每个值生成
+      该分支的主体，使捕获的值成为<a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_switch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> expectError = std.testing.expectError;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">isFieldOptional</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, field_index: <span class="tok-type">usize</span>) !<span class="tok-type">bool</span> {
+    <span class="tok-kw">const</span> fields = <span class="tok-builtin">@typeInfo</span>(T).@"struct".fields;
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (field_index) {
+        <span class="tok-comment">// 这个分支被分析两次，每次 `idx` 都是一个</span>
+        <span class="tok-comment">// 编译期已知的值。</span>
+        <span class="tok-kw">inline</span> <span class="tok-number">0</span>, <span class="tok-number">1</span> =&gt; |idx| <span class="tok-builtin">@typeInfo</span>(fields[idx].<span class="tok-type">type</span>) == .optional,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> <span class="tok-kw">error</span>.IndexOutOfBounds,
+    };
+}
+
+<span class="tok-kw">const</span> Struct1 = <span class="tok-kw">struct</span> { a: <span class="tok-type">u32</span>, b: ?<span class="tok-type">u32</span> };
+
+<span class="tok-kw">test</span> <span class="tok-str">"将 @typeInfo 用于运行时值"</span> {
+    <span class="tok-kw">var</span> index: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">try</span> expect(!<span class="tok-kw">try</span> isFieldOptional(Struct1, index));
+    index += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(<span class="tok-kw">try</span> isFieldOptional(Struct1, index));
+    index += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expectError(<span class="tok-kw">error</span>.IndexOutOfBounds, isFieldOptional(Struct1, index));
+}
+
+<span class="tok-comment">// 对 `Struct1` 的 `isFieldOptional` 调用被展开为等价于</span>
+<span class="tok-comment">// 这个函数:</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">isFieldOptionalUnrolled</span>(field_index: <span class="tok-type">usize</span>) !<span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (field_index) {
+        <span class="tok-number">0</span> =&gt; <span class="tok-null">false</span>,
+        <span class="tok-number">1</span> =&gt; <span class="tok-null">true</span>,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> <span class="tok-kw">error</span>.IndexOutOfBounds,
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_switch.zig</kbd>
+1/1 test_inline_switch.test.将 @typeInfo 用于运行时值...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p><code><span class="tok-kw">inline</span></code> 关键字也可以与范围结合使用:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">inline_prong_range.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">isFieldOptional</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, field_index: <span class="tok-type">usize</span>) !<span class="tok-type">bool</span> {
+    <span class="tok-kw">const</span> fields = <span class="tok-builtin">@typeInfo</span>(T).@"struct".fields;
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (field_index) {
+        <span class="tok-kw">inline</span> <span class="tok-number">0</span>...fields.len - <span class="tok-number">1</span> =&gt; |idx| <span class="tok-builtin">@typeInfo</span>(fields[idx].<span class="tok-type">type</span>) == .optional,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> <span class="tok-kw">error</span>.IndexOutOfBounds,
+    };
+}</code></pre></figure>
+
+      <p>
+      <code><span class="tok-kw">inline</span> <span class="tok-kw">else</span></code> 分支可以用作
+      <code><span class="tok-kw">inline</span> <span class="tok-kw">for</span></code> 循环的类型安全替代:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_else.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> SliceTypeA = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {
+    len: <span class="tok-type">usize</span>,
+    ptr: [*]<span class="tok-type">u32</span>,
+};
+<span class="tok-kw">const</span> SliceTypeB = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {
+    ptr: [*]SliceTypeA,
+    len: <span class="tok-type">usize</span>,
+};
+<span class="tok-kw">const</span> AnySlice = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: SliceTypeA,
+    b: SliceTypeB,
+    c: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+    d: []AnySlice,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">withFor</span>(any: AnySlice) <span class="tok-type">usize</span> {
+    <span class="tok-kw">const</span> Tag = <span class="tok-builtin">@typeInfo</span>(AnySlice).@"union".tag_type.?;
+    <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (<span class="tok-builtin">@typeInfo</span>(Tag).@"enum".fields) |field| {
+        <span class="tok-comment">// 使用 `inline for` 函数被生成为</span>
+        <span class="tok-comment">// 一系列 `if` 语句，依赖优化器</span>
+        <span class="tok-comment">// 将其转换为 switch。</span>
+        <span class="tok-kw">if</span> (field.value == <span class="tok-builtin">@intFromEnum</span>(any)) {
+            <span class="tok-kw">return</span> <span class="tok-builtin">@field</span>(any, field.name).len;
+        }
+    }
+    <span class="tok-comment">// 当使用 `inline for` 时，编译器不知道每个</span>
+    <span class="tok-comment">// 可能的情况都已处理，需要显式的 `unreachable`。</span>
+    <span class="tok-kw">unreachable</span>;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">withSwitch</span>(any: AnySlice) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (any) {
+        <span class="tok-comment">// 使用 `inline else` 函数被显式生成为</span>
+        <span class="tok-comment">// 所需的 switch，编译器可以检查</span>
+        <span class="tok-comment">// 每个可能的情况是否已处理。</span>
+        <span class="tok-kw">inline</span> <span class="tok-kw">else</span> =&gt; |slice| slice.len,
+    };
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"inline for 和 inline else 的相似性"</span> {
+    <span class="tok-kw">const</span> any = AnySlice{ .c = <span class="tok-str">"hello"</span> };
+    <span class="tok-kw">try</span> expect(withFor(any) == <span class="tok-number">5</span>);
+    <span class="tok-kw">try</span> expect(withSwitch(any) == <span class="tok-number">5</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_else.zig</kbd>
+1/1 test_inline_else.test.inline for 和 inline else 的相似性...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      当对联合使用内联分支时，可以使用额外的捕获来获取联合的枚举标签值。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_switch_union_tag.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> U = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: <span class="tok-type">u32</span>,
+    b: <span class="tok-type">f32</span>,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">getNum</span>(u: U) <span class="tok-type">u32</span> {
+    <span class="tok-kw">switch</span> (u) {
+        <span class="tok-comment">// 这里 `num` 是一个运行时已知值，它要么是</span>
+        <span class="tok-comment">// `u.a` 要么是 `u.b`，而 `tag` 是 `u` 的编译期已知标签值。</span>
+        <span class="tok-kw">inline</span> <span class="tok-kw">else</span> =&gt; |num, tag| {
+            <span class="tok-kw">if</span> (tag == .b) {
+                <span class="tok-kw">return</span> <span class="tok-builtin">@intFromFloat</span>(num);
+            }
+            <span class="tok-kw">return</span> num;
+        },
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"test"</span> {
+    <span class="tok-kw">const</span> u = U{ .b = <span class="tok-number">42</span> };
+    <span class="tok-kw">try</span> expect(getNum(u) == <span class="tok-number">42</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_switch_union_tag.zig</kbd>
+1/1 test_inline_switch_union_tag.test.test...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#inline-while">内联 while</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#inline-for">内联 for</a></li>
+</ul>
+
+      
+      
+
+      <h2 id="while"><a href="https://ziglang.org/documentation/0.15.2/#toc-while">while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while">§</a></h2>
+
+      <p>
+      while 循环用于重复执行表达式，直到某个条件不再为真。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while 基础"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) {
+        i += <span class="tok-number">1</span>;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while.zig</kbd>
+1/1 test_while.test.while 基础...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      使用 <code><span class="tok-kw">break</span></code> 提前退出 while 循环。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_break.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while break"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        <span class="tok-kw">if</span> (i == <span class="tok-number">10</span>)
+            <span class="tok-kw">break</span>;
+        i += <span class="tok-number">1</span>;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_break.zig</kbd>
+1/1 test_while_break.test.while break...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      使用 <code><span class="tok-kw">continue</span></code> 跳回循环的开头。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_continue.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while continue"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        i += <span class="tok-number">1</span>;
+        <span class="tok-kw">if</span> (i &lt; <span class="tok-number">10</span>)
+            <span class="tok-kw">continue</span>;
+        <span class="tok-kw">break</span>;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_continue.zig</kbd>
+1/1 test_while_continue.test.while continue...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      while 循环支持 continue 表达式，它在循环继续时执行。<code><span class="tok-kw">continue</span></code> 关键字会遵守这个表达式。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_continue_expression.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while 循环 continue 表达式"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) : (i += <span class="tok-number">1</span>) {}
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">10</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"while 循环 continue 表达式, 更复杂"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">var</span> j: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">while</span> (i * j &lt; <span class="tok-number">2000</span>) : ({
+        i *= <span class="tok-number">2</span>;
+        j *= <span class="tok-number">3</span>;
+    }) {
+        <span class="tok-kw">const</span> my_ij = i * j;
+        <span class="tok-kw">try</span> expect(my_ij &lt; <span class="tok-number">2000</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_continue_expression.zig</kbd>
+1/2 test_while_continue_expression.test.while 循环 continue 表达式...OK
+2/2 test_while_continue_expression.test.while 循环 continue 表达式, 更复杂...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+      while 循环是表达式。表达式的结果是 while 循环的 <code><span class="tok-kw">else</span></code> 子句的结果，该子句在 while 循环的条件测试为 false 时执行。
+      </p>
+      <p>
+      <code><span class="tok-kw">break</span></code>，类似于 <code><span class="tok-kw">return</span></code>，接受一个值参数。这是 <code><span class="tok-kw">while</span></code> 表达式的结果。
+                  当你从 while 循环 <code><span class="tok-kw">break</span></code> 时，<code><span class="tok-kw">else</span></code> 分支不会被求值。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_else.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while else"</span> {
+    <span class="tok-kw">try</span> expect(rangeHasNumber(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">5</span>));
+    <span class="tok-kw">try</span> expect(!rangeHasNumber(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">15</span>));
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">rangeHasNumber</span>(begin: <span class="tok-type">usize</span>, end: <span class="tok-type">usize</span>, number: <span class="tok-type">usize</span>) <span class="tok-type">bool</span> {
+    <span class="tok-kw">var</span> i = begin;
+    <span class="tok-kw">return</span> <span class="tok-kw">while</span> (i &lt; end) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">if</span> (i == number) {
+            <span class="tok-kw">break</span> <span class="tok-null">true</span>;
+        }
+    } <span class="tok-kw">else</span> <span class="tok-null">false</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_else.zig</kbd>
+1/1 test_while_else.test.while else...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <h3 id="Labeled-while"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-while">带标签的 while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-while">§</a></h3>
+
+      <p>当 <code><span class="tok-kw">while</span></code> 循环带有标签时，可以从嵌套循环内的 <code><span class="tok-kw">break</span></code>
+              或 <code><span class="tok-kw">continue</span></code> 中引用它:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_nested_break.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"嵌套 break"</span> {
+    outer: <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+            <span class="tok-kw">break</span> :outer;
+        }
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"嵌套 continue"</span> {
+    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    outer: <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
+            <span class="tok-kw">continue</span> :outer;
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_nested_break.zig</kbd>
+1/2 test_while_nested_break.test.嵌套 break...OK
+2/2 test_while_nested_break.test.嵌套 continue...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="while-with-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-while-with-Optionals">while 与可选值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">§</a></h3>
+
+      <p>
+      就像 <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> 表达式一样，while 循环可以将可选值作为条件并捕获负载。当遇到 <a href="https://ziglang.org/documentation/0.15.2/#null">null</a> 时循环退出。
+      </p>
+      <p>
+      当 <code>|x|</code> 语法出现在 <code><span class="tok-kw">while</span></code> 表达式上时，
+      while 条件必须具有<a href="https://ziglang.org/documentation/0.15.2/#Optional-Type">可选类型</a>。
+      </p>
+      <p>
+      <code><span class="tok-kw">else</span></code> 分支在可选迭代中是允许的。在这种情况下，它将在遇到第一个 null 值时执行。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_null_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while null 捕获"</span> {
+    <span class="tok-kw">var</span> sum1: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| {
+        sum1 += value;
+    }
+    <span class="tok-kw">try</span> expect(sum1 == <span class="tok-number">3</span>);
+
+    <span class="tok-comment">// null 捕获与 else 块</span>
+    <span class="tok-kw">var</span> sum2: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| {
+        sum2 += value;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> expect(sum2 == <span class="tok-number">3</span>);
+    }
+
+    <span class="tok-comment">// null 捕获与 continue 表达式</span>
+    <span class="tok-kw">var</span> i: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> sum3: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| : (i += <span class="tok-number">1</span>) {
+        sum3 += value;
+    }
+    <span class="tok-kw">try</span> expect(i == <span class="tok-number">3</span>);
+}
+
+<span class="tok-kw">var</span> numbers_left: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+<span class="tok-kw">fn</span> <span class="tok-fn">eventuallyNullSequence</span>() ?<span class="tok-type">u32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (numbers_left == <span class="tok-number">0</span>) <span class="tok-null">null</span> <span class="tok-kw">else</span> blk: {
+        numbers_left -= <span class="tok-number">1</span>;
+        <span class="tok-kw">break</span> :blk numbers_left;
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_null_capture.zig</kbd>
+1/1 test_while_null_capture.test.while null 捕获...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="while-with-Error-Unions"><a href="https://ziglang.org/documentation/0.15.2/#toc-while-with-Error-Unions">while 与错误联合</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while-with-Error-Unions">§</a></h3>
+
+      <p>
+      就像 <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> 表达式一样，while 循环可以将错误联合作为条件并捕获负载或错误代码。当条件导致错误代码时，else 分支被求值并且循环结束。
+      </p>
+      <p>
+      当 <code><span class="tok-kw">else</span> |x|</code> 语法出现在 <code><span class="tok-kw">while</span></code> 表达式上时，
+      while 条件必须具有<a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">错误联合类型</a>。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_while_error_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"while 错误联合捕获"</span> {
+    <span class="tok-kw">var</span> sum1: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    numbers_left = <span class="tok-number">3</span>;
+    <span class="tok-kw">while</span> (eventuallyErrorSequence()) |value| {
+        sum1 += value;
+    } <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.ReachedZero);
+    }
+}
+
+<span class="tok-kw">var</span> numbers_left: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">eventuallyErrorSequence</span>() <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (numbers_left == <span class="tok-number">0</span>) <span class="tok-kw">error</span>.ReachedZero <span class="tok-kw">else</span> blk: {
+        numbers_left -= <span class="tok-number">1</span>;
+        <span class="tok-kw">break</span> :blk numbers_left;
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_error_capture.zig</kbd>
+1/1 test_while_error_capture.test.while 错误联合捕获...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="inline-while"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-while">内联 while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-while">§</a></h3>
+
+      <p>
+      while 循环可以被内联。这会导致循环被展开，这允许代码执行一些只能在编译时完成的操作，例如将类型用作一等值。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_while.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"内联 while 循环"</span> {
+    <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> i = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">inline</span> <span class="tok-kw">while</span> (i &lt; <span class="tok-number">3</span>) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">const</span> T = <span class="tok-kw">switch</span> (i) {
+            <span class="tok-number">0</span> =&gt; <span class="tok-type">f32</span>,
+            <span class="tok-number">1</span> =&gt; <span class="tok-type">i8</span>,
+            <span class="tok-number">2</span> =&gt; <span class="tok-type">bool</span>,
+            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+        };
+        sum += typeNameLength(T);
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">9</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">typeNameLength</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-builtin">@typeName</span>(T).len;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_while.zig</kbd>
+1/1 test_inline_while.test.内联 while 循环...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      建议仅出于以下原因之一使用 <code><span class="tok-kw">inline</span></code> 循环:
+      </p>
+      <ul>
+        <li>你需要循环在<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>执行才能使语义生效。</li>
+        <li>
+        你有基准测试证明以这种方式强制展开循环可测量地更快。
+        </li>
+      </ul>
+      
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#if">if</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">错误</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#unreachable">unreachable</a></li>
+</ul>
+
+      
+      <h2 id="for"><a href="https://ziglang.org/documentation/0.15.2/#toc-for">for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#for">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_for.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"for 基础"</span> {
+    <span class="tok-kw">const</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">0</span> };
+    <span class="tok-kw">var</span> sum: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-comment">// For 循环迭代切片和数组。</span>
+    <span class="tok-kw">for</span> (items) |value| {
+        <span class="tok-comment">// 支持 Break 和 continue。</span>
+        <span class="tok-kw">if</span> (value == <span class="tok-number">0</span>) {
+            <span class="tok-kw">continue</span>;
+        }
+        sum += value;
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">16</span>);
+
+    <span class="tok-comment">// 要迭代切片的一部分，请重新切片。</span>
+    <span class="tok-kw">for</span> (items[<span class="tok-number">0</span>..<span class="tok-number">1</span>]) |value| {
+        sum += value;
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">20</span>);
+
+    <span class="tok-comment">// 要访问迭代索引，请指定第二个条件以及</span>
+    <span class="tok-comment">// 第二个捕获值。</span>
+    <span class="tok-kw">var</span> sum2: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (items, <span class="tok-number">0</span>..) |_, i| {
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(i) == <span class="tok-type">usize</span>);
+        sum2 += <span class="tok-builtin">@as</span>(<span class="tok-type">i32</span>, <span class="tok-builtin">@intCast</span>(i));
+    }
+    <span class="tok-kw">try</span> expect(sum2 == <span class="tok-number">10</span>);
+
+    <span class="tok-comment">// 要迭代连续整数，请使用范围语法。</span>
+    <span class="tok-comment">// 无界范围始终是编译错误。</span>
+    <span class="tok-kw">var</span> sum3: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (<span class="tok-number">0</span>..<span class="tok-number">5</span>) |i| {
+        sum3 += i;
+    }
+    <span class="tok-kw">try</span> expect(sum3 == <span class="tok-number">10</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"多对象 for"</span> {
+    <span class="tok-kw">const</span> items = [_]<span class="tok-type">usize</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span> };
+    <span class="tok-kw">const</span> items2 = [_]<span class="tok-type">usize</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span> };
+    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-comment">// 迭代多个对象。</span>
+    <span class="tok-comment">// 所有长度在循环开始时必须相等，否则会发生可检测的</span>
+    <span class="tok-comment">// 非法行为。</span>
+    <span class="tok-kw">for</span> (items, items2) |i, j| {
+        count += i + j;
+    }
+
+    <span class="tok-kw">try</span> expect(count == <span class="tok-number">21</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"for 引用"</span> {
+    <span class="tok-kw">var</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">2</span> };
+
+    <span class="tok-comment">// 通过引用迭代切片，方法是</span>
+    <span class="tok-comment">// 指定捕获值是指针。</span>
+    <span class="tok-kw">for</span> (&amp;items) |*value| {
+        value.* += <span class="tok-number">1</span>;
+    }
+
+    <span class="tok-kw">try</span> expect(items[<span class="tok-number">0</span>] == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(items[<span class="tok-number">1</span>] == <span class="tok-number">5</span>);
+    <span class="tok-kw">try</span> expect(items[<span class="tok-number">2</span>] == <span class="tok-number">3</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"for else"</span> {
+    <span class="tok-comment">// For 允许附加一个 else，与 while 循环相同。</span>
+    <span class="tok-kw">const</span> items = [_]?<span class="tok-type">i32</span>{ <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-null">null</span>, <span class="tok-number">5</span> };
+
+    <span class="tok-comment">// For 循环也可以用作表达式。</span>
+    <span class="tok-comment">// 与 while 循环类似，当你从 for 循环中断时，else 分支不会被求值。</span>
+    <span class="tok-kw">var</span> sum: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">for</span> (items) |value| {
+        <span class="tok-kw">if</span> (value != <span class="tok-null">null</span>) {
+            sum += value.?;
+        }
+    } <span class="tok-kw">else</span> blk: {
+        <span class="tok-kw">try</span> expect(sum == <span class="tok-number">12</span>);
+        <span class="tok-kw">break</span> :blk sum;
+    };
+    <span class="tok-kw">try</span> expect(result == <span class="tok-number">12</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_for.zig</kbd>
+1/4 test_for.test.for 基础...OK
+2/4 test_for.test.多对象 for...OK
+3/4 test_for.test.for 引用...OK
+4/4 test_for.test.for else...OK
+All 4 tests passed.
+</samp></pre></figure>
+
+      <h3 id="Labeled-for"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-for">带标签的 for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-for">§</a></h3>
+
+      <p>当 <code><span class="tok-kw">for</span></code> 循环带有标签时，可以从嵌套循环内的 <code><span class="tok-kw">break</span></code>
+              或 <code><span class="tok-kw">continue</span></code> 中引用它:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_for_nested_break.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"嵌套 break"</span> {
+    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    outer: <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
+        <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
+            count += <span class="tok-number">1</span>;
+            <span class="tok-kw">break</span> :outer;
+        }
+    }
+    <span class="tok-kw">try</span> expect(count == <span class="tok-number">1</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"嵌套 continue"</span> {
+    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    outer: <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">9</span>) |_| {
+        <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
+            count += <span class="tok-number">1</span>;
+            <span class="tok-kw">continue</span> :outer;
+        }
+    }
+
+    <span class="tok-kw">try</span> expect(count == <span class="tok-number">8</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_for_nested_break.zig</kbd>
+1/2 test_for_nested_break.test.嵌套 break...OK
+2/2 test_for_nested_break.test.嵌套 continue...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="inline-for"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-for">内联 for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-for">§</a></h3>
+
+      <p>
+      for 循环可以被内联。这会导致循环被展开，这允许代码执行一些只能在编译时完成的操作，例如将类型用作一等值。
+      内联 for 循环的捕获值和迭代器值是编译期已知的。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inline_for.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"内联 for 循环"</span> {
+    <span class="tok-kw">const</span> nums = [_]<span class="tok-type">i32</span>{ <span class="tok-number">2</span>, <span class="tok-number">4</span>, <span class="tok-number">6</span> };
+    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (nums) |i| {
+        <span class="tok-kw">const</span> T = <span class="tok-kw">switch</span> (i) {
+            <span class="tok-number">2</span> =&gt; <span class="tok-type">f32</span>,
+            <span class="tok-number">4</span> =&gt; <span class="tok-type">i8</span>,
+            <span class="tok-number">6</span> =&gt; <span class="tok-type">bool</span>,
+            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
+        };
+        sum += typeNameLength(T);
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">9</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">typeNameLength</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-builtin">@typeName</span>(T).len;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_for.zig</kbd>
+1/1 test_inline_for.test.内联 for 循环...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      建议仅出于以下原因之一使用 <code><span class="tok-kw">inline</span></code> 循环:
+      </p>
+      <ul>
+        <li>你需要循环在<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>执行才能使语义生效。</li>
+        <li>
+        你有基准测试证明以这种方式强制展开循环可测量地更快。
+        </li>
+      </ul>
+      
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#while">while</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Slices">切片</a></li>
+</ul>
+
+      
+      <h2 id="if"><a href="https://ziglang.org/documentation/0.15.2/#toc-if">if</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#if">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_if.zig</cite></figcaption><pre><code><span class="tok-comment">// If 表达式有三种用法，对应三种类型:</span>
+<span class="tok-comment">// * bool</span>
+<span class="tok-comment">// * ?T</span>
+<span class="tok-comment">// * anyerror!T</span>
+
+<span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"if 表达式"</span> {
+    <span class="tok-comment">// If 表达式用于代替三元表达式。</span>
+    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">4</span>;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">if</span> (a != b) <span class="tok-number">47</span> <span class="tok-kw">else</span> <span class="tok-number">3089</span>;
+    <span class="tok-kw">try</span> expect(result == <span class="tok-number">47</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"if 布尔值"</span> {
+    <span class="tok-comment">// If 表达式测试布尔条件。</span>
+    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">4</span>;
+    <span class="tok-kw">if</span> (a != b) {
+        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
+    } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (a == <span class="tok-number">9</span>) {
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">unreachable</span>;
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"if 错误联合"</span> {
+    <span class="tok-comment">// If 表达式测试错误。</span>
+    <span class="tok-comment">// 注意 else 上的 |err| 捕获。</span>
+
+    <span class="tok-kw">const</span> a: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> |err| {
+        _ = err;
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> b: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.BadValue;
+    <span class="tok-kw">if</span> (b) |value| {
+        _ = value;
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
+    }
+
+    <span class="tok-comment">// else 和 |err| 捕获是严格要求的。</span>
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> |_| {}
+
+    <span class="tok-comment">// 要仅检查错误值，请使用空块表达式。</span>
+    <span class="tok-kw">if</span> (b) |_| {} <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
+    }
+
+    <span class="tok-comment">// 使用指针捕获通过引用访问值。</span>
+    <span class="tok-kw">var</span> c: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">if</span> (c) |*value| {
+        value.* = <span class="tok-number">9</span>;
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">if</span> (c) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">9</span>);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_if.zig</kbd>
+1/3 test_if.test.if 表达式...OK
+2/3 test_if.test.if 布尔值...OK
+3/3 test_if.test.if 错误联合...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      <h3 id="if-with-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-if-with-Optionals">if 与可选值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">§</a></h3>
+
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_if_optionals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"if 可选值"</span> {
+    <span class="tok-comment">// If 表达式测试 null。</span>
+
+    <span class="tok-kw">const</span> a: ?<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> b: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">if</span> (b) |_| {
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
+    }
+
+    <span class="tok-comment">// else 不是必需的。</span>
+    <span class="tok-kw">if</span> (a) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
+    }
+
+    <span class="tok-comment">// 要仅测试 null，请使用二进制相等运算符。</span>
+    <span class="tok-kw">if</span> (b == <span class="tok-null">null</span>) {
+        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
+    }
+
+    <span class="tok-comment">// 使用指针捕获通过引用访问值。</span>
+    <span class="tok-kw">var</span> c: ?<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">if</span> (c) |*value| {
+        value.* = <span class="tok-number">2</span>;
+    }
+
+    <span class="tok-kw">if</span> (c) |value| {
+        <span class="tok-kw">try</span> expect(value == <span class="tok-number">2</span>);
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">unreachable</span>;
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"if 错误联合与可选值"</span> {
+    <span class="tok-comment">// If 表达式在展开可选值之前先测试错误。</span>
+    <span class="tok-comment">// |optional_value| 捕获的类型是 ?u32。</span>
+
+    <span class="tok-kw">const</span> a: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">if</span> (a) |optional_value| {
+        <span class="tok-kw">try</span> expect(optional_value.? == <span class="tok-number">0</span>);
+    } <span class="tok-kw">else</span> |err| {
+        _ = err;
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> b: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">if</span> (b) |optional_value| {
+        <span class="tok-kw">try</span> expect(optional_value == <span class="tok-null">null</span>);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">const</span> c: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.BadValue;
+    <span class="tok-kw">if</span> (c) |optional_value| {
+        _ = optional_value;
+        <span class="tok-kw">unreachable</span>;
+    } <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
+    }
+
+    <span class="tok-comment">// 每次使用指针捕获通过引用访问值。</span>
+    <span class="tok-kw">var</span> d: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">if</span> (d) |*optional_value| {
+        <span class="tok-kw">if</span> (optional_value.*) |*value| {
+            value.* = <span class="tok-number">9</span>;
+        }
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+
+    <span class="tok-kw">if</span> (d) |optional_value| {
+        <span class="tok-kw">try</span> expect(optional_value.? == <span class="tok-number">9</span>);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_if_optionals.zig</kbd>
+1/2 test_if_optionals.test.if 可选值...OK
+2/2 test_if_optionals.test.if 错误联合与可选值...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">错误</a></li>
+</ul>
+
+      
+      <h2 id="defer"><a href="https://ziglang.org/documentation/0.15.2/#toc-defer">defer</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#defer">§</a></h2>
+
+      <p>在作用域退出时无条件执行表达式。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_defer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> print = std.debug.print;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">deferExample</span>() !<span class="tok-type">usize</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+
+    {
+        <span class="tok-kw">defer</span> a = <span class="tok-number">2</span>;
+        a = <span class="tok-number">1</span>;
+    }
+    <span class="tok-kw">try</span> expect(a == <span class="tok-number">2</span>);
+
+    a = <span class="tok-number">5</span>;
+    <span class="tok-kw">return</span> a;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"defer 基础"</span> {
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> deferExample()) == <span class="tok-number">5</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_defer.zig</kbd>
+1/1 test_defer.test.defer 基础...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>Defer 表达式按相反顺序求值。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">defer_unwind.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> print = std.debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    print(<span class="tok-str">"\n"</span>, .{});
+
+    <span class="tok-kw">defer</span> {
+        print(<span class="tok-str">"1 "</span>, .{});
+    }
+    <span class="tok-kw">defer</span> {
+        print(<span class="tok-str">"2 "</span>, .{});
+    }
+    <span class="tok-kw">if</span> (<span class="tok-null">false</span>) {
+        <span class="tok-comment">// 如果 defer 从未执行，则它们不会运行。</span>
+        <span class="tok-kw">defer</span> {
+            print(<span class="tok-str">"3 "</span>, .{});
+        }
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe defer_unwind.zig</kbd>
+$ <kbd>./defer_unwind</kbd>
+
+2 1
+</samp></pre></figure>
+
+      <p>在 defer 表达式内不允许使用 return 语句。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_invalid_defer.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">deferInvalidExample</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">defer</span> {
+        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.DeferError;
+    }
+
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.DeferError;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_invalid_defer.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_invalid_defer.zig:3:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">不能从 defer 表达式返回
+</span>        return error.DeferError;
+        <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_invalid_defer.zig:2:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">defer 表达式在此
+</span>    defer {
+    <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">错误</a></li>
+</ul>
+
+      
+      <h2 id="unreachable"><a href="https://ziglang.org/documentation/0.15.2/#toc-unreachable">unreachable</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#unreachable">§</a></h2>
+
+      <p>
+      在<a href="https://ziglang.org/documentation/0.15.2/#Debug">调试</a>和<a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a>模式下，
+      <code><span class="tok-kw">unreachable</span></code> 会发出对 <code>panic</code> 的调用，消息为 <code>reached unreachable code</code>。
+      </p>
+      <p>
+      在<a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a>和<a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a>模式下，优化器使用永远不会命中 <code><span class="tok-kw">unreachable</span></code> 代码的假设来执行优化。
+      </p>
+      <h3 id="Basics"><a href="https://ziglang.org/documentation/0.15.2/#toc-Basics">基础</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Basics">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_unreachable.zig</cite></figcaption><pre><code><span class="tok-comment">// unreachable 用于断言控制流永远不会到达特定位置:</span>
+<span class="tok-kw">test</span> <span class="tok-str">"基础数学"</span> {
+    <span class="tok-kw">const</span> x = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> y = <span class="tok-number">2</span>;
+    <span class="tok-kw">if</span> (x + y != <span class="tok-number">3</span>) {
+        <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unreachable.zig</kbd>
+1/1 test_unreachable.test.基础数学...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>实际上，这就是 <code>std.debug.assert</code> 的实现方式:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_assertion_failure.zig</cite></figcaption><pre><code><span class="tok-comment">// 这是 std.debug.assert 的实现方式</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">assert</span>(ok: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (!ok) <span class="tok-kw">unreachable</span>; <span class="tok-comment">// 断言失败</span>
+}
+
+<span class="tok-comment">// 这个测试将失败，因为我们命中了 unreachable。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"这将失败"</span> {
+    assert(<span class="tok-null">false</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_assertion_failure.zig</kbd>
+1/1 test_assertion_failure.test.这将失败...thread 2902460 panic: reached unreachable code
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_assertion_failure.zig:3:14</span>: <span class="sgr-2m">0x102c039 in assert (test_assertion_failure.zig)</span>
+    if (!ok) unreachable; // 断言失败
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_assertion_failure.zig:8:11</span>: <span class="sgr-2m">0x102c00e in test.这将失败 (test_assertion_failure.zig)</span>
+    assert(false);
+          <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cb50 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155d71 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fb0d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f3a1 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/2d8b23c255add16f67e238437a2ca75f/test --seed=0xf5bf1bba
+</samp></pre></figure>
+
+      
+      <h3 id="At-Compile-Time"><a href="https://ziglang.org/documentation/0.15.2/#toc-At-Compile-Time">在编译时</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#At-Compile-Time">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_unreachable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+
+<span class="tok-kw">test</span> <span class="tok-str">"unreachable 的类型"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-comment">// unreachable 的类型是 noreturn。</span>
+
+        <span class="tok-comment">// 然而，这个断言仍然会编译失败，因为</span>
+        <span class="tok-comment">// unreachable 表达式是编译错误。</span>
+
+        assert(<span class="tok-builtin">@TypeOf</span>(<span class="tok-kw">unreachable</span>) == <span class="tok-type">noreturn</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_unreachable.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unreachable.zig:10:16: </span><span class="sgr-31m">error: </span><span class="sgr-1m">不可达代码
+</span>        assert(@TypeOf(unreachable) == noreturn);
+               <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unreachable.zig:10:24: </span><span class="sgr-36m">note: </span><span class="sgr-1m">控制流在此处被转移
+</span>        assert(@TypeOf(unreachable) == noreturn);
+                       <span class="sgr-32m">^~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Zig-Test">Zig 测试</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Build-Mode">构建模式</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+</ul>
+
+      
+      
+      <h2 id="noreturn"><a href="https://ziglang.org/documentation/0.15.2/#toc-noreturn">noreturn</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#noreturn">§</a></h2>
+
+      <p>
+      <code><span class="tok-type">noreturn</span></code> 是以下的类型:
+      </p>
+      <ul>
+          <li><code><span class="tok-kw">break</span></code></li>
+          <li><code><span class="tok-kw">continue</span></code></li>
+          <li><code><span class="tok-kw">return</span></code></li>
+          <li><code><span class="tok-kw">unreachable</span></code></li>
+          <li><code><span class="tok-kw">while</span> (<span class="tok-null">true</span>) {}</code></li>
+      </ul>
+      <p>当一起解析类型时，例如 <code><span class="tok-kw">if</span></code> 子句或 <code><span class="tok-kw">switch</span></code> 分支，
+              <code><span class="tok-type">noreturn</span></code> 类型与所有其他类型兼容。考虑:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_noreturn.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(condition: <span class="tok-type">bool</span>, b: <span class="tok-type">u32</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> a = <span class="tok-kw">if</span> (condition) b <span class="tok-kw">else</span> <span class="tok-kw">return</span>;
+    _ = a;
+    <span class="tok-builtin">@panic</span>(<span class="tok-str">"用 a 做些什么"</span>);
+}
+<span class="tok-kw">test</span> <span class="tok-str">"noreturn"</span> {
+    foo(<span class="tok-null">false</span>, <span class="tok-number">1</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_noreturn.zig</kbd>
+1/1 test_noreturn.test.noreturn...OK
+All 1 tests passed.
+</samp></pre></figure>

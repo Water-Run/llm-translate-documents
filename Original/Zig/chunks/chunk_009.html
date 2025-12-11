@@ -1,0 +1,1110 @@
+      <figure><figcaption class="zig-cap"><cite class="file">test_unresolved_comptime_value.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) T {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (a &gt; b) a <span class="tok-kw">else</span> b;
+}
+<span class="tok-kw">test</span> <span class="tok-str">"try to pass a runtime type"</span> {
+    foo(<span class="tok-null">false</span>);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(condition: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> result = max(<span class="tok-kw">if</span> (condition) <span class="tok-type">f32</span> <span class="tok-kw">else</span> <span class="tok-type">u64</span>, <span class="tok-number">1234</span>, <span class="tok-number">5678</span>);
+    _ = result;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unresolved_comptime_value.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:8:28: </span><span class="sgr-31m">error: </span><span class="sgr-1m">unable to resolve comptime value
+</span>    const result = max(if (condition) f32 else u64, 1234, 5678);
+                           <span class="sgr-32m">^~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:8:24: </span><span class="sgr-36m">note: </span><span class="sgr-1m">argument to comptime parameter must be comptime-known
+</span>    const result = max(if (condition) f32 else u64, 1234, 5678);
+                       <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:1:8: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter declared comptime here
+</span>fn max(comptime T: type, a: T, b: T) T {
+       <span class="sgr-32m">^~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    test.try to pass a runtime type: /home/andy/dev/zig/doc/langref/test_unresolved_comptime_value.zig:5:8
+</span>
+</samp></pre></figure>
+
+      <p>
+      This is an error because the programmer attempted to pass a value only known at run-time
+      to a function which expects a value known at compile-time.
+      </p>
+      <p>
+      Another way to get an error is if we pass a type that violates the type checker when the
+      function is analyzed. This is what it means to have <em>compile-time duck typing</em>.
+      </p>
+      <p>
+      For example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_mismatched_type.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) T {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (a &gt; b) a <span class="tok-kw">else</span> b;
+}
+<span class="tok-kw">test</span> <span class="tok-str">"try to compare bools"</span> {
+    _ = max(<span class="tok-type">bool</span>, <span class="tok-null">true</span>, <span class="tok-null">false</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_mismatched_type.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_mismatched_type.zig:2:18: </span><span class="sgr-31m">error: </span><span class="sgr-1m">operator &gt; not allowed for type 'bool'
+</span>    return if (a &gt; b) a else b;
+               <span class="sgr-32m">~~^~~
+</span><span class="sgr-2m">referenced by:
+    test.try to compare bools: /home/andy/dev/zig/doc/langref/test_comptime_mismatched_type.zig:5:12
+</span>
+</samp></pre></figure>
+
+      <p>
+      On the flip side, inside the function definition with the <code><span class="tok-kw">comptime</span></code> parameter, the
+      value is known at compile-time. This means that we actually could make this work for the bool type
+      if we wanted to:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_max_with_bool.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) T {
+    <span class="tok-kw">if</span> (T == <span class="tok-type">bool</span>) {
+        <span class="tok-kw">return</span> a <span class="tok-kw">or</span> b;
+    } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (a &gt; b) {
+        <span class="tok-kw">return</span> a;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">return</span> b;
+    }
+}
+<span class="tok-kw">test</span> <span class="tok-str">"try to compare bools"</span> {
+    <span class="tok-kw">try</span> <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect(max(<span class="tok-type">bool</span>, <span class="tok-null">false</span>, <span class="tok-null">true</span>) == <span class="tok-null">true</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_max_with_bool.zig</kbd>
+1/1 test_comptime_max_with_bool.test.try to compare bools...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      This works because Zig implicitly inlines <code><span class="tok-kw">if</span></code> expressions when the condition
+      is known at compile-time, and the compiler guarantees that it will skip analysis of
+      the branch not taken.
+      </p>
+      <p>
+      This means that the actual function generated for <code>max</code> in this situation looks like
+      this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">compiler_generated_function.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(a: <span class="tok-type">bool</span>, b: <span class="tok-type">bool</span>) <span class="tok-type">bool</span> {
+    {
+        <span class="tok-kw">return</span> a <span class="tok-kw">or</span> b;
+    }
+}</code></pre></figure>
+
+      <p>
+      All the code that dealt with compile-time known values is eliminated and we are left with only
+      the necessary run-time code to accomplish the task.
+      </p>
+      <p>
+      This works the same way for <code><span class="tok-kw">switch</span></code> expressions - they are implicitly inlined
+      when the target expression is compile-time known.
+      </p>
+      
+      <h4 id="Compile-Time-Variables"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compile-Time-Variables">Compile-Time Variables</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Variables">§</a></h4>
+
+      <p>
+      In Zig, the programmer can label variables as <code><span class="tok-kw">comptime</span></code>. This guarantees to the compiler
+      that every load and store of the variable is performed at compile-time. Any violation of this results in a
+      compile error.
+      </p>
+      <p>
+      This combined with the fact that we can <code><span class="tok-kw">inline</span></code> loops allows us to write
+      a function which is partially evaluated at compile-time and partially at run-time.
+      </p>
+      <p>
+      For example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_evaluation.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">const</span> CmdFn = <span class="tok-kw">struct</span> {
+    name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+    func: <span class="tok-kw">fn</span> (<span class="tok-type">i32</span>) <span class="tok-type">i32</span>,
+};
+
+<span class="tok-kw">const</span> cmd_fns = [_]CmdFn{
+    CmdFn{ .name = <span class="tok-str">"one"</span>, .func = one },
+    CmdFn{ .name = <span class="tok-str">"two"</span>, .func = two },
+    CmdFn{ .name = <span class="tok-str">"three"</span>, .func = three },
+};
+<span class="tok-kw">fn</span> <span class="tok-fn">one</span>(value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> value + <span class="tok-number">1</span>;
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">two</span>(value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> value + <span class="tok-number">2</span>;
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">three</span>(value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> value + <span class="tok-number">3</span>;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">performFn</span>(<span class="tok-kw">comptime</span> prefix_char: <span class="tok-type">u8</span>, start_value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> result: <span class="tok-type">i32</span> = start_value;
+    <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> i = <span class="tok-number">0</span>;
+    <span class="tok-kw">inline</span> <span class="tok-kw">while</span> (i &lt; cmd_fns.len) : (i += <span class="tok-number">1</span>) {
+        <span class="tok-kw">if</span> (cmd_fns[i].name[<span class="tok-number">0</span>] == prefix_char) {
+            result = cmd_fns[i].func(result);
+        }
+    }
+    <span class="tok-kw">return</span> result;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"perform fn"</span> {
+    <span class="tok-kw">try</span> expect(performFn(<span class="tok-str">'t'</span>, <span class="tok-number">1</span>) == <span class="tok-number">6</span>);
+    <span class="tok-kw">try</span> expect(performFn(<span class="tok-str">'o'</span>, <span class="tok-number">0</span>) == <span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(performFn(<span class="tok-str">'w'</span>, <span class="tok-number">99</span>) == <span class="tok-number">99</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_evaluation.zig</kbd>
+1/1 test_comptime_evaluation.test.perform fn...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      This example is a bit contrived, because the compile-time evaluation component is unnecessary;
+      this code would work fine if it was all done at run-time. But it does end up generating
+      different code. In this example, the function <code>performFn</code> is generated three different times,
+          for the different values of <code>prefix_char</code> provided:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">performFn_1</cite></figcaption><pre><code><span class="tok-comment">// From the line:</span>
+<span class="tok-comment">// expect(performFn('t', 1) == 6);</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">performFn</span>(start_value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> result: <span class="tok-type">i32</span> = start_value;
+    result = two(result);
+    result = three(result);
+    <span class="tok-kw">return</span> result;
+}</code></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">performFn_2</cite></figcaption><pre><code><span class="tok-comment">// From the line:</span>
+<span class="tok-comment">// expect(performFn('o', 0) == 1);</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">performFn</span>(start_value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> result: <span class="tok-type">i32</span> = start_value;
+    result = one(result);
+    <span class="tok-kw">return</span> result;
+}</code></pre></figure>
+      <figure><figcaption class="zig-cap"><cite class="file">performFn_3</cite></figcaption><pre><code><span class="tok-comment">// From the line:</span>
+<span class="tok-comment">// expect(performFn('w', 99) == 99);</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">performFn</span>(start_value: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> result: <span class="tok-type">i32</span> = start_value;
+    _ = &amp;result;
+    <span class="tok-kw">return</span> result;
+}</code></pre></figure>
+      <p>
+      Note that this happens even in a debug build.
+      This is not a way to write more optimized code, but it is a way to make sure that what <em>should</em> happen
+      at compile-time, <em>does</em> happen at compile-time. This catches more errors and allows expressiveness
+      that in other languages requires using macros, generated code, or a preprocessor to accomplish.
+      </p>
+      
+      <h4 id="Compile-Time-Expressions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compile-Time-Expressions">Compile-Time Expressions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Expressions">§</a></h4>
+
+      <p>
+      In Zig, it matters whether a given expression is known at compile-time or run-time. A programmer can
+      use a <code><span class="tok-kw">comptime</span></code> expression to guarantee that the expression will be evaluated at compile-time.
+      If this cannot be accomplished, the compiler will emit an error. For example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_call_extern_function.zig</cite></figcaption><pre><code><span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">exit</span>() <span class="tok-type">noreturn</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"foo"</span> {
+    <span class="tok-kw">comptime</span> {
+        exit();
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_call_extern_function.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_call_extern_function.zig:5:13: </span><span class="sgr-31m">error: </span><span class="sgr-1m">comptime call of extern function
+</span>        exit();
+        <span class="sgr-32m">~~~~^~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_call_extern_function.zig:4:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">'comptime' keyword forces comptime evaluation
+</span>    comptime {
+    <span class="sgr-32m">^~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>
+      It doesn't make sense that a program could call <code>exit()</code> (or any other external function)
+          at compile-time, so this is a compile error. However, a <code><span class="tok-kw">comptime</span></code> expression does much
+      more than sometimes cause a compile error.
+      </p>
+      <p>
+      Within a <code><span class="tok-kw">comptime</span></code> expression:
+      </p>
+      <ul>
+          <li>All variables are <code><span class="tok-kw">comptime</span></code> variables.</li>
+          <li>All <code><span class="tok-kw">if</span></code>, <code><span class="tok-kw">while</span></code>, <code><span class="tok-kw">for</span></code>, and <code><span class="tok-kw">switch</span></code>
+          expressions are evaluated at compile-time, or emit a compile error if this is not possible.</li>
+          <li>All <code><span class="tok-kw">return</span></code> and <code><span class="tok-kw">try</span></code> expressions are invalid (unless the function itself is called at compile-time).</li>
+          <li>All code with runtime side effects or depending on runtime values emits a compile error.</li>
+          <li>All function calls cause the compiler to interpret the function at compile-time, emitting a
+          compile error if the function tries to do something that has global runtime side effects.</li>
+      </ul>
+      <p>
+      This means that a programmer can create a function which is called both at compile-time and run-time, with
+      no modification to the function required.
+      </p>
+      <p>
+      Let's look at an example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_fibonacci_recursion.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">fibonacci</span>(index: <span class="tok-type">u32</span>) <span class="tok-type">u32</span> {
+    <span class="tok-kw">if</span> (index &lt; <span class="tok-number">2</span>) <span class="tok-kw">return</span> index;
+    <span class="tok-kw">return</span> fibonacci(index - <span class="tok-number">1</span>) + fibonacci(index - <span class="tok-number">2</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"fibonacci"</span> {
+    <span class="tok-comment">// test fibonacci at run-time</span>
+    <span class="tok-kw">try</span> expect(fibonacci(<span class="tok-number">7</span>) == <span class="tok-number">13</span>);
+
+    <span class="tok-comment">// test fibonacci at compile-time</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(fibonacci(<span class="tok-number">7</span>) == <span class="tok-number">13</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_fibonacci_recursion.zig</kbd>
+1/1 test_fibonacci_recursion.test.fibonacci...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Imagine if we had forgotten the base case of the recursive function and tried to run the tests:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_fibonacci_comptime_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">fibonacci</span>(index: <span class="tok-type">u32</span>) <span class="tok-type">u32</span> {
+    <span class="tok-comment">//if (index &lt; 2) return index;</span>
+    <span class="tok-kw">return</span> fibonacci(index - <span class="tok-number">1</span>) + fibonacci(index - <span class="tok-number">2</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"fibonacci"</span> {
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(fibonacci(<span class="tok-number">7</span>) == <span class="tok-number">13</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_fibonacci_comptime_overflow.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_fibonacci_comptime_overflow.zig:5:28: </span><span class="sgr-31m">error: </span><span class="sgr-1m">overflow of integer type 'u32' with value '-1'
+</span>    return fibonacci(index - 1) + fibonacci(index - 2);
+                     <span class="sgr-32m">~~~~~~^~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_fibonacci_comptime_overflow.zig:5:21: </span><span class="sgr-36m">note: </span><span class="sgr-1m">called at comptime here</span><span class="sgr-2m"> (7 times)
+</span>    return fibonacci(index - 1) + fibonacci(index - 2);
+           <span class="sgr-32m">~~~~~~~~~^~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_fibonacci_comptime_overflow.zig:9:34: </span><span class="sgr-36m">note: </span><span class="sgr-1m">called at comptime here
+</span>    try comptime expect(fibonacci(7) == 13);
+                        <span class="sgr-32m">~~~~~~~~~^~~
+</span>
+</samp></pre></figure>
+
+      <p>
+      The compiler produces an error which is a stack trace from trying to evaluate the
+      function at compile-time.
+      </p>
+      <p>
+      Luckily, we used an unsigned integer, and so when we tried to subtract 1 from 0, it triggered
+      <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>, which is always a compile error if the compiler knows it happened.
+      But what would have happened if we used a signed integer?
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">fibonacci_comptime_infinite_recursion.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">fibonacci</span>(index: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-comment">//if (index &lt; 2) return index;</span>
+    <span class="tok-kw">return</span> fibonacci(index - <span class="tok-number">1</span>) + fibonacci(index - <span class="tok-number">2</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"fibonacci"</span> {
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> assert(fibonacci(<span class="tok-number">7</span>) == <span class="tok-number">13</span>);
+}</code></pre></figure>
+
+      <p>
+      The compiler is supposed to notice that evaluating this function at
+      compile-time took more than 1000 branches, and thus emits an error and
+      gives up. If the programmer wants to increase the budget for compile-time
+      computation, they can use a built-in function called
+      <a href="https://ziglang.org/documentation/0.15.2/#setEvalBranchQuota">@setEvalBranchQuota</a> to change the default number 1000 to
+      something else.
+      </p>
+      <p>
+      However, there is a <a href="https://github.com/ziglang/zig/issues/13724">design
+      flaw in the compiler</a> causing it to stack overflow instead of having the proper
+      behavior here. I'm terribly sorry about that. I hope to get this resolved
+      before the next release.
+      </p>
+      <p>
+      What if we fix the base case, but put the wrong value in the
+      <code>expect</code> line?
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_fibonacci_comptime_unreachable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">fibonacci</span>(index: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">if</span> (index &lt; <span class="tok-number">2</span>) <span class="tok-kw">return</span> index;
+    <span class="tok-kw">return</span> fibonacci(index - <span class="tok-number">1</span>) + fibonacci(index - <span class="tok-number">2</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"fibonacci"</span> {
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> assert(fibonacci(<span class="tok-number">7</span>) == <span class="tok-number">99999</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_fibonacci_comptime_unreachable.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/debug.zig:559:14: </span><span class="sgr-31m">error: </span><span class="sgr-1m">reached unreachable code
+</span>    if (!ok) unreachable; // assertion failure
+             <span class="sgr-32m">^~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_fibonacci_comptime_unreachable.zig:9:24: </span><span class="sgr-36m">note: </span><span class="sgr-1m">called at comptime here
+</span>    try comptime assert(fibonacci(7) == 99999);
+                 <span class="sgr-32m">~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+
+      <p>
+      At <a href="https://ziglang.org/documentation/0.15.2/#Containers">container</a> level (outside of any function), all expressions are implicitly
+      <code><span class="tok-kw">comptime</span></code> expressions. This means that we can use functions to
+      initialize complex static data. For example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_container-level_comptime_expressions.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> first_25_primes = firstNPrimes(<span class="tok-number">25</span>);
+<span class="tok-kw">const</span> sum_of_first_25_primes = sum(&amp;first_25_primes);
+
+<span class="tok-kw">fn</span> <span class="tok-fn">firstNPrimes</span>(<span class="tok-kw">comptime</span> n: <span class="tok-type">usize</span>) [n]<span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> prime_list: [n]<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">var</span> next_index: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> test_number: <span class="tok-type">i32</span> = <span class="tok-number">2</span>;
+    <span class="tok-kw">while</span> (next_index &lt; prime_list.len) : (test_number += <span class="tok-number">1</span>) {
+        <span class="tok-kw">var</span> test_prime_index: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+        <span class="tok-kw">var</span> is_prime = <span class="tok-null">true</span>;
+        <span class="tok-kw">while</span> (test_prime_index &lt; next_index) : (test_prime_index += <span class="tok-number">1</span>) {
+            <span class="tok-kw">if</span> (test_number % prime_list[test_prime_index] == <span class="tok-number">0</span>) {
+                is_prime = <span class="tok-null">false</span>;
+                <span class="tok-kw">break</span>;
+            }
+        }
+        <span class="tok-kw">if</span> (is_prime) {
+            prime_list[next_index] = test_number;
+            next_index += <span class="tok-number">1</span>;
+        }
+    }
+    <span class="tok-kw">return</span> prime_list;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">sum</span>(numbers: []<span class="tok-kw">const</span> <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">var</span> result: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (numbers) |x| {
+        result += x;
+    }
+    <span class="tok-kw">return</span> result;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"variable values"</span> {
+    <span class="tok-kw">try</span> <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect(sum_of_first_25_primes == <span class="tok-number">1060</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_container-level_comptime_expressions.zig</kbd>
+1/1 test_container-level_comptime_expressions.test.variable values...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      When we compile this program, Zig generates the constants
+      with the answer pre-computed. Here are the lines from the generated LLVM IR:
+      </p>
+      <pre><code class="llvm">@0 = internal unnamed_addr constant [25 x i32] [i32 2, i32 3, i32 5, i32 7, i32 11, i32 13, i32 17, i32 19, i32 23, i32 29, i32 31, i32 37, i32 41, i32 43, i32 47, i32 53, i32 59, i32 61, i32 67, i32 71, i32 73, i32 79, i32 83, i32 89, i32 97]
+@1 = internal unnamed_addr constant i32 1060</code></pre>
+      <p>
+      Note that we did not have to do anything special with the syntax of these functions. For example,
+      we could call the <code>sum</code> function as is with a slice of numbers whose length and values were
+      only known at run-time.
+      </p>
+      
+      
+      <h3 id="Generic-Data-Structures"><a href="https://ziglang.org/documentation/0.15.2/#toc-Generic-Data-Structures">Generic Data Structures</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Generic-Data-Structures">§</a></h3>
+
+      <p>
+      Zig uses comptime capabilities to implement generic data structures without introducing any
+      special-case syntax.
+      </p>
+      <p>
+			Here is an example of a generic <code>List</code> data structure.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">generic_data_structure.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">List</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {
+        items: []T,
+        len: <span class="tok-type">usize</span>,
+    };
+}
+
+<span class="tok-comment">// The generic List data structure can be instantiated by passing in a type:</span>
+<span class="tok-kw">var</span> buffer: [<span class="tok-number">10</span>]<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+<span class="tok-kw">var</span> list = List(<span class="tok-type">i32</span>){
+    .items = &amp;buffer,
+    .len = <span class="tok-number">0</span>,
+};</code></pre></figure>
+
+      <p>
+      That's it. It's a function that returns an anonymous <code><span class="tok-kw">struct</span></code>.
+      For the purposes of error messages and debugging, Zig infers the name
+      <code><span class="tok-str">"List(i32)"</span></code> from the function name and parameters invoked when creating
+      the anonymous struct.
+      </p>
+      <p>
+      To explicitly give a type a name, we assign it to a constant.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">anonymous_struct_name.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Node = <span class="tok-kw">struct</span> {
+    next: ?*Node,
+    name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,
+};
+
+<span class="tok-kw">var</span> node_a = Node{
+    .next = <span class="tok-null">null</span>,
+    .name = <span class="tok-str">"Node A"</span>,
+};
+
+<span class="tok-kw">var</span> node_b = Node{
+    .next = &amp;node_a,
+    .name = <span class="tok-str">"Node B"</span>,
+};</code></pre></figure>
+
+      <p>
+      In this example, the <code>Node</code> struct refers to itself.
+      This works because all top level declarations are order-independent.
+      As long as the compiler can determine the size of the struct, it is free to refer to itself.
+      In this case, <code>Node</code> refers to itself as a pointer, which has a
+      well-defined size at compile time, so it works fine.
+      </p>
+      
+      <h3 id="Case-Study-print-in-Zig"><a href="https://ziglang.org/documentation/0.15.2/#toc-Case-Study-print-in-Zig">Case Study: print in Zig</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Case-Study-print-in-Zig">§</a></h3>
+
+      <p>
+      Putting all of this together, let's see how <code>print</code> works in Zig.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">print.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">const</span> a_number: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> a_string = <span class="tok-str">"foobar"</span>;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    print(<span class="tok-str">"here is a string: '{s}' here is a number: {}\n"</span>, .{ a_string, a_number });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe print.zig</kbd>
+$ <kbd>./print</kbd>
+here is a string: 'foobar' here is a number: 1234
+</samp></pre></figure>
+
+
+      <p>
+      Let's crack open the implementation of this and see how it works:
+      </p>
+
+      <figure><figcaption class="zig-cap"><cite class="file">poc_print_fn.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Writer = <span class="tok-kw">struct</span> {
+    <span class="tok-comment">/// Calls print and then flushes the buffer.</span>
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">print</span>(self: *Writer, <span class="tok-kw">comptime</span> format: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, args: <span class="tok-kw">anytype</span>) <span class="tok-type">anyerror</span>!<span class="tok-type">void</span> {
+        <span class="tok-kw">const</span> State = <span class="tok-kw">enum</span> {
+            start,
+            open_brace,
+            close_brace,
+        };
+
+        <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> start_index: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+        <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> state = State.start;
+        <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> next_arg: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+
+        <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (format, <span class="tok-number">0</span>..) |c, i| {
+            <span class="tok-kw">switch</span> (state) {
+                State.start =&gt; <span class="tok-kw">switch</span> (c) {
+                    <span class="tok-str">'{'</span> =&gt; {
+                        <span class="tok-kw">if</span> (start_index &lt; i) <span class="tok-kw">try</span> self.write(format[start_index..i]);
+                        state = State.open_brace;
+                    },
+                    <span class="tok-str">'}'</span> =&gt; {
+                        <span class="tok-kw">if</span> (start_index &lt; i) <span class="tok-kw">try</span> self.write(format[start_index..i]);
+                        state = State.close_brace;
+                    },
+                    <span class="tok-kw">else</span> =&gt; {},
+                },
+                State.open_brace =&gt; <span class="tok-kw">switch</span> (c) {
+                    <span class="tok-str">'{'</span> =&gt; {
+                        state = State.start;
+                        start_index = i;
+                    },
+                    <span class="tok-str">'}'</span> =&gt; {
+                        <span class="tok-kw">try</span> self.printValue(args[next_arg]);
+                        next_arg += <span class="tok-number">1</span>;
+                        state = State.start;
+                        start_index = i + <span class="tok-number">1</span>;
+                    },
+                    <span class="tok-str">'s'</span> =&gt; {
+                        <span class="tok-kw">continue</span>;
+                    },
+                    <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">"Unknown format character: "</span> ++ [<span class="tok-number">1</span>]<span class="tok-type">u8</span>{c}),
+                },
+                State.close_brace =&gt; <span class="tok-kw">switch</span> (c) {
+                    <span class="tok-str">'}'</span> =&gt; {
+                        state = State.start;
+                        start_index = i;
+                    },
+                    <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">"Single '}' encountered in format string"</span>),
+                },
+            }
+        }
+        <span class="tok-kw">comptime</span> {
+            <span class="tok-kw">if</span> (args.len != next_arg) {
+                <span class="tok-builtin">@compileError</span>(<span class="tok-str">"Unused arguments"</span>);
+            }
+            <span class="tok-kw">if</span> (state != State.start) {
+                <span class="tok-builtin">@compileError</span>(<span class="tok-str">"Incomplete format string: "</span> ++ format);
+            }
+        }
+        <span class="tok-kw">if</span> (start_index &lt; format.len) {
+            <span class="tok-kw">try</span> self.write(format[start_index..format.len]);
+        }
+        <span class="tok-kw">try</span> self.flush();
+    }
+
+    <span class="tok-kw">fn</span> <span class="tok-fn">write</span>(self: *Writer, value: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) !<span class="tok-type">void</span> {
+        _ = self;
+        _ = value;
+    }
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">printValue</span>(self: *Writer, value: <span class="tok-kw">anytype</span>) !<span class="tok-type">void</span> {
+        _ = self;
+        _ = value;
+    }
+    <span class="tok-kw">fn</span> <span class="tok-fn">flush</span>(self: *Writer) !<span class="tok-type">void</span> {
+        _ = self;
+    }
+};</code></pre></figure>
+
+      <p>
+      This is a proof of concept implementation; the actual function in the standard library has more
+      formatting capabilities.
+      </p>
+      <p>
+      Note that this is not hard-coded into the Zig compiler; this is userland code in the standard library.
+      </p>
+      <p>
+      When this function is analyzed from our example code above, Zig partially evaluates the function
+      and emits a function that actually looks like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">Emitted print Function</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">print</span>(self: *Writer, arg0: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, arg1: <span class="tok-type">i32</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> self.write(<span class="tok-str">"here is a string: '"</span>);
+    <span class="tok-kw">try</span> self.printValue(arg0);
+    <span class="tok-kw">try</span> self.write(<span class="tok-str">"' here is a number: "</span>);
+    <span class="tok-kw">try</span> self.printValue(arg1);
+    <span class="tok-kw">try</span> self.write(<span class="tok-str">"\n"</span>);
+    <span class="tok-kw">try</span> self.flush();
+}</code></pre></figure>
+      <p>
+      <code>printValue</code> is a function that takes a parameter of any type, and does different things depending
+      on the type:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">poc_printValue_fn.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Writer = <span class="tok-kw">struct</span> {
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">printValue</span>(self: *Writer, value: <span class="tok-kw">anytype</span>) !<span class="tok-type">void</span> {
+        <span class="tok-kw">switch</span> (<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(value))) {
+            .int =&gt; {
+                <span class="tok-kw">return</span> self.writeInt(value);
+            },
+            .float =&gt; {
+                <span class="tok-kw">return</span> self.writeFloat(value);
+            },
+            .pointer =&gt; {
+                <span class="tok-kw">return</span> self.write(value);
+            },
+            <span class="tok-kw">else</span> =&gt; {
+                <span class="tok-builtin">@compileError</span>(<span class="tok-str">"Unable to print type '"</span> ++ <span class="tok-builtin">@typeName</span>(<span class="tok-builtin">@TypeOf</span>(value)) ++ <span class="tok-str">"'"</span>);
+            },
+        }
+    }
+
+    <span class="tok-kw">fn</span> <span class="tok-fn">write</span>(self: *Writer, value: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) !<span class="tok-type">void</span> {
+        _ = self;
+        _ = value;
+    }
+    <span class="tok-kw">fn</span> <span class="tok-fn">writeInt</span>(self: *Writer, value: <span class="tok-kw">anytype</span>) !<span class="tok-type">void</span> {
+        _ = self;
+        _ = value;
+    }
+    <span class="tok-kw">fn</span> <span class="tok-fn">writeFloat</span>(self: *Writer, value: <span class="tok-kw">anytype</span>) !<span class="tok-type">void</span> {
+        _ = self;
+        _ = value;
+    }
+};</code></pre></figure>
+
+      <p>
+      And now, what happens if we give too many arguments to <code>print</code>?
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_print_too_many_args.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">const</span> a_number: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> a_string = <span class="tok-str">"foobar"</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"print too many arguments"</span> {
+    print(<span class="tok-str">"here is a string: '{s}' here is a number: {}\n"</span>, .{
+        a_string,
+        a_number,
+        a_number,
+    });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_print_too_many_args.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/Io/Writer.zig:717:18: </span><span class="sgr-31m">error: </span><span class="sgr-1m">unused argument in 'here is a string: '{s}' here is a number: {}
+                                                        '
+</span>            1 =&gt; @compileError("unused argument in '" ++ fmt ++ "'"),
+                 <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    print__anon_454: /home/andy/dev/zig/lib/std/debug.zig:231:23
+    test.print too many arguments: /home/andy/dev/zig/doc/langref/test_print_too_many_args.zig:7:10
+</span>
+</samp></pre></figure>
+
+      <p>
+      Zig gives programmers the tools needed to protect themselves against their own mistakes.
+      </p>
+      <p>
+      Zig doesn't care whether the format argument is a string literal,
+      only that it is a compile-time known value that can be coerced to a <code>[]<span class="tok-kw">const</span> <span class="tok-type">u8</span></code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">print_comptime-known_format.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">const</span> a_number: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> a_string = <span class="tok-str">"foobar"</span>;
+<span class="tok-kw">const</span> fmt = <span class="tok-str">"here is a string: '{s}' here is a number: {}\n"</span>;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    print(fmt, .{ a_string, a_number });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe print_comptime-known_format.zig</kbd>
+$ <kbd>./print_comptime-known_format</kbd>
+here is a string: 'foobar' here is a number: 1234
+</samp></pre></figure>
+
+      <p>
+      This works fine.
+      </p>
+      <p>
+      Zig does not special case string formatting in the compiler and instead exposes enough power to accomplish this
+      task in userland. It does so without introducing another language on top of Zig, such as
+      a macro language or a preprocessor language. It's Zig all the way down.
+      </p>
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#inline-while">inline while</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#inline-for">inline for</a></li>
+</ul>
+
+      
+      <h2 id="Assembly"><a href="https://ziglang.org/documentation/0.15.2/#toc-Assembly">Assembly</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Assembly">§</a></h2>
+
+      <p>
+      For some use cases, it may be necessary to directly control the machine code generated
+      by Zig programs, rather than relying on Zig's code generation. For these cases, one
+      can use inline assembly. Here is an example of implementing Hello, World on x86_64 Linux
+      using inline assembly:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">inline_assembly.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">noreturn</span> {
+    <span class="tok-kw">const</span> msg = <span class="tok-str">"hello world\n"</span>;
+    _ = syscall3(SYS_write, STDOUT_FILENO, <span class="tok-builtin">@intFromPtr</span>(msg), msg.len);
+    _ = syscall1(SYS_exit, <span class="tok-number">0</span>);
+    <span class="tok-kw">unreachable</span>;
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> SYS_write = <span class="tok-number">1</span>;
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> SYS_exit = <span class="tok-number">60</span>;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">const</span> STDOUT_FILENO = <span class="tok-number">1</span>;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">syscall1</span>(number: <span class="tok-type">usize</span>, arg1: <span class="tok-type">usize</span>) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">asm</span> <span class="tok-kw">volatile</span> (<span class="tok-str">"syscall"</span>
+        : [ret] <span class="tok-str">"={rax}"</span> (-&gt; <span class="tok-type">usize</span>),
+        : [number] <span class="tok-str">"{rax}"</span> (number),
+          [arg1] <span class="tok-str">"{rdi}"</span> (arg1),
+        : .{ .rcx = <span class="tok-null">true</span>, .r11 = <span class="tok-null">true</span> });
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">syscall3</span>(number: <span class="tok-type">usize</span>, arg1: <span class="tok-type">usize</span>, arg2: <span class="tok-type">usize</span>, arg3: <span class="tok-type">usize</span>) <span class="tok-type">usize</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">asm</span> <span class="tok-kw">volatile</span> (<span class="tok-str">"syscall"</span>
+        : [ret] <span class="tok-str">"={rax}"</span> (-&gt; <span class="tok-type">usize</span>),
+        : [number] <span class="tok-str">"{rax}"</span> (number),
+          [arg1] <span class="tok-str">"{rdi}"</span> (arg1),
+          [arg2] <span class="tok-str">"{rsi}"</span> (arg2),
+          [arg3] <span class="tok-str">"{rdx}"</span> (arg3),
+        : .{ .rcx = <span class="tok-null">true</span>, .r11 = <span class="tok-null">true</span> });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe inline_assembly.zig -target x86_64-linux</kbd>
+$ <kbd>./inline_assembly</kbd>
+hello world
+</samp></pre></figure>
+
+      <p>
+      Dissecting the syntax:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">Assembly Syntax Explained.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">syscall1</span>(number: <span class="tok-type">usize</span>, arg1: <span class="tok-type">usize</span>) <span class="tok-type">usize</span> {
+    <span class="tok-comment">// Inline assembly is an expression which returns a value.</span>
+    <span class="tok-comment">// the `asm` keyword begins the expression.</span>
+    <span class="tok-kw">return</span> <span class="tok-kw">asm</span>
+    <span class="tok-comment">// `volatile` is an optional modifier that tells Zig this</span>
+    <span class="tok-comment">// inline assembly expression has side-effects. Without</span>
+    <span class="tok-comment">// `volatile`, Zig is allowed to delete the inline assembly</span>
+    <span class="tok-comment">// code if the result is unused.</span>
+    <span class="tok-kw">volatile</span> (
+    <span class="tok-comment">// Next is a comptime string which is the assembly code.</span>
+    <span class="tok-comment">// Inside this string one may use `%[ret]`, `%[number]`,</span>
+    <span class="tok-comment">// or `%[arg1]` where a register is expected, to specify</span>
+    <span class="tok-comment">// the register that Zig uses for the argument or return value,</span>
+    <span class="tok-comment">// if the register constraint strings are used. However in</span>
+    <span class="tok-comment">// the below code, this is not used. A literal `%` can be</span>
+    <span class="tok-comment">// obtained by escaping it with a double percent: `%%`.</span>
+    <span class="tok-comment">// Often multiline string syntax comes in handy here.</span>
+        <span class="tok-str">\\syscall</span>
+        <span class="tok-comment">// Next is the output. It is possible in the future Zig will</span>
+        <span class="tok-comment">// support multiple outputs, depending on how</span>
+        <span class="tok-comment">// https://github.com/ziglang/zig/issues/215 is resolved.</span>
+        <span class="tok-comment">// It is allowed for there to be no outputs, in which case</span>
+        <span class="tok-comment">// this colon would be directly followed by the colon for the inputs.</span>
+        :
+        <span class="tok-comment">// This specifies the name to be used in `%[ret]` syntax in</span>
+        <span class="tok-comment">// the above assembly string. This example does not use it,</span>
+        <span class="tok-comment">// but the syntax is mandatory.</span>
+          [ret]
+          <span class="tok-comment">// Next is the output constraint string. This feature is still</span>
+          <span class="tok-comment">// considered unstable in Zig, and so LLVM/GCC documentation</span>
+          <span class="tok-comment">// must be used to understand the semantics.</span>
+          <span class="tok-comment">// http://releases.llvm.org/10.0.0/docs/LangRef.html#inline-asm-constraint-string</span>
+          <span class="tok-comment">// https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html</span>
+          <span class="tok-comment">// In this example, the constraint string means "the result value of</span>
+          <span class="tok-comment">// this inline assembly instruction is whatever is in $rax".</span>
+          <span class="tok-str">"={rax}"</span>
+          <span class="tok-comment">// Next is either a value binding, or `-&gt;` and then a type. The</span>
+          <span class="tok-comment">// type is the result type of the inline assembly expression.</span>
+          <span class="tok-comment">// If it is a value binding, then `%[ret]` syntax would be used</span>
+          <span class="tok-comment">// to refer to the register bound to the value.</span>
+          (-&gt; <span class="tok-type">usize</span>),
+          <span class="tok-comment">// Next is the list of inputs.</span>
+          <span class="tok-comment">// The constraint for these inputs means, "when the assembly code is</span>
+          <span class="tok-comment">// executed, $rax shall have the value of `number` and $rdi shall have</span>
+          <span class="tok-comment">// the value of `arg1`". Any number of input parameters is allowed,</span>
+          <span class="tok-comment">// including none.</span>
+        : [number] <span class="tok-str">"{rax}"</span> (number),
+          [arg1] <span class="tok-str">"{rdi}"</span> (arg1),
+          <span class="tok-comment">// Next is the list of clobbers. These declare a set of registers whose</span>
+          <span class="tok-comment">// values will not be preserved by the execution of this assembly code.</span>
+          <span class="tok-comment">// These do not include output or input registers. The special clobber</span>
+          <span class="tok-comment">// value of "memory" means that the assembly writes to arbitrary undeclared</span>
+          <span class="tok-comment">// memory locations - not only the memory pointed to by a declared indirect</span>
+          <span class="tok-comment">// output. In this example we list $rcx and $r11 because it is known the</span>
+          <span class="tok-comment">// kernel syscall does not preserve these registers.</span>
+        : .{ .rcx = <span class="tok-null">true</span>, .r11 = <span class="tok-null">true</span> });
+}</code></pre></figure>
+
+      <p>
+      For x86 and x86_64 targets, the syntax is AT&amp;T syntax, rather than the more
+      popular Intel syntax. This is due to technical constraints; assembly parsing is
+      provided by LLVM and its support for Intel syntax is buggy and not well tested.
+      </p>
+      <p>
+      Some day Zig may have its own assembler. This would allow it to integrate more seamlessly
+      into the language, as well as be compatible with the popular NASM syntax. This documentation
+      section will be updated before 1.0.0 is released, with a conclusive statement about the status
+      of AT&amp;T vs Intel/NASM syntax.
+      </p>
+      <h3 id="Output-Constraints"><a href="https://ziglang.org/documentation/0.15.2/#toc-Output-Constraints">Output Constraints</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Output-Constraints">§</a></h3>
+
+      <p>
+      Output constraints are still considered to be unstable in Zig, and
+      so
+      <a href="http://releases.llvm.org/10.0.0/docs/LangRef.html#inline-asm-constraint-string">LLVM documentation</a>
+      and
+      <a href="https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html">GCC documentation</a>
+      must be used to understand the semantics.
+      </p>
+      <p>
+      Note that some breaking changes to output constraints are planned with
+      <a href="https://github.com/ziglang/zig/issues/215">issue #215</a>.
+      </p>
+      
+
+      <h3 id="Input-Constraints"><a href="https://ziglang.org/documentation/0.15.2/#toc-Input-Constraints">Input Constraints</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Input-Constraints">§</a></h3>
+
+      <p>
+      Input constraints are still considered to be unstable in Zig, and
+      so
+      <a href="http://releases.llvm.org/10.0.0/docs/LangRef.html#inline-asm-constraint-string">LLVM documentation</a>
+      and
+      <a href="https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html">GCC documentation</a>
+      must be used to understand the semantics.
+      </p>
+      <p>
+      Note that some breaking changes to input constraints are planned with
+      <a href="https://github.com/ziglang/zig/issues/215">issue #215</a>.
+      </p>
+      
+
+      <h3 id="Clobbers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Clobbers">Clobbers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Clobbers">§</a></h3>
+
+      <p>
+      Clobbers are the set of registers whose values will not be preserved by the execution of
+      the assembly code. These do not include output or input registers. The special clobber
+      value of <code><span class="tok-str">"memory"</span></code> means that the assembly causes writes to
+      arbitrary undeclared memory locations - not only the memory pointed to by a declared
+      indirect output.
+      </p>
+      <p>
+      Failure to declare the full set of clobbers for a given inline assembly
+      expression is unchecked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>.
+      </p>
+      
+
+      <h3 id="Global-Assembly"><a href="https://ziglang.org/documentation/0.15.2/#toc-Global-Assembly">Global Assembly</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Global-Assembly">§</a></h3>
+
+      <p>
+      When an assembly expression occurs in a <a href="https://ziglang.org/documentation/0.15.2/#Containers">container</a> level <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> block, this is
+      <strong>global assembly</strong>.
+      </p>
+      <p>
+      This kind of assembly has different rules than inline assembly. First, <code><span class="tok-kw">volatile</span></code>
+      is not valid because all global assembly is unconditionally included.
+      Second, there are no inputs, outputs, or clobbers. All global assembly is concatenated
+      verbatim into one long string and assembled together. There are no template substitution rules regarding
+      <code>%</code> as there are in inline assembly expressions.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_global_assembly.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">comptime</span> {
+    <span class="tok-kw">asm</span> (
+        <span class="tok-str">\\.global my_func;</span>
+        <span class="tok-str">\\.type my_func, @function;</span>
+        <span class="tok-str">\\my_func:</span>
+        <span class="tok-str">\\  lea (%rdi,%rsi,1),%eax</span>
+        <span class="tok-str">\\  retq</span>
+    );
+}
+
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">my_func</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">i32</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"global assembly"</span> {
+    <span class="tok-kw">try</span> expect(my_func(<span class="tok-number">12</span>, <span class="tok-number">34</span>) == <span class="tok-number">46</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_global_assembly.zig -target x86_64-linux -fllvm</kbd>
+1/1 test_global_assembly.test.global assembly...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="Atomics"><a href="https://ziglang.org/documentation/0.15.2/#toc-Atomics">Atomics</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Atomics">§</a></h2>
+
+      <p>TODO: @atomic rmw</p>
+      <p>TODO: builtin atomic memory ordering enum</p>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+</ul>
+
+
+      
+
+      <h2 id="Async-Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Async-Functions">Async Functions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Async-Functions">§</a></h2>
+
+      <p>Async functions regressed with the release of 0.11.0. The current plan is to
+      reintroduce them as a lower level primitive that powers I/O implementations.</p>
+      <p>Tracking issue: <a href="https://github.com/ziglang/zig/issues/23446">Proposal: stackless coroutines as low-level primitives</a></p>
+      
+
+      <h2 id="Builtin-Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Builtin-Functions">Builtin Functions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Builtin-Functions">§</a></h2>
+
+      <p>
+      Builtin functions are provided by the compiler and are prefixed with <code>@</code>.
+      The <code><span class="tok-kw">comptime</span></code> keyword on a parameter means that the parameter must be known
+      at compile time.
+      </p>
+      <h3 id="addrSpaceCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-addrSpaceCast">@addrSpaceCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#addrSpaceCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@addrSpaceCast</span>(ptr: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      Converts a pointer from one address space to another. The new address space is inferred
+			based on the result type. Depending on the current target and address spaces, this cast
+			may be a no-op, a complex operation, or illegal. If the cast is legal, then the resulting
+			pointer points to the same memory location as the pointer operand. It is always valid to
+			cast a pointer between the same address spaces.
+      </p>
+      
+      <h3 id="addWithOverflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-addWithOverflow">@addWithOverflow</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@addWithOverflow</span>(a: <span class="tok-kw">anytype</span>, b: <span class="tok-kw">anytype</span>) <span class="tok-kw">struct</span> { <span class="tok-builtin">@TypeOf</span>(a, b), <span class="tok-type">u1</span> }</code></pre>
+      <p>
+      Performs <code>a + b</code> and returns a tuple with the result and a possible overflow bit.
+      </p>
+      
+      <h3 id="alignCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-alignCast">@alignCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#alignCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@alignCast</span>(ptr: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      <code>ptr</code> can be <code>*T</code>, <code>?*T</code>, or <code>[]T</code>.
+			Changes the alignment of a pointer. The alignment to use is inferred based on the result type.
+      </p>
+      <p>A <a href="https://ziglang.org/documentation/0.15.2/#Incorrect-Pointer-Alignment">pointer alignment safety check</a> is added
+      to the generated code to make sure the pointer is aligned as promised.</p>
+
+      
+      <h3 id="alignOf"><a href="https://ziglang.org/documentation/0.15.2/#toc-alignOf">@alignOf</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#alignOf">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@alignOf</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">comptime_int</span></code></pre>
+      <p>
+      This function returns the number of bytes that this type should be aligned to
+      for the current target to match the C ABI. When the child type of a pointer has
+      this alignment, the alignment can be omitted from the type.
+      </p>
+      <pre><code><span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+<span class="tok-kw">comptime</span> {
+    assert(*<span class="tok-type">u32</span> == *<span class="tok-kw">align</span>(<span class="tok-builtin">@alignOf</span>(<span class="tok-type">u32</span>)) <span class="tok-type">u32</span>);
+}</code></pre>
+      <p>
+      The result is a target-specific compile time constant. It is guaranteed to be
+      less than or equal to <a href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf(T)</a>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Alignment">Alignment</a></li>
+</ul>
+
+      
+
+      <h3 id="as"><a href="https://ziglang.org/documentation/0.15.2/#toc-as">@as</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#as">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@as</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, expression) T</code></pre>
+      <p>
+      Performs <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">Type Coercion</a>. This cast is allowed when the conversion is unambiguous and safe,
+      and is the preferred way to convert between types, whenever possible.
+      </p>
+      
+
+      <h3 id="atomicLoad"><a href="https://ziglang.org/documentation/0.15.2/#toc-atomicLoad">@atomicLoad</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#atomicLoad">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@atomicLoad</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *<span class="tok-kw">const</span> T, <span class="tok-kw">comptime</span> ordering: AtomicOrder) T</code></pre>
+      <p>
+      This builtin function atomically dereferences a pointer to a <code>T</code> and returns the value.
+      </p>
+      <p>
+      <code>T</code> must be a pointer, a <code><span class="tok-type">bool</span></code>, a float,
+      an integer, an enum, or a packed struct.
+      </p>
+      <p><code>AtomicOrder</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.AtomicOrder</code>.</p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+</ul>
+
+      
+
+      <h3 id="atomicRmw"><a href="https://ziglang.org/documentation/0.15.2/#toc-atomicRmw">@atomicRmw</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#atomicRmw">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@atomicRmw</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T, <span class="tok-kw">comptime</span> op: AtomicRmwOp, operand: T, <span class="tok-kw">comptime</span> ordering: AtomicOrder) T</code></pre>
+      <p>
+      This builtin function dereferences a pointer to a <code>T</code> and atomically
+      modifies the value and returns the previous value.
+      </p>
+      <p>
+      <code>T</code> must be a pointer, a <code><span class="tok-type">bool</span></code>, a float,
+      an integer, an enum, or a packed struct.
+      </p>
+      <p><code>AtomicOrder</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.AtomicOrder</code>.</p>
+      <p><code>AtomicRmwOp</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.AtomicRmwOp</code>.</p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+</ul>
+
+      
+
+      <h3 id="atomicStore"><a href="https://ziglang.org/documentation/0.15.2/#toc-atomicStore">@atomicStore</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#atomicStore">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@atomicStore</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T, value: T, <span class="tok-kw">comptime</span> ordering: AtomicOrder) <span class="tok-type">void</span></code></pre>
+      <p>
+      This builtin function dereferences a pointer to a <code>T</code> and atomically stores the given value.
+      </p>
+      <p>
+      <code>T</code> must be a pointer, a <code><span class="tok-type">bool</span></code>, a float,
+      an integer, an enum, or a packed struct.
+      </p>
+      <p><code>AtomicOrder</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.AtomicOrder</code>.</p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+</ul>
+
+      
+
+      <h3 id="bitCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-bitCast">@bitCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#bitCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@bitCast</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      Converts a value of one type to another type. The return type is the
+			inferred result type.
+      </p>
+      <p>
+      Asserts that <code><span class="tok-builtin">@sizeOf</span>(<span class="tok-builtin">@TypeOf</span>(value)) == <span class="tok-builtin">@sizeOf</span>(DestType)</code>.
+      </p>
+      <p>
+      Asserts that <code><span class="tok-builtin">@typeInfo</span>(DestType) != .pointer</code>. Use <code><span class="tok-builtin">@ptrCast</span></code> or <code><span class="tok-builtin">@ptrFromInt</span></code> if you need this.
+      </p>
+      <p>
+      Can be used for these things for example:
+      </p>
+      <ul>
+          <li>Convert <code><span class="tok-type">f32</span></code> to <code><span class="tok-type">u32</span></code> bits</li>
+          <li>Convert <code><span class="tok-type">i32</span></code> to <code><span class="tok-type">u32</span></code> preserving twos complement</li>
+      </ul>
+      <p>
+      Works at compile-time if <code>value</code> is known at compile time. It's a compile error to bitcast a value of undefined layout; this means that, besides the restriction from types which possess dedicated casting builtins (enums, pointers, error sets), bare structs, error unions, slices, optionals, and any other type without a well-defined memory layout, also cannot be used in this operation.
+      </p>
+      
+
+      <h3 id="bitOffsetOf"><a href="https://ziglang.org/documentation/0.15.2/#toc-bitOffsetOf">@bitOffsetOf</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#bitOffsetOf">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@bitOffsetOf</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> field_name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">comptime_int</span></code></pre>
+      <p>
+      Returns the bit offset of a field relative to its containing struct.
+      </p>
+      <p>
+      For non <a href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed structs</a>, this will always be divisible by <code><span class="tok-number">8</span></code>.
+      For packed structs, non-byte-aligned fields will share a byte offset, but they will have different
+      bit offsets.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#offsetOf">@offsetOf</a></li>
+</ul>
+
+      
+
+      <h3 id="bitSizeOf"><a href="https://ziglang.org/documentation/0.15.2/#toc-bitSizeOf">@bitSizeOf</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#bitSizeOf">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@bitSizeOf</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">comptime_int</span></code></pre>
+      <p>
+      This function returns the number of bits it takes to store <code>T</code> in memory if the type
+      were a field in a packed struct/union.
+      The result is a target-specific compile time constant.
+      </p>
+      <p>
+      This function measures the size at runtime. For types that are disallowed at runtime, such as
+      <code><span class="tok-type">comptime_int</span></code> and <code><span class="tok-type">type</span></code>, the result is <code><span class="tok-number">0</span></code>.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a></li>
+</ul>
+
+      
+
+      <h3 id="branchHint"><a href="https://ziglang.org/documentation/0.15.2/#toc-branchHint">@branchHint</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#branchHint">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@branchHint</span>(hint: BranchHint) <span class="tok-type">void</span></code></pre>
+      <p>Hints to the optimizer how likely a given branch of control flow is to be reached.</p>
+      <p><code>BranchHint</code> can be found with <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.BranchHint</code>.</p>
+      <p>This function is only valid as the first statement in a control flow branch, or the first statement in a function.</p>
+      
+
+      <h3 id="breakpoint"><a href="https://ziglang.org/documentation/0.15.2/#toc-breakpoint">@breakpoint</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#breakpoint">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@breakpoint</span>() <span class="tok-type">void</span></code></pre>
+      <p>
+      This function inserts a platform-specific debug trap instruction which causes
+      debuggers to break there.
+      Unlike for <code><span class="tok-builtin">@trap</span>()</code>, execution may continue after this point if the program is resumed.
+      </p>
+      <p>
+      This function is only valid within function scope.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#trap">@trap</a></li>
+</ul>
+
+      
+
+      <h3 id="mulAdd"><a href="https://ziglang.org/documentation/0.15.2/#toc-mulAdd">@mulAdd</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#mulAdd">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@mulAdd</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T, c: T) T</code></pre>
+      <p>
+      Fused multiply-add, similar to <code>(a * b) + c</code>, except
+      only rounds once, and is thus more accurate.
+      </p>
+      <p>
+      Supports <a href="https://ziglang.org/documentation/0.15.2/#Floats">Floats</a> and <a href="https://ziglang.org/documentation/0.15.2/#Vectors">Vectors</a> of floats.
+      </p>
+      
+
+      <h3 id="byteSwap"><a href="https://ziglang.org/documentation/0.15.2/#toc-byteSwap">@byteSwap</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#byteSwap">§</a></h3>
+

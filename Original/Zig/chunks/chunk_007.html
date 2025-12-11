@@ -1,757 +1,3 @@
-      <p>
-      While loops are expressions. The result of the expression is the
-      result of the <code><span class="tok-kw">else</span></code> clause of a while loop, which is executed when
-      the condition of the while loop is tested as false.
-      </p>
-      <p>
-      <code><span class="tok-kw">break</span></code>, like <code><span class="tok-kw">return</span></code>, accepts a value
-              parameter. This is the result of the <code><span class="tok-kw">while</span></code> expression.
-                  When you <code><span class="tok-kw">break</span></code> from a while loop, the <code><span class="tok-kw">else</span></code> branch is not
-      evaluated.
-      </p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_while_else.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"while else"</span> {
-    <span class="tok-kw">try</span> expect(rangeHasNumber(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">5</span>));
-    <span class="tok-kw">try</span> expect(!rangeHasNumber(<span class="tok-number">0</span>, <span class="tok-number">10</span>, <span class="tok-number">15</span>));
-}
-
-<span class="tok-kw">fn</span> <span class="tok-fn">rangeHasNumber</span>(begin: <span class="tok-type">usize</span>, end: <span class="tok-type">usize</span>, number: <span class="tok-type">usize</span>) <span class="tok-type">bool</span> {
-    <span class="tok-kw">var</span> i = begin;
-    <span class="tok-kw">return</span> <span class="tok-kw">while</span> (i &lt; end) : (i += <span class="tok-number">1</span>) {
-        <span class="tok-kw">if</span> (i == number) {
-            <span class="tok-kw">break</span> <span class="tok-null">true</span>;
-        }
-    } <span class="tok-kw">else</span> <span class="tok-null">false</span>;
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_else.zig</kbd>
-1/1 test_while_else.test.while else...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      <h3 id="Labeled-while"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-while">Labeled while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-while">§</a></h3>
-
-      <p>When a <code><span class="tok-kw">while</span></code> loop is labeled, it can be referenced from a <code><span class="tok-kw">break</span></code>
-              or <code><span class="tok-kw">continue</span></code> from within a nested loop:</p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_while_nested_break.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"nested break"</span> {
-    outer: <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
-        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
-            <span class="tok-kw">break</span> :outer;
-        }
-    }
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"nested continue"</span> {
-    <span class="tok-kw">var</span> i: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-    outer: <span class="tok-kw">while</span> (i &lt; <span class="tok-number">10</span>) : (i += <span class="tok-number">1</span>) {
-        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {
-            <span class="tok-kw">continue</span> :outer;
-        }
-    }
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_nested_break.zig</kbd>
-1/2 test_while_nested_break.test.nested break...OK
-2/2 test_while_nested_break.test.nested continue...OK
-All 2 tests passed.
-</samp></pre></figure>
-
-      
-      <h3 id="while-with-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-while-with-Optionals">while with Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">§</a></h3>
-
-      <p>
-      Just like <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> expressions, while loops can take an optional as the
-      condition and capture the payload. When <a href="https://ziglang.org/documentation/0.15.2/#null">null</a> is encountered the loop
-      exits.
-      </p>
-      <p>
-      When the <code>|x|</code> syntax is present on a <code><span class="tok-kw">while</span></code> expression,
-      the while condition must have an <a href="https://ziglang.org/documentation/0.15.2/#Optional-Type">Optional Type</a>.
-      </p>
-      <p>
-      The <code><span class="tok-kw">else</span></code> branch is allowed on optional iteration. In this case, it will
-      be executed on the first null value encountered.
-      </p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_while_null_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"while null capture"</span> {
-    <span class="tok-kw">var</span> sum1: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    numbers_left = <span class="tok-number">3</span>;
-    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| {
-        sum1 += value;
-    }
-    <span class="tok-kw">try</span> expect(sum1 == <span class="tok-number">3</span>);
-
-    <span class="tok-comment">// null capture with an else block</span>
-    <span class="tok-kw">var</span> sum2: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    numbers_left = <span class="tok-number">3</span>;
-    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| {
-        sum2 += value;
-    } <span class="tok-kw">else</span> {
-        <span class="tok-kw">try</span> expect(sum2 == <span class="tok-number">3</span>);
-    }
-
-    <span class="tok-comment">// null capture with a continue expression</span>
-    <span class="tok-kw">var</span> i: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">var</span> sum3: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    numbers_left = <span class="tok-number">3</span>;
-    <span class="tok-kw">while</span> (eventuallyNullSequence()) |value| : (i += <span class="tok-number">1</span>) {
-        sum3 += value;
-    }
-    <span class="tok-kw">try</span> expect(i == <span class="tok-number">3</span>);
-}
-
-<span class="tok-kw">var</span> numbers_left: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
-<span class="tok-kw">fn</span> <span class="tok-fn">eventuallyNullSequence</span>() ?<span class="tok-type">u32</span> {
-    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (numbers_left == <span class="tok-number">0</span>) <span class="tok-null">null</span> <span class="tok-kw">else</span> blk: {
-        numbers_left -= <span class="tok-number">1</span>;
-        <span class="tok-kw">break</span> :blk numbers_left;
-    };
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_null_capture.zig</kbd>
-1/1 test_while_null_capture.test.while null capture...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      
-
-      <h3 id="while-with-Error-Unions"><a href="https://ziglang.org/documentation/0.15.2/#toc-while-with-Error-Unions">while with Error Unions</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#while-with-Error-Unions">§</a></h3>
-
-      <p>
-      Just like <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> expressions, while loops can take an error union as
-      the condition and capture the payload or the error code. When the
-      condition results in an error code the else branch is evaluated and
-      the loop is finished.
-      </p>
-      <p>
-      When the <code><span class="tok-kw">else</span> |x|</code> syntax is present on a <code><span class="tok-kw">while</span></code> expression,
-      the while condition must have an <a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">Error Union Type</a>.
-      </p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_while_error_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"while error union capture"</span> {
-    <span class="tok-kw">var</span> sum1: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    numbers_left = <span class="tok-number">3</span>;
-    <span class="tok-kw">while</span> (eventuallyErrorSequence()) |value| {
-        sum1 += value;
-    } <span class="tok-kw">else</span> |err| {
-        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.ReachedZero);
-    }
-}
-
-<span class="tok-kw">var</span> numbers_left: <span class="tok-type">u32</span> = <span class="tok-null">undefined</span>;
-
-<span class="tok-kw">fn</span> <span class="tok-fn">eventuallyErrorSequence</span>() <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> {
-    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (numbers_left == <span class="tok-number">0</span>) <span class="tok-kw">error</span>.ReachedZero <span class="tok-kw">else</span> blk: {
-        numbers_left -= <span class="tok-number">1</span>;
-        <span class="tok-kw">break</span> :blk numbers_left;
-    };
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_while_error_capture.zig</kbd>
-1/1 test_while_error_capture.test.while error union capture...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      
-
-      <h3 id="inline-while"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-while">inline while</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-while">§</a></h3>
-
-      <p>
-      While loops can be inlined. This causes the loop to be unrolled, which
-      allows the code to do some things which only work at compile time,
-      such as use types as first class values.
-      </p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_inline_while.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"inline while loop"</span> {
-    <span class="tok-kw">comptime</span> <span class="tok-kw">var</span> i = <span class="tok-number">0</span>;
-    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">inline</span> <span class="tok-kw">while</span> (i &lt; <span class="tok-number">3</span>) : (i += <span class="tok-number">1</span>) {
-        <span class="tok-kw">const</span> T = <span class="tok-kw">switch</span> (i) {
-            <span class="tok-number">0</span> =&gt; <span class="tok-type">f32</span>,
-            <span class="tok-number">1</span> =&gt; <span class="tok-type">i8</span>,
-            <span class="tok-number">2</span> =&gt; <span class="tok-type">bool</span>,
-            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
-        };
-        sum += typeNameLength(T);
-    }
-    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">9</span>);
-}
-
-<span class="tok-kw">fn</span> <span class="tok-fn">typeNameLength</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">usize</span> {
-    <span class="tok-kw">return</span> <span class="tok-builtin">@typeName</span>(T).len;
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_while.zig</kbd>
-1/1 test_inline_while.test.inline while loop...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      <p>
-      It is recommended to use <code><span class="tok-kw">inline</span></code> loops only for one of these reasons:
-      </p>
-      <ul>
-        <li>You need the loop to execute at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> for the semantics to work.</li>
-        <li>
-        You have a benchmark to prove that forcibly unrolling the loop in this way is measurably faster.
-        </li>
-      </ul>
-      
-      <p>See also:</p><ul>
-<li><a href="https://ziglang.org/documentation/0.15.2/#if">if</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#unreachable">unreachable</a></li>
-</ul>
-
-      
-      <h2 id="for"><a href="https://ziglang.org/documentation/0.15.2/#toc-for">for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#for">§</a></h2>
-
-      <figure><figcaption class="zig-cap"><cite class="file">test_for.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"for basics"</span> {
-    <span class="tok-kw">const</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">0</span> };
-    <span class="tok-kw">var</span> sum: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
-
-    <span class="tok-comment">// For loops iterate over slices and arrays.</span>
-    <span class="tok-kw">for</span> (items) |value| {
-        <span class="tok-comment">// Break and continue are supported.</span>
-        <span class="tok-kw">if</span> (value == <span class="tok-number">0</span>) {
-            <span class="tok-kw">continue</span>;
-        }
-        sum += value;
-    }
-    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">16</span>);
-
-    <span class="tok-comment">// To iterate over a portion of a slice, reslice.</span>
-    <span class="tok-kw">for</span> (items[<span class="tok-number">0</span>..<span class="tok-number">1</span>]) |value| {
-        sum += value;
-    }
-    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">20</span>);
-
-    <span class="tok-comment">// To access the index of iteration, specify a second condition as well</span>
-    <span class="tok-comment">// as a second capture value.</span>
-    <span class="tok-kw">var</span> sum2: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">for</span> (items, <span class="tok-number">0</span>..) |_, i| {
-        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(i) == <span class="tok-type">usize</span>);
-        sum2 += <span class="tok-builtin">@as</span>(<span class="tok-type">i32</span>, <span class="tok-builtin">@intCast</span>(i));
-    }
-    <span class="tok-kw">try</span> expect(sum2 == <span class="tok-number">10</span>);
-
-    <span class="tok-comment">// To iterate over consecutive integers, use the range syntax.</span>
-    <span class="tok-comment">// Unbounded range is always a compile error.</span>
-    <span class="tok-kw">var</span> sum3: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">for</span> (<span class="tok-number">0</span>..<span class="tok-number">5</span>) |i| {
-        sum3 += i;
-    }
-    <span class="tok-kw">try</span> expect(sum3 == <span class="tok-number">10</span>);
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"multi object for"</span> {
-    <span class="tok-kw">const</span> items = [_]<span class="tok-type">usize</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span> };
-    <span class="tok-kw">const</span> items2 = [_]<span class="tok-type">usize</span>{ <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span> };
-    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-
-    <span class="tok-comment">// Iterate over multiple objects.</span>
-    <span class="tok-comment">// All lengths must be equal at the start of the loop, otherwise detectable</span>
-    <span class="tok-comment">// illegal behavior occurs.</span>
-    <span class="tok-kw">for</span> (items, items2) |i, j| {
-        count += i + j;
-    }
-
-    <span class="tok-kw">try</span> expect(count == <span class="tok-number">21</span>);
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"for reference"</span> {
-    <span class="tok-kw">var</span> items = [_]<span class="tok-type">i32</span>{ <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">2</span> };
-
-    <span class="tok-comment">// Iterate over the slice by reference by</span>
-    <span class="tok-comment">// specifying that the capture value is a pointer.</span>
-    <span class="tok-kw">for</span> (&amp;items) |*value| {
-        value.* += <span class="tok-number">1</span>;
-    }
-
-    <span class="tok-kw">try</span> expect(items[<span class="tok-number">0</span>] == <span class="tok-number">4</span>);
-    <span class="tok-kw">try</span> expect(items[<span class="tok-number">1</span>] == <span class="tok-number">5</span>);
-    <span class="tok-kw">try</span> expect(items[<span class="tok-number">2</span>] == <span class="tok-number">3</span>);
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"for else"</span> {
-    <span class="tok-comment">// For allows an else attached to it, the same as a while loop.</span>
-    <span class="tok-kw">const</span> items = [_]?<span class="tok-type">i32</span>{ <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-null">null</span>, <span class="tok-number">5</span> };
-
-    <span class="tok-comment">// For loops can also be used as expressions.</span>
-    <span class="tok-comment">// Similar to while loops, when you break from a for loop, the else branch is not evaluated.</span>
-    <span class="tok-kw">var</span> sum: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">const</span> result = <span class="tok-kw">for</span> (items) |value| {
-        <span class="tok-kw">if</span> (value != <span class="tok-null">null</span>) {
-            sum += value.?;
-        }
-    } <span class="tok-kw">else</span> blk: {
-        <span class="tok-kw">try</span> expect(sum == <span class="tok-number">12</span>);
-        <span class="tok-kw">break</span> :blk sum;
-    };
-    <span class="tok-kw">try</span> expect(result == <span class="tok-number">12</span>);
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_for.zig</kbd>
-1/4 test_for.test.for basics...OK
-2/4 test_for.test.multi object for...OK
-3/4 test_for.test.for reference...OK
-4/4 test_for.test.for else...OK
-All 4 tests passed.
-</samp></pre></figure>
-
-      <h3 id="Labeled-for"><a href="https://ziglang.org/documentation/0.15.2/#toc-Labeled-for">Labeled for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Labeled-for">§</a></h3>
-
-      <p>When a <code><span class="tok-kw">for</span></code> loop is labeled, it can be referenced from a <code><span class="tok-kw">break</span></code>
-              or <code><span class="tok-kw">continue</span></code> from within a nested loop:</p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_for_nested_break.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
-<span class="tok-kw">const</span> expect = std.testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"nested break"</span> {
-    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-    outer: <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
-        <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
-            count += <span class="tok-number">1</span>;
-            <span class="tok-kw">break</span> :outer;
-        }
-    }
-    <span class="tok-kw">try</span> expect(count == <span class="tok-number">1</span>);
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"nested continue"</span> {
-    <span class="tok-kw">var</span> count: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-    outer: <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">9</span>) |_| {
-        <span class="tok-kw">for</span> (<span class="tok-number">1</span>..<span class="tok-number">6</span>) |_| {
-            count += <span class="tok-number">1</span>;
-            <span class="tok-kw">continue</span> :outer;
-        }
-    }
-
-    <span class="tok-kw">try</span> expect(count == <span class="tok-number">8</span>);
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_for_nested_break.zig</kbd>
-1/2 test_for_nested_break.test.nested break...OK
-2/2 test_for_nested_break.test.nested continue...OK
-All 2 tests passed.
-</samp></pre></figure>
-
-      
-      <h3 id="inline-for"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-for">inline for</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-for">§</a></h3>
-
-      <p>
-      For loops can be inlined. This causes the loop to be unrolled, which
-      allows the code to do some things which only work at compile time,
-      such as use types as first class values.
-      The capture value and iterator value of inlined for loops are
-      compile-time known.
-      </p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_inline_for.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"inline for loop"</span> {
-    <span class="tok-kw">const</span> nums = [_]<span class="tok-type">i32</span>{ <span class="tok-number">2</span>, <span class="tok-number">4</span>, <span class="tok-number">6</span> };
-    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (nums) |i| {
-        <span class="tok-kw">const</span> T = <span class="tok-kw">switch</span> (i) {
-            <span class="tok-number">2</span> =&gt; <span class="tok-type">f32</span>,
-            <span class="tok-number">4</span> =&gt; <span class="tok-type">i8</span>,
-            <span class="tok-number">6</span> =&gt; <span class="tok-type">bool</span>,
-            <span class="tok-kw">else</span> =&gt; <span class="tok-kw">unreachable</span>,
-        };
-        sum += typeNameLength(T);
-    }
-    <span class="tok-kw">try</span> expect(sum == <span class="tok-number">9</span>);
-}
-
-<span class="tok-kw">fn</span> <span class="tok-fn">typeNameLength</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">usize</span> {
-    <span class="tok-kw">return</span> <span class="tok-builtin">@typeName</span>(T).len;
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inline_for.zig</kbd>
-1/1 test_inline_for.test.inline for loop...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      <p>
-      It is recommended to use <code><span class="tok-kw">inline</span></code> loops only for one of these reasons:
-      </p>
-      <ul>
-        <li>You need the loop to execute at <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> for the semantics to work.</li>
-        <li>
-        You have a benchmark to prove that forcibly unrolling the loop in this way is measurably faster.
-        </li>
-      </ul>
-      
-      <p>See also:</p><ul>
-<li><a href="https://ziglang.org/documentation/0.15.2/#while">while</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">Arrays</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Slices">Slices</a></li>
-</ul>
-
-      
-      <h2 id="if"><a href="https://ziglang.org/documentation/0.15.2/#toc-if">if</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#if">§</a></h2>
-
-      <figure><figcaption class="zig-cap"><cite class="file">test_if.zig</cite></figcaption><pre><code><span class="tok-comment">// If expressions have three uses, corresponding to the three types:</span>
-<span class="tok-comment">// * bool</span>
-<span class="tok-comment">// * ?T</span>
-<span class="tok-comment">// * anyerror!T</span>
-
-<span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"if expression"</span> {
-    <span class="tok-comment">// If expressions are used instead of a ternary expression.</span>
-    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
-    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">4</span>;
-    <span class="tok-kw">const</span> result = <span class="tok-kw">if</span> (a != b) <span class="tok-number">47</span> <span class="tok-kw">else</span> <span class="tok-number">3089</span>;
-    <span class="tok-kw">try</span> expect(result == <span class="tok-number">47</span>);
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"if boolean"</span> {
-    <span class="tok-comment">// If expressions test boolean conditions.</span>
-    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
-    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">4</span>;
-    <span class="tok-kw">if</span> (a != b) {
-        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
-    } <span class="tok-kw">else</span> <span class="tok-kw">if</span> (a == <span class="tok-number">9</span>) {
-        <span class="tok-kw">unreachable</span>;
-    } <span class="tok-kw">else</span> {
-        <span class="tok-kw">unreachable</span>;
-    }
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"if error union"</span> {
-    <span class="tok-comment">// If expressions test for errors.</span>
-    <span class="tok-comment">// Note the |err| capture on the else.</span>
-
-    <span class="tok-kw">const</span> a: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">if</span> (a) |value| {
-        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
-    } <span class="tok-kw">else</span> |err| {
-        _ = err;
-        <span class="tok-kw">unreachable</span>;
-    }
-
-    <span class="tok-kw">const</span> b: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.BadValue;
-    <span class="tok-kw">if</span> (b) |value| {
-        _ = value;
-        <span class="tok-kw">unreachable</span>;
-    } <span class="tok-kw">else</span> |err| {
-        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
-    }
-
-    <span class="tok-comment">// The else and |err| capture is strictly required.</span>
-    <span class="tok-kw">if</span> (a) |value| {
-        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
-    } <span class="tok-kw">else</span> |_| {}
-
-    <span class="tok-comment">// To check only the error value, use an empty block expression.</span>
-    <span class="tok-kw">if</span> (b) |_| {} <span class="tok-kw">else</span> |err| {
-        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
-    }
-
-    <span class="tok-comment">// Access the value by reference using a pointer capture.</span>
-    <span class="tok-kw">var</span> c: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
-    <span class="tok-kw">if</span> (c) |*value| {
-        value.* = <span class="tok-number">9</span>;
-    } <span class="tok-kw">else</span> |_| {
-        <span class="tok-kw">unreachable</span>;
-    }
-
-    <span class="tok-kw">if</span> (c) |value| {
-        <span class="tok-kw">try</span> expect(value == <span class="tok-number">9</span>);
-    } <span class="tok-kw">else</span> |_| {
-        <span class="tok-kw">unreachable</span>;
-    }
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_if.zig</kbd>
-1/3 test_if.test.if expression...OK
-2/3 test_if.test.if boolean...OK
-3/3 test_if.test.if error union...OK
-All 3 tests passed.
-</samp></pre></figure>
-
-      <h3 id="if-with-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-if-with-Optionals">if with Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">§</a></h3>
-
-
-      <figure><figcaption class="zig-cap"><cite class="file">test_if_optionals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
-
-<span class="tok-kw">test</span> <span class="tok-str">"if optional"</span> {
-    <span class="tok-comment">// If expressions test for null.</span>
-
-    <span class="tok-kw">const</span> a: ?<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">if</span> (a) |value| {
-        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
-    } <span class="tok-kw">else</span> {
-        <span class="tok-kw">unreachable</span>;
-    }
-
-    <span class="tok-kw">const</span> b: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
-    <span class="tok-kw">if</span> (b) |_| {
-        <span class="tok-kw">unreachable</span>;
-    } <span class="tok-kw">else</span> {
-        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
-    }
-
-    <span class="tok-comment">// The else is not required.</span>
-    <span class="tok-kw">if</span> (a) |value| {
-        <span class="tok-kw">try</span> expect(value == <span class="tok-number">0</span>);
-    }
-
-    <span class="tok-comment">// To test against null only, use the binary equality operator.</span>
-    <span class="tok-kw">if</span> (b == <span class="tok-null">null</span>) {
-        <span class="tok-kw">try</span> expect(<span class="tok-null">true</span>);
-    }
-
-    <span class="tok-comment">// Access the value by reference using a pointer capture.</span>
-    <span class="tok-kw">var</span> c: ?<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
-    <span class="tok-kw">if</span> (c) |*value| {
-        value.* = <span class="tok-number">2</span>;
-    }
-
-    <span class="tok-kw">if</span> (c) |value| {
-        <span class="tok-kw">try</span> expect(value == <span class="tok-number">2</span>);
-    } <span class="tok-kw">else</span> {
-        <span class="tok-kw">unreachable</span>;
-    }
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"if error union with optional"</span> {
-    <span class="tok-comment">// If expressions test for errors before unwrapping optionals.</span>
-    <span class="tok-comment">// The |optional_value| capture's type is ?u32.</span>
-
-    <span class="tok-kw">const</span> a: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
-    <span class="tok-kw">if</span> (a) |optional_value| {
-        <span class="tok-kw">try</span> expect(optional_value.? == <span class="tok-number">0</span>);
-    } <span class="tok-kw">else</span> |err| {
-        _ = err;
-        <span class="tok-kw">unreachable</span>;
-    }
-
-    <span class="tok-kw">const</span> b: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
-    <span class="tok-kw">if</span> (b) |optional_value| {
-        <span class="tok-kw">try</span> expect(optional_value == <span class="tok-null">null</span>);
-    } <span class="tok-kw">else</span> |_| {
-        <span class="tok-kw">unreachable</span>;
-    }
-
-    <span class="tok-kw">const</span> c: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.BadValue;
-    <span class="tok-kw">if</span> (c) |optional_value| {
-        _ = optional_value;
-        <span class="tok-kw">unreachable</span>;
-    } <span class="tok-kw">else</span> |err| {
-        <span class="tok-kw">try</span> expect(err == <span class="tok-kw">error</span>.BadValue);
-    }
-
-    <span class="tok-comment">// Access the value by reference by using a pointer capture each time.</span>
-    <span class="tok-kw">var</span> d: <span class="tok-type">anyerror</span>!?<span class="tok-type">u32</span> = <span class="tok-number">3</span>;
-    <span class="tok-kw">if</span> (d) |*optional_value| {
-        <span class="tok-kw">if</span> (optional_value.*) |*value| {
-            value.* = <span class="tok-number">9</span>;
-        }
-    } <span class="tok-kw">else</span> |_| {
-        <span class="tok-kw">unreachable</span>;
-    }
-
-    <span class="tok-kw">if</span> (d) |optional_value| {
-        <span class="tok-kw">try</span> expect(optional_value.? == <span class="tok-number">9</span>);
-    } <span class="tok-kw">else</span> |_| {
-        <span class="tok-kw">unreachable</span>;
-    }
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_if_optionals.zig</kbd>
-1/2 test_if_optionals.test.if optional...OK
-2/2 test_if_optionals.test.if error union with optional...OK
-All 2 tests passed.
-</samp></pre></figure>
-
-      
-      <p>See also:</p><ul>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">Optionals</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
-</ul>
-
-      
-      <h2 id="defer"><a href="https://ziglang.org/documentation/0.15.2/#toc-defer">defer</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#defer">§</a></h2>
-
-      <p>Executes an expression unconditionally at scope exit.</p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_defer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
-<span class="tok-kw">const</span> expect = std.testing.expect;
-<span class="tok-kw">const</span> print = std.debug.print;
-
-<span class="tok-kw">fn</span> <span class="tok-fn">deferExample</span>() !<span class="tok-type">usize</span> {
-    <span class="tok-kw">var</span> a: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
-
-    {
-        <span class="tok-kw">defer</span> a = <span class="tok-number">2</span>;
-        a = <span class="tok-number">1</span>;
-    }
-    <span class="tok-kw">try</span> expect(a == <span class="tok-number">2</span>);
-
-    a = <span class="tok-number">5</span>;
-    <span class="tok-kw">return</span> a;
-}
-
-<span class="tok-kw">test</span> <span class="tok-str">"defer basics"</span> {
-    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> deferExample()) == <span class="tok-number">5</span>);
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_defer.zig</kbd>
-1/1 test_defer.test.defer basics...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      <p>Defer expressions are evaluated in reverse order.</p>
-      <figure><figcaption class="zig-cap"><cite class="file">defer_unwind.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
-<span class="tok-kw">const</span> print = std.debug.print;
-
-<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
-    print(<span class="tok-str">"\n"</span>, .{});
-
-    <span class="tok-kw">defer</span> {
-        print(<span class="tok-str">"1 "</span>, .{});
-    }
-    <span class="tok-kw">defer</span> {
-        print(<span class="tok-str">"2 "</span>, .{});
-    }
-    <span class="tok-kw">if</span> (<span class="tok-null">false</span>) {
-        <span class="tok-comment">// defers are not run if they are never executed.</span>
-        <span class="tok-kw">defer</span> {
-            print(<span class="tok-str">"3 "</span>, .{});
-        }
-    }
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe defer_unwind.zig</kbd>
-$ <kbd>./defer_unwind</kbd>
-
-2 1
-</samp></pre></figure>
-
-      <p>Inside a defer expression the return statement is not allowed.</p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_invalid_defer.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">deferInvalidExample</span>() !<span class="tok-type">void</span> {
-    <span class="tok-kw">defer</span> {
-        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.DeferError;
-    }
-
-    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.DeferError;
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_invalid_defer.zig</kbd>
-<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_invalid_defer.zig:3:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">cannot return from defer expression
-</span>        return error.DeferError;
-        <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~
-</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_invalid_defer.zig:2:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">defer expression here
-</span>    defer {
-    <span class="sgr-32m">^~~~~
-</span>
-</samp></pre></figure>
-
-      <p>See also:</p><ul>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">Errors</a></li>
-</ul>
-
-      
-      <h2 id="unreachable"><a href="https://ziglang.org/documentation/0.15.2/#toc-unreachable">unreachable</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#unreachable">§</a></h2>
-
-      <p>
-      In <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> mode
-      <code><span class="tok-kw">unreachable</span></code> emits a call to <code>panic</code> with the message <code>reached unreachable code</code>.
-      </p>
-      <p>
-      In <a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a> mode, the optimizer uses the assumption that <code><span class="tok-kw">unreachable</span></code> code
-      will never be hit to perform optimizations.
-      </p>
-      <h3 id="Basics"><a href="https://ziglang.org/documentation/0.15.2/#toc-Basics">Basics</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Basics">§</a></h3>
-
-      <figure><figcaption class="zig-cap"><cite class="file">test_unreachable.zig</cite></figcaption><pre><code><span class="tok-comment">// unreachable is used to assert that control flow will never reach a</span>
-<span class="tok-comment">// particular location:</span>
-<span class="tok-kw">test</span> <span class="tok-str">"basic math"</span> {
-    <span class="tok-kw">const</span> x = <span class="tok-number">1</span>;
-    <span class="tok-kw">const</span> y = <span class="tok-number">2</span>;
-    <span class="tok-kw">if</span> (x + y != <span class="tok-number">3</span>) {
-        <span class="tok-kw">unreachable</span>;
-    }
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_unreachable.zig</kbd>
-1/1 test_unreachable.test.basic math...OK
-All 1 tests passed.
-</samp></pre></figure>
-
-      <p>In fact, this is how <code>std.debug.assert</code> is implemented:</p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_assertion_failure.zig</cite></figcaption><pre><code><span class="tok-comment">// This is how std.debug.assert is implemented</span>
-<span class="tok-kw">fn</span> <span class="tok-fn">assert</span>(ok: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {
-    <span class="tok-kw">if</span> (!ok) <span class="tok-kw">unreachable</span>; <span class="tok-comment">// assertion failure</span>
-}
-
-<span class="tok-comment">// This test will fail because we hit unreachable.</span>
-<span class="tok-kw">test</span> <span class="tok-str">"this will fail"</span> {
-    assert(<span class="tok-null">false</span>);
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_assertion_failure.zig</kbd>
-1/1 test_assertion_failure.test.this will fail...thread 2902460 panic: reached unreachable code
-<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_assertion_failure.zig:3:14</span>: <span class="sgr-2m">0x102c039 in assert (test_assertion_failure.zig)</span>
-    if (!ok) unreachable; // assertion failure
-             <span class="sgr-32m">^</span>
-<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_assertion_failure.zig:8:11</span>: <span class="sgr-2m">0x102c00e in test.this will fail (test_assertion_failure.zig)</span>
-    assert(false);
-          <span class="sgr-32m">^</span>
-<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cb50 in mainTerminal (test_runner.zig)</span>
-        if (test_fn.func()) |_| {
-                        <span class="sgr-32m">^</span>
-<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155d71 in main (test_runner.zig)</span>
-        return mainTerminal();
-                           <span class="sgr-32m">^</span>
-<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fb0d in posixCallMainAndExit (std.zig)</span>
-            root.main();
-                     <span class="sgr-32m">^</span>
-<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f3a1 in _start (std.zig)</span>
-    asm volatile (switch (native_arch) {
-    <span class="sgr-32m">^</span>
-<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
-error: the following test command crashed:
-/home/andy/dev/zig/.zig-cache/o/2d8b23c255add16f67e238437a2ca75f/test --seed=0xf5bf1bba
-</samp></pre></figure>
-
-      
-      <h3 id="At-Compile-Time"><a href="https://ziglang.org/documentation/0.15.2/#toc-At-Compile-Time">At Compile-Time</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#At-Compile-Time">§</a></h3>
-
-      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_unreachable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
-
-<span class="tok-kw">test</span> <span class="tok-str">"type of unreachable"</span> {
-    <span class="tok-kw">comptime</span> {
-        <span class="tok-comment">// The type of unreachable is noreturn.</span>
-
-        <span class="tok-comment">// However this assertion will still fail to compile because</span>
-        <span class="tok-comment">// unreachable expressions are compile errors.</span>
-
-        assert(<span class="tok-builtin">@TypeOf</span>(<span class="tok-kw">unreachable</span>) == <span class="tok-type">noreturn</span>);
-    }
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_unreachable.zig</kbd>
-<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unreachable.zig:10:16: </span><span class="sgr-31m">error: </span><span class="sgr-1m">unreachable code
-</span>        assert(@TypeOf(unreachable) == noreturn);
-               <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~
-</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unreachable.zig:10:24: </span><span class="sgr-36m">note: </span><span class="sgr-1m">control flow is diverted here
-</span>        assert(@TypeOf(unreachable) == noreturn);
-                       <span class="sgr-32m">^~~~~~~~~~~
-</span>
-</samp></pre></figure>
-
-      <p>See also:</p><ul>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Zig-Test">Zig Test</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#Build-Mode">Build Mode</a></li>
-<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
-</ul>
-
-      
-      
-      <h2 id="noreturn"><a href="https://ziglang.org/documentation/0.15.2/#toc-noreturn">noreturn</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#noreturn">§</a></h2>
-
-      <p>
-      <code><span class="tok-type">noreturn</span></code> is the type of:
-      </p>
-      <ul>
-          <li><code><span class="tok-kw">break</span></code></li>
-          <li><code><span class="tok-kw">continue</span></code></li>
-          <li><code><span class="tok-kw">return</span></code></li>
-          <li><code><span class="tok-kw">unreachable</span></code></li>
-          <li><code><span class="tok-kw">while</span> (<span class="tok-null">true</span>) {}</code></li>
-      </ul>
-      <p>When resolving types together, such as <code><span class="tok-kw">if</span></code> clauses or <code><span class="tok-kw">switch</span></code> prongs,
-              the <code><span class="tok-type">noreturn</span></code> type is compatible with every other type. Consider:
-      </p>
-      <figure><figcaption class="zig-cap"><cite class="file">test_noreturn.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(condition: <span class="tok-type">bool</span>, b: <span class="tok-type">u32</span>) <span class="tok-type">void</span> {
-    <span class="tok-kw">const</span> a = <span class="tok-kw">if</span> (condition) b <span class="tok-kw">else</span> <span class="tok-kw">return</span>;
-    _ = a;
-    <span class="tok-builtin">@panic</span>(<span class="tok-str">"do something with a"</span>);
-}
-<span class="tok-kw">test</span> <span class="tok-str">"noreturn"</span> {
-    foo(<span class="tok-null">false</span>, <span class="tok-number">1</span>);
-}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_noreturn.zig</kbd>
-1/1 test_noreturn.test.noreturn...OK
-All 1 tests passed.
-</samp></pre></figure>
-
       <p>Another use case for <code><span class="tok-type">noreturn</span></code> is the <code>exit</code> function:</p>
       <figure><figcaption class="zig-cap"><cite class="file">test_noreturn_from_exit.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
 <span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
@@ -1462,3 +708,391 @@ All 1 tests passed.
       
       <h3 id="Error-Return-Traces"><a href="https://ziglang.org/documentation/0.15.2/#toc-Error-Return-Traces">Error Return Traces</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Error-Return-Traces">§</a></h3>
 
+      <p>
+      Error Return Traces show all the points in the code that an error was returned to the calling function. This makes it practical to use <a href="https://ziglang.org/documentation/0.15.2/#try">try</a> everywhere and then still be able to know what happened if an error ends up bubbling all the way out of your application.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">error_return_trace.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> foo(<span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: <span class="tok-type">i32</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (x &gt;= <span class="tok-number">5</span>) {
+        <span class="tok-kw">try</span> bar();
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> bang2();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (baz()) {
+        <span class="tok-kw">try</span> quux();
+    } <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.FileNotFound =&gt; <span class="tok-kw">try</span> hello(),
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">baz</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang1();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">quux</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">hello</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang1</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.FileNotFound;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang2</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.PermissionDenied;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe error_return_trace.zig</kbd>
+$ <kbd>./error_return_trace</kbd>
+error: PermissionDenied
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:34:5</span>: <span class="sgr-2m">0x113d36c in bang1 (error_return_trace.zig)</span>
+    return error.FileNotFound;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:22:5</span>: <span class="sgr-2m">0x113d3b6 in baz (error_return_trace.zig)</span>
+    try bang1();
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:38:5</span>: <span class="sgr-2m">0x113d3ec in bang2 (error_return_trace.zig)</span>
+    return error.PermissionDenied;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:30:5</span>: <span class="sgr-2m">0x113d496 in hello (error_return_trace.zig)</span>
+    try bang2();
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:17:31</span>: <span class="sgr-2m">0x113d56e in bar (error_return_trace.zig)</span>
+        error.FileNotFound =&gt; try hello(),
+                              <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:7:9</span>: <span class="sgr-2m">0x113d654 in foo (error_return_trace.zig)</span>
+        try bar();
+        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:2:5</span>: <span class="sgr-2m">0x113d71b in main (error_return_trace.zig)</span>
+    try foo(12);
+    <span class="sgr-32m">^</span>
+</samp></pre></figure>
+
+      <p>
+      Look closely at this example. This is no stack trace.
+      </p>
+      <p>
+      You can see that the final error bubbled up was <code>PermissionDenied</code>,
+          but the original error that started this whole thing was <code>FileNotFound</code>. In the <code>bar</code> function, the code handles the original error code,
+      and then returns another one, from the switch statement. Error Return Traces make this clear, whereas a stack trace would look like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">stack_trace.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    foo(<span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: <span class="tok-type">i32</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (x &gt;= <span class="tok-number">5</span>) {
+        bar();
+    } <span class="tok-kw">else</span> {
+        bang2();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (baz()) {
+        quux();
+    } <span class="tok-kw">else</span> {
+        hello();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">baz</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> bang1();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">quux</span>() <span class="tok-type">void</span> {
+    bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">hello</span>() <span class="tok-type">void</span> {
+    bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang1</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> <span class="tok-null">false</span>;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang2</span>() <span class="tok-type">void</span> {
+    <span class="tok-builtin">@panic</span>(<span class="tok-str">"PermissionDenied"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe stack_trace.zig</kbd>
+$ <kbd>./stack_trace</kbd>
+thread 2902479 panic: PermissionDenied
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:38:5</span>: <span class="sgr-2m">0x1140e6c in bang2 (stack_trace.zig)</span>
+    @panic("PermissionDenied");
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:30:10</span>: <span class="sgr-2m">0x11414ac in hello (stack_trace.zig)</span>
+    bang2();
+         <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:17:14</span>: <span class="sgr-2m">0x1140e23 in bar (stack_trace.zig)</span>
+        hello();
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:7:12</span>: <span class="sgr-2m">0x1140ab8 in foo (stack_trace.zig)</span>
+        bar();
+           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:2:8</span>: <span class="sgr-2m">0x113f871 in main (stack_trace.zig)</span>
+    foo(12);
+       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113eabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113e351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      <p>
+      Here, the stack trace does not explain how the control
+      flow in <code>bar</code> got to the <code>hello()</code> call.
+      One would have to open a debugger or further instrument the application
+      in order to find out. The error return trace, on the other hand,
+      shows exactly how the error bubbled up.
+      </p>
+      <p>
+      This debugging feature makes it easier to iterate quickly on code that
+      robustly handles all error conditions. This means that Zig developers
+      will naturally find themselves writing correct, robust code in order
+      to increase their development pace.
+      </p>
+      <p>
+      Error Return Traces are enabled by default in <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> builds and disabled by default in <a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a>, <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> and <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a> builds.
+      </p>
+      <p>
+      There are a few ways to activate this error return tracing feature:
+      </p>
+      <ul>
+        <li>Return an error from main</li>
+        <li>An error makes its way to <code><span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span></code> and you have not overridden the default panic handler</li>
+        <li>Use <a href="https://ziglang.org/documentation/0.15.2/#errorReturnTrace">errorReturnTrace</a> to access the current return trace. You can use <code>std.debug.dumpStackTrace</code> to print it. This function returns comptime-known <a href="https://ziglang.org/documentation/0.15.2/#null">null</a> when building without error return tracing support.</li>
+      </ul>
+      <h4 id="Implementation-Details"><a href="https://ziglang.org/documentation/0.15.2/#toc-Implementation-Details">Implementation Details</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Implementation-Details">§</a></h4>
+
+      <p>
+      To analyze performance cost, there are two cases:
+      </p>
+      <ul>
+        <li>when no errors are returned</li>
+        <li>when returning errors</li>
+      </ul>
+      <p>
+      For the case when no errors are returned, the cost is a single memory write operation, only in the first non-failable function in the call graph that calls a failable function, i.e. when a function returning <code><span class="tok-type">void</span></code> calls a function returning <code><span class="tok-kw">error</span></code>.
+      This is to initialize this struct in the stack memory:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">stack_trace_struct.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> StackTrace = <span class="tok-kw">struct</span> {
+    index: <span class="tok-type">usize</span>,
+    instruction_addresses: [N]<span class="tok-type">usize</span>,
+};</code></pre></figure>
+      <p>
+      Here, N is the maximum function call depth as determined by call graph analysis. Recursion is ignored and counts for 2.
+      </p>
+      <p>
+      A pointer to <code>StackTrace</code> is passed as a secret parameter to every function that can return an error, but it's always the first parameter, so it can likely sit in a register and stay there.
+      </p>
+      <p>
+      That's it for the path when no errors occur. It's practically free in terms of performance.
+      </p>
+      <p>
+      When generating the code for a function that returns an error, just before the <code><span class="tok-kw">return</span></code> statement (only for the <code><span class="tok-kw">return</span></code> statements that return errors), Zig generates a call to this function:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">zig_return_error_fn.zig</cite></figcaption><pre><code><span class="tok-comment">// marked as "no-inline" in LLVM IR</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">__zig_return_error</span>(stack_trace: *StackTrace) <span class="tok-type">void</span> {
+    stack_trace.instruction_addresses[stack_trace.index] = <span class="tok-builtin">@returnAddress</span>();
+    stack_trace.index = (stack_trace.index + <span class="tok-number">1</span>) % N;
+}</code></pre></figure>
+      <p>
+      The cost is 2 math operations plus some memory reads and writes. The memory accessed is constrained and should remain cached for the duration of the error return bubbling.
+      </p>
+      <p>
+      As for code size cost, 1 function call before a return statement is no big deal. Even so,
+      I have <a href="https://github.com/ziglang/zig/issues/690">a plan</a> to make the call to
+      <code>__zig_return_error</code> a tail call, which brings the code size cost down to actually zero. What is a return statement in code without error return tracing can become a jump instruction in code with error return tracing.
+      </p>
+      
+      
+      
+      <h2 id="Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optionals">Optionals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optionals">§</a></h2>
+
+      <p>
+      One area that Zig provides safety without compromising efficiency or
+      readability is with the optional type.
+      </p>
+      <p>
+      The question mark symbolizes the optional type. You can convert a type to an optional
+      type by putting a question mark in front of it, like this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">optional_integer.zig</cite></figcaption><pre><code><span class="tok-comment">// normal integer</span>
+<span class="tok-kw">const</span> normal_int: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+
+<span class="tok-comment">// optional integer</span>
+<span class="tok-kw">const</span> optional_int: ?<span class="tok-type">i32</span> = <span class="tok-number">5678</span>;</code></pre></figure>
+
+      <p>
+      Now the variable <code>optional_int</code> could be an <code><span class="tok-type">i32</span></code>, or <code><span class="tok-null">null</span></code>.
+      </p>
+      <p>
+      Instead of integers, let's talk about pointers. Null references are the source of many runtime
+      exceptions, and even stand accused of being
+      <a href="https://www.lucidchart.com/techblog/2015/08/31/the-worst-mistake-of-computer-science/">the worst mistake of computer science</a>.
+      </p>
+      <p>Zig does not have them.</p>
+      <p>
+      Instead, you can use an optional pointer. This secretly compiles down to a normal pointer,
+      since we know we can use 0 as the null value for the optional type. But the compiler
+      can check your work and make sure you don't assign null to something that can't be null.
+      </p>
+      <p>
+      Typically the downside of not having null is that it makes the code more verbose to
+      write. But, let's compare some equivalent C code and Zig code.
+      </p>
+      <p>
+      Task: call malloc, if the result is null, return null.
+      </p>
+      <p>C code</p>
+      <figure><figcaption class="c-cap"><cite class="file">call_malloc_in_c.c</cite></figcaption><pre><code>// malloc prototype included for reference
+void *malloc(size_t size);
+
+struct Foo *do_a_thing(void) {
+    char *ptr = malloc(1234);
+    if (!ptr) return NULL;
+    // ...
+}</code></pre></figure>
+      <p>Zig code</p>
+      <figure><figcaption class="zig-cap"><cite class="file">call_malloc_from_zig.zig</cite></figcaption><pre><code><span class="tok-comment">// malloc prototype included for reference</span>
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">malloc</span>(size: <span class="tok-type">usize</span>) ?[*]<span class="tok-type">u8</span>;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>() ?*Foo {
+    <span class="tok-kw">const</span> ptr = malloc(<span class="tok-number">1234</span>) <span class="tok-kw">orelse</span> <span class="tok-kw">return</span> <span class="tok-null">null</span>;
+    _ = ptr; <span class="tok-comment">// ...</span>
+}</code></pre></figure>
+      <p>
+        Here, Zig is at least as convenient, if not more, than C. And, the type of "ptr"
+        is <code>[*]<span class="tok-type">u8</span></code> <em>not</em> <code>?[*]<span class="tok-type">u8</span></code>. The <code><span class="tok-kw">orelse</span></code> keyword
+                    unwrapped the optional type and therefore <code>ptr</code> is guaranteed to be non-null everywhere
+        it is used in the function.
+      </p>
+      <p>
+        The other form of checking against NULL you might see looks like this:
+      </p>
+      <figure><figcaption class="c-cap"><cite class="file">checking_null_in_c.c</cite></figcaption><pre><code>void do_a_thing(struct Foo *foo) {
+    // do some stuff
+
+    if (foo) {
+        do_something_with_foo(foo);
+    }
+
+    // do some stuff
+}</code></pre></figure>
+      <p>
+        In Zig you can accomplish the same thing:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">checking_null_in_zig.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">struct</span> {};
+<span class="tok-kw">fn</span> <span class="tok-fn">doSomethingWithFoo</span>(foo: *Foo) <span class="tok-type">void</span> {
+    _ = foo;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(optional_foo: ?*Foo) <span class="tok-type">void</span> {
+    <span class="tok-comment">// do some stuff</span>
+
+    <span class="tok-kw">if</span> (optional_foo) |foo| {
+        doSomethingWithFoo(foo);
+    }
+
+    <span class="tok-comment">// do some stuff</span>
+}</code></pre></figure>
+
+      <p>
+      Once again, the notable thing here is that inside the if block,
+      <code>foo</code> is no longer an optional pointer, it is a pointer, which
+      cannot be null.
+      </p>
+      <p>
+      One benefit to this is that functions which take pointers as arguments can
+      be annotated with the "nonnull" attribute - <code>__attribute__((nonnull))</code> in
+      <a href="https://gcc.gnu.org/onlinedocs/gcc-4.0.0/gcc/Function-Attributes.html">GCC</a>.
+      The optimizer can sometimes make better decisions knowing that pointer arguments
+      cannot be null.
+      </p>
+      <h3 id="Optional-Type"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optional-Type">Optional Type</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optional-Type">§</a></h3>
+
+      <p>An optional is created by putting <code>?</code> in front of a type. You can use compile-time
+      reflection to access the child type of an optional:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_optional_type.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"optional type"</span> {
+    <span class="tok-comment">// Declare an optional and coerce from null:</span>
+    <span class="tok-kw">var</span> foo: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-comment">// Coerce from child type of an optional</span>
+    foo = <span class="tok-number">1234</span>;
+
+    <span class="tok-comment">// Use compile-time reflection to access the child type of the optional:</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(foo)).optional.child == <span class="tok-type">i32</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_optional_type.zig</kbd>
+1/1 test_optional_type.test.optional type...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="null"><a href="https://ziglang.org/documentation/0.15.2/#toc-null">null</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#null">§</a></h3>
+
+      <p>
+      Just like <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a>, <code><span class="tok-null">null</span></code> has its own type, and the only way to use it is to
+      cast it to a different type:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">null.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> optional_value: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;</code></pre></figure>
+
+      
+      <h3 id="Optional-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optional-Pointers">Optional Pointers</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">§</a></h3>
+
+      <p>An optional pointer is guaranteed to be the same size as a pointer. The <code><span class="tok-null">null</span></code> of
+      the optional is guaranteed to be address 0.</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_optional_pointer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"optional pointers"</span> {
+    <span class="tok-comment">// Pointers cannot be null. If you want a null pointer, use the optional</span>
+    <span class="tok-comment">// prefix `?` to make the pointer type optional.</span>
+    <span class="tok-kw">var</span> ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    ptr = &amp;x;
+
+    <span class="tok-kw">try</span> expect(ptr.?.* == <span class="tok-number">1</span>);
+
+    <span class="tok-comment">// Optional pointers are the same size as normal pointers, because pointer</span>
+    <span class="tok-comment">// value 0 is used as the null value.</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@sizeOf</span>(?*<span class="tok-type">i32</span>) == <span class="tok-builtin">@sizeOf</span>(*<span class="tok-type">i32</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_optional_pointer.zig</kbd>
+1/1 test_optional_pointer.test.optional pointers...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">while with Optionals</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">if with Optionals</a></li>
+</ul>
+
+      
+      <h2 id="Casting"><a href="https://ziglang.org/documentation/0.15.2/#toc-Casting">Casting</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Casting">§</a></h2>
+
+      <p>
+      A <strong>type cast</strong> converts a value of one type to another.
+      Zig has <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">Type Coercion</a> for conversions that are known to be completely safe and unambiguous,
+      and <a href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">Explicit Casts</a> for conversions that one would not want to happen on accident.
+      There is also a third kind of type conversion called <a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">Peer Type Resolution</a> for
+      the case when a result type must be decided given multiple operand types.
+      </p>
+      <h3 id="Type-Coercion"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion">Type Coercion</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">§</a></h3>
+
+      <p>
+      Type coercion occurs when one type is expected, but different type is provided:
+      </p>

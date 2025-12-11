@@ -1,0 +1,1022 @@
+<figure><figcaption class="zig-cap"><cite class="file">test_illegal_behavior.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"安全检查"</span> {
+    <span class="tok-kw">unreachable</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_illegal_behavior.zig</kbd>
+1/1 test_illegal_behavior.test.安全检查...thread 2892891 panic: 到达了不可达代码
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_illegal_behavior.zig:2:5</span>: <span class="sgr-2m">0x102c00c in test.安全检查 (test_illegal_behavior.zig)</span>
+    unreachable;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cb20 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155d41 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fadd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f371 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: 以下测试命令崩溃:
+/home/andy/dev/zig/.zig-cache/o/e72b27fd3a681a218f2215fb6e7fd433/test --seed=0xeebe2201
+</samp></pre></figure>
+
+      <h3 id="Reaching-Unreachable-Code"><a href="https://ziglang.org/documentation/0.15.2/#toc-Reaching-Unreachable-Code">到达不可达代码</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Reaching-Unreachable-Code">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_reaching_unreachable.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    assert(<span class="tok-null">false</span>);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">assert</span>(ok: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (!ok) <span class="tok-kw">unreachable</span>; <span class="tok-comment">// 断言失败</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_reaching_unreachable.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_reaching_unreachable.zig:5:14: </span><span class="sgr-31m">error: </span><span class="sgr-1m">到达了不可达代码
+</span>    if (!ok) unreachable; // 断言失败
+             <span class="sgr-32m">^~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_reaching_unreachable.zig:2:11: </span><span class="sgr-36m">note: </span><span class="sgr-1m">在编译时调用
+</span>    assert(false);
+    <span class="sgr-32m">~~~~~~^~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_reaching_unreachable.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    std.debug.assert(<span class="tok-null">false</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_reaching_unreachable.zig</kbd>
+$ <kbd>./runtime_reaching_unreachable</kbd>
+thread 2897013 panic: 到达了不可达代码
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/debug.zig:559:14</span>: <span class="sgr-2m">0x1044179 in assert (std.zig)</span>
+    if (!ok) unreachable; // 断言失败
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_reaching_unreachable.zig:4:21</span>: <span class="sgr-2m">0x113e86e in main (runtime_reaching_unreachable.zig)</span>
+    std.debug.assert(false);
+                    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Index-out-of-Bounds"><a href="https://ziglang.org/documentation/0.15.2/#toc-Index-out-of-Bounds">索引越界</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Index-out-of-Bounds">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_index_out_of_bounds.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> array: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> garbage = array[<span class="tok-number">5</span>];
+    _ = garbage;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_index_out_of_bounds.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_index_out_of_bounds.zig:3:27: </span><span class="sgr-31m">error: </span><span class="sgr-1m">索引 5 超出长度为 5 的数组范围
+</span>    const garbage = array[5];
+                          <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_index_out_of_bounds.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> x = foo(<span class="tok-str">"hello"</span>);
+    _ = x;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">u8</span> {
+    <span class="tok-kw">return</span> x[<span class="tok-number">5</span>];
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_index_out_of_bounds.zig</kbd>
+$ <kbd>./runtime_index_out_of_bounds</kbd>
+thread 2893998 panic: 索引越界: 索引 5, 长度 5
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_index_out_of_bounds.zig:7:13</span>: <span class="sgr-2m">0x113fae6 in foo (runtime_index_out_of_bounds.zig)</span>
+    return x[5];
+            <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_index_out_of_bounds.zig:2:18</span>: <span class="sgr-2m">0x113e87a in main (runtime_index_out_of_bounds.zig)</span>
+    const x = foo("hello");
+                 <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Cast-Negative-Number-to-Unsigned-Integer"><a href="https://ziglang.org/documentation/0.15.2/#toc-Cast-Negative-Number-to-Unsigned-Integer">将负数转换为无符号整数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Cast-Negative-Number-to-Unsigned-Integer">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_cast.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> value: <span class="tok-type">i32</span> = -<span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> unsigned: <span class="tok-type">u32</span> = <span class="tok-builtin">@intCast</span>(value);
+    _ = unsigned;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_cast.zig:3:36: </span><span class="sgr-31m">error: </span><span class="sgr-1m">类型 'u32' 无法表示整数值 '-1'
+</span>    const unsigned: u32 = @intCast(value);
+                                   <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_cast.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> value: <span class="tok-type">i32</span> = -<span class="tok-number">1</span>; <span class="tok-comment">// 运行时已知</span>
+    _ = &amp;value;
+    <span class="tok-kw">const</span> unsigned: <span class="tok-type">u32</span> = <span class="tok-builtin">@intCast</span>(value);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{unsigned});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_cast.zig</kbd>
+$ <kbd>./runtime_invalid_cast</kbd>
+thread 2899906 panic: 整数无法适配目标类型
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_cast.zig:6:27</span>: <span class="sgr-2m">0x113e87f in main (runtime_invalid_cast.zig)</span>
+    const unsigned: u32 = @intCast(value);
+                          <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      <p>
+      要获取无符号整数的最大值,请使用 <code>std.math.maxInt</code>。
+      </p>
+      
+      <h3 id="Cast-Truncates-Data"><a href="https://ziglang.org/documentation/0.15.2/#toc-Cast-Truncates-Data">转换截断数据</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Cast-Truncates-Data">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_cast_truncate.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> spartan_count: <span class="tok-type">u16</span> = <span class="tok-number">300</span>;
+    <span class="tok-kw">const</span> byte: <span class="tok-type">u8</span> = <span class="tok-builtin">@intCast</span>(spartan_count);
+    _ = byte;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_cast_truncate.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_cast_truncate.zig:3:31: </span><span class="sgr-31m">error: </span><span class="sgr-1m">类型 'u8' 无法表示整数值 '300'
+</span>    const byte: u8 = @intCast(spartan_count);
+                              <span class="sgr-32m">^~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_cast_truncate.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> spartan_count: <span class="tok-type">u16</span> = <span class="tok-number">300</span>; <span class="tok-comment">// 运行时已知</span>
+    _ = &amp;spartan_count;
+    <span class="tok-kw">const</span> byte: <span class="tok-type">u8</span> = <span class="tok-builtin">@intCast</span>(spartan_count);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{byte});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_cast_truncate.zig</kbd>
+$ <kbd>./runtime_invalid_cast_truncate</kbd>
+thread 2899317 panic: 整数无法适配目标类型
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_cast_truncate.zig:6:22</span>: <span class="sgr-2m">0x113e880 in main (runtime_invalid_cast_truncate.zig)</span>
+    const byte: u8 = @intCast(spartan_count);
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      <p>
+      要截断位,请使用 <a href="https://ziglang.org/documentation/0.15.2/#truncate">@truncate</a>。
+      </p>
+      
+      <h3 id="Integer-Overflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-Integer-Overflow">整数溢出</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Integer-Overflow">§</a></h3>
+
+      <h4 id="Default-Operations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Default-Operations">默认操作</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Default-Operations">§</a></h4>
+
+      <p>以下操作可能导致整数溢出:</p>
+      <ul>
+          <li><code>+</code> (加法)</li>
+          <li><code>-</code> (减法)</li>
+          <li><code>-</code> (取负)</li>
+          <li><code>*</code> (乘法)</li>
+          <li><code>/</code> (除法)</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a> (除法)</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a> (除法)</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a> (除法)</li>
+      </ul>
+      <p>编译时加法溢出示例:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">var</span> byte: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+    byte += <span class="tok-number">1</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_overflow.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_overflow.zig:3:10: </span><span class="sgr-31m">error: </span><span class="sgr-1m">类型 'u8' 的整数溢出,值为 '256'
+</span>    byte += 1;
+    <span class="sgr-32m">~~~~~^~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> byte: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+    byte += <span class="tok-number">1</span>;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{byte});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_overflow.zig</kbd>
+$ <kbd>./runtime_overflow</kbd>
+thread 2892886 panic: 整数溢出
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_overflow.zig:5:10</span>: <span class="sgr-2m">0x113e895 in main (runtime_overflow.zig)</span>
+    byte += 1;
+         <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h4 id="Standard-Library-Math-Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Standard-Library-Math-Functions">标准库数学函数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Standard-Library-Math-Functions">§</a></h4>
+
+      <p>标准库提供的这些函数返回可能的错误。</p>
+      <ul>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.add</code></li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.sub</code></li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.mul</code></li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.divTrunc</code></li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.divFloor</code></li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.divExact</code></li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.shl</code></li>
+      </ul>
+      <p>捕获加法溢出的示例:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">math_add.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> math = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math;
+<span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> byte: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+
+    byte = <span class="tok-kw">if</span> (math.add(<span class="tok-type">u8</span>, byte, <span class="tok-number">1</span>)) |result| result <span class="tok-kw">else</span> |err| {
+        print(<span class="tok-str">"无法加一: {s}\n"</span>, .{<span class="tok-builtin">@errorName</span>(err)});
+        <span class="tok-kw">return</span> err;
+    };
+
+    print(<span class="tok-str">"结果: {}\n"</span>, .{byte});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe math_add.zig</kbd>
+$ <kbd>./math_add</kbd>
+无法加一: Overflow
+error: Overflow
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/math.zig:570:21</span>: <span class="sgr-2m">0x113ebae in add__anon_22552 (std.zig)</span>
+    if (ov[1] != 0) return error.Overflow;
+                    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/math_add.zig:8:9</span>: <span class="sgr-2m">0x113d422 in main (math_add.zig)</span>
+        return err;
+        <span class="sgr-32m">^</span>
+</samp></pre></figure>
+
+      
+      <h4 id="Builtin-Overflow-Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Builtin-Overflow-Functions">内建溢出函数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Builtin-Overflow-Functions">§</a></h4>
+
+      <p>
+      这些内建函数返回一个元组,包含是否发生溢出(作为 <code><span class="tok-type">u1</span></code>)以及操作可能溢出的位:
+      </p>
+      <ul>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a></li>
+      </ul>
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a> 示例:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">addWithOverflow_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> byte: <span class="tok-type">u8</span> = <span class="tok-number">255</span>;
+
+    <span class="tok-kw">const</span> ov = <span class="tok-builtin">@addWithOverflow</span>(byte, <span class="tok-number">10</span>);
+    <span class="tok-kw">if</span> (ov[<span class="tok-number">1</span>] != <span class="tok-number">0</span>) {
+        print(<span class="tok-str">"溢出结果: {}\n"</span>, .{ov[<span class="tok-number">0</span>]});
+    } <span class="tok-kw">else</span> {
+        print(<span class="tok-str">"结果: {}\n"</span>, .{ov[<span class="tok-number">0</span>]});
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe addWithOverflow_builtin.zig</kbd>
+$ <kbd>./addWithOverflow_builtin</kbd>
+溢出结果: 9
+</samp></pre></figure>
+
+      
+      <h4 id="Wrapping-Operations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Wrapping-Operations">环绕操作</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Wrapping-Operations">§</a></h4>
+
+      <p>
+      这些操作具有保证的环绕语义。
+      </p>
+      <ul>
+          <li><code>+%</code> (环绕加法)</li>
+          <li><code>-%</code> (环绕减法)</li>
+          <li><code>-%</code> (环绕取负)</li>
+          <li><code>*%</code> (环绕乘法)</li>
+      </ul>
+      <figure><figcaption class="zig-cap"><cite class="file">test_wraparound_semantics.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> minInt = std.math.minInt;
+<span class="tok-kw">const</span> maxInt = std.math.maxInt;
+
+<span class="tok-kw">test</span> <span class="tok-str">"环绕加法和减法"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">i32</span> = maxInt(<span class="tok-type">i32</span>);
+    <span class="tok-kw">const</span> min_val = x +% <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(min_val == minInt(<span class="tok-type">i32</span>));
+    <span class="tok-kw">const</span> max_val = min_val -% <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(max_val == maxInt(<span class="tok-type">i32</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_wraparound_semantics.zig</kbd>
+1/1 test_wraparound_semantics.test.环绕加法和减法...OK
+所有 1 个测试通过。
+</samp></pre></figure>
+
+      
+      
+      <h3 id="Exact-Left-Shift-Overflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-Exact-Left-Shift-Overflow">精确左移溢出</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Exact-Left-Shift-Overflow">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_shlExact_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> x = <span class="tok-builtin">@shlExact</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">0b01010101</span>), <span class="tok-number">2</span>);
+    _ = x;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_shlExact_overflow.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_shlExact_overflow.zig:2:15: </span><span class="sgr-31m">error: </span><span class="sgr-1m">类型 'u8' 的整数溢出,值为 '340'
+</span>    const x = @shlExact(@as(u8, 0b01010101), 2);
+              <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_shlExact_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">u8</span> = <span class="tok-number">0b01010101</span>; <span class="tok-comment">// 运行时已知</span>
+    _ = &amp;x;
+    <span class="tok-kw">const</span> y = <span class="tok-builtin">@shlExact</span>(x, <span class="tok-number">2</span>);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{y});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_shlExact_overflow.zig</kbd>
+$ <kbd>./runtime_shlExact_overflow</kbd>
+thread 2896313 panic: 左移溢出位
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_shlExact_overflow.zig:6:5</span>: <span class="sgr-2m">0x113e8a1 in main (runtime_shlExact_overflow.zig)</span>
+    const y = @shlExact(x, 2);
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Exact-Right-Shift-Overflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-Exact-Right-Shift-Overflow">精确右移溢出</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Exact-Right-Shift-Overflow">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_shrExact_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> x = <span class="tok-builtin">@shrExact</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">0b10101010</span>), <span class="tok-number">2</span>);
+    _ = x;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_shrExact_overflow.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_shrExact_overflow.zig:2:15: </span><span class="sgr-31m">error: </span><span class="sgr-1m">精确移位移出了 1 位
+</span>    const x = @shrExact(@as(u8, 0b10101010), 2);
+              <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_shrExact_overflow.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">u8</span> = <span class="tok-number">0b10101010</span>; <span class="tok-comment">// 运行时已知</span>
+    _ = &amp;x;
+    <span class="tok-kw">const</span> y = <span class="tok-builtin">@shrExact</span>(x, <span class="tok-number">2</span>);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{y});
+
+    <span class="tok-kw">if</span> (builtin.cpu.arch.isRISCV() <span class="tok-kw">and</span> builtin.zig_backend == .stage2_llvm) <span class="tok-builtin">@panic</span>(<span class="tok-str">"https://github.com/ziglang/zig/issues/24304"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_shrExact_overflow.zig</kbd>
+$ <kbd>./runtime_shrExact_overflow</kbd>
+thread 2897712 panic: 右移溢出位
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_shrExact_overflow.zig:7:5</span>: <span class="sgr-2m">0x113e88a in main (runtime_shrExact_overflow.zig)</span>
+    const y = @shrExact(x, 2);
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Division-by-Zero"><a href="https://ziglang.org/documentation/0.15.2/#toc-Division-by-Zero">除以零</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_division_by_zero.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">const</span> c = a / b;
+    _ = c;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_division_by_zero.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_division_by_zero.zig:4:19: </span><span class="sgr-31m">error: </span><span class="sgr-1m">此处除以零导致非法行为
+</span>    const c = a / b;
+                  <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_division_by_zero.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">u32</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">var</span> b: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    _ = .{ &amp;a, &amp;b };
+    <span class="tok-kw">const</span> c = a / b;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{c});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_division_by_zero.zig</kbd>
+$ <kbd>./runtime_division_by_zero</kbd>
+thread 2902461 panic: 除以零
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_division_by_zero.zig:7:17</span>: <span class="sgr-2m">0x113e890 in main (runtime_division_by_zero.zig)</span>
+    const c = a / b;
+                <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Remainder-Division-by-Zero"><a href="https://ziglang.org/documentation/0.15.2/#toc-Remainder-Division-by-Zero">取余除以零</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Remainder-Division-by-Zero">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_remainder_division_by_zero.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">i32</span> = <span class="tok-number">10</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">i32</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">const</span> c = a % b;
+    _ = c;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_remainder_division_by_zero.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_remainder_division_by_zero.zig:4:19: </span><span class="sgr-31m">error: </span><span class="sgr-1m">此处除以零导致非法行为
+</span>    const c = a % b;
+                  <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_remainder_division_by_zero.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">u32</span> = <span class="tok-number">10</span>;
+    <span class="tok-kw">var</span> b: <span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    _ = .{ &amp;a, &amp;b };
+    <span class="tok-kw">const</span> c = a % b;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{c});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_remainder_division_by_zero.zig</kbd>
+$ <kbd>./runtime_remainder_division_by_zero</kbd>
+thread 2899727 panic: 除以零
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_remainder_division_by_zero.zig:7:17</span>: <span class="sgr-2m">0x113e890 in main (runtime_remainder_division_by_zero.zig)</span>
+    const c = a % b;
+                <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Exact-Division-Remainder"><a href="https://ziglang.org/documentation/0.15.2/#toc-Exact-Division-Remainder">精确除法余数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Exact-Division-Remainder">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_divExact_remainder.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u32</span> = <span class="tok-number">10</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">const</span> c = <span class="tok-builtin">@divExact</span>(a, b);
+    _ = c;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_divExact_remainder.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_divExact_remainder.zig:4:15: </span><span class="sgr-31m">error: </span><span class="sgr-1m">精确除法产生了余数
+</span>    const c = @divExact(a, b);
+              <span class="sgr-32m">^~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_divExact_remainder.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">u32</span> = <span class="tok-number">10</span>;
+    <span class="tok-kw">var</span> b: <span class="tok-type">u32</span> = <span class="tok-number">3</span>;
+    _ = .{ &amp;a, &amp;b };
+    <span class="tok-kw">const</span> c = <span class="tok-builtin">@divExact</span>(a, b);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{c});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_divExact_remainder.zig</kbd>
+$ <kbd>./runtime_divExact_remainder</kbd>
+thread 2901529 panic: 精确除法产生了余数
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_divExact_remainder.zig:7:15</span>: <span class="sgr-2m">0x113e8c7 in main (runtime_divExact_remainder.zig)</span>
+    const c = @divExact(a, b);
+              <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Attempt-to-Unwrap-Null"><a href="https://ziglang.org/documentation/0.15.2/#toc-Attempt-to-Unwrap-Null">尝试解包空值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Attempt-to-Unwrap-Null">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_unwrap_null.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> optional_number: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+    <span class="tok-kw">const</span> number = optional_number.?;
+    _ = number;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_unwrap_null.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unwrap_null.zig:3:35: </span><span class="sgr-31m">error: </span><span class="sgr-1m">无法解包空值
+</span>    const number = optional_number.?;
+                   <span class="sgr-32m">~~~~~~~~~~~~~~~^~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_unwrap_null.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> optional_number: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+    _ = &amp;optional_number;
+    <span class="tok-kw">const</span> number = optional_number.?;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{number});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_unwrap_null.zig</kbd>
+$ <kbd>./runtime_unwrap_null</kbd>
+thread 2892887 panic: 尝试使用空值
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_unwrap_null.zig:6:35</span>: <span class="sgr-2m">0x113e8b4 in main (runtime_unwrap_null.zig)</span>
+    const number = optional_number.?;
+                                  <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      <p>避免这种崩溃的一种方法是测试空值而不是假设非空,使用 <code><span class="tok-kw">if</span></code> 表达式:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_null_with_if.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> optional_number: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">if</span> (optional_number) |number| {
+        print(<span class="tok-str">"得到数字: {}\n"</span>, .{number});
+    } <span class="tok-kw">else</span> {
+        print(<span class="tok-str">"是空值\n"</span>, .{});
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe testing_null_with_if.zig</kbd>
+$ <kbd>./testing_null_with_if</kbd>
+是空值
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选类型</a></li>
+</ul>
+
+      
+      <h3 id="Attempt-to-Unwrap-Error"><a href="https://ziglang.org/documentation/0.15.2/#toc-Attempt-to-Unwrap-Error">尝试解包错误</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Attempt-to-Unwrap-Error">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_unwrap_error.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> number = getNumberOrFail() <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;
+    _ = number;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">getNumberOrFail</span>() !<span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.UnableToReturnNumber;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_unwrap_error.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unwrap_error.zig:2:44: </span><span class="sgr-31m">error: </span><span class="sgr-1m">捕获到意外错误 'UnableToReturnNumber'
+</span>    const number = getNumberOrFail() catch unreachable;
+                                           <span class="sgr-32m">^~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_unwrap_error.zig:7:18: </span><span class="sgr-36m">note: </span><span class="sgr-1m">错误在此返回
+</span>    return error.UnableToReturnNumber;
+                 <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_unwrap_error.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> number = getNumberOrFail() <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{number});
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">getNumberOrFail</span>() !<span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.UnableToReturnNumber;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_unwrap_error.zig</kbd>
+$ <kbd>./runtime_unwrap_error</kbd>
+thread 2895126 panic: 尝试解包错误: UnableToReturnNumber
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_unwrap_error.zig:9:5</span>: <span class="sgr-2m">0x113e86c in getNumberOrFail (runtime_unwrap_error.zig)</span>
+    return error.UnableToReturnNumber;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_unwrap_error.zig:4:44</span>: <span class="sgr-2m">0x113e8d3 in main (runtime_unwrap_error.zig)</span>
+    const number = getNumberOrFail() catch unreachable;
+                                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      <p>避免这种崩溃的一种方法是测试错误而不是假设成功结果,使用 <code><span class="tok-kw">if</span></code> 表达式:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">testing_error_with_if.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> result = getNumberOrFail();
+
+    <span class="tok-kw">if</span> (result) |number| {
+        print(<span class="tok-str">"得到数字: {}\n"</span>, .{number});
+    } <span class="tok-kw">else</span> |err| {
+        print(<span class="tok-str">"得到错误: {s}\n"</span>, .{<span class="tok-builtin">@errorName</span>(err)});
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">getNumberOrFail</span>() !<span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.UnableToReturnNumber;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe testing_error_with_if.zig</kbd>
+$ <kbd>./testing_error_with_if</kbd>
+得到错误: UnableToReturnNumber
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Errors">错误</a></li>
+</ul>
+
+      
+      <h3 id="Invalid-Error-Code"><a href="https://ziglang.org/documentation/0.15.2/#toc-Invalid-Error-Code">无效的错误代码</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Invalid-Error-Code">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_error_code.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> err = <span class="tok-kw">error</span>.AnError;
+    <span class="tok-kw">const</span> number = <span class="tok-builtin">@intFromError</span>(err) + <span class="tok-number">10</span>;
+    <span class="tok-kw">const</span> invalid_err = <span class="tok-builtin">@errorFromInt</span>(number);
+    _ = invalid_err;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_error_code.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_error_code.zig:4:39: </span><span class="sgr-31m">error: </span><span class="sgr-1m">整数值 '11' 不代表任何错误
+</span>    const invalid_err = @errorFromInt(number);
+                                      <span class="sgr-32m">^~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_error_code.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> err = <span class="tok-kw">error</span>.AnError;
+    <span class="tok-kw">var</span> number = <span class="tok-builtin">@intFromError</span>(err) + <span class="tok-number">500</span>;
+    _ = &amp;number;
+    <span class="tok-kw">const</span> invalid_err = <span class="tok-builtin">@errorFromInt</span>(number);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{invalid_err});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_error_code.zig</kbd>
+$ <kbd>./runtime_invalid_error_code</kbd>
+thread 2900570 panic: 无效的错误代码
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_error_code.zig:7:5</span>: <span class="sgr-2m">0x113e8a7 in main (runtime_invalid_error_code.zig)</span>
+    const invalid_err = @errorFromInt(number);
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Invalid-Enum-Cast"><a href="https://ziglang.org/documentation/0.15.2/#toc-Invalid-Enum-Cast">无效的枚举转换</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Invalid-Enum-Cast">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_enum_cast.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">enum</span> {
+    a,
+    b,
+    c,
+};
+<span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u2</span> = <span class="tok-number">3</span>;
+    <span class="tok-kw">const</span> b: Foo = <span class="tok-builtin">@enumFromInt</span>(a);
+    _ = b;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_enum_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_enum_cast.zig:8:20: </span><span class="sgr-31m">error: </span><span class="sgr-1m">枚举 'test_comptime_invalid_enum_cast.Foo' 没有值为 '3' 的标签
+</span>    const b: Foo = @enumFromInt(a);
+                   <span class="sgr-32m">^~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_enum_cast.zig:1:13: </span><span class="sgr-36m">note: </span><span class="sgr-1m">枚举在此声明
+</span>const Foo = enum {
+            <span class="sgr-32m">^~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_enum_cast.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">enum</span> {
+    a,
+    b,
+    c,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">u2</span> = <span class="tok-number">3</span>;
+    _ = &amp;a;
+    <span class="tok-kw">const</span> b: Foo = <span class="tok-builtin">@enumFromInt</span>(a);
+    std.debug.print(<span class="tok-str">"value: {s}\n"</span>, .{<span class="tok-builtin">@tagName</span>(b)});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_enum_cast.zig</kbd>
+$ <kbd>./runtime_invalid_enum_cast</kbd>
+thread 2902395 panic: 无效的枚举值
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_enum_cast.zig:12:20</span>: <span class="sgr-2m">0x113e8f0 in main (runtime_invalid_enum_cast.zig)</span>
+    const b: Foo = @enumFromInt(a);
+                   <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+
+      <h3 id="Invalid-Error-Set-Cast"><a href="https://ziglang.org/documentation/0.15.2/#toc-Invalid-Error-Set-Cast">无效的错误集转换</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Invalid-Error-Set-Cast">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_invalid_error_set_cast.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Set1 = <span class="tok-kw">error</span>{
+    A,
+    B,
+};
+<span class="tok-kw">const</span> Set2 = <span class="tok-kw">error</span>{
+    A,
+    C,
+};
+<span class="tok-kw">comptime</span> {
+    _ = <span class="tok-builtin">@as</span>(Set2, <span class="tok-builtin">@errorCast</span>(Set1.B));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_invalid_error_set_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_invalid_error_set_cast.zig:10:19: </span><span class="sgr-31m">error: </span><span class="sgr-1m">'error.B' 不是错误集 'error{A,C}' 的成员
+</span>    _ = @as(Set2, @errorCast(Set1.B));
+                  <span class="sgr-32m">^~~~~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_invalid_error_set_cast.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Set1 = <span class="tok-kw">error</span>{
+    A,
+    B,
+};
+<span class="tok-kw">const</span> Set2 = <span class="tok-kw">error</span>{
+    A,
+    C,
+};
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    foo(Set1.B);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(set1: Set1) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> x: Set2 = <span class="tok-builtin">@errorCast</span>(set1);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{x});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_invalid_error_set_cast.zig</kbd>
+$ <kbd>./runtime_invalid_error_set_cast</kbd>
+thread 2900078 panic: 无效的错误代码
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_error_set_cast.zig:15:21</span>: <span class="sgr-2m">0x113fb3c in foo (runtime_invalid_error_set_cast.zig)</span>
+    const x: Set2 = @errorCast(set1);
+                    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_invalid_error_set_cast.zig:12:8</span>: <span class="sgr-2m">0x113e877 in main (runtime_invalid_error_set_cast.zig)</span>
+    foo(Set1.B);
+       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+
+      <h3 id="Incorrect-Pointer-Alignment"><a href="https://ziglang.org/documentation/0.15.2/#toc-Incorrect-Pointer-Alignment">不正确的指针对齐</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Incorrect-Pointer-Alignment">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_incorrect_pointer_alignment.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> ptr: *<span class="tok-kw">align</span>(<span class="tok-number">1</span>) <span class="tok-type">i32</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x1</span>);
+    <span class="tok-kw">const</span> aligned: *<span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-type">i32</span> = <span class="tok-builtin">@alignCast</span>(ptr);
+    _ = aligned;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_incorrect_pointer_alignment.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_incorrect_pointer_alignment.zig:3:47: </span><span class="sgr-31m">error: </span><span class="sgr-1m">指针地址 0x1 未对齐到 4 字节
+</span>    const aligned: *align(4) i32 = @alignCast(ptr);
+                                              <span class="sgr-32m">^~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_incorrect_pointer_alignment.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> array <span class="tok-kw">align</span>(<span class="tok-number">4</span>) = [_]<span class="tok-type">u32</span>{ <span class="tok-number">0x11111111</span>, <span class="tok-number">0x11111111</span> };
+    <span class="tok-kw">const</span> bytes = mem.sliceAsBytes(array[<span class="tok-number">0</span>..]);
+    <span class="tok-kw">if</span> (foo(bytes) != <span class="tok-number">0x11111111</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.Wrong;
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(bytes: []<span class="tok-type">u8</span>) <span class="tok-type">u32</span> {
+    <span class="tok-kw">const</span> slice4 = bytes[<span class="tok-number">1</span>..<span class="tok-number">5</span>];
+    <span class="tok-kw">const</span> int_slice = mem.bytesAsSlice(<span class="tok-type">u32</span>, <span class="tok-builtin">@as</span>([]<span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-type">u8</span>, <span class="tok-builtin">@alignCast</span>(slice4)));
+    <span class="tok-kw">return</span> int_slice[<span class="tok-number">0</span>];
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_incorrect_pointer_alignment.zig</kbd>
+$ <kbd>./runtime_incorrect_pointer_alignment</kbd>
+thread 2897041 panic: 不正确的对齐
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_incorrect_pointer_alignment.zig:9:64</span>: <span class="sgr-2m">0x113ec08 in foo (runtime_incorrect_pointer_alignment.zig)</span>
+    const int_slice = mem.bytesAsSlice(u32, @as([]align(4) u8, @alignCast(slice4)));
+                                                               <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_incorrect_pointer_alignment.zig:5:12</span>: <span class="sgr-2m">0x113d3f2 in main (runtime_incorrect_pointer_alignment.zig)</span>
+    if (foo(bytes) != 0x11111111) return error.Wrong;
+           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:627:37</span>: <span class="sgr-2m">0x113dbc9 in posixCallMainAndExit (std.zig)</span>
+            const result = root.main() catch |err| {
+                                    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      
+      <h3 id="Wrong-Union-Field-Access"><a href="https://ziglang.org/documentation/0.15.2/#toc-Wrong-Union-Field-Access">错误的联合体字段访问</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Wrong-Union-Field-Access">§</a></h3>
+
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_wrong_union_field_access.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    f.float = <span class="tok-number">12.34</span>;
+}
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_wrong_union_field_access.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_wrong_union_field_access.zig:3:6: </span><span class="sgr-31m">error: </span><span class="sgr-1m">字段 'int' 处于活动状态时访问联合体字段 'float'
+</span>    f.float = 12.34;
+    <span class="sgr-32m">~^~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_wrong_union_field_access.zig:6:13: </span><span class="sgr-36m">note: </span><span class="sgr-1m">联合体在此声明
+</span>const Foo = union {
+            <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_wrong_union_field_access.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    bar(&amp;f);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(f: *Foo) <span class="tok-type">void</span> {
+    f.float = <span class="tok-number">12.34</span>;
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{f.float});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_wrong_union_field_access.zig</kbd>
+$ <kbd>./runtime_wrong_union_field_access</kbd>
+thread 2901950 panic: 字段 'int' 处于活动状态时访问联合体字段 'float'
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_wrong_union_field_access.zig:14:6</span>: <span class="sgr-2m">0x113fb1e in bar (runtime_wrong_union_field_access.zig)</span>
+    f.float = 12.34;
+     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_wrong_union_field_access.zig:10:8</span>: <span class="sgr-2m">0x113e89f in main (runtime_wrong_union_field_access.zig)</span>
+    bar(&amp;f);
+       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>
+
+      <p>
+      此安全性不适用于 <code><span class="tok-kw">extern</span></code> 或 <code><span class="tok-kw">packed</span></code> 联合体。
+      </p>
+      <p>
+      要更改联合体的活动字段,请像这样赋值整个联合体:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">change_active_union_field.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    bar(&amp;f);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(f: *Foo) <span class="tok-type">void</span> {
+    f.* = Foo{ .float = <span class="tok-number">12.34</span> };
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{f.float});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe change_active_union_field.zig</kbd>
+$ <kbd>./change_active_union_field</kbd>
+value: 12.34
+</samp></pre></figure>
+
+      <p>
+      当字段的有意义的值未知时,要更改联合体的活动字段,请使用 <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a>,像这样:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">undefined_active_union_field.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">union</span> {
+    float: <span class="tok-type">f32</span>,
+    int: <span class="tok-type">u32</span>,
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> f = Foo{ .int = <span class="tok-number">42</span> };
+    f = Foo{ .float = <span class="tok-null">undefined</span> };
+    bar(&amp;f);
+    std.debug.print(<span class="tok-str">"value: {}\n"</span>, .{f.float});
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(f: *Foo) <span class="tok-type">void</span> {
+    f.float = <span class="tok-number">12.34</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe undefined_active_union_field.zig</kbd>
+$ <kbd>./undefined_active_union_field</kbd>
+value: 12.34
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#union">union</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern-union">extern union</a></li>
+</ul>
+
+      
+
+      <h3 id="Out-of-Bounds-Float-to-Integer-Cast"><a href="https://ziglang.org/documentation/0.15.2/#toc-Out-of-Bounds-Float-to-Integer-Cast">浮点数转整数越界</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Out-of-Bounds-Float-to-Integer-Cast">§</a></h3>
+
+      <p>
+      当浮点数转换为整数时,如果浮点数的值超出整数类型的范围,就会发生这种情况。
+      </p>
+      <p>在编译时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_out_of_bounds_float_to_integer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-kw">const</span> float: <span class="tok-type">f32</span> = <span class="tok-number">4294967296</span>;
+    <span class="tok-kw">const</span> int: <span class="tok-type">i32</span> = <span class="tok-builtin">@intFromFloat</span>(float);
+    _ = int;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_out_of_bounds_float_to_integer_cast.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_comptime_out_of_bounds_float_to_integer_cast.zig:3:36: </span><span class="sgr-31m">error: </span><span class="sgr-1m">浮点值 '4294967296' 无法存储在整数类型 'i32' 中
+</span>    const int: i32 = @intFromFloat(float);
+                                   <span class="sgr-32m">^~~~~
+</span>
+</samp></pre></figure>
+
+      <p>在运行时:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">runtime_out_of_bounds_float_to_integer_cast.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> float: <span class="tok-type">f32</span> = <span class="tok-number">4294967296</span>; <span class="tok-comment">// 运行时已知</span>
+    _ = &amp;float;
+    <span class="tok-kw">const</span> int: <span class="tok-type">i32</span> = <span class="tok-builtin">@intFromFloat</span>(float);
+    _ = int;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe runtime_out_of_bounds_float_to_integer_cast.zig</kbd>
+$ <kbd>./runtime_out_of_bounds_float_to_integer_cast</kbd>
+thread 2898584 panic: 浮点值的整数部分超出范围
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/runtime_out_of_bounds_float_to_integer_cast.zig:4:22</span>: <span class="sgr-2m">0x113e8d2 in main (runtime_out_of_bounds_float_to_integer_cast.zig)</span>
+    const int: i32 = @intFromFloat(float);
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113dabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(进程被信号终止)
+</samp></pre></figure>

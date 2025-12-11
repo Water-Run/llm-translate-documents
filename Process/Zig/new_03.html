@@ -1,0 +1,1218 @@
+<p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#setFloatMode">@setFloatMode</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">除以零</a></li>
+</ul>
+
+      
+      
+      <h2 id="Operators"><a href="https://ziglang.org/documentation/0.15.2/#toc-Operators">运算符</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Operators">§</a></h2>
+
+      <p>
+      Zig 中没有运算符重载。当你在 Zig 中看到一个运算符时,你知道它正在执行此表中的某些操作,而不会是其他操作。
+      </p>
+      <h3 id="Table-of-Operators"><a href="https://ziglang.org/documentation/0.15.2/#toc-Table-of-Operators">运算符表</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Table-of-Operators">§</a></h3>
+
+      <div class="table-wrapper">
+      <table>
+        <thead>
+        <tr>
+          <th scope="col">名称</th>
+          <th scope="col">语法</th>
+          <th scope="col">类型</th>
+          <th scope="col">备注</th>
+          <th scope="col">示例</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>加法</td>
+          <td><pre><code>a + b
+a += b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">溢出</a>。</li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">2</span> + <span class="tok-number">5</span> == <span class="tok-number">7</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>回绕加法</td>
+          <td><pre><code>a +% b
+a +%= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>二进制补码回绕行为。</li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#addWithOverflow">@addWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">0xffffffff</span>) +% <span class="tok-number">1</span> == <span class="tok-number">0</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>饱和加法</td>
+          <td><pre><code>a +| b
+a +|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">255</span>) +| <span class="tok-number">1</span> == <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">255</span>)</code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>减法</td>
+          <td><pre><code>a - b
+a -= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">溢出</a>。</li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">2</span> - <span class="tok-number">5</span> == -<span class="tok-number">3</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>回绕减法</td>
+          <td><pre><code>a -% b
+a -%= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>二进制补码回绕行为。</li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#subWithOverflow">@subWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">0</span>) -% <span class="tok-number">1</span> == <span class="tok-number">255</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>饱和减法</td>
+          <td><pre><code>a -| b
+a -|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">0</span>) -| <span class="tok-number">1</span> == <span class="tok-number">0</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>取负</td>
+          <td><pre><code>-a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">溢出</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code>-<span class="tok-number">1</span> == <span class="tok-number">0</span> - <span class="tok-number">1</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>回绕取负</td>
+          <td><pre><code>-%a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>二进制补码回绕行为。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code>-%<span class="tok-builtin">@as</span>(<span class="tok-type">i8</span>, -<span class="tok-number">128</span>) == -<span class="tok-number">128</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>乘法</td>
+          <td><pre><code>a * b
+a *= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">溢出</a>。</li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">2</span> * <span class="tok-number">5</span> == <span class="tok-number">10</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>回绕乘法</td>
+          <td><pre><code>a *% b
+a *%= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>二进制补码回绕行为。</li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">@mulWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">200</span>) *% <span class="tok-number">2</span> == <span class="tok-number">144</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>饱和乘法</td>
+          <td><pre><code>a *| b
+a *|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">200</span>) *| <span class="tok-number">2</span> == <span class="tok-number">255</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>除法</td>
+          <td><pre><code>a / b
+a /= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Default-Operations">溢出</a>。</li>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">除以零</a>。</li>
+              <li>在<a href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">FloatMode.Optimized 模式</a>下,对于浮点数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">除以零</a>。</li>
+              <li>有符号整数操作数必须在编译时已知且为正。在其他情况下,请改用
+                <a href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a>、
+                <a href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a> 或
+                <a href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a>。
+              </li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">10</span> / <span class="tok-number">5</span> == <span class="tok-number">2</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>取余除法</td>
+          <td><pre><code>a % b
+a %= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对于整数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">除以零</a>。</li>
+              <li>在<a href="https://ziglang.org/documentation/0.15.2/#Floating-Point-Operations">FloatMode.Optimized 模式</a>下,对于浮点数可能导致<a href="https://ziglang.org/documentation/0.15.2/#Division-by-Zero">除以零</a>。</li>
+              <li>有符号或浮点操作数必须在编译时已知且为正。在其他情况下,请改用
+                <a href="https://ziglang.org/documentation/0.15.2/#rem">@rem</a> 或
+                <a href="https://ziglang.org/documentation/0.15.2/#mod">@mod</a>。
+              </li>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">10</span> % <span class="tok-number">3</span> == <span class="tok-number">1</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>位左移</td>
+          <td><pre><code>a &lt;&lt; b
+a &lt;&lt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>将所有位向左移动,在最低有效位插入新的零。</li>
+              <li><code>b</code> 必须是<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译时已知</a>的,或者具有与 <code>a</code> 的位数的 log2 相同的类型。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b1</span> &lt;&lt; <span class="tok-number">8</span> == <span class="tok-number">0b100000000</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>饱和位左移</td>
+          <td><pre><code>a &lt;&lt;| b
+a &lt;&lt;|= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#shlExact">@shlExact</a>。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#shlWithOverflow">@shlWithOverflow</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">1</span>) &lt;&lt;| <span class="tok-number">8</span> == <span class="tok-number">255</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>位右移</td>
+          <td><pre><code>a &gt;&gt; b
+a &gt;&gt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>将所有位向右移动,在最高有效位插入零。</li>
+              <li><code>b</code> 必须是<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译时已知</a>的,或者具有与 <code>a</code> 的位数的 log2 相同的类型。</li>
+              <li>另请参阅 <a href="https://ziglang.org/documentation/0.15.2/#shrExact">@shrExact</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b1010</span> &gt;&gt; <span class="tok-number">1</span> == <span class="tok-number">0b101</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>按位与</td>
+          <td><pre><code>a &amp; b
+a &amp;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b011</span> &amp; <span class="tok-number">0b101</span> == <span class="tok-number">0b001</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>按位或</td>
+          <td><pre><code>a | b
+a |= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b010</span> | <span class="tok-number">0b100</span> == <span class="tok-number">0b110</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>按位异或</td>
+          <td><pre><code>a ^ b
+a ^= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-number">0b011</span> ^ <span class="tok-number">0b101</span> == <span class="tok-number">0b110</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>按位取反</td>
+          <td><pre><code>~a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+            </ul>
+          </td>
+          <td></td>
+          <td>
+            <pre><code>~<span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-number">0b10101111</span>) == <span class="tok-number">0b01010000</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>可选值默认解包</td>
+          <td><pre><code>a <span class="tok-kw">orelse</span> b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a></li>
+            </ul>
+          </td>
+          <td>如果 <code>a</code> 是 <code><span class="tok-null">null</span></code>,
+          返回 <code>b</code>("默认值"),
+          否则返回 <code>a</code> 的解包值。
+          注意 <code>b</code> 可以是 <a href="https://ziglang.org/documentation/0.15.2/#noreturn">noreturn</a> 类型的值。
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+<span class="tok-kw">const</span> unwrapped = value <span class="tok-kw">orelse</span> <span class="tok-number">1234</span>;
+unwrapped == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>可选值解包</td>
+          <td><pre><code>a.?</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a></li>
+            </ul>
+          </td>
+          <td>
+            等价于:
+            <pre><code>a <span class="tok-kw">orelse</span> <span class="tok-kw">unreachable</span></code></pre>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-number">5678</span>;
+value.? == <span class="tok-number">5678</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>错误默认解包</td>
+          <td><pre><code>a <span class="tok-kw">catch</span> b
+a <span class="tok-kw">catch</span> |err| b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Errors">错误联合</a></li>
+            </ul>
+          </td>
+          <td>如果 <code>a</code> 是 <code><span class="tok-kw">error</span></code>,
+          返回 <code>b</code>("默认值"),
+          否则返回 <code>a</code> 的解包值。
+          注意 <code>b</code> 可以是 <a href="https://ziglang.org/documentation/0.15.2/#noreturn">noreturn</a> 类型的值。
+<code>err</code> 是 <code><span class="tok-kw">error</span></code>,并且在表达式 <code>b</code> 的作用域内。
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> = <span class="tok-kw">error</span>.Broken;
+<span class="tok-kw">const</span> unwrapped = value <span class="tok-kw">catch</span> <span class="tok-number">1234</span>;
+unwrapped == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>逻辑与</td>
+          <td><pre><code>a <span class="tok-kw">and</span> b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+            </ul>
+          </td>
+          <td>
+          如果 <code>a</code> 是 <code><span class="tok-null">false</span></code>,不计算 <code>b</code> 即返回 <code><span class="tok-null">false</span></code>。否则,返回 <code>b</code>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-null">false</span> <span class="tok-kw">and</span> <span class="tok-null">true</span>) == <span class="tok-null">false</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>逻辑或</td>
+          <td><pre><code>a <span class="tok-kw">or</span> b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 <code>a</code> 是 <code><span class="tok-null">true</span></code>,
+              不计算 <code>b</code> 即返回 <code><span class="tok-null">true</span></code>。否则,返回
+              <code>b</code>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-null">false</span> <span class="tok-kw">or</span> <span class="tok-null">true</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>布尔取反</td>
+          <td><pre><code>!a</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+            </ul>
+          </td>
+          <td></td>
+          <td>
+            <pre><code>!<span class="tok-null">false</span> == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>相等</td>
+          <td><pre><code>a == b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">type</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#packed-struct">紧凑结构体</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 和 b 相等,返回 <code><span class="tok-null">true</span></code>,否则返回 <code><span class="tok-null">false</span></code>。
+            对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> == <span class="tok-number">1</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>空值检查</td>
+          <td><pre><code>a == <span class="tok-null">null</span></code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 是 <code><span class="tok-null">null</span></code>,返回 <code><span class="tok-null">true</span></code>,否则返回 <code><span class="tok-null">false</span></code>。
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+(value == <span class="tok-null">null</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>不相等</td>
+          <td><pre><code>a != b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">type</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 和 b 相等,返回 <code><span class="tok-null">false</span></code>,否则返回 <code><span class="tok-null">true</span></code>。
+            对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> != <span class="tok-number">1</span>) == <span class="tok-null">false</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>非空检查</td>
+          <td><pre><code>a != <span class="tok-null">null</span></code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选值</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 是 <code><span class="tok-null">null</span></code>,返回 <code><span class="tok-null">false</span></code>,否则返回 <code><span class="tok-null">true</span></code>。
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> value: ?<span class="tok-type">u32</span> = <span class="tok-null">null</span>;
+(value != <span class="tok-null">null</span>) == <span class="tok-null">false</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>大于</td>
+          <td><pre><code>a &gt; b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 大于 b,返回 <code><span class="tok-null">true</span></code>,否则返回 <code><span class="tok-null">false</span></code>。
+            对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">2</span> &gt; <span class="tok-number">1</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>大于或等于</td>
+          <td><pre><code>a &gt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 大于或等于 b,返回 <code><span class="tok-null">true</span></code>,否则返回 <code><span class="tok-null">false</span></code>。
+            对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">2</span> &gt;= <span class="tok-number">1</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>小于</td>
+          <td><pre><code>a &lt; b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 小于 b,返回 <code><span class="tok-null">true</span></code>,否则返回 <code><span class="tok-null">false</span></code>。
+            对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> &lt; <span class="tok-number">2</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>小于或等于</td>
+          <td><pre><code>a &lt;= b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a></li>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a></li>
+            </ul>
+          </td>
+          <td>
+              如果 a 小于或等于 b,返回 <code><span class="tok-null">true</span></code>,否则返回 <code><span class="tok-null">false</span></code>。
+            对操作数调用<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">对等类型解析</a>。
+          </td>
+          <td>
+            <pre><code>(<span class="tok-number">1</span> &lt;= <span class="tok-number">2</span>) == <span class="tok-null">true</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>数组拼接</td>
+          <td><pre><code>a ++ b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>仅在 <code>a</code> 和 <code>b</code> 的长度都是<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译时已知</a>时可用。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+<span class="tok-kw">const</span> array1 = [_]<span class="tok-type">u32</span>{<span class="tok-number">1</span>,<span class="tok-number">2</span>};
+<span class="tok-kw">const</span> array2 = [_]<span class="tok-type">u32</span>{<span class="tok-number">3</span>,<span class="tok-number">4</span>};
+<span class="tok-kw">const</span> together = array1 ++ array2;
+mem.eql(<span class="tok-type">u32</span>, &amp;together, &amp;[_]<span class="tok-type">u32</span>{<span class="tok-number">1</span>,<span class="tok-number">2</span>,<span class="tok-number">3</span>,<span class="tok-number">4</span>})</code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>数组重复</td>
+          <td><pre><code>a ** b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li>仅在 <code>a</code> 和 <code>b</code> 的长度是<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译时已知</a>时可用。</li>
+            </ul>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+<span class="tok-kw">const</span> pattern = <span class="tok-str">"ab"</span> ** <span class="tok-number">3</span>;
+mem.eql(<span class="tok-type">u8</span>, pattern, <span class="tok-str">"ababab"</span>)</code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>指针解引用</td>
+          <td><pre><code>a.*</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a></li>
+            </ul>
+          </td>
+          <td>
+            指针解引用。
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> x: <span class="tok-type">u32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> ptr = &amp;x;
+ptr.* == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>取地址</td>
+          <td><pre><code>&amp;a</code></pre></td>
+          <td>
+            所有类型
+          </td>
+          <td>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> x: <span class="tok-type">u32</span> = <span class="tok-number">1234</span>;
+<span class="tok-kw">const</span> ptr = &amp;x;
+ptr.* == <span class="tok-number">1234</span></code></pre>
+          </td>
+        </tr>
+        <tr>
+          <td>错误集合并</td>
+          <td><pre><code>a || b</code></pre></td>
+          <td>
+            <ul>
+              <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">错误集类型</a></li>
+            </ul>
+          </td>
+          <td>
+              <a href="https://ziglang.org/documentation/0.15.2/#Merging-Error-Sets">合并错误集</a>
+          </td>
+          <td>
+            <pre><code><span class="tok-kw">const</span> A = <span class="tok-kw">error</span>{One};
+<span class="tok-kw">const</span> B = <span class="tok-kw">error</span>{Two};
+(A || B) == <span class="tok-kw">error</span>{One, Two}</code></pre>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+      
+      <h3 id="Precedence"><a href="https://ziglang.org/documentation/0.15.2/#toc-Precedence">优先级</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Precedence">§</a></h3>
+
+      <pre><code>x() x[] x.y x.* x.?
+a!b
+x{}
+!x -x -%x ~x &amp;x ?x
+* / % ** *% *| ||
++ - ++ +% -% +| -|
+&lt;&lt; &gt;&gt; &lt;&lt;|
+&amp; ^ | <span class="tok-kw">orelse</span> <span class="tok-kw">catch</span>
+== != &lt; &gt; &lt;= &gt;=
+<span class="tok-kw">and</span>
+<span class="tok-kw">or</span>
+= *= *%= *|= /= %= += +%= +|= -= -%= -|= &lt;&lt;= &lt;&lt;|= &gt;&gt;= &amp;= ^= |=</code></pre>
+      
+      
+      <h2 id="Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Arrays">数组</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Arrays">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+<span class="tok-kw">const</span> assert = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.assert;
+<span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+
+<span class="tok-comment">// 数组字面量</span>
+<span class="tok-kw">const</span> message = [_]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'o'</span> };
+
+<span class="tok-comment">// 使用结果位置的替代初始化方式</span>
+<span class="tok-kw">const</span> alt_message: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = .{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'o'</span> };
+
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, &amp;message, &amp;alt_message));
+}
+
+<span class="tok-comment">// 获取数组的大小</span>
+<span class="tok-kw">comptime</span> {
+    assert(message.len == <span class="tok-number">5</span>);
+}
+
+<span class="tok-comment">// 字符串字面量是指向数组的单项指针。</span>
+<span class="tok-kw">const</span> same_message = <span class="tok-str">"hello"</span>;
+
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, &amp;message, same_message));
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"iterate over an array"</span> {
+    <span class="tok-kw">var</span> sum: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">for</span> (message) |byte| {
+        sum += byte;
+    }
+    <span class="tok-kw">try</span> expect(sum == <span class="tok-str">'h'</span> + <span class="tok-str">'e'</span> + <span class="tok-str">'l'</span> * <span class="tok-number">2</span> + <span class="tok-str">'o'</span>);
+}
+
+<span class="tok-comment">// 可修改数组</span>
+<span class="tok-kw">var</span> some_integers: [<span class="tok-number">100</span>]<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"modify an array"</span> {
+    <span class="tok-kw">for</span> (&amp;some_integers, <span class="tok-number">0</span>..) |*item, i| {
+        item.* = <span class="tok-builtin">@intCast</span>(i);
+    }
+    <span class="tok-kw">try</span> expect(some_integers[<span class="tok-number">10</span>] == <span class="tok-number">10</span>);
+    <span class="tok-kw">try</span> expect(some_integers[<span class="tok-number">99</span>] == <span class="tok-number">99</span>);
+}
+
+<span class="tok-comment">// 如果值在编译时已知,数组拼接可以工作</span>
+<span class="tok-kw">const</span> part_one = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+<span class="tok-kw">const</span> part_two = [_]<span class="tok-type">i32</span>{ <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span> };
+<span class="tok-kw">const</span> all_of_it = part_one ++ part_two;
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">i32</span>, &amp;all_of_it, &amp;[_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span> }));
+}
+
+<span class="tok-comment">// 记住字符串字面量是数组</span>
+<span class="tok-kw">const</span> hello = <span class="tok-str">"hello"</span>;
+<span class="tok-kw">const</span> world = <span class="tok-str">"world"</span>;
+<span class="tok-kw">const</span> hello_world = hello ++ <span class="tok-str">" "</span> ++ world;
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, hello_world, <span class="tok-str">"hello world"</span>));
+}
+
+<span class="tok-comment">// ** 用于重复模式</span>
+<span class="tok-kw">const</span> pattern = <span class="tok-str">"ab"</span> ** <span class="tok-number">3</span>;
+<span class="tok-kw">comptime</span> {
+    assert(mem.eql(<span class="tok-type">u8</span>, pattern, <span class="tok-str">"ababab"</span>));
+}
+
+<span class="tok-comment">// 初始化数组为零</span>
+<span class="tok-kw">const</span> all_zero = [_]<span class="tok-type">u16</span>{<span class="tok-number">0</span>} ** <span class="tok-number">10</span>;
+
+<span class="tok-kw">comptime</span> {
+    assert(all_zero.len == <span class="tok-number">10</span>);
+    assert(all_zero[<span class="tok-number">5</span>] == <span class="tok-number">0</span>);
+}
+
+<span class="tok-comment">// 使用编译时代码初始化数组</span>
+<span class="tok-kw">var</span> fancy_array = init: {
+    <span class="tok-kw">var</span> initial_value: [<span class="tok-number">10</span>]Point = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">for</span> (&amp;initial_value, <span class="tok-number">0</span>..) |*pt, i| {
+        pt.* = Point{
+            .x = <span class="tok-builtin">@intCast</span>(i),
+            .y = <span class="tok-builtin">@intCast</span>(i * <span class="tok-number">2</span>),
+        };
+    }
+    <span class="tok-kw">break</span> :init initial_value;
+};
+<span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> {
+    x: <span class="tok-type">i32</span>,
+    y: <span class="tok-type">i32</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"compile-time array initialization"</span> {
+    <span class="tok-kw">try</span> expect(fancy_array[<span class="tok-number">4</span>].x == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(fancy_array[<span class="tok-number">4</span>].y == <span class="tok-number">8</span>);
+}
+
+<span class="tok-comment">// 调用函数初始化数组</span>
+<span class="tok-kw">var</span> more_points = [_]Point{makePoint(<span class="tok-number">3</span>)} ** <span class="tok-number">10</span>;
+<span class="tok-kw">fn</span> <span class="tok-fn">makePoint</span>(x: <span class="tok-type">i32</span>) Point {
+    <span class="tok-kw">return</span> Point{
+        .x = x,
+        .y = x * <span class="tok-number">2</span>,
+    };
+}
+<span class="tok-kw">test</span> <span class="tok-str">"array initialization with function calls"</span> {
+    <span class="tok-kw">try</span> expect(more_points[<span class="tok-number">4</span>].x == <span class="tok-number">3</span>);
+    <span class="tok-kw">try</span> expect(more_points[<span class="tok-number">4</span>].y == <span class="tok-number">6</span>);
+    <span class="tok-kw">try</span> expect(more_points.len == <span class="tok-number">10</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_arrays.zig</kbd>
+1/4 test_arrays.test.iterate over an array...OK
+2/4 test_arrays.test.modify an array...OK
+3/4 test_arrays.test.compile-time array initialization...OK
+4/4 test_arrays.test.array initialization with function calls...OK
+All 4 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Slices">切片</a></li>
+</ul>
+
+
+      <h3 id="Multidimensional-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Multidimensional-Arrays">多维数组</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Multidimensional-Arrays">§</a></h3>
+
+      <p>
+      多维数组可以通过嵌套数组创建:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_multidimensional_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> expectEqual = std.testing.expectEqual;
+
+<span class="tok-kw">const</span> mat4x5 = [<span class="tok-number">4</span>][<span class="tok-number">5</span>]<span class="tok-type">f32</span>{
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span> },
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span> },
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span> },
+    [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">9.9</span> },
+};
+<span class="tok-kw">test</span> <span class="tok-str">"multidimensional arrays"</span> {
+    <span class="tok-comment">// mat4x5 本身是一个数组的一维数组。</span>
+    <span class="tok-kw">try</span> expectEqual(mat4x5[<span class="tok-number">1</span>], [_]<span class="tok-type">f32</span>{ <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span> });
+
+    <span class="tok-comment">// 通过索引外层数组,然后索引内层数组来访问二维数组。</span>
+    <span class="tok-kw">try</span> expect(mat4x5[<span class="tok-number">3</span>][<span class="tok-number">4</span>] == <span class="tok-number">9.9</span>);
+
+    <span class="tok-comment">// 这里我们使用 for 循环进行迭代。</span>
+    <span class="tok-kw">for</span> (mat4x5, <span class="tok-number">0</span>..) |row, row_index| {
+        <span class="tok-kw">for</span> (row, <span class="tok-number">0</span>..) |cell, column_index| {
+            <span class="tok-kw">if</span> (row_index == column_index) {
+                <span class="tok-kw">try</span> expect(cell == <span class="tok-number">1.0</span>);
+            }
+        }
+    }
+
+    <span class="tok-comment">// 初始化一个多维数组为零。</span>
+    <span class="tok-kw">const</span> all_zero: [<span class="tok-number">4</span>][<span class="tok-number">5</span>]<span class="tok-type">f32</span> = .{.{<span class="tok-number">0</span>} ** <span class="tok-number">5</span>} ** <span class="tok-number">4</span>;
+    <span class="tok-kw">try</span> expect(all_zero[<span class="tok-number">0</span>][<span class="tok-number">0</span>] == <span class="tok-number">0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_multidimensional_arrays.zig</kbd>
+1/1 test_multidimensional_arrays.test.multidimensional arrays...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Sentinel-Terminated-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Sentinel-Terminated-Arrays">哨兵终止数组</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Arrays">§</a></h3>
+
+      <p>
+      语法 <code>[N:x]T</code> 描述了一个具有哨兵元素的数组,该元素的值为 <code>x</code>,位于对应于长度 <code>N</code> 的索引处。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_null_terminated_array.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"0-terminated sentinel array"</span> {
+    <span class="tok-kw">const</span> array = [_:<span class="tok-number">0</span>]<span class="tok-type">u8</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(array) == [<span class="tok-number">4</span>:<span class="tok-number">0</span>]<span class="tok-type">u8</span>);
+    <span class="tok-kw">try</span> expect(array.len == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">4</span>] == <span class="tok-number">0</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"extra 0s in 0-terminated sentinel array"</span> {
+    <span class="tok-comment">// 哨兵值可能会提前出现,但不会影响编译时的 'len'。</span>
+    <span class="tok-kw">const</span> array = [_:<span class="tok-number">0</span>]<span class="tok-type">u8</span>{ <span class="tok-number">1</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>, <span class="tok-number">4</span> };
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(array) == [<span class="tok-number">4</span>:<span class="tok-number">0</span>]<span class="tok-type">u8</span>);
+    <span class="tok-kw">try</span> expect(array.len == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">4</span>] == <span class="tok-number">0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_null_terminated_array.zig</kbd>
+1/2 test_null_terminated_array.test.0-terminated sentinel array...OK
+2/2 test_null_terminated_array.test.extra 0s in 0-terminated sentinel array...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">哨兵终止指针</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Slices">哨兵终止切片</a></li>
+</ul>
+
+      
+
+      <h3 id="Destructuring-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Destructuring-Arrays">解构数组</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">§</a></h3>
+
+      <p>
+        数组可以被解构:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">destructuring_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">swizzleRgbaToBgra</span>(rgba: [<span class="tok-number">4</span>]<span class="tok-type">u8</span>) [<span class="tok-number">4</span>]<span class="tok-type">u8</span> {
+    <span class="tok-comment">// 通过解构实现可读的交换</span>
+    <span class="tok-kw">const</span> r, <span class="tok-kw">const</span> g, <span class="tok-kw">const</span> b, <span class="tok-kw">const</span> a = rgba;
+    <span class="tok-kw">return</span> .{ b, g, r, a };
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> pos = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span> };
+    <span class="tok-kw">const</span> x, <span class="tok-kw">const</span> y = pos;
+    print(<span class="tok-str">"x = {}, y = {}\n"</span>, .{x, y});
+
+    <span class="tok-kw">const</span> orange: [<span class="tok-number">4</span>]<span class="tok-type">u8</span> = .{ <span class="tok-number">255</span>, <span class="tok-number">165</span>, <span class="tok-number">0</span>, <span class="tok-number">255</span> };
+    print(<span class="tok-str">"{any}\n"</span>, .{swizzleRgbaToBgra(orange)});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe destructuring_arrays.zig</kbd>
+$ <kbd>./destructuring_arrays</kbd>
+x = 1, y = 2
+{ 0, 165, 255, 255 }
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring">解构</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Tuples">解构元组</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Vectors">解构向量</a></li>
+</ul>
+
+      
+      
+
+      <h2 id="Vectors"><a href="https://ziglang.org/documentation/0.15.2/#toc-Vectors">向量</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Vectors">§</a></h2>
+
+      <p>
+      向量是一组布尔值、<a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a>、<a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a>或<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>,如果可能的话,使用 SIMD 指令并行操作。
+      向量类型使用内置函数 <a href="https://ziglang.org/documentation/0.15.2/#Vector">@Vector</a> 创建。
+      </p>
+      <p>
+      向量通常支持与其底层基类型相同的内置运算符。
+      唯一的例外是布尔向量上的关键字 `and` 和 `or`,因为这些运算符会影响控制流,而这对于向量是不允许的。
+      所有其他操作都是按元素执行的,并返回与输入向量相同长度的向量。这包括:
+      </p>
+      <ul>
+          <li>算术运算 (<code>+</code>、<code>-</code>、<code>/</code>、<code>*</code>、
+                         <code><span class="tok-builtin">@divFloor</span></code>、<code><span class="tok-builtin">@sqrt</span></code>、<code><span class="tok-builtin">@ceil</span></code>、
+                         <code><span class="tok-builtin">@log</span></code> 等)</li>
+          <li>位运算 (<code>&gt;&gt;</code>、<code>&lt;&lt;</code>、<code>&amp;</code>、
+                                 <code>|</code>、<code>~</code> 等)</li>
+          <li>比较运算符 (<code>&lt;</code>、<code>&gt;</code>、<code>==</code> 等)</li>
+          <li>布尔取反 (<code>!</code>)</li>
+      </ul>
+      <p>
+      禁止在标量(单个数字)和向量的混合体上使用数学运算符。Zig 提供了 <a href="https://ziglang.org/documentation/0.15.2/#splat">@splat</a> 内置函数来轻松地将标量转换为向量,并且它支持 <a href="https://ziglang.org/documentation/0.15.2/#reduce">@reduce</a> 和数组索引语法将向量转换为标量。向量还支持与编译时已知长度的固定长度数组之间的赋值。
+      </p>
+      <p>
+      为了在向量内部和向量之间重新排列元素,Zig 提供了 <a href="https://ziglang.org/documentation/0.15.2/#shuffle">@shuffle</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#select">@select</a> 函数。
+      </p>
+      <p>
+      短于目标机器原生 SIMD 大小的向量操作通常会编译成单个 SIMD 指令,而长于目标机器原生 SIMD 大小的向量将编译成多个 SIMD 指令。如果给定操作在目标架构上没有 SIMD 支持,编译器将默认一次操作一个向量元素。Zig 支持任何编译时已知的向量长度,最高可达 2^32-1,尽管小的 2 的幂(2-64)是最典型的。注意,过长的向量长度(例如 2^20)可能会导致当前版本的 Zig 编译器崩溃。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_vector.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expectEqual = std.testing.expectEqual;
+
+<span class="tok-kw">test</span> <span class="tok-str">"Basic vector usage"</span> {
+    <span class="tok-comment">// 向量具有编译时已知的长度和基类型。</span>
+    <span class="tok-kw">const</span> a = <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">i32</span>){ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+    <span class="tok-kw">const</span> b = <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">i32</span>){ <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span> };
+
+    <span class="tok-comment">// 数学运算按元素进行。</span>
+    <span class="tok-kw">const</span> c = a + b;
+
+    <span class="tok-comment">// 可以使用数组索引语法访问单个向量元素。</span>
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">6</span>, c[<span class="tok-number">0</span>]);
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">8</span>, c[<span class="tok-number">1</span>]);
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">10</span>, c[<span class="tok-number">2</span>]);
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">12</span>, c[<span class="tok-number">3</span>]);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"Conversion between vectors, arrays, and slices"</span> {
+    <span class="tok-comment">// 向量和固定长度数组可以自动相互赋值</span>
+    <span class="tok-kw">const</span> arr1: [<span class="tok-number">4</span>]<span class="tok-type">f32</span> = [_]<span class="tok-type">f32</span>{ <span class="tok-number">1.1</span>, <span class="tok-number">3.2</span>, <span class="tok-number">4.5</span>, <span class="tok-number">5.6</span> };
+    <span class="tok-kw">const</span> vec: <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">f32</span>) = arr1;
+    <span class="tok-kw">const</span> arr2: [<span class="tok-number">4</span>]<span class="tok-type">f32</span> = vec;
+    <span class="tok-kw">try</span> expectEqual(arr1, arr2);
+
+    <span class="tok-comment">// 你也可以使用 .* 从编译时已知长度的切片赋值到向量</span>
+    <span class="tok-kw">const</span> vec2: <span class="tok-builtin">@Vector</span>(<span class="tok-number">2</span>, <span class="tok-type">f32</span>) = arr1[<span class="tok-number">1</span>..<span class="tok-number">3</span>].*;
+
+    <span class="tok-kw">const</span> slice: []<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;arr1;
+    <span class="tok-kw">var</span> offset: <span class="tok-type">u32</span> = <span class="tok-number">1</span>; <span class="tok-comment">// var 使其为运行时已知</span>
+    _ = &amp;offset; <span class="tok-comment">// 抑制 'var is never mutated' 错误</span>
+    <span class="tok-comment">// 要从运行时已知的偏移量提取编译时已知的长度,</span>
+    <span class="tok-comment">// 首先从起始偏移量提取一个新切片,然后提取一个</span>
+    <span class="tok-comment">// 编译时已知长度的数组</span>
+    <span class="tok-kw">const</span> vec3: <span class="tok-builtin">@Vector</span>(<span class="tok-number">2</span>, <span class="tok-type">f32</span>) = slice[offset..][<span class="tok-number">0</span>..<span class="tok-number">2</span>].*;
+    <span class="tok-kw">try</span> expectEqual(slice[offset], vec2[<span class="tok-number">0</span>]);
+    <span class="tok-kw">try</span> expectEqual(slice[offset + <span class="tok-number">1</span>], vec2[<span class="tok-number">1</span>]);
+    <span class="tok-kw">try</span> expectEqual(vec2, vec3);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_vector.zig</kbd>
+1/2 test_vector.test.Basic vector usage...OK
+2/2 test_vector.test.Conversion between vectors, arrays, and slices...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+      TODO 讨论 C ABI 互操作<br>
+      TODO 考虑建议使用 std.MultiArrayList
+      </p>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#splat">@splat</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#shuffle">@shuffle</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#select">@select</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#reduce">@reduce</a></li>
+</ul>
+
+
+      <h3 id="Destructuring-Vectors"><a href="https://ziglang.org/documentation/0.15.2/#toc-Destructuring-Vectors">解构向量</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Vectors">§</a></h3>
+
+      <p>
+        向量可以被解构:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">destructuring_vectors.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-comment">// 模拟 punpckldq</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">unpack</span>(x: <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">f32</span>), y: <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">f32</span>)) <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">f32</span>) {
+    <span class="tok-kw">const</span> a, <span class="tok-kw">const</span> c, _, _ = x;
+    <span class="tok-kw">const</span> b, <span class="tok-kw">const</span> d, _, _ = y;
+    <span class="tok-kw">return</span> .{ a, b, c, d };
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">f32</span>) = .{ <span class="tok-number">1.0</span>, <span class="tok-number">2.0</span>, <span class="tok-number">3.0</span>, <span class="tok-number">4.0</span> };
+    <span class="tok-kw">const</span> y: <span class="tok-builtin">@Vector</span>(<span class="tok-number">4</span>, <span class="tok-type">f32</span>) = .{ <span class="tok-number">5.0</span>, <span class="tok-number">6.0</span>, <span class="tok-number">7.0</span>, <span class="tok-number">8.0</span> };
+    print(<span class="tok-str">"{}"</span>, .{unpack(x, y)});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe destructuring_vectors.zig</kbd>
+$ <kbd>./destructuring_vectors</kbd>
+{ 1, 5, 2, 6 }
+</samp></pre></figure>
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring">解构</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Tuples">解构元组</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">解构数组</a></li>
+</ul>
+
+      
+
+      
+
+      <h2 id="Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Pointers">指针</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Pointers">§</a></h2>
+
+      <p>
+      Zig 有两种指针:单项指针和多项指针。
+      </p>
+      <ul>
+          <li><code>*T</code> - 指向恰好一个项的单项指针。
+            <ul>
+              <li>支持解引用语法:<code>ptr.*</code></li>
+              <li>支持切片语法:<code>ptr[<span class="tok-number">0</span>..<span class="tok-number">1</span>]</code></li>
+              <li>支持指针减法:<code>ptr - ptr</code></li>
+            </ul>
+          </li>
+          <li><code>[*]T</code> - 指向未知数量项的多项指针。
+            <ul>
+              <li>支持索引语法:<code>ptr[i]</code></li>
+              <li>支持切片语法:<code>ptr[start..end]</code> 和 <code>ptr[start..]</code></li>
+              <li>支持指针-整数算术:<code>ptr + int</code>、<code>ptr - int</code></li>
+              <li>支持指针减法:<code>ptr - ptr</code></li>
+            </ul>
+            <code>T</code> 必须具有已知大小,这意味着它不能是 <code><span class="tok-type">anyopaque</span></code> 或任何其他<a href="https://ziglang.org/documentation/0.15.2/#opaque">不透明类型</a>。
+          </li>
+      </ul>
+      <p>这些类型与<a href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a>和<a href="https://ziglang.org/documentation/0.15.2/#Slices">切片</a>密切相关:</p>
+        <ul>
+            <li><code>*[N]T</code> - 指向 N 个项的指针,与指向数组的单项指针相同。
+            <ul>
+                <li>支持索引语法:<code>array_ptr[i]</code></li>
+                <li>支持切片语法:<code>array_ptr[start..end]</code></li>
+                <li>支持 len 属性:<code>array_ptr.len</code></li>
+                <li>支持指针减法:<code>array_ptr - array_ptr</code></li>
+            </ul>
+            </li>
+        </ul>
+        <ul>
+            <li><code>[]T</code> - 是一个切片(一个胖指针,包含一个类型为 <code>[*]T</code> 的指针和一个长度)。
+            <ul>
+                <li>支持索引语法:<code>slice[i]</code></li>
+                <li>支持切片语法:<code>slice[start..end]</code></li>
+                <li>支持 len 属性:<code>slice.len</code></li>
+            </ul>
+            </li>
+        </ul>
+        <p>使用 <code>&amp;x</code> 获取单项指针:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_single_item_pointer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"address of syntax"</span> {
+    <span class="tok-comment">// 获取变量的地址:</span>
+    <span class="tok-kw">const</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> x_ptr = &amp;x;
+
+    <span class="tok-comment">// 解引用指针:</span>
+    <span class="tok-kw">try</span> expect(x_ptr.* == <span class="tok-number">1234</span>);
+
+    <span class="tok-comment">// 当获取 const 变量的地址时,会得到一个 const 单项指针。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(x_ptr) == *<span class="tok-kw">const</span> <span class="tok-type">i32</span>);
+
+    <span class="tok-comment">// 如果想修改值,需要获取可变变量的地址:</span>
+    <span class="tok-kw">var</span> y: <span class="tok-type">i32</span> = <span class="tok-number">5678</span>;
+    <span class="tok-kw">const</span> y_ptr = &amp;y;
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(y_ptr) == *<span class="tok-type">i32</span>);
+    y_ptr.* += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(y_ptr.* == <span class="tok-number">5679</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer array access"</span> {
+    <span class="tok-comment">// 获取单个元素的地址会得到一个单项指针。</span>
+    <span class="tok-comment">// 这种指针不支持指针算术。</span>
+    <span class="tok-kw">var</span> array = [_]<span class="tok-type">u8</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span>, <span class="tok-number">9</span>, <span class="tok-number">10</span> };
+    <span class="tok-kw">const</span> ptr = &amp;array[<span class="tok-number">2</span>];
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(ptr) == *<span class="tok-type">u8</span>);
+
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">2</span>] == <span class="tok-number">3</span>);
+    ptr.* += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">2</span>] == <span class="tok-number">4</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"slice syntax"</span> {
+    <span class="tok-comment">// 获取变量的指针:</span>
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> x_ptr = &amp;x;
+
+    <span class="tok-comment">// 使用切片语法转换为数组指针:</span>
+    <span class="tok-kw">const</span> x_array_ptr = x_ptr[<span class="tok-number">0</span>..<span class="tok-number">1</span>];
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(x_array_ptr) == *[<span class="tok-number">1</span>]<span class="tok-type">i32</span>);
+
+    <span class="tok-comment">// 强制转换为多项指针:</span>
+    <span class="tok-kw">const</span> x_many_ptr: [*]<span class="tok-type">i32</span> = x_array_ptr;
+    <span class="tok-kw">try</span> expect(x_many_ptr[<span class="tok-number">0</span>] == <span class="tok-number">1234</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_single_item_pointer.zig</kbd>
+1/3 test_single_item_pointer.test.address of syntax...OK
+2/3 test_single_item_pointer.test.pointer array access...OK
+3/3 test_single_item_pointer.test.slice syntax...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      <p>
+       Zig 支持指针算术。最好将指针赋值给 <code>[*]T</code> 并递增该变量。例如,直接递增来自切片的指针会破坏它。
+      </p>

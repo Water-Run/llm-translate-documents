@@ -1,0 +1,1001 @@
+<p><code><span class="tok-type">noreturn</span></code> 的另一个用例是 <code>exit</code> 函数:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_noreturn_from_exit.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> native_arch = builtin.cpu.arch;
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> WINAPI: std.builtin.CallingConvention = <span class="tok-kw">if</span> (native_arch == .x86) .{ .x86_stdcall = .{} } <span class="tok-kw">else</span> .c;
+<span class="tok-kw">extern</span> <span class="tok-str">"kernel32"</span> <span class="tok-kw">fn</span> <span class="tok-fn">ExitProcess</span>(exit_code: <span class="tok-type">c_uint</span>) <span class="tok-kw">callconv</span>(WINAPI) <span class="tok-type">noreturn</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"foo"</span> {
+    <span class="tok-kw">const</span> value = bar() <span class="tok-kw">catch</span> ExitProcess(<span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(value == <span class="tok-number">1234</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() <span class="tok-type">anyerror</span>!<span class="tok-type">u32</span> {
+    <span class="tok-kw">return</span> <span class="tok-number">1234</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_noreturn_from_exit.zig -target x86_64-windows --test-no-exec</kbd>
+</samp></pre></figure>
+
+      
+
+      <h2 id="Functions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Functions">函数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Functions">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_functions.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> native_arch = builtin.cpu.arch;
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-comment">// 函数这样声明</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i8</span>, b: <span class="tok-type">i8</span>) <span class="tok-type">i8</span> {
+    <span class="tok-kw">if</span> (a == <span class="tok-number">0</span>) {
+        <span class="tok-kw">return</span> b;
+    }
+
+    <span class="tok-kw">return</span> a + b;
+}
+
+<span class="tok-comment">// export 修饰符使函数在生成的目标文件中外部可见,并使其使用 C ABI。</span>
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">sub</span>(a: <span class="tok-type">i8</span>, b: <span class="tok-type">i8</span>) <span class="tok-type">i8</span> {
+    <span class="tok-kw">return</span> a - b;
+}
+
+<span class="tok-comment">// extern 修饰符用于声明一个函数,该函数将在静态链接时在链接时解析,或</span>
+<span class="tok-comment">// 在动态链接时在运行时解析。extern 关键字后的引号标识符指定包含该函数的</span>
+<span class="tok-comment">// 库。(例如 "c" -&gt; libc.so)</span>
+<span class="tok-comment">// callconv 修饰符改变函数的调用约定。</span>
+<span class="tok-kw">extern</span> <span class="tok-str">"kernel32"</span> <span class="tok-kw">fn</span> <span class="tok-fn">ExitProcess</span>(exit_code: <span class="tok-type">u32</span>) <span class="tok-kw">callconv</span>(.winapi) <span class="tok-type">noreturn</span>;
+<span class="tok-kw">extern</span> <span class="tok-str">"c"</span> <span class="tok-kw">fn</span> <span class="tok-fn">atan2</span>(a: <span class="tok-type">f64</span>, b: <span class="tok-type">f64</span>) <span class="tok-type">f64</span>;
+
+<span class="tok-comment">// @branchHint 内置函数可用于告诉优化器某个函数很少被调用("cold")。</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">abort</span>() <span class="tok-type">noreturn</span> {
+    <span class="tok-builtin">@branchHint</span>(.cold);
+    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {}
+}
+
+<span class="tok-comment">// naked 调用约定使函数没有任何函数序言或尾声。</span>
+<span class="tok-comment">// 这在与汇编集成时很有用。</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">_start</span>() <span class="tok-kw">callconv</span>(.naked) <span class="tok-type">noreturn</span> {
+    abort();
+}
+
+<span class="tok-comment">// inline 调用约定强制函数在所有调用点内联。</span>
+<span class="tok-comment">// 如果函数无法内联,则是编译时错误。</span>
+<span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">shiftLeftOne</span>(a: <span class="tok-type">u32</span>) <span class="tok-type">u32</span> {
+    <span class="tok-kw">return</span> a &lt;&lt; <span class="tok-number">1</span>;
+}
+
+<span class="tok-comment">// pub 修饰符允许在导入时函数可见。</span>
+<span class="tok-comment">// 另一个文件可以使用 @import 并调用 sub2</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sub2</span>(a: <span class="tok-type">i8</span>, b: <span class="tok-type">i8</span>) <span class="tok-type">i8</span> {
+    <span class="tok-kw">return</span> a - b;
+}
+
+<span class="tok-comment">// 函数指针以 `*const ` 为前缀。</span>
+<span class="tok-kw">const</span> Call2Op = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (a: <span class="tok-type">i8</span>, b: <span class="tok-type">i8</span>) <span class="tok-type">i8</span>;
+<span class="tok-kw">fn</span> <span class="tok-fn">doOp</span>(fnCall: Call2Op, op1: <span class="tok-type">i8</span>, op2: <span class="tok-type">i8</span>) <span class="tok-type">i8</span> {
+    <span class="tok-kw">return</span> fnCall(op1, op2);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"function"</span> {
+    <span class="tok-kw">try</span> expect(doOp(add, <span class="tok-number">5</span>, <span class="tok-number">6</span>) == <span class="tok-number">11</span>);
+    <span class="tok-kw">try</span> expect(doOp(sub2, <span class="tok-number">5</span>, <span class="tok-number">6</span>) == -<span class="tok-number">1</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_functions.zig</kbd>
+1/1 test_functions.test.function...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>函数<em>体</em>和函数<em>指针</em>之间有所不同。
+      函数体是 <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> 专用类型,而函数<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>可以在运行时已知。</p>
+      <h3 id="Pass-by-value-Parameters"><a href="https://ziglang.org/documentation/0.15.2/#toc-Pass-by-value-Parameters">传值参数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Pass-by-value-Parameters">§</a></h3>
+
+      <p>
+      作为参数传递的基本类型,如<a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a>和<a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a>,会被复制,然后副本在函数体中可用。这称为"传值"。
+      复制基本类型基本上是免费的,通常只需要设置一个寄存器即可。
+      </p>
+      <p>
+      结构体、联合体和数组有时可以更高效地以引用方式传递,因为复制可能会根据大小而变得任意昂贵。当这些类型作为参数传递时,Zig 可能会选择复制并传值,或者传引用,Zig 会决定哪种方式更快。
+      这在一定程度上是因为参数是不可变的。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_pass_by_reference_or_value.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> {
+    x: <span class="tok-type">i32</span>,
+    y: <span class="tok-type">i32</span>,
+};
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(point: Point) <span class="tok-type">i32</span> {
+    <span class="tok-comment">// 这里,`point` 可能是引用,也可能是副本。函数体</span>
+    <span class="tok-comment">// 可以忽略差异并将其视为值。获取参数地址时要非常小心 -</span>
+    <span class="tok-comment">// 应该将其视为当函数返回时地址将失效。</span>
+    <span class="tok-kw">return</span> point.x + point.y;
+}
+
+<span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"pass struct to function"</span> {
+    <span class="tok-kw">try</span> expect(foo(Point{ .x = <span class="tok-number">1</span>, .y = <span class="tok-number">2</span> }) == <span class="tok-number">3</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_pass_by_reference_or_value.zig</kbd>
+1/1 test_pass_by_reference_or_value.test.pass struct to function...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      对于外部函数,Zig 遵循 C ABI 以传值方式传递结构体和联合体。
+      </p>
+      
+      <h3 id="Function-Parameter-Type-Inference"><a href="https://ziglang.org/documentation/0.15.2/#toc-Function-Parameter-Type-Inference">函数参数类型推断</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Function-Parameter-Type-Inference">§</a></h3>
+
+      <p>
+      函数参数可以用 <code><span class="tok-kw">anytype</span></code> 代替类型声明。
+      在这种情况下,参数类型将在调用函数时推断。
+      使用 <a href="https://ziglang.org/documentation/0.15.2/#TypeOf">@TypeOf</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a> 获取有关推断类型的信息。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_fn_type_inference.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">addFortyTwo</span>(x: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(x) {
+    <span class="tok-kw">return</span> x + <span class="tok-number">42</span>;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"fn type inference"</span> {
+    <span class="tok-kw">try</span> expect(addFortyTwo(<span class="tok-number">1</span>) == <span class="tok-number">43</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(addFortyTwo(<span class="tok-number">1</span>)) == <span class="tok-type">comptime_int</span>);
+    <span class="tok-kw">const</span> y: <span class="tok-type">i64</span> = <span class="tok-number">2</span>;
+    <span class="tok-kw">try</span> expect(addFortyTwo(y) == <span class="tok-number">44</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(addFortyTwo(y)) == <span class="tok-type">i64</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_fn_type_inference.zig</kbd>
+1/1 test_fn_type_inference.test.fn type inference...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+
+      
+
+      <h3 id="inline-fn"><a href="https://ziglang.org/documentation/0.15.2/#toc-inline-fn">inline fn</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inline-fn">§</a></h3>
+
+      <p>
+      在函数定义中添加 <code><span class="tok-kw">inline</span></code> 关键字会使该函数在调用点<em>语义内联</em>。这不是一个可能被优化过程观察到的提示,而是对函数调用中涉及的类型和值有影响。
+      </p>
+      <p>
+      与普通函数调用不同,内联函数调用点的编译时已知的参数被视为<a href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Parameters">编译时参数</a>。这可能会一直传播到返回值:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">inline_call.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (foo(<span class="tok-number">1200</span>, <span class="tok-number">34</span>) != <span class="tok-number">1234</span>) {
+        <span class="tok-builtin">@compileError</span>(<span class="tok-str">"bad"</span>);
+    }
+}
+
+<span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    std.debug.print(<span class="tok-str">"runtime a = {} b = {}"</span>, .{ a, b });
+    <span class="tok-kw">return</span> a + b;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe inline_call.zig</kbd>
+$ <kbd>./inline_call</kbd>
+runtime a = 1200 b = 34
+</samp></pre></figure>
+
+      <p>如果移除 <code><span class="tok-kw">inline</span></code>,测试将失败并产生编译错误而不是通过。</p>
+      <p>通常最好让编译器决定何时内联函数,除了以下场景:</p>
+      <ul>
+        <li>为了调试目的改变调用栈中的栈帧数量。</li>
+        <li>强制参数的编译时性传播到函数的返回值,如上例所示。</li>
+        <li>实际性能测量要求这样做。</li>
+      </ul>
+      <p>注意 <code><span class="tok-kw">inline</span></code> 实际上<em>限制了</em>编译器被允许做的事情。这可能会损害二进制大小、编译速度,甚至运行时性能。</p>
+      
+
+      <h3 id="Function-Reflection"><a href="https://ziglang.org/documentation/0.15.2/#toc-Function-Reflection">函数反射</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Function-Reflection">§</a></h3>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_fn_reflection.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> math = std.math;
+<span class="tok-kw">const</span> testing = std.testing;
+
+<span class="tok-kw">test</span> <span class="tok-str">"fn reflection"</span> {
+    <span class="tok-kw">try</span> testing.expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(testing.expect)).@"fn".params[<span class="tok-number">0</span>].<span class="tok-type">type</span>.? == <span class="tok-type">bool</span>);
+    <span class="tok-kw">try</span> testing.expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(testing.tmpDir)).@"fn".return_type.? == testing.TmpDir);
+
+    <span class="tok-kw">try</span> testing.expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(math.Log2Int)).@"fn".is_generic);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_fn_reflection.zig</kbd>
+1/1 test_fn_reflection.test.fn reflection...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+      <h2 id="Errors"><a href="https://ziglang.org/documentation/0.15.2/#toc-Errors">错误</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Errors">§</a></h2>
+
+      <h3 id="Error-Set-Type"><a href="https://ziglang.org/documentation/0.15.2/#toc-Error-Set-Type">错误集类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">§</a></h3>
+
+      <p>
+      错误集类似于 <a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a>。
+      然而,整个编译过程中的每个错误名称都被分配一个大于 0 的无符号整数。你可以多次声明相同的错误名称,如果这样做,它会被分配相同的整数值。
+      </p>
+      <p>
+      错误集类型默认为 <code><span class="tok-type">u16</span></code>,但如果通过命令行参数 <kbd>--error-limit [num]</kbd> 提供了不同错误值的最大数量,则会使用能够表示所有错误值所需的最小位数的整数类型。
+      </p>
+      <p>
+      你可以将错误从子集<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">强制转换</a>为超集:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_error_subset_to_superset.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> FileOpenError = <span class="tok-kw">error</span>{
+    AccessDenied,
+    OutOfMemory,
+    FileNotFound,
+};
+
+<span class="tok-kw">const</span> AllocationError = <span class="tok-kw">error</span>{
+    OutOfMemory,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"coerce subset to superset"</span> {
+    <span class="tok-kw">const</span> err = foo(AllocationError.OutOfMemory);
+    <span class="tok-kw">try</span> std.testing.expect(err == FileOpenError.OutOfMemory);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(err: AllocationError) FileOpenError {
+    <span class="tok-kw">return</span> err;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_error_subset_to_superset.zig</kbd>
+1/1 test_coerce_error_subset_to_superset.test.coerce subset to superset...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      但你不能将错误从超集<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">强制转换</a>为子集:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_error_superset_to_subset.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> FileOpenError = <span class="tok-kw">error</span>{
+    AccessDenied,
+    OutOfMemory,
+    FileNotFound,
+};
+
+<span class="tok-kw">const</span> AllocationError = <span class="tok-kw">error</span>{
+    OutOfMemory,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"coerce superset to subset"</span> {
+    foo(FileOpenError.OutOfMemory) <span class="tok-kw">catch</span> {};
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(err: FileOpenError) AllocationError {
+    <span class="tok-kw">return</span> err;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_error_superset_to_subset.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_coerce_error_superset_to_subset.zig:16:12: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type 'error{OutOfMemory}', found 'error{AccessDenied,FileNotFound,OutOfMemory}'
+</span>    return err;
+           <span class="sgr-32m">^~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_coerce_error_superset_to_subset.zig:16:12: </span><span class="sgr-36m">note: </span><span class="sgr-1m">'error.AccessDenied' not a member of destination error set
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_coerce_error_superset_to_subset.zig:16:12: </span><span class="sgr-36m">note: </span><span class="sgr-1m">'error.FileNotFound' not a member of destination error set
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_coerce_error_superset_to_subset.zig:15:28: </span><span class="sgr-36m">note: </span><span class="sgr-1m">function return type declared here
+</span>fn foo(err: FileOpenError) AllocationError {
+                           <span class="sgr-32m">^~~~~~~~~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    test.coerce superset to subset: /home/andy/dev/zig/doc/langref/test_coerce_error_superset_to_subset.zig:12:8
+</span>
+</samp></pre></figure>
+
+      <p>
+      有一个声明只有 1 个值的错误集的快捷方式,然后获取该值:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">single_value_error_set_shortcut.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> err = <span class="tok-kw">error</span>.FileNotFound;</code></pre></figure>
+
+      <p>这等价于:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">single_value_error_set.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> err = (<span class="tok-kw">error</span>{FileNotFound}).FileNotFound;</code></pre></figure>
+
+      <p>
+      这在使用<a href="https://ziglang.org/documentation/0.15.2/#Inferred-Error-Sets">推断错误集</a>时变得有用。
+      </p>
+      <h4 id="The-Global-Error-Set"><a href="https://ziglang.org/documentation/0.15.2/#toc-The-Global-Error-Set">全局错误集</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#The-Global-Error-Set">§</a></h4>
+
+      <p><code><span class="tok-type">anyerror</span></code> 指的是全局错误集。
+      这是包含整个编译单元中所有错误的错误集,即它是所有其他错误集的并集。
+      </p>
+      <p>
+      你可以将任何错误集<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">强制转换</a>为全局错误集,你也可以显式地将全局错误集的错误转换为非全局错误集。这会插入一个语言级断言以确保错误值确实在目标错误集中。
+      </p>
+      <p>
+      通常应该避免使用全局错误集,因为它阻止编译器在编译时知道可能的错误。在编译时知道错误集对于生成的文档和有用的错误消息更好,例如在 <a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a> 中忘记可能的错误值。
+      </p>
+      
+      
+      <h3 id="Error-Union-Type"><a href="https://ziglang.org/documentation/0.15.2/#toc-Error-Union-Type">错误联合类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">§</a></h3>
+
+      <p>
+      错误集类型和普通类型可以用 <code>!</code> 二元运算符组合成错误联合类型。你使用错误联合类型的频率可能比单独使用错误集类型更高。
+      </p>
+      <p>
+      这是一个将字符串解析为 64 位整数的函数:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">error_union_parsing_u64.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> maxInt = std.math.maxInt;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">parseU64</span>(buf: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, radix: <span class="tok-type">u8</span>) !<span class="tok-type">u64</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">u64</span> = <span class="tok-number">0</span>;
+
+    <span class="tok-kw">for</span> (buf) |c| {
+        <span class="tok-kw">const</span> digit = charToDigit(c);
+
+        <span class="tok-kw">if</span> (digit &gt;= radix) {
+            <span class="tok-kw">return</span> <span class="tok-kw">error</span>.InvalidChar;
+        }
+
+        <span class="tok-comment">// x *= radix</span>
+        <span class="tok-kw">var</span> ov = <span class="tok-builtin">@mulWithOverflow</span>(x, radix);
+        <span class="tok-kw">if</span> (ov[<span class="tok-number">1</span>] != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.OverFlow;
+
+        <span class="tok-comment">// x += digit</span>
+        ov = <span class="tok-builtin">@addWithOverflow</span>(ov[<span class="tok-number">0</span>], digit);
+        <span class="tok-kw">if</span> (ov[<span class="tok-number">1</span>] != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.OverFlow;
+        x = ov[<span class="tok-number">0</span>];
+    }
+
+    <span class="tok-kw">return</span> x;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">charToDigit</span>(c: <span class="tok-type">u8</span>) <span class="tok-type">u8</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (c) {
+        <span class="tok-str">'0'</span>...<span class="tok-str">'9'</span> =&gt; c - <span class="tok-str">'0'</span>,
+        <span class="tok-str">'A'</span>...<span class="tok-str">'Z'</span> =&gt; c - <span class="tok-str">'A'</span> + <span class="tok-number">10</span>,
+        <span class="tok-str">'a'</span>...<span class="tok-str">'z'</span> =&gt; c - <span class="tok-str">'a'</span> + <span class="tok-number">10</span>,
+        <span class="tok-kw">else</span> =&gt; maxInt(<span class="tok-type">u8</span>),
+    };
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"parse u64"</span> {
+    <span class="tok-kw">const</span> result = <span class="tok-kw">try</span> parseU64(<span class="tok-str">"1234"</span>, <span class="tok-number">10</span>);
+    <span class="tok-kw">try</span> std.testing.expect(result == <span class="tok-number">1234</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test error_union_parsing_u64.zig</kbd>
+1/1 error_union_parsing_u64.test.parse u64...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      注意返回类型是 <code>!<span class="tok-type">u64</span></code>。这意味着函数要么返回一个无符号 64 位整数,要么返回一个错误。我们在 <code>!</code> 左侧省略了错误集,因此错误集是推断的。
+      </p>
+      <p>
+      在函数定义中,你可以看到一些返回错误的 return 语句,在底部有一个返回 <code><span class="tok-type">u64</span></code> 的 return 语句。
+          两种类型都<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">强制转换</a>为 <code><span class="tok-type">anyerror</span>!<span class="tok-type">u64</span></code>。
+      </p>
+      <p>
+      如何使用这个函数取决于你想要做什么。以下是几种情况之一:
+      </p>
+      <ul>
+        <li>如果返回了错误,你想提供一个默认值。</li>
+        <li>如果返回了错误,那么你想返回相同的错误。</li>
+        <li>你完全确定它不会返回错误,所以想无条件地解包它。</li>
+        <li>你想对每个可能的错误采取不同的行动。</li>
+      </ul>
+      <h4 id="catch"><a href="https://ziglang.org/documentation/0.15.2/#toc-catch">catch</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#catch">§</a></h4>
+
+      <p>如果你想提供一个默认值,可以使用 <code><span class="tok-kw">catch</span></code> 二元运算符:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">catch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> parseU64 = <span class="tok-builtin">@import</span>(<span class="tok-str">"error_union_parsing_u64.zig"</span>).parseU64;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(str: []<span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> number = parseU64(str, <span class="tok-number">10</span>) <span class="tok-kw">catch</span> <span class="tok-number">13</span>;
+    _ = number; <span class="tok-comment">// ...</span>
+}</code></pre></figure>
+
+      <p>
+      在这段代码中,<code>number</code> 将等于成功解析的字符串,或者默认值 13。二元 <code><span class="tok-kw">catch</span></code> 运算符右侧的类型必须匹配解包后的错误联合类型,或者是 <code><span class="tok-type">noreturn</span></code> 类型。
+      </p>
+     <p>
+      如果你想在使用 <code><span class="tok-kw">catch</span></code> 后执行一些逻辑后提供默认值,你可以将 <code><span class="tok-kw">catch</span></code> 与命名<a href="https://ziglang.org/documentation/0.15.2/#Blocks">块</a>结合使用:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">handle_error_with_catch_block.zig.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> parseU64 = <span class="tok-builtin">@import</span>(<span class="tok-str">"error_union_parsing_u64.zig"</span>).parseU64;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(str: []<span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> number = parseU64(str, <span class="tok-number">10</span>) <span class="tok-kw">catch</span> blk: {
+        <span class="tok-comment">// do things</span>
+        <span class="tok-kw">break</span> :blk <span class="tok-number">13</span>;
+    };
+    _ = number; <span class="tok-comment">// number is now initialized</span>
+}</code></pre></figure>
+
+      
+      <h4 id="try"><a href="https://ziglang.org/documentation/0.15.2/#toc-try">try</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#try">§</a></h4>
+
+      <p>假设你想在得到错误时返回该错误,否则继续函数逻辑:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">catch_err_return.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> parseU64 = <span class="tok-builtin">@import</span>(<span class="tok-str">"error_union_parsing_u64.zig"</span>).parseU64;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(str: []<span class="tok-type">u8</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> number = parseU64(str, <span class="tok-number">10</span>) <span class="tok-kw">catch</span> |err| <span class="tok-kw">return</span> err;
+    _ = number; <span class="tok-comment">// ...</span>
+}</code></pre></figure>
+
+      <p>
+      有一个快捷方式。<code><span class="tok-kw">try</span></code> 表达式:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">try.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> parseU64 = <span class="tok-builtin">@import</span>(<span class="tok-str">"error_union_parsing_u64.zig"</span>).parseU64;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(str: []<span class="tok-type">u8</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> number = <span class="tok-kw">try</span> parseU64(str, <span class="tok-number">10</span>);
+    _ = number; <span class="tok-comment">// ...</span>
+}</code></pre></figure>
+
+      <p>
+      <code><span class="tok-kw">try</span></code> 计算一个错误联合表达式。如果它是一个错误,则从当前函数返回相同的错误。否则,表达式的结果是解包后的值。
+      </p>
+      
+      <p>
+        也许你完全确定一个表达式永远不会是错误。
+        在这种情况下,你可以这样做:
+      </p>
+      <code><span class="tok-kw">const</span> number = parseU64(<span class="tok-str">"1234"</span>, <span class="tok-number">10</span>) <span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span>;</code>
+      <p>
+      这里我们确信 "1234" 将成功解析。所以我们在右侧放置 <code><span class="tok-kw">unreachable</span></code> 值。
+      <code><span class="tok-kw">unreachable</span></code> 调用安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>,所以在 <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> 模式下,默认触发安全恐慌。因此,当我们调试应用程序时,如果这里<em>确实</em>有意外错误,应用程序会适当地崩溃。
+      </p>
+      <p>
+      你可能想对每种情况采取不同的行动。为此,我们结合 <a href="https://ziglang.org/documentation/0.15.2/#if">if</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a> 表达式:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">handle_all_error_scenarios.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(str: []<span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (parseU64(str, <span class="tok-number">10</span>)) |number| {
+        doSomethingWithNumber(number);
+    } <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.Overflow =&gt; {
+            <span class="tok-comment">// handle overflow...</span>
+        },
+        <span class="tok-comment">// we promise that InvalidChar won't happen (or crash in debug mode if it does)</span>
+        <span class="tok-kw">error</span>.InvalidChar =&gt; <span class="tok-kw">unreachable</span>,
+    }
+}</code></pre></figure>
+      <p>
+      最后,你可能只想处理某些错误。为此,你可以在 <code><span class="tok-kw">else</span></code> 分支中捕获未处理的错误,现在它包含一个更窄的错误集:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">handle_some_error_scenarios.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">doAnotherThing</span>(str: []<span class="tok-type">u8</span>) <span class="tok-kw">error</span>{InvalidChar}!<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (parseU64(str, <span class="tok-number">10</span>)) |number| {
+        doSomethingWithNumber(number);
+    } <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.Overflow =&gt; {
+            <span class="tok-comment">// handle overflow...</span>
+        },
+        <span class="tok-kw">else</span> =&gt; |leftover_err| <span class="tok-kw">return</span> leftover_err,
+    }
+}</code></pre></figure>
+      <p>
+      你必须使用变量捕获语法。如果你不需要变量,可以用 <code>_</code> 捕获并避免使用 <code><span class="tok-kw">switch</span></code>。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">handle_no_error_scenarios.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">doADifferentThing</span>(str: []<span class="tok-type">u8</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (parseU64(str, <span class="tok-number">10</span>)) |number| {
+        doSomethingWithNumber(number);
+    } <span class="tok-kw">else</span> |_| {
+        <span class="tok-comment">// do as you'd like</span>
+    }
+}</code></pre></figure>
+      <h4 id="errdefer"><a href="https://ziglang.org/documentation/0.15.2/#toc-errdefer">errdefer</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#errdefer">§</a></h4>
+
+      <p>
+      错误处理的另一个组件是 defer 语句。
+      除了无条件的 <a href="https://ziglang.org/documentation/0.15.2/#defer">defer</a>,Zig 还有 <code><span class="tok-kw">errdefer</span></code>,它在块退出路径上当且仅当函数从块返回错误时计算延迟表达式。
+      </p>
+      <p>
+      示例:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">errdefer_example.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">createFoo</span>(param: <span class="tok-type">i32</span>) !Foo {
+    <span class="tok-kw">const</span> foo = <span class="tok-kw">try</span> tryToAllocateFoo();
+    <span class="tok-comment">// 现在我们已经分配了 foo。如果函数失败,我们需要释放它。</span>
+    <span class="tok-comment">// 但如果函数成功,我们想返回它。</span>
+    <span class="tok-kw">errdefer</span> deallocateFoo(foo);
+
+    <span class="tok-kw">const</span> tmp_buf = allocateTmpBuffer() <span class="tok-kw">orelse</span> <span class="tok-kw">return</span> <span class="tok-kw">error</span>.OutOfMemory;
+    <span class="tok-comment">// tmp_buf 确实是一个临时资源,我们肯定想在这个块离开作用域之前清理它</span>
+    <span class="tok-kw">defer</span> deallocateTmpBuffer(tmp_buf);
+
+    <span class="tok-kw">if</span> (param &gt; <span class="tok-number">1337</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.InvalidParam;
+
+    <span class="tok-comment">// 这里 errdefer 不会运行,因为我们从函数返回成功。</span>
+    <span class="tok-comment">// 但是 defer 会运行!</span>
+    <span class="tok-kw">return</span> foo;
+}</code></pre></figure>
+      <p>
+      这样做的好处是,你可以获得健壮的错误处理,而不会有冗长和认知开销,不用试图确保覆盖每个退出路径。释放代码总是直接跟随分配代码。
+      </p>
+      <p>
+      <code><span class="tok-kw">errdefer</span></code> 语句可以选择性地捕获错误:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_errdefer_capture.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">fn</span> <span class="tok-fn">captureError</span>(captured: *?<span class="tok-type">anyerror</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">errdefer</span> |err| {
+        captured.* = err;
+    }
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.GeneralFailure;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"errdefer capture"</span> {
+    <span class="tok-kw">var</span> captured: ?<span class="tok-type">anyerror</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">if</span> (captureError(&amp;captured)) <span class="tok-kw">unreachable</span> <span class="tok-kw">else</span> |err| {
+        <span class="tok-kw">try</span> std.testing.expectEqual(<span class="tok-kw">error</span>.GeneralFailure, captured.?);
+        <span class="tok-kw">try</span> std.testing.expectEqual(<span class="tok-kw">error</span>.GeneralFailure, err);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_errdefer_capture.zig</kbd>
+1/1 test_errdefer_capture.test.errdefer capture...OK
+All 1 tests passed.
+</samp></pre></figure>
+      
+      <p>
+      关于错误处理的其他一些要点:
+      </p>
+      <ul>
+        <li>这些原语提供了足够的表现力,使得未能检查错误成为编译错误是完全实用的。如果你真的想忽略错误,可以添加 <code><span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span></code>,并在 Debug 和 ReleaseSafe 模式下如果你的假设错误时获得崩溃的额外好处。
+        </li>
+        <li>
+          由于 Zig 理解错误类型,它可以预先加权分支以支持不发生错误。这只是一个小的优化好处,在其他语言中是无法获得的。
+        </li>
+      </ul>
+      <p>另见:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#defer">defer</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#if">if</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a></li>
+</ul>
+
+
+      <p>错误联合使用 <code>!</code> 二元运算符创建。
+      你可以使用编译时反射来访问错误联合的子类型:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_error_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"error union"</span> {
+    <span class="tok-kw">var</span> foo: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-null">undefined</span>;
+
+    <span class="tok-comment">// 从错误联合的子类型强制转换:</span>
+    foo = <span class="tok-number">1234</span>;
+
+    <span class="tok-comment">// 从错误集强制转换:</span>
+    foo = <span class="tok-kw">error</span>.SomeError;
+
+    <span class="tok-comment">// 使用编译时反射访问错误联合的负载类型:</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(foo)).error_union.payload == <span class="tok-type">i32</span>);
+
+    <span class="tok-comment">// 使用编译时反射访问错误联合的错误集类型:</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(foo)).error_union.error_set == <span class="tok-type">anyerror</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_error_union.zig</kbd>
+1/1 test_error_union.test.error union...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <h4 id="Merging-Error-Sets"><a href="https://ziglang.org/documentation/0.15.2/#toc-Merging-Error-Sets">合并错误集</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Merging-Error-Sets">§</a></h4>
+
+      <p>
+      使用 <code>||</code> 运算符将两个错误集合并在一起。结果错误集包含两个错误集的错误。左侧的文档注释覆盖右侧的文档注释。在这个例子中,<code>C.PathNotFound</code> 的文档注释是 <code>A doc comment</code>。
+      </p>
+      <p>
+      这对于根据 <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> 分支返回不同错误集的函数特别有用。例如,Zig 标准库使用 <code>LinuxFileOpenError || WindowsFileOpenError</code> 作为打开文件的错误集。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_merging_error_sets.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> A = <span class="tok-kw">error</span>{
+    NotDir,
+
+    <span class="tok-comment">/// A doc comment</span>
+    PathNotFound,
+};
+<span class="tok-kw">const</span> B = <span class="tok-kw">error</span>{
+    OutOfMemory,
+
+    <span class="tok-comment">/// B doc comment</span>
+    PathNotFound,
+};
+
+<span class="tok-kw">const</span> C = A || B;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() C!<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.NotDir;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"merge error sets"</span> {
+    <span class="tok-kw">if</span> (foo()) {
+        <span class="tok-builtin">@panic</span>(<span class="tok-str">"unexpected"</span>);
+    } <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.OutOfMemory =&gt; <span class="tok-builtin">@panic</span>(<span class="tok-str">"unexpected"</span>),
+        <span class="tok-kw">error</span>.PathNotFound =&gt; <span class="tok-builtin">@panic</span>(<span class="tok-str">"unexpected"</span>),
+        <span class="tok-kw">error</span>.NotDir =&gt; {},
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_merging_error_sets.zig</kbd>
+1/1 test_merging_error_sets.test.merge error sets...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Inferred-Error-Sets"><a href="https://ziglang.org/documentation/0.15.2/#toc-Inferred-Error-Sets">推断错误集</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Inferred-Error-Sets">§</a></h4>
+
+      <p>
+      因为 Zig 中的许多函数都返回可能的错误,Zig 支持推断错误集。
+      要推断函数的错误集,在函数的返回类型前加上 <code>!</code> 运算符,如 <code>!T</code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_inferred_error_sets.zig</cite></figcaption><pre><code><span class="tok-comment">// 使用推断的错误集</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">add_inferred</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) !T {
+    <span class="tok-kw">const</span> ov = <span class="tok-builtin">@addWithOverflow</span>(a, b);
+    <span class="tok-kw">if</span> (ov[<span class="tok-number">1</span>] != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.Overflow;
+    <span class="tok-kw">return</span> ov[<span class="tok-number">0</span>];
+}
+
+<span class="tok-comment">// 使用显式的错误集</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">add_explicit</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) Error!T {
+    <span class="tok-kw">const</span> ov = <span class="tok-builtin">@addWithOverflow</span>(a, b);
+    <span class="tok-kw">if</span> (ov[<span class="tok-number">1</span>] != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.Overflow;
+    <span class="tok-kw">return</span> ov[<span class="tok-number">0</span>];
+}
+
+<span class="tok-kw">const</span> Error = <span class="tok-kw">error</span>{
+    Overflow,
+};
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"inferred error set"</span> {
+    <span class="tok-kw">if</span> (add_inferred(<span class="tok-type">u8</span>, <span class="tok-number">255</span>, <span class="tok-number">1</span>)) |_| <span class="tok-kw">unreachable</span> <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.Overflow =&gt; {}, <span class="tok-comment">// ok</span>
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_inferred_error_sets.zig</kbd>
+1/1 test_inferred_error_sets.test.inferred error set...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      当函数具有推断的错误集时,该函数变为泛型,因此使用它做某些事情变得更加困难,例如获取函数指针,或拥有在不同构建目标之间一致的错误集。此外,推断的错误集与递归不兼容。
+      </p>
+      <p>
+      在这些情况下,建议使用显式错误集。你通常可以从空错误集开始,让编译错误引导你完成该集合。
+      </p>
+      <p>
+      这些限制可能会在 Zig 的未来版本中克服。
+      </p>
+      
+      
+      <h3 id="Error-Return-Traces"><a href="https://ziglang.org/documentation/0.15.2/#toc-Error-Return-Traces">错误返回跟踪</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Error-Return-Traces">§</a></h3>
+
+      <p>
+      错误返回跟踪显示了代码中错误返回到调用函数的所有点。这使得在任何地方使用 <a href="https://ziglang.org/documentation/0.15.2/#try">try</a> 变得实用,然后如果错误最终从应用程序中冒出来,仍然能够知道发生了什么。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">error_return_trace.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> foo(<span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: <span class="tok-type">i32</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (x &gt;= <span class="tok-number">5</span>) {
+        <span class="tok-kw">try</span> bar();
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">try</span> bang2();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (baz()) {
+        <span class="tok-kw">try</span> quux();
+    } <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.FileNotFound =&gt; <span class="tok-kw">try</span> hello(),
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">baz</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang1();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">quux</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">hello</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang1</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.FileNotFound;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang2</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.PermissionDenied;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe error_return_trace.zig</kbd>
+$ <kbd>./error_return_trace</kbd>
+error: PermissionDenied
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:34:5</span>: <span class="sgr-2m">0x113d36c in bang1 (error_return_trace.zig)</span>
+    return error.FileNotFound;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:22:5</span>: <span class="sgr-2m">0x113d3b6 in baz (error_return_trace.zig)</span>
+    try bang1();
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:38:5</span>: <span class="sgr-2m">0x113d3ec in bang2 (error_return_trace.zig)</span>
+    return error.PermissionDenied;
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:30:5</span>: <span class="sgr-2m">0x113d496 in hello (error_return_trace.zig)</span>
+    try bang2();
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:17:31</span>: <span class="sgr-2m">0x113d56e in bar (error_return_trace.zig)</span>
+        error.FileNotFound =&gt; try hello(),
+                              <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:7:9</span>: <span class="sgr-2m">0x113d654 in foo (error_return_trace.zig)</span>
+        try bar();
+        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/error_return_trace.zig:2:5</span>: <span class="sgr-2m">0x113d71b in main (error_return_trace.zig)</span>
+    try foo(12);
+    <span class="sgr-32m">^</span>
+</samp></pre></figure>
+
+      <p>
+      仔细看这个例子。这不是栈跟踪。
+      </p>
+      <p>
+      你可以看到最终冒出来的错误是 <code>PermissionDenied</code>,
+          但最初引发这一切的错误是 <code>FileNotFound</code>。在 <code>bar</code> 函数中,代码处理了原始错误代码,然后从 switch 语句返回另一个错误。错误返回跟踪清楚地显示了这一点,而栈跟踪看起来像这样:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">stack_trace.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    foo(<span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(x: <span class="tok-type">i32</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (x &gt;= <span class="tok-number">5</span>) {
+        bar();
+    } <span class="tok-kw">else</span> {
+        bang2();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">if</span> (baz()) {
+        quux();
+    } <span class="tok-kw">else</span> {
+        hello();
+    }
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">baz</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> bang1();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">quux</span>() <span class="tok-type">void</span> {
+    bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">hello</span>() <span class="tok-type">void</span> {
+    bang2();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang1</span>() <span class="tok-type">bool</span> {
+    <span class="tok-kw">return</span> <span class="tok-null">false</span>;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bang2</span>() <span class="tok-type">void</span> {
+    <span class="tok-builtin">@panic</span>(<span class="tok-str">"PermissionDenied"</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe stack_trace.zig</kbd>
+$ <kbd>./stack_trace</kbd>
+thread 2902479 panic: PermissionDenied
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:38:5</span>: <span class="sgr-2m">0x1140e6c in bang2 (stack_trace.zig)</span>
+    @panic("PermissionDenied");
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:30:10</span>: <span class="sgr-2m">0x11414ac in hello (stack_trace.zig)</span>
+    bang2();
+         <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:17:14</span>: <span class="sgr-2m">0x1140e23 in bar (stack_trace.zig)</span>
+        hello();
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:7:12</span>: <span class="sgr-2m">0x1140ab8 in foo (stack_trace.zig)</span>
+        bar();
+           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/stack_trace.zig:2:8</span>: <span class="sgr-2m">0x113f871 in main (stack_trace.zig)</span>
+    foo(12);
+       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x113eabd in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113e351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      <p>
+      这里,栈跟踪没有解释 <code>bar</code> 中的控制流如何到达 <code>hello()</code> 调用。
+      必须打开调试器或进一步检测应用程序才能找出原因。另一方面,错误返回跟踪确切地显示了错误是如何冒出来的。
+      </p>
+      <p>
+      这个调试功能使得在健壮处理所有错误条件的代码上快速迭代变得更容易。这意味着 Zig 开发人员会自然而然地发现自己编写正确、健壮的代码,以提高开发速度。
+      </p>
+      <p>
+      错误返回跟踪在 <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> 构建中默认启用,在 <a href="https://ziglang.org/documentation/0.15.2/#ReleaseFast">ReleaseFast</a>、<a href="https://ziglang.org/documentation/0.15.2/#ReleaseSafe">ReleaseSafe</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#ReleaseSmall">ReleaseSmall</a> 构建中默认禁用。
+      </p>
+      <p>
+      有几种方法可以激活此错误返回跟踪功能:
+      </p>
+      <ul>
+        <li>从 main 返回一个错误</li>
+        <li>错误最终到达 <code><span class="tok-kw">catch</span> <span class="tok-kw">unreachable</span></code> 且你没有覆盖默认的 panic 处理程序</li>
+        <li>使用 <a href="https://ziglang.org/documentation/0.15.2/#errorReturnTrace">errorReturnTrace</a> 访问当前返回跟踪。你可以使用 <code>std.debug.dumpStackTrace</code> 打印它。当在没有错误返回跟踪支持的情况下构建时,此函数返回编译时已知的 <a href="https://ziglang.org/documentation/0.15.2/#null">null</a>。</li>
+      </ul>
+      <h4 id="Implementation-Details"><a href="https://ziglang.org/documentation/0.15.2/#toc-Implementation-Details">实现细节</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Implementation-Details">§</a></h4>
+
+      <p>
+      要分析性能成本,有两种情况:
+      </p>
+      <ul>
+        <li>当没有返回错误时</li>
+        <li>当返回错误时</li>
+      </ul>
+      <p>
+      对于没有返回错误的情况,成本是单个内存写操作,仅在调用图中第一个调用可失败函数的不可失败函数中,即当返回 <code><span class="tok-type">void</span></code> 的函数调用返回 <code><span class="tok-kw">error</span></code> 的函数时。
+      这是为了在栈内存中初始化此结构:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">stack_trace_struct.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> StackTrace = <span class="tok-kw">struct</span> {
+    index: <span class="tok-type">usize</span>,
+    instruction_addresses: [N]<span class="tok-type">usize</span>,
+};</code></pre></figure>
+      <p>
+      这里,N 是由调用图分析确定的最大函数调用深度。递归被忽略并计为 2。
+      </p>
+      <p>
+      指向 <code>StackTrace</code> 的指针作为秘密参数传递给每个可以返回错误的函数,但它总是第一个参数,所以它可能位于寄存器中并保持在那里。
+      </p>
+      <p>
+      对于没有发生错误的路径来说就是这样。在性能方面实际上是免费的。
+      </p>
+      <p>
+      当为返回错误的函数生成代码时,就在 <code><span class="tok-kw">return</span></code> 语句之前(仅对于返回错误的 <code><span class="tok-kw">return</span></code> 语句),Zig 生成对此函数的调用:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">zig_return_error_fn.zig</cite></figcaption><pre><code><span class="tok-comment">// 在 LLVM IR 中标记为 "no-inline"</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">__zig_return_error</span>(stack_trace: *StackTrace) <span class="tok-type">void</span> {
+    stack_trace.instruction_addresses[stack_trace.index] = <span class="tok-builtin">@returnAddress</span>();
+    stack_trace.index = (stack_trace.index + <span class="tok-number">1</span>) % N;
+}</code></pre></figure>
+      <p>
+      成本是 2 个数学操作加上一些内存读写。访问的内存受到限制,应该在错误返回冒泡期间保持缓存。
+      </p>
+      <p>
+      至于代码大小成本,return 语句之前的 1 个函数调用没什么大不了的。即便如此,我也有<a href="https://github.com/ziglang/zig/issues/690">计划</a>将对 <code>__zig_return_error</code> 的调用变为尾调用,这将代码大小成本降低到实际为零。在没有错误返回跟踪的代码中是 return 语句的内容,在有错误返回跟踪的代码中可以变成跳转指令。
+      </p>
+      
+      
+      
+      <h2 id="Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optionals">可选值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optionals">§</a></h2>
+
+      <p>
+      Zig 在不影响效率或可读性的情况下提供安全的一个领域是可选类型。
+      </p>
+      <p>
+      问号象征可选类型。你可以通过在类型前面放一个问号将类型转换为可选类型,像这样:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">optional_integer.zig</cite></figcaption><pre><code><span class="tok-comment">// 普通整数</span>
+<span class="tok-kw">const</span> normal_int: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+
+<span class="tok-comment">// 可选整数</span>
+<span class="tok-kw">const</span> optional_int: ?<span class="tok-type">i32</span> = <span class="tok-number">5678</span>;</code></pre></figure>
+
+      <p>
+      现在变量 <code>optional_int</code> 可以是 <code><span class="tok-type">i32</span></code>,或者 <code><span class="tok-null">null</span></code>。
+      </p>
+      <p>
+      与其说整数,不如说指针。空引用是许多运行时异常的来源,甚至被指责为<a href="https://www.lucidchart.com/techblog/2015/08/31/the-worst-mistake-of-computer-science/">计算机科学的最大错误</a>。
+      </p>
+      <p>Zig 没有它们。</p>
+      <p>
+      相反,你可以使用可选指针。这在内部编译为普通指针,因为我们知道可以将 0 用作可选类型的 null 值。但编译器可以检查你的工作并确保你不会将 null 分配给不能为 null 的东西。
+      </p>
+      <p>
+      通常没有 null 的缺点是它使代码编写起来更冗长。但是,让我们比较一些等效的 C 代码和 Zig 代码。
+      </p>
+      <p>
+      任务:调用 malloc,如果结果为 null,返回 null。
+      </p>
+      <p>C 代码</p>
+      <figure><figcaption class="c-cap"><cite class="file">call_malloc_in_c.c</cite></figcaption><pre><code>// malloc 原型包含在内以供参考
+void *malloc(size_t size);
+
+struct Foo *do_a_thing(void) {
+    char *ptr = malloc(1234);
+    if (!ptr) return NULL;
+    // ...
+}</code></pre></figure>
+      <p>Zig 代码</p>
+      <figure><figcaption class="zig-cap"><cite class="file">call_malloc_from_zig.zig</cite></figcaption><pre><code><span class="tok-comment">// malloc 原型包含在内以供参考</span>
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">malloc</span>(size: <span class="tok-type">usize</span>) ?[*]<span class="tok-type">u8</span>;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>() ?*Foo {
+    <span class="tok-kw">const</span> ptr = malloc(<span class="tok-number">1234</span>) <span class="tok-kw">orelse</span> <span class="tok-kw">return</span> <span class="tok-null">null</span>;
+    _ = ptr; <span class="tok-comment">// ...</span>
+}</code></pre></figure>
+      <p>
+        这里,Zig 至少和 C 一样方便,如果不是更方便的话。并且,"ptr" 的类型是 <code>[*]<span class="tok-type">u8</span></code> <em>而不是</em> <code>?[*]<span class="tok-type">u8</span></code>。<code><span class="tok-kw">orelse</span></code> 关键字解包了可选类型,因此 <code>ptr</code> 在函数中使用的任何地方都保证是非 null 的。
+      </p>
+      <p>
+        你可能看到的另一种形式的 NULL 检查看起来像这样:
+      </p>
+      <figure><figcaption class="c-cap"><cite class="file">checking_null_in_c.c</cite></figcaption><pre><code>void do_a_thing(struct Foo *foo) {
+    // do some stuff
+
+    if (foo) {
+        do_something_with_foo(foo);
+    }
+
+    // do some stuff
+}</code></pre></figure>
+      <p>
+        在 Zig 中你可以完成同样的事情:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">checking_null_in_zig.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">struct</span> {};
+<span class="tok-kw">fn</span> <span class="tok-fn">doSomethingWithFoo</span>(foo: *Foo) <span class="tok-type">void</span> {
+    _ = foo;
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doAThing</span>(optional_foo: ?*Foo) <span class="tok-type">void</span> {
+    <span class="tok-comment">// do some stuff</span>
+
+    <span class="tok-kw">if</span> (optional_foo) |foo| {
+        doSomethingWithFoo(foo);
+    }
+
+    <span class="tok-comment">// do some stuff</span>
+}</code></pre></figure>
+
+      <p>
+      再次,这里值得注意的是,在 if 块内,<code>foo</code> 不再是可选指针,它是一个指针,不能为 null。
+      </p>
+      <p>
+      这样做的一个好处是,将指针作为参数的函数可以使用 "nonnull" 属性注释 - 在 <a href="https://gcc.gnu.org/onlinedocs/gcc-4.0.0/gcc/Function-Attributes.html">GCC</a> 中是 <code>__attribute__((nonnull))</code>。
+      优化器有时可以根据指针参数不能为 null 做出更好的决策。
+      </p>
+      <h3 id="Optional-Type"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optional-Type">可选类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optional-Type">§</a></h3>
+
+      <p>可选值通过在类型前面放置 <code>?</code> 创建。你可以使用编译时反射访问可选值的子类型:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_optional_type.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"optional type"</span> {
+    <span class="tok-comment">// 声明一个可选值并从 null 强制转换:</span>
+    <span class="tok-kw">var</span> foo: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-comment">// 从可选值的子类型强制转换</span>
+    foo = <span class="tok-number">1234</span>;
+
+    <span class="tok-comment">// 使用编译时反射访问可选值的子类型:</span>
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(foo)).optional.child == <span class="tok-type">i32</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_optional_type.zig</kbd>
+1/1 test_optional_type.test.optional type...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h3 id="null"><a href="https://ziglang.org/documentation/0.15.2/#toc-null">null</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#null">§</a></h3>
+
+      <p>
+      就像 <a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a> 一样,<code><span class="tok-null">null</span></code> 有自己的类型,使用它的唯一方法是将其转换为不同的类型:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">null.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> optional_value: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;</code></pre></figure>
+
+      
+      <h3 id="Optional-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Optional-Pointers">可选指针</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">§</a></h3>
+
+      <p>可选指针保证与指针大小相同。可选值的 <code><span class="tok-null">null</span></code> 保证是地址 0。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_optional_pointer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"optional pointers"</span> {
+    <span class="tok-comment">// 指针不能为 null。如果你想要一个 null 指针,使用可选</span>
+    <span class="tok-comment">// 前缀 `?` 使指针类型成为可选的。</span>
+    <span class="tok-kw">var</span> ptr: ?*<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    ptr = &amp;x;
+
+    <span class="tok-kw">try</span> expect(ptr.?.* == <span class="tok-number">1</span>);
+
+    <span class="tok-comment">// 可选指针与普通指针大小相同,因为指针值 0 用作 null 值。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@sizeOf</span>(?*<span class="tok-type">i32</span>) == <span class="tok-builtin">@sizeOf</span>(*<span class="tok-type">i32</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_optional_pointer.zig</kbd>
+1/1 test_optional_pointer.test.optional pointers...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <p>另见:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#while-with-Optionals">while 与可选值</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#if-with-Optionals">if 与可选值</a></li>
+</ul>
+
+      
+      <h2 id="Casting"><a href="https://ziglang.org/documentation/0.15.2/#toc-Casting">类型转换</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Casting">§</a></h2>
+
+      <p>
+      <strong>类型转换</strong>将一种类型的值转换为另一种类型。
+      Zig 对已知完全安全且明确的转换使用<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">类型强制转换</a>,对不希望意外发生的转换使用<a href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">显式转换</a>。
+      还有第三种类型转换,称为<a href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">同级类型解析</a>,用于在给定多个操作数类型的情况下必须决定结果类型的情况。
+      </p>
+      <h3 id="Type-Coercion"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion">类型强制转换</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">§</a></h3>
+
+      <p>
+      当需要一种类型,但提供了不同的类型时,就会发生类型强制转换:
+      </p>

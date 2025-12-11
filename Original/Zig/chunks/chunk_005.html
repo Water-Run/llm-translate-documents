@@ -1,0 +1,1161 @@
+      <figure><figcaption class="zig-cap"><cite class="file">test_misaligned_pointer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> BitField = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    a: <span class="tok-type">u3</span>,
+    b: <span class="tok-type">u3</span>,
+    c: <span class="tok-type">u2</span>,
+};
+
+<span class="tok-kw">var</span> bit_field = BitField{
+    .a = <span class="tok-number">1</span>,
+    .b = <span class="tok-number">2</span>,
+    .c = <span class="tok-number">3</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer to non-byte-aligned field"</span> {
+    <span class="tok-kw">try</span> expect(bar(&amp;bit_field.b) == <span class="tok-number">2</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(x: *<span class="tok-kw">const</span> <span class="tok-type">u3</span>) <span class="tok-type">u3</span> {
+    <span class="tok-kw">return</span> x.*;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_misaligned_pointer.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_misaligned_pointer.zig:17:20: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type '*const u3', found '*align(1:3:1) u3'
+</span>    try expect(bar(&amp;bit_field.b) == 2);
+                   <span class="sgr-32m">^~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_misaligned_pointer.zig:17:20: </span><span class="sgr-36m">note: </span><span class="sgr-1m">pointer host size '1' cannot cast into pointer host size '0'
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_misaligned_pointer.zig:17:20: </span><span class="sgr-36m">note: </span><span class="sgr-1m">pointer bit offset '3' cannot cast into pointer bit offset '0'
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_misaligned_pointer.zig:20:11: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter type declared here
+</span>fn bar(x: *const u3) u3 {
+          <span class="sgr-32m">^~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>
+      In this case, the function <code>bar</code> cannot be called because the pointer
+      to the non-ABI-aligned field mentions the bit offset, but the function expects an ABI-aligned pointer.
+      </p>
+      <p>
+      Pointers to non-ABI-aligned fields share the same address as the other fields within their host integer:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_packed_struct_field_address.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> BitField = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    a: <span class="tok-type">u3</span>,
+    b: <span class="tok-type">u3</span>,
+    c: <span class="tok-type">u2</span>,
+};
+
+<span class="tok-kw">var</span> bit_field = BitField{
+    .a = <span class="tok-number">1</span>,
+    .b = <span class="tok-number">2</span>,
+    .c = <span class="tok-number">3</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointers of sub-byte-aligned fields share addresses"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromPtr</span>(&amp;bit_field.a) == <span class="tok-builtin">@intFromPtr</span>(&amp;bit_field.b));
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromPtr</span>(&amp;bit_field.a) == <span class="tok-builtin">@intFromPtr</span>(&amp;bit_field.c));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_packed_struct_field_address.zig</kbd>
+1/1 test_packed_struct_field_address.test.pointers of sub-byte-aligned fields share addresses...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      This can be observed with <a href="https://ziglang.org/documentation/0.15.2/#bitOffsetOf">@bitOffsetOf</a> and <a href="https://ziglang.org/documentation/0.15.2/#offsetOf">offsetOf</a>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_bitOffsetOf_offsetOf.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> BitField = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    a: <span class="tok-type">u3</span>,
+    b: <span class="tok-type">u3</span>,
+    c: <span class="tok-type">u2</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"offsets of non-byte-aligned fields"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@bitOffsetOf</span>(BitField, <span class="tok-str">"a"</span>) == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@bitOffsetOf</span>(BitField, <span class="tok-str">"b"</span>) == <span class="tok-number">3</span>);
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@bitOffsetOf</span>(BitField, <span class="tok-str">"c"</span>) == <span class="tok-number">6</span>);
+
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@offsetOf</span>(BitField, <span class="tok-str">"a"</span>) == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@offsetOf</span>(BitField, <span class="tok-str">"b"</span>) == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@offsetOf</span>(BitField, <span class="tok-str">"c"</span>) == <span class="tok-number">0</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_bitOffsetOf_offsetOf.zig</kbd>
+1/1 test_bitOffsetOf_offsetOf.test.offsets of non-byte-aligned fields...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Packed structs have the same alignment as their backing integer, however, overaligned
+      pointers to packed structs can override this:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_overaligned_packed_struct.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> S = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    a: <span class="tok-type">u32</span>,
+    b: <span class="tok-type">u32</span>,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"overaligned pointer to packed struct"</span> {
+    <span class="tok-kw">var</span> foo: S <span class="tok-kw">align</span>(<span class="tok-number">4</span>) = .{ .a = <span class="tok-number">1</span>, .b = <span class="tok-number">2</span> };
+    <span class="tok-kw">const</span> ptr: *<span class="tok-kw">align</span>(<span class="tok-number">4</span>) S = &amp;foo;
+    <span class="tok-kw">const</span> ptr_to_b: *<span class="tok-type">u32</span> = &amp;ptr.b;
+    <span class="tok-kw">try</span> expect(ptr_to_b.* == <span class="tok-number">2</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_overaligned_packed_struct.zig</kbd>
+1/1 test_overaligned_packed_struct.test.overaligned pointer to packed struct...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      It's also possible to set alignment of struct fields:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_aligned_struct_fields.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expectEqual = std.testing.expectEqual;
+
+<span class="tok-kw">test</span> <span class="tok-str">"aligned struct fields"</span> {
+    <span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> {
+        a: <span class="tok-type">u32</span> <span class="tok-kw">align</span>(<span class="tok-number">2</span>),
+        b: <span class="tok-type">u32</span> <span class="tok-kw">align</span>(<span class="tok-number">64</span>),
+    };
+    <span class="tok-kw">var</span> foo = S{ .a = <span class="tok-number">1</span>, .b = <span class="tok-number">2</span> };
+
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-number">64</span>, <span class="tok-builtin">@alignOf</span>(S));
+    <span class="tok-kw">try</span> expectEqual(*<span class="tok-kw">align</span>(<span class="tok-number">2</span>) <span class="tok-type">u32</span>, <span class="tok-builtin">@TypeOf</span>(&amp;foo.a));
+    <span class="tok-kw">try</span> expectEqual(*<span class="tok-kw">align</span>(<span class="tok-number">64</span>) <span class="tok-type">u32</span>, <span class="tok-builtin">@TypeOf</span>(&amp;foo.b));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_aligned_struct_fields.zig</kbd>
+1/1 test_aligned_struct_fields.test.aligned struct fields...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Equating packed structs results in a comparison of the backing integer,
+      and only works for the <code>==</code> and <code>!=</code> <a href="https://ziglang.org/documentation/0.15.2/#Operators">Operators</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_packed_struct_equality.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"packed struct equality"</span> {
+    <span class="tok-kw">const</span> S = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+        a: <span class="tok-type">u4</span>,
+        b: <span class="tok-type">u4</span>,
+    };
+    <span class="tok-kw">const</span> x: S = .{ .a = <span class="tok-number">1</span>, .b = <span class="tok-number">2</span> };
+    <span class="tok-kw">const</span> y: S = .{ .b = <span class="tok-number">2</span>, .a = <span class="tok-number">1</span> };
+    <span class="tok-kw">try</span> expect(x == y);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_packed_struct_equality.zig</kbd>
+1/1 test_packed_struct_equality.test.packed struct equality...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Field access and assignment can be understood as shorthand for bitshifts
+      on the backing integer. These operations are not <a href="https://ziglang.org/documentation/0.15.2/#Atomics">atomic</a>,
+      so beware using field access syntax when combined with memory-mapped
+      input-output (MMIO). Instead of field access on <a href="https://ziglang.org/documentation/0.15.2/#volatile">volatile</a> <a href="https://ziglang.org/documentation/0.15.2/#Pointers">Pointers</a>,
+      construct a fully-formed new value first, then write that value to the volatile pointer.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">packed_struct_mmio.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> GpioRegister = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span>(<span class="tok-type">u8</span>) {
+    GPIO0: <span class="tok-type">bool</span>,
+    GPIO1: <span class="tok-type">bool</span>,
+    GPIO2: <span class="tok-type">bool</span>,
+    GPIO3: <span class="tok-type">bool</span>,
+    reserved: <span class="tok-type">u4</span> = <span class="tok-number">0</span>,
+};
+
+<span class="tok-kw">const</span> gpio: *<span class="tok-kw">volatile</span> GpioRegister = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x0123</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">writeToGpio</span>(new_states: GpioRegister) <span class="tok-type">void</span> {
+    <span class="tok-comment">// Example of what not to do:</span>
+    <span class="tok-comment">// BAD! gpio.GPIO0 = true; BAD!</span>
+
+    <span class="tok-comment">// Instead, do this:</span>
+    gpio.* = new_states;
+}</code></pre></figure>
+      
+
+      <h3 id="Struct-Naming"><a href="https://ziglang.org/documentation/0.15.2/#toc-Struct-Naming">Struct Naming</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Struct-Naming">§</a></h3>
+
+      <p>Since all structs are anonymous, Zig infers the type name based on a few rules.</p>
+      <ul>
+          <li>If the struct is in the initialization expression of a variable, it gets named after
+          that variable.</li>
+          <li>If the struct is in the <code><span class="tok-kw">return</span></code> expression, it gets named after
+          the function it is returning from, with the parameter values serialized.</li>
+          <li>Otherwise, the struct gets a name such as <code>(filename.funcname__struct_ID)</code>.</li>
+          <li>If the struct is declared inside another struct, it gets named after both the parent
+          struct and the name inferred by the previous rules, separated by a dot.</li>
+      </ul>
+      <figure><figcaption class="zig-cap"><cite class="file">struct_name.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> Foo = <span class="tok-kw">struct</span> {};
+    std.debug.print(<span class="tok-str">"variable: {s}\n"</span>, .{<span class="tok-builtin">@typeName</span>(Foo)});
+    std.debug.print(<span class="tok-str">"anonymous: {s}\n"</span>, .{<span class="tok-builtin">@typeName</span>(<span class="tok-kw">struct</span> {})});
+    std.debug.print(<span class="tok-str">"function: {s}\n"</span>, .{<span class="tok-builtin">@typeName</span>(List(<span class="tok-type">i32</span>))});
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">List</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {
+        x: T,
+    };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe struct_name.zig</kbd>
+$ <kbd>./struct_name</kbd>
+variable: struct_name.main.Foo
+anonymous: struct_name.main__struct_22691
+function: struct_name.List(i32)
+</samp></pre></figure>
+
+      
+
+      <h3 id="Anonymous-Struct-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Anonymous-Struct-Literals">Anonymous Struct Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Anonymous-Struct-Literals">§</a></h3>
+
+      <p>
+      Zig allows omitting the struct type of a literal. When the result is <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">coerced</a>,
+      the struct literal will directly instantiate the <a href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">result location</a>,
+      with no copy:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_struct_result.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> { x: <span class="tok-type">i32</span>, y: <span class="tok-type">i32</span> };
+
+<span class="tok-kw">test</span> <span class="tok-str">"anonymous struct literal"</span> {
+    <span class="tok-kw">const</span> pt: Point = .{
+        .x = <span class="tok-number">13</span>,
+        .y = <span class="tok-number">67</span>,
+    };
+    <span class="tok-kw">try</span> expect(pt.x == <span class="tok-number">13</span>);
+    <span class="tok-kw">try</span> expect(pt.y == <span class="tok-number">67</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_struct_result.zig</kbd>
+1/1 test_struct_result.test.anonymous struct literal...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      The struct type can be inferred. Here the <a href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">result location</a>
+      does not include a type, and so Zig infers the type:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_anonymous_struct.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"fully anonymous struct"</span> {
+    <span class="tok-kw">try</span> check(.{
+        .int = <span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">1234</span>),
+        .float = <span class="tok-builtin">@as</span>(<span class="tok-type">f64</span>, <span class="tok-number">12.34</span>),
+        .b = <span class="tok-null">true</span>,
+        .s = <span class="tok-str">"hi"</span>,
+    });
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">check</span>(args: <span class="tok-kw">anytype</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> expect(args.int == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect(args.float == <span class="tok-number">12.34</span>);
+    <span class="tok-kw">try</span> expect(args.b);
+    <span class="tok-kw">try</span> expect(args.s[<span class="tok-number">0</span>] == <span class="tok-str">'h'</span>);
+    <span class="tok-kw">try</span> expect(args.s[<span class="tok-number">1</span>] == <span class="tok-str">'i'</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_anonymous_struct.zig</kbd>
+1/1 test_anonymous_struct.test.fully anonymous struct...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Tuples"><a href="https://ziglang.org/documentation/0.15.2/#toc-Tuples">Tuples</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Tuples">§</a></h3>
+
+      <p>
+      Anonymous structs can be created without specifying field names, and are referred to as "tuples". An empty tuple looks like <code>.{}</code> and can be seen in one of the <a href="https://ziglang.org/documentation/0.15.2/#Hello-World">Hello World examples</a>.
+      </p>
+      <p>
+      The fields are implicitly named using numbers starting from 0. Because their names are integers,
+      they cannot be accessed with <code>.</code> syntax without also wrapping them in
+      <code>@""</code>. Names inside <code>@""</code> are always recognised as
+      <a href="https://ziglang.org/documentation/0.15.2/#Identifiers">identifiers</a>.
+      </p>
+      <p>
+      Like arrays, tuples have a .len field, can be indexed (provided the index is comptime-known)
+      and work with the ++ and ** operators. They can also be iterated over with <a href="https://ziglang.org/documentation/0.15.2/#inline-for">inline for</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_tuples.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"tuple"</span> {
+    <span class="tok-kw">const</span> values = .{
+        <span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">1234</span>),
+        <span class="tok-builtin">@as</span>(<span class="tok-type">f64</span>, <span class="tok-number">12.34</span>),
+        <span class="tok-null">true</span>,
+        <span class="tok-str">"hi"</span>,
+    } ++ .{<span class="tok-null">false</span>} ** <span class="tok-number">2</span>;
+    <span class="tok-kw">try</span> expect(values[<span class="tok-number">0</span>] == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect(values[<span class="tok-number">4</span>] == <span class="tok-null">false</span>);
+    <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (values, <span class="tok-number">0</span>..) |v, i| {
+        <span class="tok-kw">if</span> (i != <span class="tok-number">2</span>) <span class="tok-kw">continue</span>;
+        <span class="tok-kw">try</span> expect(v);
+    }
+    <span class="tok-kw">try</span> expect(values.len == <span class="tok-number">6</span>);
+    <span class="tok-kw">try</span> expect(values.@"3"[<span class="tok-number">0</span>] == <span class="tok-str">'h'</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_tuples.zig</kbd>
+1/1 test_tuples.test.tuple...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <h4 id="Destructuring-Tuples"><a href="https://ziglang.org/documentation/0.15.2/#toc-Destructuring-Tuples">Destructuring Tuples</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Destructuring-Tuples">§</a></h4>
+
+      <p>
+        Tuples can be <a href="https://ziglang.org/documentation/0.15.2/#Destructuring">destructured</a>.
+      </p>
+      <p>
+        Tuple destructuring is helpful for returning multiple values from a block:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">destructuring_block.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> digits = [_]<span class="tok-type">i8</span> { <span class="tok-number">3</span>, <span class="tok-number">8</span>, <span class="tok-number">9</span>, <span class="tok-number">0</span>, <span class="tok-number">7</span>, <span class="tok-number">4</span>, <span class="tok-number">1</span> };
+
+    <span class="tok-kw">const</span> min, <span class="tok-kw">const</span> max = blk: {
+        <span class="tok-kw">var</span> min: <span class="tok-type">i8</span> = <span class="tok-number">127</span>;
+        <span class="tok-kw">var</span> max: <span class="tok-type">i8</span> = -<span class="tok-number">128</span>;
+
+        <span class="tok-kw">for</span> (digits) |digit| {
+            <span class="tok-kw">if</span> (digit &lt; min) min = digit;
+            <span class="tok-kw">if</span> (digit &gt; max) max = digit;
+        }
+
+        <span class="tok-kw">break</span> :blk .{ min, max };
+    };
+
+    print(<span class="tok-str">"min = {}\n"</span>, .{ min });
+    print(<span class="tok-str">"max = {}\n"</span>, .{ max });
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe destructuring_block.zig</kbd>
+$ <kbd>./destructuring_block</kbd>
+min = 0
+max = 9
+</samp></pre></figure>
+
+      <p>
+        Tuple destructuring is helpful for dealing with functions and built-ins that return multiple values
+        as a tuple:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">destructuring_return_value.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">fn</span> <span class="tok-fn">divmod</span>(numerator: <span class="tok-type">u32</span>, denominator: <span class="tok-type">u32</span>) <span class="tok-kw">struct</span> { <span class="tok-type">u32</span>, <span class="tok-type">u32</span> } {
+    <span class="tok-kw">return</span> .{ numerator / denominator, numerator % denominator };
+}
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> div, <span class="tok-kw">const</span> mod = divmod(<span class="tok-number">10</span>, <span class="tok-number">3</span>);
+
+    print(<span class="tok-str">"10 / 3 = {}\n"</span>, .{div});
+    print(<span class="tok-str">"10 % 3 = {}\n"</span>, .{mod});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe destructuring_return_value.zig</kbd>
+$ <kbd>./destructuring_return_value</kbd>
+10 / 3 = 3
+10 % 3 = 1
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring">Destructuring</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Arrays">Destructuring Arrays</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Destructuring-Vectors">Destructuring Vectors</a></li>
+</ul>
+
+      
+      
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#fieldParentPtr">@fieldParentPtr</a></li>
+</ul>
+
+      
+      <h2 id="enum"><a href="https://ziglang.org/documentation/0.15.2/#toc-enum">enum</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#enum">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_enums.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+<span class="tok-kw">const</span> mem = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).mem;
+
+<span class="tok-comment">// Declare an enum.</span>
+<span class="tok-kw">const</span> Type = <span class="tok-kw">enum</span> {
+    ok,
+    not_ok,
+};
+
+<span class="tok-comment">// Declare a specific enum field.</span>
+<span class="tok-kw">const</span> c = Type.ok;
+
+<span class="tok-comment">// If you want access to the ordinal value of an enum, you</span>
+<span class="tok-comment">// can specify the tag type.</span>
+<span class="tok-kw">const</span> Value = <span class="tok-kw">enum</span>(<span class="tok-type">u2</span>) {
+    zero,
+    one,
+    two,
+};
+<span class="tok-comment">// Now you can cast between u2 and Value.</span>
+<span class="tok-comment">// The ordinal value starts from 0, counting up by 1 from the previous member.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"enum ordinal value"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value.zero) == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value.one) == <span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value.two) == <span class="tok-number">2</span>);
+}
+
+<span class="tok-comment">// You can override the ordinal value for an enum.</span>
+<span class="tok-kw">const</span> Value2 = <span class="tok-kw">enum</span>(<span class="tok-type">u32</span>) {
+    hundred = <span class="tok-number">100</span>,
+    thousand = <span class="tok-number">1000</span>,
+    million = <span class="tok-number">1000000</span>,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"set enum ordinal value"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value2.hundred) == <span class="tok-number">100</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value2.thousand) == <span class="tok-number">1000</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value2.million) == <span class="tok-number">1000000</span>);
+}
+
+<span class="tok-comment">// You can also override only some values.</span>
+<span class="tok-kw">const</span> Value3 = <span class="tok-kw">enum</span>(<span class="tok-type">u4</span>) {
+    a,
+    b = <span class="tok-number">8</span>,
+    c,
+    d = <span class="tok-number">4</span>,
+    e,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"enum implicit ordinal values and overridden values"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value3.a) == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value3.b) == <span class="tok-number">8</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value3.c) == <span class="tok-number">9</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value3.d) == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(Value3.e) == <span class="tok-number">5</span>);
+}
+
+<span class="tok-comment">// Enums can have methods, the same as structs and unions.</span>
+<span class="tok-comment">// Enum methods are not special, they are only namespaced</span>
+<span class="tok-comment">// functions that you can call with dot syntax.</span>
+<span class="tok-kw">const</span> Suit = <span class="tok-kw">enum</span> {
+    clubs,
+    spades,
+    diamonds,
+    hearts,
+
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">isClubs</span>(self: Suit) <span class="tok-type">bool</span> {
+        <span class="tok-kw">return</span> self == Suit.clubs;
+    }
+};
+<span class="tok-kw">test</span> <span class="tok-str">"enum method"</span> {
+    <span class="tok-kw">const</span> p = Suit.spades;
+    <span class="tok-kw">try</span> expect(!p.isClubs());
+}
+
+<span class="tok-comment">// An enum can be switched upon.</span>
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">enum</span> {
+    string,
+    number,
+    none,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"enum switch"</span> {
+    <span class="tok-kw">const</span> p = Foo.number;
+    <span class="tok-kw">const</span> what_is_it = <span class="tok-kw">switch</span> (p) {
+        Foo.string =&gt; <span class="tok-str">"this is a string"</span>,
+        Foo.number =&gt; <span class="tok-str">"this is a number"</span>,
+        Foo.none =&gt; <span class="tok-str">"this is a none"</span>,
+    };
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, what_is_it, <span class="tok-str">"this is a number"</span>));
+}
+
+<span class="tok-comment">// @typeInfo can be used to access the integer tag type of an enum.</span>
+<span class="tok-kw">const</span> Small = <span class="tok-kw">enum</span> {
+    one,
+    two,
+    three,
+    four,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"std.meta.Tag"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@typeInfo</span>(Small).@"enum".tag_type == <span class="tok-type">u2</span>);
+}
+
+<span class="tok-comment">// @typeInfo tells us the field count and the fields names:</span>
+<span class="tok-kw">test</span> <span class="tok-str">"@typeInfo"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@typeInfo</span>(Small).@"enum".fields.len == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, <span class="tok-builtin">@typeInfo</span>(Small).@"enum".fields[<span class="tok-number">1</span>].name, <span class="tok-str">"two"</span>));
+}
+
+<span class="tok-comment">// @tagName gives a [:0]const u8 representation of an enum value:</span>
+<span class="tok-kw">test</span> <span class="tok-str">"@tagName"</span> {
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, <span class="tok-builtin">@tagName</span>(Small.three), <span class="tok-str">"three"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_enums.zig</kbd>
+1/8 test_enums.test.enum ordinal value...OK
+2/8 test_enums.test.set enum ordinal value...OK
+3/8 test_enums.test.enum implicit ordinal values and overridden values...OK
+4/8 test_enums.test.enum method...OK
+5/8 test_enums.test.enum switch...OK
+6/8 test_enums.test.std.meta.Tag...OK
+7/8 test_enums.test.@typeInfo...OK
+8/8 test_enums.test.@tagName...OK
+All 8 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#typeInfo">@typeInfo</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#tagName">@tagName</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a></li>
+</ul>
+
+
+      <h3 id="extern-enum"><a href="https://ziglang.org/documentation/0.15.2/#toc-extern-enum">extern enum</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#extern-enum">§</a></h3>
+
+      <p>
+      By default, enums are not guaranteed to be compatible with the C ABI:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">enum_export_error.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">enum</span> { a, b, c };
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">entry</span>(foo: Foo) <span class="tok-type">void</span> {
+    _ = foo;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj enum_export_error.zig -target x86_64-linux</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/enum_export_error.zig:2:17: </span><span class="sgr-31m">error: </span><span class="sgr-1m">parameter of type 'enum_export_error.Foo' not allowed in function with calling convention 'x86_64_sysv'
+</span>export fn entry(foo: Foo) void {
+                <span class="sgr-32m">^~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/enum_export_error.zig:2:17: </span><span class="sgr-36m">note: </span><span class="sgr-1m">enum tag type 'u2' is not extern compatible
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/enum_export_error.zig:2:17: </span><span class="sgr-36m">note: </span><span class="sgr-1m">only integers with 0, 8, 16, 32, 64 and 128 bits are extern compatible
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/enum_export_error.zig:1:13: </span><span class="sgr-36m">note: </span><span class="sgr-1m">enum declared here
+</span>const Foo = enum { a, b, c };
+            <span class="sgr-32m">^~~~~~~~~~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    root: /home/andy/dev/zig/lib/std/start.zig:3:22
+    comptime: /home/andy/dev/zig/lib/std/start.zig:31:9
+    2 reference(s) hidden; use '-freference-trace=4' to see all references
+</span>
+</samp></pre></figure>
+
+      <p>
+      For a C-ABI-compatible enum, provide an explicit tag type to
+      the enum:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">enum_export.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">enum</span>(<span class="tok-type">c_int</span>) { a, b, c };
+<span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">entry</span>(foo: Foo) <span class="tok-type">void</span> {
+    _ = foo;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj enum_export.zig</kbd>
+</samp></pre></figure>
+
+      
+
+      <h3 id="Enum-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Enum-Literals">Enum Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Enum-Literals">§</a></h3>
+
+      <p>
+      Enum literals allow specifying the name of an enum field without specifying the enum type:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_enum_literals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Color = <span class="tok-kw">enum</span> {
+    auto,
+    off,
+    on,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"enum literals"</span> {
+    <span class="tok-kw">const</span> color1: Color = .auto;
+    <span class="tok-kw">const</span> color2 = Color.auto;
+    <span class="tok-kw">try</span> expect(color1 == color2);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch using enum literals"</span> {
+    <span class="tok-kw">const</span> color = Color.on;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">switch</span> (color) {
+        .auto =&gt; <span class="tok-null">false</span>,
+        .on =&gt; <span class="tok-null">true</span>,
+        .off =&gt; <span class="tok-null">false</span>,
+    };
+    <span class="tok-kw">try</span> expect(result);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_enum_literals.zig</kbd>
+1/2 test_enum_literals.test.enum literals...OK
+2/2 test_enum_literals.test.switch using enum literals...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Non-exhaustive-enum"><a href="https://ziglang.org/documentation/0.15.2/#toc-Non-exhaustive-enum">Non-exhaustive enum</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Non-exhaustive-enum">§</a></h3>
+
+      <p>
+      A non-exhaustive enum can be created by adding a trailing <code>_</code> field.
+      The enum must specify a tag type and cannot consume every enumeration value.
+      </p>
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#enumFromInt">@enumFromInt</a> on a non-exhaustive enum involves the safety semantics
+      of <a href="https://ziglang.org/documentation/0.15.2/#intCast">@intCast</a> to the integer tag type, but beyond that always results in
+      a well-defined enum value.
+      </p>
+      <p>
+      A switch on a non-exhaustive enum can include a <code>_</code> prong as an alternative to an <code><span class="tok-kw">else</span></code> prong.
+      With a <code>_</code> prong the compiler errors if all the known tag names are not handled by the switch.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_non-exhaustive.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Number = <span class="tok-kw">enum</span>(<span class="tok-type">u8</span>) {
+    one,
+    two,
+    three,
+    _,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch on non-exhaustive enum"</span> {
+    <span class="tok-kw">const</span> number = Number.one;
+    <span class="tok-kw">const</span> result = <span class="tok-kw">switch</span> (number) {
+        .one =&gt; <span class="tok-null">true</span>,
+        .two, .three =&gt; <span class="tok-null">false</span>,
+        _ =&gt; <span class="tok-null">false</span>,
+    };
+    <span class="tok-kw">try</span> expect(result);
+    <span class="tok-kw">const</span> is_one = <span class="tok-kw">switch</span> (number) {
+        .one =&gt; <span class="tok-null">true</span>,
+        <span class="tok-kw">else</span> =&gt; <span class="tok-null">false</span>,
+    };
+    <span class="tok-kw">try</span> expect(is_one);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_non-exhaustive.zig</kbd>
+1/1 test_switch_non-exhaustive.test.switch on non-exhaustive enum...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="union"><a href="https://ziglang.org/documentation/0.15.2/#toc-union">union</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#union">§</a></h2>
+
+      <p>
+      A bare <code><span class="tok-kw">union</span></code> defines a set of possible types that a value
+      can be as a list of fields. Only one field can be active at a time.
+      The in-memory representation of bare unions is not guaranteed.
+      Bare unions cannot be used to reinterpret memory. For that, use <a href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a>,
+      or use an <a href="https://ziglang.org/documentation/0.15.2/#extern-union">extern union</a> or a <a href="https://ziglang.org/documentation/0.15.2/#packed-union">packed union</a> which have
+      guaranteed in-memory layout.
+      <a href="https://ziglang.org/documentation/0.15.2/#Wrong-Union-Field-Access">Accessing the non-active field</a> is
+      safety-checked <a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">Illegal Behavior</a>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_wrong_union_access.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Payload = <span class="tok-kw">union</span> {
+    int: <span class="tok-type">i64</span>,
+    float: <span class="tok-type">f64</span>,
+    boolean: <span class="tok-type">bool</span>,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"simple union"</span> {
+    <span class="tok-kw">var</span> payload = Payload{ .int = <span class="tok-number">1234</span> };
+    payload.float = <span class="tok-number">12.34</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_wrong_union_access.zig</kbd>
+1/1 test_wrong_union_access.test.simple union...thread 2895385 panic: access of union field 'float' while field 'int' is active
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_wrong_union_access.zig:8:12</span>: <span class="sgr-2m">0x102c083 in test.simple union (test_wrong_union_access.zig)</span>
+    payload.float = 12.34;
+           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cdb0 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155fd1 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fd6d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f601 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/ceece336399a577bb1b9c6460feb4406/test --seed=0xa290ca33
+</samp></pre></figure>
+
+      <p>You can activate another field by assigning the entire union:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_simple_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Payload = <span class="tok-kw">union</span> {
+    int: <span class="tok-type">i64</span>,
+    float: <span class="tok-type">f64</span>,
+    boolean: <span class="tok-type">bool</span>,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"simple union"</span> {
+    <span class="tok-kw">var</span> payload = Payload{ .int = <span class="tok-number">1234</span> };
+    <span class="tok-kw">try</span> expect(payload.int == <span class="tok-number">1234</span>);
+    payload = Payload{ .float = <span class="tok-number">12.34</span> };
+    <span class="tok-kw">try</span> expect(payload.float == <span class="tok-number">12.34</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_simple_union.zig</kbd>
+1/1 test_simple_union.test.simple union...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      In order to use <a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a> with a union, it must be a <a href="https://ziglang.org/documentation/0.15.2/#Tagged-union">Tagged union</a>.
+      </p>
+      <p>
+      To initialize a union when the tag is a <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>-known name, see <a href="https://ziglang.org/documentation/0.15.2/#unionInit">@unionInit</a>.
+      </p>
+
+      <h3 id="Tagged-union"><a href="https://ziglang.org/documentation/0.15.2/#toc-Tagged-union">Tagged union</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Tagged-union">§</a></h3>
+
+      <p>Unions can be declared with an enum tag type.
+      This turns the union into a <em>tagged</em> union, which makes it eligible
+      to use with <a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a> expressions.
+      Tagged unions coerce to their tag type: <a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Unions-and-Enums">Type Coercion: Unions and Enums</a>.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_tagged_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> ComplexTypeTag = <span class="tok-kw">enum</span> {
+    ok,
+    not_ok,
+};
+<span class="tok-kw">const</span> ComplexType = <span class="tok-kw">union</span>(ComplexTypeTag) {
+    ok: <span class="tok-type">u8</span>,
+    not_ok: <span class="tok-type">void</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch on tagged union"</span> {
+    <span class="tok-kw">const</span> c = ComplexType{ .ok = <span class="tok-number">42</span> };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@as</span>(ComplexTypeTag, c) == ComplexTypeTag.ok);
+
+    <span class="tok-kw">switch</span> (c) {
+        .ok =&gt; |value| <span class="tok-kw">try</span> expect(value == <span class="tok-number">42</span>),
+        .not_ok =&gt; <span class="tok-kw">unreachable</span>,
+    }
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"get tag type"</span> {
+    <span class="tok-kw">try</span> expect(std.meta.Tag(ComplexType) == ComplexTypeTag);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_tagged_union.zig</kbd>
+1/2 test_tagged_union.test.switch on tagged union...OK
+2/2 test_tagged_union.test.get tag type...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>In order to modify the payload of a tagged union in a switch expression,
+      place a <code>*</code> before the variable name to make it a pointer:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_modify_tagged_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> ComplexTypeTag = <span class="tok-kw">enum</span> {
+    ok,
+    not_ok,
+};
+<span class="tok-kw">const</span> ComplexType = <span class="tok-kw">union</span>(ComplexTypeTag) {
+    ok: <span class="tok-type">u8</span>,
+    not_ok: <span class="tok-type">void</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"modify tagged union in switch"</span> {
+    <span class="tok-kw">var</span> c = ComplexType{ .ok = <span class="tok-number">42</span> };
+
+    <span class="tok-kw">switch</span> (c) {
+        ComplexTypeTag.ok =&gt; |*value| value.* += <span class="tok-number">1</span>,
+        ComplexTypeTag.not_ok =&gt; <span class="tok-kw">unreachable</span>,
+    }
+
+    <span class="tok-kw">try</span> expect(c.ok == <span class="tok-number">43</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_modify_tagged_union.zig</kbd>
+1/1 test_switch_modify_tagged_union.test.modify tagged union in switch...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Unions can be made to infer the enum tag type.
+      Further, unions can have methods just like structs and enums.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_union_method.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Variant = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    int: <span class="tok-type">i32</span>,
+    boolean: <span class="tok-type">bool</span>,
+
+    <span class="tok-comment">// void can be omitted when inferring enum tag type.</span>
+    none,
+
+    <span class="tok-kw">fn</span> <span class="tok-fn">truthy</span>(self: Variant) <span class="tok-type">bool</span> {
+        <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (self) {
+            Variant.int =&gt; |x_int| x_int != <span class="tok-number">0</span>,
+            Variant.boolean =&gt; |x_bool| x_bool,
+            Variant.none =&gt; <span class="tok-null">false</span>,
+        };
+    }
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"union method"</span> {
+    <span class="tok-kw">var</span> v1: Variant = .{ .int = <span class="tok-number">1</span> };
+    <span class="tok-kw">var</span> v2: Variant = .{ .boolean = <span class="tok-null">false</span> };
+    <span class="tok-kw">var</span> v3: Variant = .none;
+
+    <span class="tok-kw">try</span> expect(v1.truthy());
+    <span class="tok-kw">try</span> expect(!v2.truthy());
+    <span class="tok-kw">try</span> expect(!v3.truthy());
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_union_method.zig</kbd>
+1/1 test_union_method.test.union method...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      Unions with inferred enum tag types can also assign ordinal values to their inferred tag.
+      This requires the tag to specify an explicit integer type.
+      <a href="https://ziglang.org/documentation/0.15.2/#intFromEnum">@intFromEnum</a> can be used to access the ordinal value corresponding to the active field.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_tagged_union_with_tag_values.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Tagged = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>(<span class="tok-type">u32</span>)) {
+    int: <span class="tok-type">i64</span> = <span class="tok-number">123</span>,
+    boolean: <span class="tok-type">bool</span> = <span class="tok-number">67</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"tag values"</span> {
+    <span class="tok-kw">const</span> int: Tagged = .{ .int = -<span class="tok-number">40</span> };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(int) == <span class="tok-number">123</span>);
+
+    <span class="tok-kw">const</span> boolean: Tagged = .{ .boolean = <span class="tok-null">false</span> };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromEnum</span>(boolean) == <span class="tok-number">67</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_tagged_union_with_tag_values.zig</kbd>
+1/1 test_tagged_union_with_tag_values.test.tag values...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#tagName">@tagName</a> can be used to return a <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a>
+      <code>[:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span></code> value representing the field name:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_tagName.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Small2 = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: <span class="tok-type">i32</span>,
+    b: <span class="tok-type">bool</span>,
+    c: <span class="tok-type">u8</span>,
+};
+<span class="tok-kw">test</span> <span class="tok-str">"@tagName"</span> {
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, <span class="tok-builtin">@tagName</span>(Small2.a), <span class="tok-str">"a"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_tagName.zig</kbd>
+1/1 test_tagName.test.@tagName...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="extern-union"><a href="https://ziglang.org/documentation/0.15.2/#toc-extern-union">extern union</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#extern-union">§</a></h3>
+
+      <p>
+      An <code><span class="tok-kw">extern</span> <span class="tok-kw">union</span></code> has memory layout guaranteed to be compatible with
+      the target C ABI.
+      </p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern-struct">extern struct</a></li>
+</ul>
+
+      
+
+      <h3 id="packed-union"><a href="https://ziglang.org/documentation/0.15.2/#toc-packed-union">packed union</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#packed-union">§</a></h3>
+
+      <p>A <code><span class="tok-kw">packed</span> <span class="tok-kw">union</span></code> has well-defined in-memory layout and is eligible
+          to be in a <a href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed struct</a>.</p>
+      
+
+      <h3 id="Anonymous-Union-Literals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Anonymous-Union-Literals">Anonymous Union Literals</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Anonymous-Union-Literals">§</a></h3>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Anonymous-Struct-Literals">Anonymous Struct Literals</a> syntax can be used to initialize unions without specifying
+      the type:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_anonymous_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Number = <span class="tok-kw">union</span> {
+    int: <span class="tok-type">i32</span>,
+    float: <span class="tok-type">f64</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"anonymous union literal syntax"</span> {
+    <span class="tok-kw">const</span> i: Number = .{ .int = <span class="tok-number">42</span> };
+    <span class="tok-kw">const</span> f = makeNumber();
+    <span class="tok-kw">try</span> expect(i.int == <span class="tok-number">42</span>);
+    <span class="tok-kw">try</span> expect(f.float == <span class="tok-number">12.34</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">makeNumber</span>() Number {
+    <span class="tok-kw">return</span> .{ .float = <span class="tok-number">12.34</span> };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_anonymous_union.zig</kbd>
+1/1 test_anonymous_union.test.anonymous union literal syntax...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      
+
+      <h2 id="opaque"><a href="https://ziglang.org/documentation/0.15.2/#toc-opaque">opaque</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#opaque">§</a></h2>
+
+      <p>
+      <code><span class="tok-kw">opaque</span> {}</code> declares a new type with an unknown (but non-zero) size and alignment.
+      It can contain declarations the same as <a href="https://ziglang.org/documentation/0.15.2/#struct">structs</a>, <a href="https://ziglang.org/documentation/0.15.2/#union">unions</a>,
+      and <a href="https://ziglang.org/documentation/0.15.2/#enum">enums</a>.
+      </p>
+      <p>
+      This is typically used for type safety when interacting with C code that does not expose struct details.
+      Example:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_opaque.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Derp = <span class="tok-kw">opaque</span> {};
+<span class="tok-kw">const</span> Wat = <span class="tok-kw">opaque</span> {};
+
+<span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">bar</span>(d: *Derp) <span class="tok-type">void</span>;
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(w: *Wat) <span class="tok-kw">callconv</span>(.c) <span class="tok-type">void</span> {
+    bar(w);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"call foo"</span> {
+    foo(<span class="tok-null">undefined</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_opaque.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_opaque.zig:6:9: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type '*test_opaque.Derp', found '*test_opaque.Wat'
+</span>    bar(w);
+        <span class="sgr-32m">^
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_opaque.zig:6:9: </span><span class="sgr-36m">note: </span><span class="sgr-1m">pointer type child 'test_opaque.Wat' cannot cast into pointer type child 'test_opaque.Derp'
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_opaque.zig:2:13: </span><span class="sgr-36m">note: </span><span class="sgr-1m">opaque declared here
+</span>const Wat = opaque {};
+            <span class="sgr-32m">^~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_opaque.zig:1:14: </span><span class="sgr-36m">note: </span><span class="sgr-1m">opaque declared here
+</span>const Derp = opaque {};
+             <span class="sgr-32m">^~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_opaque.zig:4:18: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter type declared here
+</span>extern fn bar(d: *Derp) void;
+                 <span class="sgr-32m">^~~~~
+</span><span class="sgr-2m">referenced by:
+    test.call foo: /home/andy/dev/zig/doc/langref/test_opaque.zig:10:8
+</span>
+</samp></pre></figure>
+
+      
+
+      <h2 id="Blocks"><a href="https://ziglang.org/documentation/0.15.2/#toc-Blocks">Blocks</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Blocks">§</a></h2>
+
+      <p>
+      Blocks are used to limit the scope of variable declarations:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_blocks.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"access variable after block scope"</span> {
+    {
+        <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+        _ = &amp;x;
+    }
+    x += <span class="tok-number">1</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_blocks.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_blocks.zig:6:5: </span><span class="sgr-31m">error: </span><span class="sgr-1m">use of undeclared identifier 'x'
+</span>    x += 1;
+    <span class="sgr-32m">^
+</span>
+</samp></pre></figure>
+
+      <p>Blocks are expressions. When labeled, <code><span class="tok-kw">break</span></code> can be used
+      to return a value from the block:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_labeled_break.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"labeled break from labeled block expression"</span> {
+    <span class="tok-kw">var</span> y: <span class="tok-type">i32</span> = <span class="tok-number">123</span>;
+
+    <span class="tok-kw">const</span> x = blk: {
+        y += <span class="tok-number">1</span>;
+        <span class="tok-kw">break</span> :blk y;
+    };
+    <span class="tok-kw">try</span> expect(x == <span class="tok-number">124</span>);
+    <span class="tok-kw">try</span> expect(y == <span class="tok-number">124</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_labeled_break.zig</kbd>
+1/1 test_labeled_break.test.labeled break from labeled block expression...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>Here, <code>blk</code> can be any name.</p>
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Labeled-while">Labeled while</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Labeled-for">Labeled for</a></li>
+</ul>
+
+
+      <h3 id="Shadowing"><a href="https://ziglang.org/documentation/0.15.2/#toc-Shadowing">Shadowing</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Shadowing">§</a></h3>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Identifiers">Identifiers</a> are never allowed to "hide" other identifiers by using the same name:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_shadowing.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> pi = <span class="tok-number">3.14</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"inside test block"</span> {
+    <span class="tok-comment">// Let's even go inside another block</span>
+    {
+        <span class="tok-kw">var</span> pi: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_shadowing.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_shadowing.zig:6:13: </span><span class="sgr-31m">error: </span><span class="sgr-1m">local variable shadows declaration of 'pi'
+</span>        var pi: i32 = 1234;
+            <span class="sgr-32m">^~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_shadowing.zig:1:1: </span><span class="sgr-36m">note: </span><span class="sgr-1m">declared here
+</span>const pi = 3.14;
+<span class="sgr-32m">^~~~~~~~~~~~~~~
+</span>
+</samp></pre></figure>
+
+      <p>
+      Because of this, when you read Zig code you can always rely on an identifier to consistently mean
+      the same thing within the scope it is defined. Note that you can, however, use the same name if
+      the scopes are separate:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_scopes.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"separate scopes"</span> {
+    {
+        <span class="tok-kw">const</span> pi = <span class="tok-number">3.14</span>;
+        _ = pi;
+    }
+    {
+        <span class="tok-kw">var</span> pi: <span class="tok-type">bool</span> = <span class="tok-null">true</span>;
+        _ = &amp;pi;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_scopes.zig</kbd>
+1/1 test_scopes.test.separate scopes...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Empty-Blocks"><a href="https://ziglang.org/documentation/0.15.2/#toc-Empty-Blocks">Empty Blocks</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Empty-Blocks">§</a></h3>
+
+      <p>An empty block is equivalent to <code><span class="tok-type">void</span>{}</code>:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_empty_block.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> {
+    <span class="tok-kw">const</span> a = {};
+    <span class="tok-kw">const</span> b = <span class="tok-type">void</span>{};
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(a) == <span class="tok-type">void</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(b) == <span class="tok-type">void</span>);
+    <span class="tok-kw">try</span> expect(a == b);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_empty_block.zig</kbd>
+1/1 test_empty_block.test_0...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="switch"><a href="https://ziglang.org/documentation/0.15.2/#toc-switch">switch</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#switch">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch simple"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u64</span> = <span class="tok-number">10</span>;
+    <span class="tok-kw">const</span> zz: <span class="tok-type">u64</span> = <span class="tok-number">103</span>;
+
+    <span class="tok-comment">// All branches of a switch expression must be able to be coerced to a</span>
+    <span class="tok-comment">// common type.</span>
+    <span class="tok-comment">//</span>
+    <span class="tok-comment">// Branches cannot fallthrough. If fallthrough behavior is desired, combine</span>
+    <span class="tok-comment">// the cases and use an if.</span>
+    <span class="tok-kw">const</span> b = <span class="tok-kw">switch</span> (a) {
+        <span class="tok-comment">// Multiple cases can be combined via a ','</span>
+        <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span> =&gt; <span class="tok-number">0</span>,
+
+        <span class="tok-comment">// Ranges can be specified using the ... syntax. These are inclusive</span>
+        <span class="tok-comment">// of both ends.</span>
+        <span class="tok-number">5</span>...<span class="tok-number">100</span> =&gt; <span class="tok-number">1</span>,
+
+        <span class="tok-comment">// Branches can be arbitrarily complex.</span>
+        <span class="tok-number">101</span> =&gt; blk: {
+            <span class="tok-kw">const</span> c: <span class="tok-type">u64</span> = <span class="tok-number">5</span>;
+            <span class="tok-kw">break</span> :blk c * <span class="tok-number">2</span> + <span class="tok-number">1</span>;
+        },
+
+        <span class="tok-comment">// Switching on arbitrary expressions is allowed as long as the</span>
+        <span class="tok-comment">// expression is known at compile-time.</span>
+        zz =&gt; zz,
+        blk: {
+            <span class="tok-kw">const</span> d: <span class="tok-type">u32</span> = <span class="tok-number">5</span>;
+            <span class="tok-kw">const</span> e: <span class="tok-type">u32</span> = <span class="tok-number">100</span>;
+            <span class="tok-kw">break</span> :blk d + e;
+        } =&gt; <span class="tok-number">107</span>,
+
+        <span class="tok-comment">// The else branch catches everything not already captured.</span>
+        <span class="tok-comment">// Else branches are mandatory unless the entire range of values</span>
+        <span class="tok-comment">// is handled.</span>
+        <span class="tok-kw">else</span> =&gt; <span class="tok-number">9</span>,
+    };
+
+    <span class="tok-kw">try</span> expect(b == <span class="tok-number">1</span>);
+}
+
+<span class="tok-comment">// Switch expressions can be used outside a function:</span>
+<span class="tok-kw">const</span> os_msg = <span class="tok-kw">switch</span> (builtin.target.os.tag) {
+    .linux =&gt; <span class="tok-str">"we found a linux user"</span>,
+    <span class="tok-kw">else</span> =&gt; <span class="tok-str">"not a linux user"</span>,
+};
+
+<span class="tok-comment">// Inside a function, switch statements implicitly are compile-time</span>
+<span class="tok-comment">// evaluated if the target expression is compile-time known.</span>
+<span class="tok-kw">test</span> <span class="tok-str">"switch inside function"</span> {
+    <span class="tok-kw">switch</span> (builtin.target.os.tag) {
+        .fuchsia =&gt; {
+            <span class="tok-comment">// On an OS other than fuchsia, block is not even analyzed,</span>
+            <span class="tok-comment">// so this compile error is not triggered.</span>
+            <span class="tok-comment">// On fuchsia this compile error would be triggered.</span>
+            <span class="tok-builtin">@compileError</span>(<span class="tok-str">"fuchsia not supported"</span>);
+        },
+        <span class="tok-kw">else</span> =&gt; {},
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch.zig</kbd>
+1/2 test_switch.test.switch simple...OK
+2/2 test_switch.test.switch inside function...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+      <code><span class="tok-kw">switch</span></code> can be used to capture the field values
+      of a <a href="https://ziglang.org/documentation/0.15.2/#Tagged-union">Tagged union</a>. Modifications to the field values can be
+      done by placing a <code>*</code> before the capture variable name,
+      turning it into a pointer.
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_switch_tagged_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"switch on tagged union"</span> {
+    <span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> {
+        x: <span class="tok-type">u8</span>,
+        y: <span class="tok-type">u8</span>,
+    };
+    <span class="tok-kw">const</span> Item = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+        a: <span class="tok-type">u32</span>,
+        c: Point,
+        d,
+        e: <span class="tok-type">u32</span>,
+    };
+
+    <span class="tok-kw">var</span> a = Item{ .c = Point{ .x = <span class="tok-number">1</span>, .y = <span class="tok-number">2</span> } };
+
+    <span class="tok-comment">// Switching on more complex enums is allowed.</span>
+    <span class="tok-kw">const</span> b = <span class="tok-kw">switch</span> (a) {
+        <span class="tok-comment">// A capture group is allowed on a match, and will return the enum</span>
+        <span class="tok-comment">// value matched. If the payload types of both cases are the same</span>
+        <span class="tok-comment">// they can be put into the same switch prong.</span>
+        Item.a, Item.e =&gt; |item| item,
+
+        <span class="tok-comment">// A reference to the matched value can be obtained using `*` syntax.</span>
+        Item.c =&gt; |*item| blk: {
+            item.*.x += <span class="tok-number">1</span>;
+            <span class="tok-kw">break</span> :blk <span class="tok-number">6</span>;
+        },
+
+        <span class="tok-comment">// No else is required if the types cases was exhaustively handled</span>
+        Item.d =&gt; <span class="tok-number">8</span>,
+    };
+
+    <span class="tok-kw">try</span> expect(b == <span class="tok-number">6</span>);
+    <span class="tok-kw">try</span> expect(a.c.x == <span class="tok-number">2</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_switch_tagged_union.zig</kbd>
+1/1 test_switch_tagged_union.test.switch on tagged union...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>See also:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#compileError">@compileError</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">Compile Variables</a></li>
+</ul>
+
+
+      <h3 id="Exhaustive-Switching"><a href="https://ziglang.org/documentation/0.15.2/#toc-Exhaustive-Switching">Exhaustive Switching</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Exhaustive-Switching">§</a></h3>
+
+      <p>
+      When a <code><span class="tok-kw">switch</span></code> expression does not have an <code><span class="tok-kw">else</span></code> clause,
+      it must exhaustively list all the possible values. Failure to do so is a compile error:
+      </p>

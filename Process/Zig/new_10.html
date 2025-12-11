@@ -1,0 +1,1133 @@
+<pre><code><span class="tok-builtin">@byteSwap</span>(operand: <span class="tok-kw">anytype</span>) T</code></pre>
+      <p><code><span class="tok-builtin">@TypeOf</span>(operand)</code> 必须是整数类型或位计数能被 8 整除的整数向量类型。</p>
+      <p><code>operand</code> 可以是 <a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a> 或 <a href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a>。</p>
+      <p>
+      交换整数的字节序。这会将大端整数转换为小端整数，
+      并将小端整数转换为大端整数。
+      </p>
+      <p>
+      注意，对于与字节序相关的内存布局，整数类型应该
+      与 <a href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a> 报告的字节数相关。这在
+      <code><span class="tok-type">u24</span></code> 中得到了演示。<code><span class="tok-builtin">@sizeOf</span>(<span class="tok-type">u24</span>) == <span class="tok-number">4</span></code>，这意味着
+      存储在内存中的 <code><span class="tok-type">u24</span></code> 占用 4 个字节，这 4 个字节是在
+      小端与大端系统上被交换的。另一方面，如果 <code>T</code> 被指定为
+      <code><span class="tok-type">u24</span></code>，则只反转 3 个字节。
+      </p>
+      
+
+      <h3 id="bitReverse"><a href="https://ziglang.org/documentation/0.15.2/#toc-bitReverse">@bitReverse</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#bitReverse">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@bitReverse</span>(integer: <span class="tok-kw">anytype</span>) T</code></pre>
+      <p><code><span class="tok-builtin">@TypeOf</span>(<span class="tok-kw">anytype</span>)</code> 接受任何整数类型或整数向量类型。</p>
+      <p>
+      反转整数值的位模式，包括符号位（如果适用）。
+      </p>
+      <p>
+      例如 0b10110110 (<code><span class="tok-type">u8</span> = <span class="tok-number">182</span></code>, <code><span class="tok-type">i8</span> = -<span class="tok-number">74</span></code>)
+      变为 0b01101101 (<code><span class="tok-type">u8</span> = <span class="tok-number">109</span></code>, <code><span class="tok-type">i8</span> = <span class="tok-number">109</span></code>)。
+      </p>
+      
+
+      <h3 id="offsetOf"><a href="https://ziglang.org/documentation/0.15.2/#toc-offsetOf">@offsetOf</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#offsetOf">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@offsetOf</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> field_name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">comptime_int</span></code></pre>
+      <p>
+      返回字段相对于其包含结构的字节偏移量。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#bitOffsetOf">@bitOffsetOf</a></li>
+</ul>
+
+      
+
+      <h3 id="call"><a href="https://ziglang.org/documentation/0.15.2/#toc-call">@call</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#call">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@call</span>(modifier: std.builtin.CallModifier, function: <span class="tok-kw">anytype</span>, args: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      调用函数，方式与使用括号调用表达式相同：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_call_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"noinline function call"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@call</span>(.auto, add, .{ <span class="tok-number">3</span>, <span class="tok-number">9</span> }) == <span class="tok-number">12</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> a + b;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_call_builtin.zig</kbd>
+1/1 test_call_builtin.test.noinline function call...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      <code><span class="tok-builtin">@call</span></code> 允许比普通函数调用语法更大的灵活性。
+      <code>CallModifier</code> 枚举在此重现：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">builtin.CallModifier struct.zig</cite></figcaption><pre><code><span class="tok-kw">pub</span> <span class="tok-kw">const</span> CallModifier = <span class="tok-kw">enum</span> {
+    <span class="tok-comment">/// 等同于函数调用语法。</span>
+    auto,
+
+    <span class="tok-comment">/// 等同于与函数调用语法一起使用的 async 关键字。</span>
+    async_kw,
+
+    <span class="tok-comment">/// 阻止尾调用优化。这保证返回</span>
+    <span class="tok-comment">/// 地址将指向调用点，而不是调用点的</span>
+    <span class="tok-comment">/// 调用点。如果调用在其他情况下需要尾调用</span>
+    <span class="tok-comment">/// 或内联，则会发出编译错误。</span>
+    never_tail,
+
+    <span class="tok-comment">/// 保证调用不会被内联。如果调用</span>
+    <span class="tok-comment">/// 在其他情况下需要内联，则会发出编译错误。</span>
+    never_inline,
+
+    <span class="tok-comment">/// 断言函数调用不会挂起。这允许</span>
+    <span class="tok-comment">/// 非异步函数调用异步函数。</span>
+    no_async,
+
+    <span class="tok-comment">/// 保证调用将通过尾调用优化生成。</span>
+    <span class="tok-comment">/// 如果这不可能，则会发出编译错误。</span>
+    always_tail,
+
+    <span class="tok-comment">/// 保证调用将在调用点内联。</span>
+    <span class="tok-comment">/// 如果这不可能，则会发出编译错误。</span>
+    always_inline,
+
+    <span class="tok-comment">/// 在编译时评估调用。如果调用无法在</span>
+    <span class="tok-comment">/// 编译时完成，则会发出编译错误。</span>
+    compile_time,
+};</code></pre></figure>
+
+      
+
+      <h3 id="cDefine"><a href="https://ziglang.org/documentation/0.15.2/#toc-cDefine">@cDefine</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cDefine">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cDefine</span>(<span class="tok-kw">comptime</span> name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, value) <span class="tok-type">void</span></code></pre>
+      <p>
+      此函数只能在 <code><span class="tok-builtin">@cImport</span></code> 内部出现。
+      </p>
+      <p>
+      这会将 <code>#define $name $value</code> 追加到 <code><span class="tok-builtin">@cImport</span></code>
+      临时缓冲区。
+      </p>
+      <p>
+      要定义没有值的宏，像这样：
+      </p>
+      <pre><code class="c">#define _GNU_SOURCE</code></pre>
+      <p>
+      使用 void 值，像这样：
+      </p>
+      <pre><code><span class="tok-builtin">@cDefine</span>(<span class="tok-str">"_GNU_SOURCE"</span>, {})</code></pre>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#void">void</a></li>
+</ul>
+
+      
+      <h3 id="cImport"><a href="https://ziglang.org/documentation/0.15.2/#toc-cImport">@cImport</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cImport">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cImport</span>(expression) <span class="tok-type">type</span></code></pre>
+      <p>
+      此函数解析 C 代码并将函数、类型、变量
+      和兼容的宏定义导入到新的空结构类型中，然后
+      返回该类型。
+      </p>
+      <p>
+      <code>expression</code> 在编译时被解释。内建函数
+          <code><span class="tok-builtin">@cInclude</span></code>、<code><span class="tok-builtin">@cDefine</span></code> 和 <code><span class="tok-builtin">@cUndef</span></code> 在
+      此表达式中工作，追加到临时缓冲区，然后将其解析为 C 代码。
+      </p>
+      <p>
+      通常您应该在整个应用程序中只有一个 <code><span class="tok-builtin">@cImport</span></code>，因为它可以避免编译器
+      多次调用 clang，并防止内联函数重复。
+      </p>
+      <p>
+      拥有多个 <code><span class="tok-builtin">@cImport</span></code> 表达式的原因是：
+      </p>
+      <ul>
+          <li>为了避免符号冲突，例如如果 foo.h 和 bar.h 都 <code>#define CONNECTION_COUNT</code></li>
+        <li>使用不同的预处理器定义分析 C 代码</li>
+      </ul>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+</ul>
+
+      
+      <h3 id="cInclude"><a href="https://ziglang.org/documentation/0.15.2/#toc-cInclude">@cInclude</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cInclude">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cInclude</span>(<span class="tok-kw">comptime</span> path: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span></code></pre>
+      <p>
+      此函数只能在 <code><span class="tok-builtin">@cImport</span></code> 内部出现。
+      </p>
+      <p>
+      这会将 <code>#include &lt;$path&gt;\n</code> 追加到 <code>c_import</code>
+      临时缓冲区。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cUndef">@cUndef</a></li>
+</ul>
+
+      
+
+      <h3 id="clz"><a href="https://ziglang.org/documentation/0.15.2/#toc-clz">@clz</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#clz">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@clz</span>(operand: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p><code><span class="tok-builtin">@TypeOf</span>(operand)</code> 必须是整数类型或整数向量类型。</p>
+      <p><code>operand</code> 可以是 <a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a> 或 <a href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a>。</p>
+      <p>
+      计算整数中最高有效位（大端意义上的前导）零的数量 - "计数前导零"。
+      </p>
+      <p>
+      返回类型是无符号整数或无符号整数向量，具有可以表示整数类型位数的
+      最少位数。
+      </p>
+      <p>
+      如果 <code>operand</code> 为零，<code><span class="tok-builtin">@clz</span></code> 返回
+      整数类型 <code>T</code> 的位宽。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#ctz">@ctz</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#popCount">@popCount</a></li>
+</ul>
+
+      
+
+      <h3 id="cmpxchgStrong"><a href="https://ziglang.org/documentation/0.15.2/#toc-cmpxchgStrong">@cmpxchgStrong</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cmpxchgStrong</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T, expected_value: T, new_value: T, success_order: AtomicOrder, fail_order: AtomicOrder) ?T</code></pre>
+      <p>
+      此函数执行强原子比较交换操作，如果当前值是给定的期望值，
+      则返回 <code><span class="tok-null">null</span></code>。它等同于以下代码，
+      除了是原子的：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">not_atomic_cmpxchgStrong.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">cmpxchgStrongButNotAtomic</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T, expected_value: T, new_value: T) ?T {
+    <span class="tok-kw">const</span> old_value = ptr.*;
+    <span class="tok-kw">if</span> (old_value == expected_value) {
+        ptr.* = new_value;
+        <span class="tok-kw">return</span> <span class="tok-null">null</span>;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">return</span> old_value;
+    }
+}</code></pre></figure>
+
+      <p>
+      如果您在重试循环中使用 cmpxchg，<a href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a> 是更好的选择，因为它可以
+      在机器指令中更有效地实现。
+      </p>
+      <p>
+      <code>T</code> 必须是指针、<code><span class="tok-type">bool</span></code>、
+      整数、枚举或紧缩结构。
+      </p>
+      <p><code><span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(ptr)).pointer.alignment</code> 必须 <code>&gt;= <span class="tok-builtin">@sizeOf</span>(T).</code></p>
+      <p><code>AtomicOrder</code> 可以通过 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.AtomicOrder</code> 找到。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">@cmpxchgWeak</a></li>
+</ul>
+
+      
+
+      <h3 id="cmpxchgWeak"><a href="https://ziglang.org/documentation/0.15.2/#toc-cmpxchgWeak">@cmpxchgWeak</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cmpxchgWeak">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cmpxchgWeak</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T, expected_value: T, new_value: T, success_order: AtomicOrder, fail_order: AtomicOrder) ?T</code></pre>
+      <p>
+      此函数执行弱原子比较交换操作，如果当前值是给定的期望值，
+      则返回 <code><span class="tok-null">null</span></code>。它等同于以下代码，
+      除了是原子的：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">cmpxchgWeakButNotAtomic</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">cmpxchgWeakButNotAtomic</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, ptr: *T, expected_value: T, new_value: T) ?T {
+    <span class="tok-kw">const</span> old_value = ptr.*;
+    <span class="tok-kw">if</span> (old_value == expected_value <span class="tok-kw">and</span> usuallyTrueButSometimesFalse()) {
+        ptr.* = new_value;
+        <span class="tok-kw">return</span> <span class="tok-null">null</span>;
+    } <span class="tok-kw">else</span> {
+        <span class="tok-kw">return</span> old_value;
+    }
+}</code></pre></figure>
+      <p>
+      如果您在重试循环中使用 cmpxchg，偶发的失败不会有问题，并且 <code>cmpxchgWeak</code>
+      是更好的选择，因为它可以在机器指令中更有效地实现。
+      但是，如果您需要更强的保证，请使用 <a href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a>。
+      </p>
+      <p>
+      <code>T</code> 必须是指针、<code><span class="tok-type">bool</span></code>、
+      整数、枚举或紧缩结构。
+      </p>
+      <p><code><span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(ptr)).pointer.alignment</code> 必须 <code>&gt;= <span class="tok-builtin">@sizeOf</span>(T).</code></p>
+      <p><code>AtomicOrder</code> 可以通过 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).builtin.AtomicOrder</code> 找到。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicStore">@atomicStore</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicLoad">@atomicLoad</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#atomicRmw">@atomicRmw</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cmpxchgStrong">@cmpxchgStrong</a></li>
+</ul>
+
+      
+
+      <h3 id="compileError"><a href="https://ziglang.org/documentation/0.15.2/#toc-compileError">@compileError</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#compileError">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@compileError</span>(<span class="tok-kw">comptime</span> msg: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">noreturn</span></code></pre>
+      <p>
+      此函数在语义分析时会导致编译错误，
+      错误消息为 <code>msg</code>。
+      </p>
+      <p>
+      有几种方法可以避免代码被语义检查，例如
+      使用带有编译时常量的 <code><span class="tok-kw">if</span></code> 或 <code><span class="tok-kw">switch</span></code>，
+              以及 <code><span class="tok-kw">comptime</span></code> 函数。
+      </p>
+      
+
+      <h3 id="compileLog"><a href="https://ziglang.org/documentation/0.15.2/#toc-compileLog">@compileLog</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#compileLog">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@compileLog</span>(...) <span class="tok-type">void</span></code></pre>
+      <p>
+      此函数在编译时打印传递给它的参数。
+      </p>
+      <p>
+      为了防止意外地在代码库中留下编译日志语句，
+      会向构建中添加编译错误，指向编译
+      日志语句。此错误阻止代码生成，但
+      不会干扰分析。
+      </p>
+      <p>
+      此函数可用于对
+      编译时执行的代码进行"printf 调试"。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_compileLog_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> print = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.print;
+
+<span class="tok-kw">const</span> num1 = blk: {
+    <span class="tok-kw">var</span> val1: <span class="tok-type">i32</span> = <span class="tok-number">99</span>;
+    <span class="tok-builtin">@compileLog</span>(<span class="tok-str">"comptime val1 = "</span>, val1);
+    val1 = val1 + <span class="tok-number">1</span>;
+    <span class="tok-kw">break</span> :blk val1;
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"main"</span> {
+    <span class="tok-builtin">@compileLog</span>(<span class="tok-str">"comptime in main"</span>);
+
+    print(<span class="tok-str">"Runtime in main, num1 = {}.\n"</span>, .{num1});
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_compileLog_builtin.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_compileLog_builtin.zig:5:5: </span><span class="sgr-31m">error: </span><span class="sgr-1m">found compile log statement
+</span>    @compileLog("comptime val1 = ", val1);
+    <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_compileLog_builtin.zig:11:5: </span><span class="sgr-36m">note: </span><span class="sgr-1m">also here
+</span>    @compileLog("comptime in main");
+    <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    test.main: /home/andy/dev/zig/doc/langref/test_compileLog_builtin.zig:13:46
+</span>
+Compile Log Output:
+@as(*const [16:0]u8, "comptime val1 = "), @as(i32, 99)
+@as(*const [16:0]u8, "comptime in main")
+</samp></pre></figure>
+
+      
+
+      <h3 id="constCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-constCast">@constCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#constCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@constCast</span>(value: <span class="tok-kw">anytype</span>) DestType</code></pre>
+      <p>
+      从指针中移除 <code><span class="tok-kw">const</span></code> 限定符。
+      </p>
+      
+
+      <h3 id="ctz"><a href="https://ziglang.org/documentation/0.15.2/#toc-ctz">@ctz</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#ctz">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@ctz</span>(operand: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p><code><span class="tok-builtin">@TypeOf</span>(operand)</code> 必须是整数类型或整数向量类型。</p>
+      <p><code>operand</code> 可以是 <a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a> 或 <a href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a>。</p>
+      <p>
+      计算整数中最低有效位（大端意义上的尾随）零的数量 - "计数尾随零"。
+      </p>
+      <p>
+      返回类型是无符号整数或无符号整数向量，具有可以表示整数类型位数的
+      最少位数。
+      </p>
+      <p>
+      如果 <code>operand</code> 为零，<code><span class="tok-builtin">@ctz</span></code> 返回
+      整数类型 <code>T</code> 的位宽。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#clz">@clz</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#popCount">@popCount</a></li>
+</ul>
+
+      
+
+      <h3 id="cUndef"><a href="https://ziglang.org/documentation/0.15.2/#toc-cUndef">@cUndef</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cUndef">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cUndef</span>(<span class="tok-kw">comptime</span> name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span></code></pre>
+      <p>
+      此函数只能在 <code><span class="tok-builtin">@cImport</span></code> 内部出现。
+      </p>
+      <p>
+      这会将 <code>#undef $name</code> 追加到 <code><span class="tok-builtin">@cImport</span></code>
+      临时缓冲区。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Import-from-C-Header-File">从 C 头文件导入</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cImport">@cImport</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cDefine">@cDefine</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cInclude">@cInclude</a></li>
+</ul>
+
+      
+
+      <h3 id="cVaArg"><a href="https://ziglang.org/documentation/0.15.2/#toc-cVaArg">@cVaArg</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cVaArg">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cVaArg</span>(operand: *std.builtin.VaList, <span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) T</code></pre>
+      <p>
+      实现 C 宏 <code>va_arg</code>。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a></li>
+</ul>
+
+      
+      <h3 id="cVaCopy"><a href="https://ziglang.org/documentation/0.15.2/#toc-cVaCopy">@cVaCopy</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cVaCopy">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cVaCopy</span>(src: *std.builtin.VaList) std.builtin.VaList</code></pre>
+      <p>
+      实现 C 宏 <code>va_copy</code>。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a></li>
+</ul>
+
+      
+      <h3 id="cVaEnd"><a href="https://ziglang.org/documentation/0.15.2/#toc-cVaEnd">@cVaEnd</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cVaEnd">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cVaEnd</span>(src: *std.builtin.VaList) <span class="tok-type">void</span></code></pre>
+      <p>
+      实现 C 宏 <code>va_end</code>。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaStart">@cVaStart</a></li>
+</ul>
+
+      
+      <h3 id="cVaStart"><a href="https://ziglang.org/documentation/0.15.2/#toc-cVaStart">@cVaStart</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#cVaStart">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@cVaStart</span>() std.builtin.VaList</code></pre>
+      <p>
+      实现 C 宏 <code>va_start</code>。仅在可变参数函数内有效。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaArg">@cVaArg</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaCopy">@cVaCopy</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#cVaEnd">@cVaEnd</a></li>
+</ul>
+
+      
+
+      <h3 id="divExact"><a href="https://ziglang.org/documentation/0.15.2/#toc-divExact">@divExact</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#divExact">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@divExact</span>(numerator: T, denominator: T) T</code></pre>
+      <p>
+      精确除法。调用者保证 <code>denominator != <span class="tok-number">0</span></code> 并且
+          <code><span class="tok-builtin">@divTrunc</span>(numerator, denominator) * denominator == numerator</code>。
+      </p>
+      <ul>
+          <li><code><span class="tok-builtin">@divExact</span>(<span class="tok-number">6</span>, <span class="tok-number">3</span>) == <span class="tok-number">2</span></code></li>
+          <li><code><span class="tok-builtin">@divExact</span>(a, b) * b == a</code></li>
+      </ul>
+      <p>对于返回可能错误代码的函数，请使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.divExact</code>。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a></li>
+</ul>
+
+      
+      <h3 id="divFloor"><a href="https://ziglang.org/documentation/0.15.2/#toc-divFloor">@divFloor</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#divFloor">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@divFloor</span>(numerator: T, denominator: T) T</code></pre>
+      <p>
+      向下取整除法。向负无穷方向舍入。对于无符号整数，它与
+      <code>numerator / denominator</code> 相同。调用者保证 <code>denominator != <span class="tok-number">0</span></code> 并且
+              <code>!(<span class="tok-builtin">@typeInfo</span>(T) == .int <span class="tok-kw">and</span> T.is_signed <span class="tok-kw">and</span> numerator == std.math.minInt(T) <span class="tok-kw">and</span> denominator == -<span class="tok-number">1</span>)</code>。
+      </p>
+      <ul>
+          <li><code><span class="tok-builtin">@divFloor</span>(-<span class="tok-number">5</span>, <span class="tok-number">3</span>) == -<span class="tok-number">2</span></code></li>
+          <li><code>(<span class="tok-builtin">@divFloor</span>(a, b) * b) + <span class="tok-builtin">@mod</span>(a, b) == a</code></li>
+      </ul>
+      <p>对于返回可能错误代码的函数，请使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.divFloor</code>。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#divTrunc">@divTrunc</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a></li>
+</ul>
+
+      
+      <h3 id="divTrunc"><a href="https://ziglang.org/documentation/0.15.2/#toc-divTrunc">@divTrunc</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#divTrunc">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@divTrunc</span>(numerator: T, denominator: T) T</code></pre>
+      <p>
+      截断除法。向零方向舍入。对于无符号整数，它与
+      <code>numerator / denominator</code> 相同。调用者保证 <code>denominator != <span class="tok-number">0</span></code> 并且
+              <code>!(<span class="tok-builtin">@typeInfo</span>(T) == .int <span class="tok-kw">and</span> T.is_signed <span class="tok-kw">and</span> numerator == std.math.minInt(T) <span class="tok-kw">and</span> denominator == -<span class="tok-number">1</span>)</code>。
+      </p>
+      <ul>
+          <li><code><span class="tok-builtin">@divTrunc</span>(-<span class="tok-number">5</span>, <span class="tok-number">3</span>) == -<span class="tok-number">1</span></code></li>
+          <li><code>(<span class="tok-builtin">@divTrunc</span>(a, b) * b) + <span class="tok-builtin">@rem</span>(a, b) == a</code></li>
+      </ul>
+      <p>对于返回可能错误代码的函数，请使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.divTrunc</code>。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#divFloor">@divFloor</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#divExact">@divExact</a></li>
+</ul>
+
+      
+
+      <h3 id="embedFile"><a href="https://ziglang.org/documentation/0.15.2/#toc-embedFile">@embedFile</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#embedFile">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@embedFile</span>(<span class="tok-kw">comptime</span> path: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) *<span class="tok-kw">const</span> [N:<span class="tok-number">0</span>]<span class="tok-type">u8</span></code></pre>
+      <p>
+      此函数返回一个编译时常量指针，指向以 null 结尾的固定大小数组，
+      其长度等于 <code>path</code> 给定文件的字节数。数组的内容是文件的内容。
+      这等同于具有文件内容的<a href="https://ziglang.org/documentation/0.15.2/#String-Literals-and-Unicode-Code-Point-Literals">字符串字面量</a>。
+      </p>
+      <p>
+      <code>path</code> 是绝对路径或相对于当前文件的路径，就像 <code><span class="tok-builtin">@import</span></code> 一样。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#import">@import</a></li>
+</ul>
+
+      
+
+      <h3 id="enumFromInt"><a href="https://ziglang.org/documentation/0.15.2/#toc-enumFromInt">@enumFromInt</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#enumFromInt">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@enumFromInt</span>(integer: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      将整数转换为 <a href="https://ziglang.org/documentation/0.15.2/#enum">枚举</a> 值。返回类型是推断的结果类型。
+      </p>
+      <p>
+      尝试转换在枚举中没有相应值的整数会调用
+      安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      注意，<a href="https://ziglang.org/documentation/0.15.2/#Non-exhaustive-enum">非穷尽枚举</a>对于枚举整数标签类型中的所有
+      整数都有相应的值：<code>_</code> 值表示枚举标签类型中所有剩余的未命名整数。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#intFromEnum">@intFromEnum</a></li>
+</ul>
+
+      
+
+      <h3 id="errorFromInt"><a href="https://ziglang.org/documentation/0.15.2/#toc-errorFromInt">@errorFromInt</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#errorFromInt">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@errorFromInt</span>(value: std.meta.Int(.unsigned, <span class="tok-builtin">@bitSizeOf</span>(<span class="tok-type">anyerror</span>))) <span class="tok-type">anyerror</span></code></pre>
+      <p>
+      从错误的整数表示形式转换为<a href="https://ziglang.org/documentation/0.15.2/#The-Global-Error-Set">全局错误集</a>类型。
+      </p>
+      <p>
+      通常建议避免此
+      转换，因为错误的整数表示形式在源代码更改时不稳定。
+      </p>
+      <p>
+      尝试转换不对应于任何错误的整数会导致
+      安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#intFromError">@intFromError</a></li>
+</ul>
+
+      
+
+      <h3 id="errorName"><a href="https://ziglang.org/documentation/0.15.2/#toc-errorName">@errorName</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#errorName">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@errorName</span>(err: <span class="tok-type">anyerror</span>) [:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span></code></pre>
+      <p>
+      此函数返回错误的字符串表示形式。
+      <code><span class="tok-kw">error</span>.OutOfMem</code> 的字符串表示形式是 <code><span class="tok-str">"OutOfMem"</span></code>。
+      </p>
+      <p>
+      如果在整个应用程序中没有对 <code><span class="tok-builtin">@errorName</span></code> 的调用，
+      或者所有调用对 <code>err</code> 都有编译时已知的值，那么不会
+      生成错误名称表。
+      </p>
+      
+
+      <h3 id="errorReturnTrace"><a href="https://ziglang.org/documentation/0.15.2/#toc-errorReturnTrace">@errorReturnTrace</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#errorReturnTrace">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@errorReturnTrace</span>() ?*builtin.StackTrace</code></pre>
+      <p>
+      如果二进制文件构建时启用了错误返回跟踪，并且在
+      调用具有错误或错误联合返回类型的函数的函数中调用此函数，则返回
+      堆栈跟踪对象。否则返回 <a href="https://ziglang.org/documentation/0.15.2/#null">null</a>。
+      </p>
+      
+
+      <h3 id="errorCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-errorCast">@errorCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#errorCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@errorCast</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      将错误集或错误联合值从一个错误集转换为另一个错误集。返回类型是
+			推断的结果类型。尝试转换不在目标错误
+			集中的错误会导致安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      
+
+      <h3 id="export"><a href="https://ziglang.org/documentation/0.15.2/#toc-export">@export</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#export">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@export</span>(<span class="tok-kw">comptime</span> ptr: *<span class="tok-kw">const</span> <span class="tok-type">anyopaque</span>, <span class="tok-kw">comptime</span> options: std.builtin.ExportOptions) <span class="tok-type">void</span></code></pre>
+      <p>在输出目标文件中创建一个符号，该符号指向 <code>ptr</code> 的目标。</p>
+      <p><code>ptr</code> 必须指向全局变量或编译时已知的常量。</p>
+      <p>
+      可以从 <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> 块调用此内建函数以有条件地导出符号。
+      当 <code>ptr</code> 指向具有 C 调用约定的函数并且
+      <code>options.linkage</code> 为 <code>.strong</code> 时，这等同于
+      在函数上使用的 <code><span class="tok-kw">export</span></code> 关键字：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">export_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">comptime</span> {
+    <span class="tok-builtin">@export</span>(&amp;internalName, .{ .name = <span class="tok-str">"foo"</span>, .linkage = .strong });
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">internalName</span>() <span class="tok-kw">callconv</span>(.c) <span class="tok-type">void</span> {}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj export_builtin.zig</kbd>
+</samp></pre></figure>
+
+      <p>这等同于：</p>
+      <figure><figcaption class="zig-cap"><cite class="file">export_builtin_equivalent_code.zig</cite></figcaption><pre><code><span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">void</span> {}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj export_builtin_equivalent_code.zig</kbd>
+</samp></pre></figure>
+
+      <p>注意，即使使用 <code><span class="tok-kw">export</span></code>，也可以使用 <code>@"foo"</code> 语法作为
+      <a href="https://ziglang.org/documentation/0.15.2/#Identifiers">标识符</a>来为符号名称选择任何字符串：</p>
+      <figure><figcaption class="zig-cap"><cite class="file">export_any_symbol_name.zig</cite></figcaption><pre><code><span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">@"A function name that is a complete sentence."</span>() <span class="tok-type">void</span> {}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-obj export_any_symbol_name.zig</kbd>
+</samp></pre></figure>
+
+      <p>
+      查看生成的目标文件时，您可以看到符号是逐字使用的：
+      </p>
+      <pre><code>00000000000001f0 T A function name that is a complete sentence.</code></pre>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Exporting-a-C-Library">导出 C 库</a></li>
+</ul>
+
+      
+
+      <h3 id="extern"><a href="https://ziglang.org/documentation/0.15.2/#toc-extern">@extern</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#extern">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@extern</span>(T: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> options: std.builtin.ExternOptions) T</code></pre>
+      <p>
+      在输出目标文件中创建对外部符号的引用。
+      T 必须是指针类型。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#export">@export</a></li>
+</ul>
+
+      
+
+      <h3 id="field"><a href="https://ziglang.org/documentation/0.15.2/#toc-field">@field</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#field">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@field</span>(lhs: <span class="tok-kw">anytype</span>, <span class="tok-kw">comptime</span> field_name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) (field)</code></pre>
+      <p>通过编译时字符串执行字段访问。对字段和声明都有效。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_field_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> {
+    x: <span class="tok-type">u32</span>,
+    y: <span class="tok-type">u32</span>,
+
+    <span class="tok-kw">pub</span> <span class="tok-kw">var</span> z: <span class="tok-type">u32</span> = <span class="tok-number">1</span>;
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"field access by string"</span> {
+    <span class="tok-kw">const</span> expect = std.testing.expect;
+    <span class="tok-kw">var</span> p = Point{ .x = <span class="tok-number">0</span>, .y = <span class="tok-number">0</span> };
+
+    <span class="tok-builtin">@field</span>(p, <span class="tok-str">"x"</span>) = <span class="tok-number">4</span>;
+    <span class="tok-builtin">@field</span>(p, <span class="tok-str">"y"</span>) = <span class="tok-builtin">@field</span>(p, <span class="tok-str">"x"</span>) + <span class="tok-number">1</span>;
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@field</span>(p, <span class="tok-str">"x"</span>) == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@field</span>(p, <span class="tok-str">"y"</span>) == <span class="tok-number">5</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"decl access by string"</span> {
+    <span class="tok-kw">const</span> expect = std.testing.expect;
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@field</span>(Point, <span class="tok-str">"z"</span>) == <span class="tok-number">1</span>);
+
+    <span class="tok-builtin">@field</span>(Point, <span class="tok-str">"z"</span>) = <span class="tok-number">2</span>;
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@field</span>(Point, <span class="tok-str">"z"</span>) == <span class="tok-number">2</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_field_builtin.zig</kbd>
+1/2 test_field_builtin.test.field access by string...OK
+2/2 test_field_builtin.test.decl access by string...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+
+      
+
+      <h3 id="fieldParentPtr"><a href="https://ziglang.org/documentation/0.15.2/#toc-fieldParentPtr">@fieldParentPtr</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#fieldParentPtr">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@fieldParentPtr</span>(<span class="tok-kw">comptime</span> field_name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, field_ptr: *T) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      给定指向结构或联合字段的指针，返回指向包含该字段的结构或联合的指针。
+      返回类型（指向相关父结构或联合的指针）是推断的结果类型。
+      </p>
+      <p>
+      如果 <code>field_ptr</code> 不指向结果类型实例的 <code>field_name</code> 字段，
+      并且结果类型具有未定义的布局，则调用未检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      
+
+      <h3 id="FieldType"><a href="https://ziglang.org/documentation/0.15.2/#toc-FieldType">@FieldType</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#FieldType">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@FieldType</span>(<span class="tok-kw">comptime</span> Type: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> field_name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">type</span></code></pre>
+      <p>
+      给定类型和其字段之一的名称，返回该字段的类型。
+      </p>
+      
+
+      <h3 id="floatCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-floatCast">@floatCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#floatCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@floatCast</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      从一种浮点类型转换为另一种浮点类型。此转换是安全的，但可能导致
+      数值失去精度。返回类型是推断的结果类型。
+      </p>
+      
+
+      <h3 id="floatFromInt"><a href="https://ziglang.org/documentation/0.15.2/#toc-floatFromInt">@floatFromInt</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#floatFromInt">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@floatFromInt</span>(int: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      将整数转换为最接近的浮点表示形式。返回类型是推断的结果类型。
+			要进行相反的转换，请使用 <a href="https://ziglang.org/documentation/0.15.2/#intFromFloat">@intFromFloat</a>。此操作对于
+      所有整数类型的所有值都是合法的。
+      </p>
+      
+
+      <h3 id="frameAddress"><a href="https://ziglang.org/documentation/0.15.2/#toc-frameAddress">@frameAddress</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#frameAddress">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@frameAddress</span>() <span class="tok-type">usize</span></code></pre>
+      <p>
+      此函数返回当前堆栈帧的基指针。
+      </p>
+      <p>
+      其含义是特定于目标的，并且在所有
+      平台上都不一致。由于积极的优化，
+      在发布模式下帧地址可能不可用。
+      </p>
+      <p>
+      此函数仅在函数作用域内有效。
+      </p>
+      
+
+      <h3 id="hasDecl"><a href="https://ziglang.org/documentation/0.15.2/#toc-hasDecl">@hasDecl</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#hasDecl">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@hasDecl</span>(<span class="tok-kw">comptime</span> Container: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">bool</span></code></pre>
+      <p>
+      返回<a href="https://ziglang.org/documentation/0.15.2/#Containers">容器</a>是否具有与
+      <code>name</code> 匹配的声明。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_hasDecl_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Foo = <span class="tok-kw">struct</span> {
+    nope: <span class="tok-type">i32</span>,
+
+    <span class="tok-kw">pub</span> <span class="tok-kw">var</span> blah = <span class="tok-str">"xxx"</span>;
+    <span class="tok-kw">const</span> hi = <span class="tok-number">1</span>;
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"@hasDecl"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@hasDecl</span>(Foo, <span class="tok-str">"blah"</span>));
+
+    <span class="tok-comment">// 即使 `hi` 是私有的，@hasDecl 也会返回 true，因为此测试</span>
+    <span class="tok-comment">// 与 Foo 在同一个文件作用域中。如果 Foo 在</span>
+    <span class="tok-comment">// 不同的文件中声明，它将返回 false。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@hasDecl</span>(Foo, <span class="tok-str">"hi"</span>));
+
+    <span class="tok-comment">// @hasDecl 用于声明；不用于字段。</span>
+    <span class="tok-kw">try</span> expect(!<span class="tok-builtin">@hasDecl</span>(Foo, <span class="tok-str">"nope"</span>));
+    <span class="tok-kw">try</span> expect(!<span class="tok-builtin">@hasDecl</span>(Foo, <span class="tok-str">"nope1234"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_hasDecl_builtin.zig</kbd>
+1/1 test_hasDecl_builtin.test.@hasDecl...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#hasField">@hasField</a></li>
+</ul>
+
+      
+
+      <h3 id="hasField"><a href="https://ziglang.org/documentation/0.15.2/#toc-hasField">@hasField</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#hasField">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@hasField</span>(<span class="tok-kw">comptime</span> Container: <span class="tok-type">type</span>, <span class="tok-kw">comptime</span> name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">bool</span></code></pre>
+      <p>返回结构、联合或枚举的字段名是否存在。</p>
+      <p>
+      结果是编译时常量。
+      </p>
+      <p>
+      它不包括函数、变量或常量。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#hasDecl">@hasDecl</a></li>
+</ul>
+
+      
+
+      <h3 id="import"><a href="https://ziglang.org/documentation/0.15.2/#toc-import">@import</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#import">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@import</span>(<span class="tok-kw">comptime</span> target: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>导入 <code>target</code> 处的文件，如果尚未添加，则将其添加到编译中。<code>target</code> 
+      可以是从包含 <code><span class="tok-builtin">@import</span></code> 调用的文件到另一个文件的相对路径，
+      也可以是<a href="https://ziglang.org/documentation/0.15.2/#Compilation-Model">模块</a>的名称，导入指向该模块的根源文件。
+      无论哪种方式，文件路径都必须以 <code>.zig</code>（对于 Zig 源文件）或 <code>.zon</code>（对于 ZON 数据文件）结尾。</p>
+      <p>如果 <code>target</code> 指向 Zig 源文件，则 <code><span class="tok-builtin">@import</span></code> 返回
+      该文件的<a href="https://ziglang.org/documentation/0.15.2/#Source-File-Structs">对应结构类型</a>，本质上就好像内建调用被
+      <code><span class="tok-kw">struct</span> { FILE_CONTENTS }</code> 替换了一样。返回类型是 <code><span class="tok-type">type</span></code>。</p>
+      <p>如果 <code>target</code> 指向 ZON 文件，则 <code><span class="tok-builtin">@import</span></code> 返回
+      文件中字面量的值。如果有推断的<a href="https://ziglang.org/documentation/0.15.2/#Result-Types">结果类型</a>，
+      则返回类型是该类型，并且 ZON 字面量被解释为该类型（<a href="https://ziglang.org/documentation/0.15.2/#Result-Types">结果类型</a>通过
+      ZON 表达式传播）。否则，返回类型是等效 Zig 表达式的类型，本质上就好像
+      内建调用被 ZON 文件内容替换了一样。</p>
+      <p>以下模块始终可用于导入：</p>
+      <ul>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>)</code> - Zig 标准库</li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>)</code> - 特定于目标的信息。命令 <code>zig build-exe --show-builtin</code> 将源代码输出到 stdout 以供参考。</li>
+          <li><code><span class="tok-builtin">@import</span>(<span class="tok-str">"root"</span>)</code> - 根模块的别名。在典型的项目结构中，这意味着它指向 <code>src/main.zig</code>。
+          </li>
+      </ul>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Compile-Variables">编译变量</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#embedFile">@embedFile</a></li>
+</ul>
+
+      
+
+      <h3 id="inComptime"><a href="https://ziglang.org/documentation/0.15.2/#toc-inComptime">@inComptime</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#inComptime">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@inComptime</span>() <span class="tok-type">bool</span></code></pre>
+      <p>
+      返回内建函数是否在 <code><span class="tok-kw">comptime</span></code> 上下文中运行。结果是编译时常量。
+      </p>
+      <p>
+      这可用于提供函数的替代编译时友好实现。例如，它不应该用于从编译时评估中排除某些函数。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a></li>
+</ul>
+
+      
+
+      <h3 id="intCast"><a href="https://ziglang.org/documentation/0.15.2/#toc-intCast">@intCast</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#intCast">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@intCast</span>(int: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      将整数转换为另一个整数，同时保持相同的数值。
+			返回类型是推断的结果类型。
+      尝试转换超出目标类型范围的数字会导致
+      安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_intCast_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"integer cast panic"</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">u16</span> = <span class="tok-number">0xabcd</span>; <span class="tok-comment">// runtime-known</span>
+    _ = &amp;a;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u8</span> = <span class="tok-builtin">@intCast</span>(a);
+    _ = b;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_intCast_builtin.zig</kbd>
+1/1 test_intCast_builtin.test.integer cast panic...thread 2898212 panic: integer does not fit in destination type
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_intCast_builtin.zig:4:19</span>: <span class="sgr-2m">0x102c020 in test.integer cast panic (test_intCast_builtin.zig)</span>
+    const b: u8 = @intCast(a);
+                  <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cb50 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155d71 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fb0d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f3a1 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/056fc3b607934a9389a99437800346de/test --seed=0x9fcd81fa
+</samp></pre></figure>
+
+      <p>
+      要截断超出目标类型范围的数字的有效位，请使用 <a href="https://ziglang.org/documentation/0.15.2/#truncate">@truncate</a>。
+      </p>
+      <p>
+      如果 <code>T</code> 是 <code><span class="tok-type">comptime_int</span></code>，
+      那么这在语义上等同于<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">类型强制转换</a>。
+      </p>
+      
+
+      <h3 id="intFromBool"><a href="https://ziglang.org/documentation/0.15.2/#toc-intFromBool">@intFromBool</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#intFromBool">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@intFromBool</span>(value: <span class="tok-type">bool</span>) <span class="tok-type">u1</span></code></pre>
+      <p>
+      将 <code><span class="tok-null">true</span></code> 转换为 <code><span class="tok-builtin">@as</span>(<span class="tok-type">u1</span>, <span class="tok-number">1</span>)</code>，将 <code><span class="tok-null">false</span></code> 转换为
+                  <code><span class="tok-builtin">@as</span>(<span class="tok-type">u1</span>, <span class="tok-number">0</span>)</code>。
+      </p>
+      
+
+      <h3 id="intFromEnum"><a href="https://ziglang.org/documentation/0.15.2/#toc-intFromEnum">@intFromEnum</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#intFromEnum">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@intFromEnum</span>(enum_or_tagged_union: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      将枚举值转换为其整数标签类型。当传递标记联合时，
+      标签值用作枚举值。
+      </p>
+      <p>
+      如果只有一个可能的枚举值，结果是在 <a href="https://ziglang.org/documentation/0.15.2/#comptime">comptime</a> 时已知的 <code><span class="tok-type">comptime_int</span></code>。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#enumFromInt">@enumFromInt</a></li>
+</ul>
+
+      
+
+      <h3 id="intFromError"><a href="https://ziglang.org/documentation/0.15.2/#toc-intFromError">@intFromError</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#intFromError">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@intFromError</span>(err: <span class="tok-kw">anytype</span>) std.meta.Int(.unsigned, <span class="tok-builtin">@bitSizeOf</span>(<span class="tok-type">anyerror</span>))</code></pre>
+      <p>
+      支持以下类型：
+      </p>
+      <ul>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#The-Global-Error-Set">全局错误集</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">错误集类型</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">错误联合类型</a></li>
+      </ul>
+      <p>
+      将错误转换为错误的整数表示形式。
+      </p>
+      <p>
+      通常建议避免此
+      转换，因为错误的整数表示形式在源代码更改时不稳定。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#errorFromInt">@errorFromInt</a></li>
+</ul>
+
+      
+
+      <h3 id="intFromFloat"><a href="https://ziglang.org/documentation/0.15.2/#toc-intFromFloat">@intFromFloat</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#intFromFloat">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@intFromFloat</span>(float: <span class="tok-kw">anytype</span>) <span class="tok-kw">anytype</span></code></pre>
+      <p>
+      将浮点数的整数部分转换为推断的结果类型。
+      </p>
+      <p>
+      如果浮点数的整数部分无法适应目标类型，
+      它会调用安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#floatFromInt">@floatFromInt</a></li>
+</ul>
+
+      
+
+      <h3 id="intFromPtr"><a href="https://ziglang.org/documentation/0.15.2/#toc-intFromPtr">@intFromPtr</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#intFromPtr">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@intFromPtr</span>(value: <span class="tok-kw">anytype</span>) <span class="tok-type">usize</span></code></pre>
+      <p>
+      将 <code>value</code> 转换为指针地址的 <code><span class="tok-type">usize</span></code>。
+      <code>value</code> 可以是 <code>*T</code> 或 <code>?*T</code>。
+      </p>
+      <p>要进行相反的转换，请使用 <a href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">@ptrFromInt</a></p>
+      
+
+      <h3 id="max"><a href="https://ziglang.org/documentation/0.15.2/#toc-max">@max</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#max">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@max</span>(...) T</code></pre>
+      <p>
+      接受两个或更多参数并返回包含的最大值（最大值）。此内建函数接受整数、浮点数以及两者的向量。在后一种情况下，操作按元素执行。
+      </p>
+      <p>
+      NaN 的处理如下：返回包含的最大非 NaN 值。如果所有操作数都是 NaN，则返回 NaN。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#min">@min</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a></li>
+</ul>
+
+      
+
+      <h3 id="memcpy"><a href="https://ziglang.org/documentation/0.15.2/#toc-memcpy">@memcpy</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#memcpy">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@memcpy</span>(<span class="tok-kw">noalias</span> dest, <span class="tok-kw">noalias</span> source) <span class="tok-type">void</span></code></pre>
+      <p>此函数将字节从一个内存区域复制到另一个内存区域。</p>
+      <p><code>dest</code> 必须是可变切片、指向数组的可变指针或
+        可变多项<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>。它可以具有任何
+        对齐方式，并且可以具有任何元素类型。</p>
+      <p><code>source</code> 必须是切片、指向
+        数组的指针或多项<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>。它可以
+        具有任何对齐方式，并且可以具有任何元素类型。</p>
+      <p><code>source</code> 元素类型必须与 <code>dest</code> 元素类型具有相同的
+        内存表示形式。</p>
+      <p>与 <a href="https://ziglang.org/documentation/0.15.2/#for">for</a> 循环类似，<code>source</code> 和
+        <code>dest</code> 中至少有一个必须提供长度，如果提供两个长度，
+        它们必须相等。</p>
+      <p>最后，两个内存区域不能重叠。</p>
+      
+
+      <h3 id="memset"><a href="https://ziglang.org/documentation/0.15.2/#toc-memset">@memset</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#memset">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@memset</span>(dest, elem) <span class="tok-type">void</span></code></pre>
+      <p>此函数将内存区域的所有元素设置为 <code>elem</code>。</p>
+      <p><code>dest</code> 必须是可变切片或指向数组的可变指针。
+      它可以具有任何对齐方式，并且可以具有任何元素类型。</p>
+      <p><code>elem</code> 强制转换为 <code>dest</code> 的元素类型。</p>
+      <p>对于安全地从内存中清除敏感内容，您应该使用
+      <code>std.crypto.secureZero</code></p>
+      
+
+      <h3 id="memmove"><a href="https://ziglang.org/documentation/0.15.2/#toc-memmove">@memmove</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#memmove">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@memmove</span>(dest, source) <span class="tok-type">void</span></code></pre>
+      <p>此函数将字节从一个内存区域复制到另一个内存区域，但与
+      <a href="https://ziglang.org/documentation/0.15.2/#memcpy">@memcpy</a> 不同，区域可以重叠。</p>
+      <p><code>dest</code> 必须是可变切片、指向数组的可变指针或
+        可变多项<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>。它可以具有任何
+        对齐方式，并且可以具有任何元素类型。</p>
+      <p><code>source</code> 必须是切片、指向
+        数组的指针或多项<a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a>。它可以
+        具有任何对齐方式，并且可以具有任何元素类型。</p>
+      <p><code>source</code> 元素类型必须与 <code>dest</code> 元素类型具有相同的
+        内存表示形式。</p>
+      <p>与 <a href="https://ziglang.org/documentation/0.15.2/#for">for</a> 循环类似，<code>source</code> 和
+        <code>dest</code> 中至少有一个必须提供长度，如果提供两个长度，
+        它们必须相等。</p>
+      
+
+      <h3 id="min"><a href="https://ziglang.org/documentation/0.15.2/#toc-min">@min</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#min">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@min</span>(...) T</code></pre>
+      <p>
+      接受两个或更多参数并返回包含的最小值（最小值）。此内建函数接受整数、浮点数以及两者的向量。在后一种情况下，操作按元素执行。
+      </p>
+      <p>
+      NaN 的处理如下：返回包含的最小非 NaN 值。如果所有操作数都是 NaN，则返回 NaN。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#max">@max</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a></li>
+</ul>
+
+      
+
+      <h3 id="wasmMemorySize"><a href="https://ziglang.org/documentation/0.15.2/#toc-wasmMemorySize">@wasmMemorySize</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#wasmMemorySize">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@wasmMemorySize</span>(index: <span class="tok-type">u32</span>) <span class="tok-type">usize</span></code></pre>
+      <p>
+      此函数以 Wasm 页面为单位返回由 <code>index</code> 标识的 Wasm 内存的大小，
+      作为无符号值。注意每个 Wasm 页面为 64KB。
+      </p>
+      <p>
+      此函数是低级内在函数，没有安全机制，通常对针对 Wasm 的分配器
+      设计者有用。因此，除非您从头开始编写新的分配器，否则应使用
+      类似 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).heap.WasmPageAllocator</code> 的东西。
+      </p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#wasmMemoryGrow">@wasmMemoryGrow</a></li>
+</ul>
+
+      
+
+      <h3 id="wasmMemoryGrow"><a href="https://ziglang.org/documentation/0.15.2/#toc-wasmMemoryGrow">@wasmMemoryGrow</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#wasmMemoryGrow">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@wasmMemoryGrow</span>(index: <span class="tok-type">u32</span>, delta: <span class="tok-type">usize</span>) <span class="tok-type">isize</span></code></pre>
+      <p>
+      此函数将由 <code>index</code> 标识的 Wasm 内存的大小增加
+      <code>delta</code>，以无符号 Wasm 页数为单位。注意每个 Wasm 页面
+      为 64KB。成功时，返回之前的内存大小；失败时，如果分配失败，
+      返回 -1。
+      </p>
+      <p>
+      此函数是低级内在函数，没有安全机制，通常对针对 Wasm 的分配器
+      设计者有用。因此，除非您从头开始编写新的分配器，否则应使用
+      类似 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).heap.WasmPageAllocator</code> 的东西。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_wasmMemoryGrow_builtin.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> native_arch = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>).target.cpu.arch;
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"@wasmMemoryGrow"</span> {
+    <span class="tok-kw">if</span> (native_arch != .wasm32) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SkipZigTest;
+
+    <span class="tok-kw">const</span> prev = <span class="tok-builtin">@wasmMemorySize</span>(<span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(prev == <span class="tok-builtin">@wasmMemoryGrow</span>(<span class="tok-number">0</span>, <span class="tok-number">1</span>));
+    <span class="tok-kw">try</span> expect(prev + <span class="tok-number">1</span> == <span class="tok-builtin">@wasmMemorySize</span>(<span class="tok-number">0</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_wasmMemoryGrow_builtin.zig</kbd>
+1/1 test_wasmMemoryGrow_builtin.test.@wasmMemoryGrow...SKIP
+0 passed; 1 skipped; 0 failed.
+</samp></pre></figure>
+
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#wasmMemorySize">@wasmMemorySize</a></li>
+</ul>
+
+      
+
+      <h3 id="mod"><a href="https://ziglang.org/documentation/0.15.2/#toc-mod">@mod</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#mod">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@mod</span>(numerator: T, denominator: T) T</code></pre>
+      <p>
+      取模除法。对于无符号整数，这与
+      <code>numerator % denominator</code> 相同。调用者保证 <code>denominator != <span class="tok-number">0</span></code>，否则
+      当启用运行时安全检查时，操作将导致<a href="https://ziglang.org/documentation/0.15.2/#Remainder-Division-by-Zero">余数除零</a>。
+      </p>
+      <ul>
+          <li><code><span class="tok-builtin">@mod</span>(-<span class="tok-number">5</span>, <span class="tok-number">3</span>) == <span class="tok-number">1</span></code></li>
+          <li><code>(<span class="tok-builtin">@divFloor</span>(a, b) * b) + <span class="tok-builtin">@mod</span>(a, b) == a</code></li>
+      </ul>
+      <p>对于返回错误代码的函数，请参阅 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).math.mod</code>。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#rem">@rem</a></li>
+</ul>
+
+      
+
+      <h3 id="mulWithOverflow"><a href="https://ziglang.org/documentation/0.15.2/#toc-mulWithOverflow">@mulWithOverflow</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#mulWithOverflow">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@mulWithOverflow</span>(a: <span class="tok-kw">anytype</span>, b: <span class="tok-kw">anytype</span>) <span class="tok-kw">struct</span> { <span class="tok-builtin">@TypeOf</span>(a, b), <span class="tok-type">u1</span> }</code></pre>
+      <p>
+      执行 <code>a * b</code> 并返回一个包含结果和可能的溢出位的元组。
+      </p>
+      
+
+      <h3 id="panic"><a href="https://ziglang.org/documentation/0.15.2/#toc-panic">@panic</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#panic">§</a></h3>
+
+      <pre><code><span class="tok-builtin">@panic</span>(message: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">noreturn</span></code></pre>
+      <p>
+      调用 panic 处理函数。默认情况下，panic 处理函数
+      调用在根源文件中公开的 <code>panic</code> 函数，或者
+      如果没有指定，则调用 <code>std/builtin.zig</code> 中的 <code>std.builtin.default_panic</code>
+      函数。
+      </p>
+      <p>通常使用 <code><span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).debug.panic</code> 更好。
+          但是，<code><span class="tok-builtin">@panic</span></code> 在以下 2 种场景中很有用：
+      </p>
+      <ul>
+        <li>从库代码中，如果程序员在根源文件中公开了 panic 函数，则调用该函数。</li>
+        <li>在混合 C 和 Zig 代码时，跨多个 .o 文件调用规范的 panic 实现。</li>
+      </ul>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Panic-Handler">Panic 处理程序</a></li>
+</ul>
+
+      
+
+      <h3 id="popCount"><a href="https://ziglang.org/documentation/0.15.2/#toc-popCount">@popCount</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#popCount">§</a></h3>

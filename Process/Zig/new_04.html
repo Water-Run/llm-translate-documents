@@ -1,0 +1,909 @@
+<figure><figcaption class="zig-cap"><cite class="file">test_pointer_arithmetic.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer arithmetic with many-item pointer"</span> {
+    <span class="tok-kw">const</span> array = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+    <span class="tok-kw">var</span> ptr: [*]<span class="tok-kw">const</span> <span class="tok-type">i32</span> = &amp;array;
+
+    <span class="tok-kw">try</span> expect(ptr[<span class="tok-number">0</span>] == <span class="tok-number">1</span>);
+    ptr += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(ptr[<span class="tok-number">0</span>] == <span class="tok-number">2</span>);
+
+    <span class="tok-comment">// 对多项指针进行无结束位置的切片等同于</span>
+    <span class="tok-comment">// 指针算术运算：`ptr[start..] == ptr + start`</span>
+    <span class="tok-kw">try</span> expect(ptr[<span class="tok-number">1</span>..] == ptr + <span class="tok-number">1</span>);
+
+    <span class="tok-comment">// 支持除切片外的任意两个指针之间基于元素大小的减法</span>
+    <span class="tok-kw">try</span> expect(&amp;ptr[<span class="tok-number">1</span>] - &amp;ptr[<span class="tok-number">0</span>] == <span class="tok-number">1</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer arithmetic with slices"</span> {
+    <span class="tok-kw">var</span> array = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+    <span class="tok-kw">var</span> length: <span class="tok-type">usize</span> = <span class="tok-number">0</span>; <span class="tok-comment">// 使用 var 使其在运行时已知</span>
+    _ = &amp;length; <span class="tok-comment">// 抑制 'var is never mutated' 错误</span>
+    <span class="tok-kw">var</span> slice = array[length..array.len];
+
+    <span class="tok-kw">try</span> expect(slice[<span class="tok-number">0</span>] == <span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(slice.len == <span class="tok-number">4</span>);
+
+    slice.ptr += <span class="tok-number">1</span>;
+    <span class="tok-comment">// 现在切片处于不良状态，因为 len 没有更新</span>
+
+    <span class="tok-kw">try</span> expect(slice[<span class="tok-number">0</span>] == <span class="tok-number">2</span>);
+    <span class="tok-kw">try</span> expect(slice.len == <span class="tok-number">4</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_pointer_arithmetic.zig</kbd>
+1/2 test_pointer_arithmetic.test.pointer arithmetic with many-item pointer...OK
+2/2 test_pointer_arithmetic.test.pointer arithmetic with slices...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+        在 Zig 中，我们通常更喜欢使用<a href="https://ziglang.org/documentation/0.15.2/#Slices">切片</a>而不是<a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">哨兵终止指针</a>。
+        您可以使用切片语法将数组或指针转换为切片。
+      </p>
+      <p>
+        切片具有边界检查，因此可以防止此类非法行为。这是我们更喜欢切片而不是指针的原因之一。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_slice_bounds.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer slicing"</span> {
+    <span class="tok-kw">var</span> array = [_]<span class="tok-type">u8</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>, <span class="tok-number">5</span>, <span class="tok-number">6</span>, <span class="tok-number">7</span>, <span class="tok-number">8</span>, <span class="tok-number">9</span>, <span class="tok-number">10</span> };
+    <span class="tok-kw">var</span> start: <span class="tok-type">usize</span> = <span class="tok-number">2</span>; <span class="tok-comment">// 使用 var 使其在运行时已知</span>
+    _ = &amp;start; <span class="tok-comment">// 抑制 'var is never mutated' 错误</span>
+    <span class="tok-kw">const</span> slice = array[start..<span class="tok-number">4</span>];
+    <span class="tok-kw">try</span> expect(slice.len == <span class="tok-number">2</span>);
+
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">3</span>] == <span class="tok-number">4</span>);
+    slice[<span class="tok-number">1</span>] += <span class="tok-number">1</span>;
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">3</span>] == <span class="tok-number">5</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_slice_bounds.zig</kbd>
+1/1 test_slice_bounds.test.pointer slicing...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>指针在编译期也可以工作，只要代码不依赖于未定义的内存布局：</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_pointers.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"comptime pointers"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+        <span class="tok-kw">const</span> ptr = &amp;x;
+        ptr.* += <span class="tok-number">1</span>;
+        x += <span class="tok-number">1</span>;
+        <span class="tok-kw">try</span> expect(ptr.* == <span class="tok-number">3</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_pointers.zig</kbd>
+1/1 test_comptime_pointers.test.comptime pointers...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>要将整数地址转换为指针，请使用 <code><span class="tok-builtin">@ptrFromInt</span></code>。
+      要将指针转换为整数，请使用 <code><span class="tok-builtin">@intFromPtr</span></code>：</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_integer_pointer_conversion.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"@intFromPtr and @ptrFromInt"</span> {
+    <span class="tok-kw">const</span> ptr: *<span class="tok-type">i32</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0xdeadbee0</span>);
+    <span class="tok-kw">const</span> addr = <span class="tok-builtin">@intFromPtr</span>(ptr);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(addr) == <span class="tok-type">usize</span>);
+    <span class="tok-kw">try</span> expect(addr == <span class="tok-number">0xdeadbee0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_integer_pointer_conversion.zig</kbd>
+1/1 test_integer_pointer_conversion.test.@intFromPtr and @ptrFromInt...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>Zig 能够在编译期代码中保留内存地址，只要指针从未被解引用：</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_comptime_pointer_conversion.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"comptime @ptrFromInt"</span> {
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-comment">// Zig 能够在编译期做到这一点，只要</span>
+        <span class="tok-comment">// ptr 从未被解引用。</span>
+        <span class="tok-kw">const</span> ptr: *<span class="tok-type">i32</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0xdeadbee0</span>);
+        <span class="tok-kw">const</span> addr = <span class="tok-builtin">@intFromPtr</span>(ptr);
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(addr) == <span class="tok-type">usize</span>);
+        <span class="tok-kw">try</span> expect(addr == <span class="tok-number">0xdeadbee0</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_comptime_pointer_conversion.zig</kbd>
+1/1 test_comptime_pointer_conversion.test.comptime @ptrFromInt...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a> 将指针的元素类型转换为另一种类型。这会创建一个新指针，根据通过它进行的加载和存储，可能会导致无法检测的非法行为。通常，如果可能的话，其他类型的类型转换比 <code><span class="tok-builtin">@ptrCast</span></code> 更可取。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_pointer_casting.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer casting"</span> {
+    <span class="tok-kw">const</span> bytes <span class="tok-kw">align</span>(<span class="tok-builtin">@alignOf</span>(<span class="tok-type">u32</span>)) = [_]<span class="tok-type">u8</span>{ <span class="tok-number">0x12</span>, <span class="tok-number">0x12</span>, <span class="tok-number">0x12</span>, <span class="tok-number">0x12</span> };
+    <span class="tok-kw">const</span> u32_ptr: *<span class="tok-kw">const</span> <span class="tok-type">u32</span> = <span class="tok-builtin">@ptrCast</span>(&amp;bytes);
+    <span class="tok-kw">try</span> expect(u32_ptr.* == <span class="tok-number">0x12121212</span>);
+
+    <span class="tok-comment">// 即使这个例子也是人为的 - 有比指针转换更好的方法来完成上述操作。</span>
+    <span class="tok-comment">// 例如，使用切片收窄转换：</span>
+    <span class="tok-kw">const</span> u32_value = std.mem.bytesAsSlice(<span class="tok-type">u32</span>, bytes[<span class="tok-number">0</span>..])[<span class="tok-number">0</span>];
+    <span class="tok-kw">try</span> expect(u32_value == <span class="tok-number">0x12121212</span>);
+
+    <span class="tok-comment">// 还有另一种方法，最直接的方法：</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-builtin">@bitCast</span>(bytes)) == <span class="tok-number">0x12121212</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer child type"</span> {
+    <span class="tok-comment">// 指针类型有一个 `child` 字段，它告诉你它们指向的类型。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@typeInfo</span>(*<span class="tok-type">u32</span>).pointer.child == <span class="tok-type">u32</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_pointer_casting.zig</kbd>
+1/2 test_pointer_casting.test.pointer casting...OK
+2/2 test_pointer_casting.test.pointer child type...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">@ptrFromInt</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#intFromPtr">@intFromPtr</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C 指针</a></li>
+</ul>
+
+      <h3 id="volatile"><a href="https://ziglang.org/documentation/0.15.2/#toc-volatile">volatile</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#volatile">§</a></h3>
+
+      <p>加载和存储被假定为没有副作用。如果给定的加载或存储应该有副作用，例如内存映射输入/输出（MMIO），请使用 <code><span class="tok-kw">volatile</span></code>。
+      在以下代码中，对 <code>mmio_ptr</code> 的加载和存储保证全部发生且与源代码中的顺序相同：</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_volatile.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"volatile"</span> {
+    <span class="tok-kw">const</span> mmio_ptr: *<span class="tok-kw">volatile</span> <span class="tok-type">u8</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x12345678</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(mmio_ptr) == *<span class="tok-kw">volatile</span> <span class="tok-type">u8</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_volatile.zig</kbd>
+1/1 test_volatile.test.volatile...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      请注意，<code><span class="tok-kw">volatile</span></code> 与并发和<a href="https://ziglang.org/documentation/0.15.2/#Atomics">原子操作</a>无关。
+      如果您看到代码将 <code><span class="tok-kw">volatile</span></code> 用于内存映射输入/输出以外的用途，它可能是一个错误。
+      </p>
+      
+
+      <h3 id="Alignment"><a href="https://ziglang.org/documentation/0.15.2/#toc-Alignment">对齐</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Alignment">§</a></h3>
+
+      <p>
+      每个类型都有一个<strong>对齐</strong> - 一个字节数，使得当该类型的值从内存加载或存储到内存时，内存地址必须能被这个数整除。您可以使用 <a href="https://ziglang.org/documentation/0.15.2/#alignOf">@alignOf</a> 找出任何类型的这个值。
+      </p>
+      <p>
+      对齐取决于 CPU 架构，但始终是 2 的幂，且小于 <code><span class="tok-number">1</span> &lt;&lt; <span class="tok-number">29</span></code>。
+      </p>
+      <p>
+      在 Zig 中，指针类型有一个对齐值。如果该值等于底层类型的对齐，则可以从类型中省略：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_variable_alignment.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"variable alignment"</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> align_of_i32 = <span class="tok-builtin">@alignOf</span>(<span class="tok-builtin">@TypeOf</span>(x));
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(&amp;x) == *<span class="tok-type">i32</span>);
+    <span class="tok-kw">try</span> expect(*<span class="tok-type">i32</span> == *<span class="tok-kw">align</span>(align_of_i32) <span class="tok-type">i32</span>);
+    <span class="tok-kw">if</span> (builtin.target.cpu.arch == .x86_64) {
+        <span class="tok-kw">try</span> expect(<span class="tok-builtin">@typeInfo</span>(*<span class="tok-type">i32</span>).pointer.alignment == <span class="tok-number">4</span>);
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_variable_alignment.zig</kbd>
+1/1 test_variable_alignment.test.variable alignment...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>与 <code>*<span class="tok-type">i32</span></code> 可以<a href="https://ziglang.org/documentation/0.15.2/#Type-Coercion">强制转换</a>为 <code>*<span class="tok-kw">const</span> <span class="tok-type">i32</span></code> 的方式相同，具有更大对齐的指针可以隐式转换为具有更小对齐的指针，但反之则不行。
+      </p>
+      <p>
+      您可以在变量和函数上指定对齐。如果这样做，那么指向它们的指针将获得指定的对齐：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_variable_func_alignment.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+
+<span class="tok-kw">var</span> foo: <span class="tok-type">u8</span> <span class="tok-kw">align</span>(<span class="tok-number">4</span>) = <span class="tok-number">100</span>;
+
+<span class="tok-kw">test</span> <span class="tok-str">"global variable alignment"</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@typeInfo</span>(<span class="tok-builtin">@TypeOf</span>(&amp;foo)).pointer.alignment == <span class="tok-number">4</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(&amp;foo) == *<span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-type">u8</span>);
+    <span class="tok-kw">const</span> as_pointer_to_array: *<span class="tok-kw">align</span>(<span class="tok-number">4</span>) [<span class="tok-number">1</span>]<span class="tok-type">u8</span> = &amp;foo;
+    <span class="tok-kw">const</span> as_slice: []<span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-type">u8</span> = as_pointer_to_array;
+    <span class="tok-kw">const</span> as_unaligned_slice: []<span class="tok-type">u8</span> = as_slice;
+    <span class="tok-kw">try</span> expect(as_unaligned_slice[<span class="tok-number">0</span>] == <span class="tok-number">100</span>);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">derp</span>() <span class="tok-kw">align</span>(<span class="tok-builtin">@sizeOf</span>(<span class="tok-type">usize</span>) * <span class="tok-number">2</span>) <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-number">1234</span>;
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">noop1</span>() <span class="tok-kw">align</span>(<span class="tok-number">1</span>) <span class="tok-type">void</span> {}
+<span class="tok-kw">fn</span> <span class="tok-fn">noop4</span>() <span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-type">void</span> {}
+
+<span class="tok-kw">test</span> <span class="tok-str">"function alignment"</span> {
+    <span class="tok-kw">try</span> expect(derp() == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(derp) == <span class="tok-kw">fn</span> () <span class="tok-type">i32</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(&amp;derp) == *<span class="tok-kw">align</span>(<span class="tok-builtin">@sizeOf</span>(<span class="tok-type">usize</span>) * <span class="tok-number">2</span>) <span class="tok-kw">const</span> <span class="tok-kw">fn</span> () <span class="tok-type">i32</span>);
+
+    noop1();
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(noop1) == <span class="tok-kw">fn</span> () <span class="tok-type">void</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(&amp;noop1) == *<span class="tok-kw">align</span>(<span class="tok-number">1</span>) <span class="tok-kw">const</span> <span class="tok-kw">fn</span> () <span class="tok-type">void</span>);
+
+    noop4();
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(noop4) == <span class="tok-kw">fn</span> () <span class="tok-type">void</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(&amp;noop4) == *<span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-kw">const</span> <span class="tok-kw">fn</span> () <span class="tok-type">void</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_variable_func_alignment.zig</kbd>
+1/2 test_variable_func_alignment.test.global variable alignment...OK
+2/2 test_variable_func_alignment.test.function alignment...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>
+      如果您有一个对齐较小的指针或切片，但您知道它实际上具有更大的对齐，请使用 <a href="https://ziglang.org/documentation/0.15.2/#alignCast">@alignCast</a> 将指针更改为更对齐的指针。这在运行时是无操作的，但会插入<a href="https://ziglang.org/documentation/0.15.2/#Incorrect-Pointer-Alignment">安全检查</a>：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_incorrect_pointer_alignment.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer alignment safety"</span> {
+    <span class="tok-kw">var</span> array <span class="tok-kw">align</span>(<span class="tok-number">4</span>) = [_]<span class="tok-type">u32</span>{ <span class="tok-number">0x11111111</span>, <span class="tok-number">0x11111111</span> };
+    <span class="tok-kw">const</span> bytes = std.mem.sliceAsBytes(array[<span class="tok-number">0</span>..]);
+    <span class="tok-kw">try</span> std.testing.expect(foo(bytes) == <span class="tok-number">0x11111111</span>);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(bytes: []<span class="tok-type">u8</span>) <span class="tok-type">u32</span> {
+    <span class="tok-kw">const</span> slice4 = bytes[<span class="tok-number">1</span>..<span class="tok-number">5</span>];
+    <span class="tok-kw">const</span> int_slice = std.mem.bytesAsSlice(<span class="tok-type">u32</span>, <span class="tok-builtin">@as</span>([]<span class="tok-kw">align</span>(<span class="tok-number">4</span>) <span class="tok-type">u8</span>, <span class="tok-builtin">@alignCast</span>(slice4)));
+    <span class="tok-kw">return</span> int_slice[<span class="tok-number">0</span>];
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_incorrect_pointer_alignment.zig</kbd>
+1/1 test_incorrect_pointer_alignment.test.pointer alignment safety...thread 2895819 panic: incorrect alignment
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_incorrect_pointer_alignment.zig:10:68</span>: <span class="sgr-2m">0x102c2a8 in foo (test_incorrect_pointer_alignment.zig)</span>
+    const int_slice = std.mem.bytesAsSlice(u32, @as([]align(4) u8, @alignCast(slice4)));
+                                                                   <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_incorrect_pointer_alignment.zig:6:31</span>: <span class="sgr-2m">0x102c0d2 in test.pointer alignment safety (test_incorrect_pointer_alignment.zig)</span>
+    try std.testing.expect(foo(bytes) == 0x11111111);
+                              <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cf30 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1156151 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114feed in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f781 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/9cb7896b3cdf812f518129da5e21dc23/test --seed=0x441e5edd
+</samp></pre></figure>
+
+      
+
+      <h3 id="allowzero"><a href="https://ziglang.org/documentation/0.15.2/#toc-allowzero">allowzero</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#allowzero">§</a></h3>
+
+      <p>
+      此指针属性允许指针具有地址零。这仅在独立操作系统目标上需要，其中地址零是可映射的。如果您想表示空指针，请改用<a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a>。带有 <code><span class="tok-kw">allowzero</span></code> 的<a href="https://ziglang.org/documentation/0.15.2/#Optional-Pointers">可选指针</a>与指针的大小不同。在此代码示例中，如果指针没有 <code><span class="tok-kw">allowzero</span></code> 属性，这将是<a href="https://ziglang.org/documentation/0.15.2/#Pointer-Cast-Invalid-Null">指针转换无效空值</a> panic：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_allowzero.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"allowzero"</span> {
+    <span class="tok-kw">var</span> zero: <span class="tok-type">usize</span> = <span class="tok-number">0</span>; <span class="tok-comment">// 使用 var 使其在运行时已知</span>
+    _ = &amp;zero; <span class="tok-comment">// 抑制 'var is never mutated' 错误</span>
+    <span class="tok-kw">const</span> ptr: *<span class="tok-kw">allowzero</span> <span class="tok-type">i32</span> = <span class="tok-builtin">@ptrFromInt</span>(zero);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromPtr</span>(ptr) == <span class="tok-number">0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_allowzero.zig</kbd>
+1/1 test_allowzero.test.allowzero...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+
+      <h3 id="Sentinel-Terminated-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Sentinel-Terminated-Pointers">哨兵终止指针</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">§</a></h3>
+
+      <p>
+      语法 <code>[*:x]T</code> 描述一个指针，其长度由哨兵值确定。这提供了防止缓冲区溢出和过度读取的保护。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">sentinel-terminated_pointer.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+
+<span class="tok-comment">// 这也可以作为 `std.c.printf` 使用。</span>
+<span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-str">"c"</span> <span class="tok-kw">fn</span> <span class="tok-fn">printf</span>(format: [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, ...) <span class="tok-type">c_int</span>;
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() <span class="tok-type">anyerror</span>!<span class="tok-type">void</span> {
+    _ = printf(<span class="tok-str">"Hello, world!\n"</span>); <span class="tok-comment">// OK</span>
+
+    <span class="tok-kw">const</span> msg = <span class="tok-str">"Hello, world!\n"</span>;
+    <span class="tok-kw">const</span> non_null_terminated_msg: [msg.len]<span class="tok-type">u8</span> = msg.*;
+    _ = printf(&amp;non_null_terminated_msg);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe sentinel-terminated_pointer.zig -lc</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/sentinel-terminated_pointer.zig:11:16: </span><span class="sgr-31m">error: </span><span class="sgr-1m">expected type '[*:0]const u8', found '*const [14]u8'
+</span>    _ = printf(&amp;non_null_terminated_msg);
+               <span class="sgr-32m">^~~~~~~~~~~~~~~~~~~~~~~~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/sentinel-terminated_pointer.zig:11:16: </span><span class="sgr-36m">note: </span><span class="sgr-1m">destination pointer requires '0' sentinel
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/sentinel-terminated_pointer.zig:4:34: </span><span class="sgr-36m">note: </span><span class="sgr-1m">parameter type declared here
+</span>pub extern "c" fn printf(format: [*:0]const u8, ...) c_int;
+                                 <span class="sgr-32m">^~~~~~~~~~~~~
+</span><span class="sgr-2m">referenced by:
+    callMain [inlined]: /home/andy/dev/zig/lib/std/start.zig:627:37
+    callMainWithArgs [inlined]: /home/andy/dev/zig/lib/std/start.zig:587:20
+    main: /home/andy/dev/zig/lib/std/start.zig:602:28
+    1 reference(s) hidden; use '-freference-trace=4' to see all references
+</span>
+</samp></pre></figure>
+
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Slices">哨兵终止切片</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Arrays">哨兵终止数组</a></li>
+</ul>
+
+      
+      
+
+      <h2 id="Slices"><a href="https://ziglang.org/documentation/0.15.2/#toc-Slices">切片</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Slices">§</a></h2>
+
+      <p>
+      切片是一个指针和一个长度。数组和切片之间的区别在于，数组的长度是类型的一部分，在编译期已知，而切片的长度在运行时已知。两者都可以使用 <code>len</code> 字段访问。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_basic_slices.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+<span class="tok-kw">const</span> expectEqualSlices = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expectEqualSlices;
+
+<span class="tok-kw">test</span> <span class="tok-str">"basic slices"</span> {
+    <span class="tok-kw">var</span> array = [_]<span class="tok-type">i32</span>{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+    <span class="tok-kw">var</span> known_at_runtime_zero: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    _ = &amp;known_at_runtime_zero;
+    <span class="tok-kw">const</span> slice = array[known_at_runtime_zero..array.len];
+
+    <span class="tok-comment">// 使用结果位置的替代初始化</span>
+    <span class="tok-kw">const</span> alt_slice: []<span class="tok-kw">const</span> <span class="tok-type">i32</span> = &amp;.{ <span class="tok-number">1</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span> };
+
+    <span class="tok-kw">try</span> expectEqualSlices(<span class="tok-type">i32</span>, slice, alt_slice);
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(slice) == []<span class="tok-type">i32</span>);
+    <span class="tok-kw">try</span> expect(&amp;slice[<span class="tok-number">0</span>] == &amp;array[<span class="tok-number">0</span>]);
+    <span class="tok-kw">try</span> expect(slice.len == array.len);
+
+    <span class="tok-comment">// 如果使用编译期已知的起始和结束位置进行切片，结果是</span>
+    <span class="tok-comment">// 指向数组的指针，而不是切片。</span>
+    <span class="tok-kw">const</span> array_ptr = array[<span class="tok-number">0</span>..array.len];
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(array_ptr) == *[array.len]<span class="tok-type">i32</span>);
+
+    <span class="tok-comment">// 您可以通过两次切片来执行按长度切片。这允许编译器</span>
+    <span class="tok-comment">// 执行某些优化，例如在起始位置仅在运行时已知时识别编译期已知的长度。</span>
+    <span class="tok-kw">var</span> runtime_start: <span class="tok-type">usize</span> = <span class="tok-number">1</span>;
+    _ = &amp;runtime_start;
+    <span class="tok-kw">const</span> length = <span class="tok-number">2</span>;
+    <span class="tok-kw">const</span> array_ptr_len = array[runtime_start..][<span class="tok-number">0</span>..length];
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(array_ptr_len) == *[length]<span class="tok-type">i32</span>);
+
+    <span class="tok-comment">// 在切片上使用取地址运算符可以得到单项指针。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(&amp;slice[<span class="tok-number">0</span>]) == *<span class="tok-type">i32</span>);
+    <span class="tok-comment">// 使用 `ptr` 字段可以得到多项指针。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(slice.ptr) == [*]<span class="tok-type">i32</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@intFromPtr</span>(slice.ptr) == <span class="tok-builtin">@intFromPtr</span>(&amp;slice[<span class="tok-number">0</span>]));
+
+    <span class="tok-comment">// 切片具有数组边界检查。如果您尝试访问超出边界的内容，</span>
+    <span class="tok-comment">// 您将收到安全检查失败：</span>
+    slice[<span class="tok-number">10</span>] += <span class="tok-number">1</span>;
+
+    <span class="tok-comment">// 请注意，`slice.ptr` 不调用安全检查，而 `&amp;slice[0]`</span>
+    <span class="tok-comment">// 断言切片的 len &gt; 0。</span>
+
+    <span class="tok-comment">// 可以像这样创建空切片：</span>
+    <span class="tok-kw">const</span> empty1 = &amp;[<span class="tok-number">0</span>]<span class="tok-type">u8</span>{};
+    <span class="tok-comment">// 如果类型已知，可以使用这个简写：</span>
+    <span class="tok-kw">const</span> empty2: []<span class="tok-type">u8</span> = &amp;.{};
+    <span class="tok-kw">try</span> expect(empty1.len == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(empty2.len == <span class="tok-number">0</span>);
+
+    <span class="tok-comment">// 零长度初始化始终可用于创建空切片，即使切片是可变的。</span>
+    <span class="tok-comment">// 这是因为指向的数据长度为零位，所以其不可变性是无关紧要的。</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_basic_slices.zig</kbd>
+1/1 test_basic_slices.test.basic slices...thread 2902466 panic: index out of bounds: index 10, len 4
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_basic_slices.zig:41:10</span>: <span class="sgr-2m">0x102e3c0 in test.basic slices (test_basic_slices.zig)</span>
+    slice[10] += 1;
+         <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x1160b60 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1159d81 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x1153b1d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x11533b1 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/0e584e3dac6333a0b2d5158992704660/test --seed=0x665d12a2
+</samp></pre></figure>
+
+      <p>这是我们更喜欢切片而不是指针的原因之一。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_slices.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+<span class="tok-kw">const</span> fmt = std.fmt;
+
+<span class="tok-kw">test</span> <span class="tok-str">"using slices for strings"</span> {
+    <span class="tok-comment">// Zig 没有字符串的概念。字符串字面量是指向</span>
+    <span class="tok-comment">// 以空值终止的 u8 数组的常量指针，按照惯例，</span>
+    <span class="tok-comment">// "字符串"参数预期为 UTF-8 编码的 u8 切片。</span>
+    <span class="tok-comment">// 这里我们将 *const [5:0]u8 和 *const [6:0]u8 强制转换为 []const u8</span>
+    <span class="tok-kw">const</span> hello: []<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> world: []<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"世界"</span>;
+
+    <span class="tok-kw">var</span> all_together: [<span class="tok-number">100</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-comment">// 您可以在数组上使用至少一个运行时已知索引的切片语法</span>
+    <span class="tok-comment">// 将数组转换为切片。</span>
+    <span class="tok-kw">var</span> start: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    _ = &amp;start;
+    <span class="tok-kw">const</span> all_together_slice = all_together[start..];
+    <span class="tok-comment">// 字符串连接示例。</span>
+    <span class="tok-kw">const</span> hello_world = <span class="tok-kw">try</span> fmt.bufPrint(all_together_slice, <span class="tok-str">"{s} {s}"</span>, .{ hello, world });
+
+    <span class="tok-comment">// 通常，您可以使用 UTF-8 而不用担心某些东西是否是</span>
+    <span class="tok-comment">// 字符串。如果您不需要处理单个字符，则无需</span>
+    <span class="tok-comment">// 解码。</span>
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, hello_world, <span class="tok-str">"hello 世界"</span>));
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"slice pointer"</span> {
+    <span class="tok-kw">var</span> array: [<span class="tok-number">10</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;
+    <span class="tok-kw">const</span> ptr = &amp;array;
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(ptr) == *[<span class="tok-number">10</span>]<span class="tok-type">u8</span>);
+
+    <span class="tok-comment">// 指向数组的指针可以像数组一样被切片：</span>
+    <span class="tok-kw">var</span> start: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;
+    <span class="tok-kw">var</span> end: <span class="tok-type">usize</span> = <span class="tok-number">5</span>;
+    _ = .{ &amp;start, &amp;end };
+    <span class="tok-kw">const</span> slice = ptr[start..end];
+    <span class="tok-comment">// 切片是可变的，因为我们切片了一个可变指针。</span>
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(slice) == []<span class="tok-type">u8</span>);
+    slice[<span class="tok-number">2</span>] = <span class="tok-number">3</span>;
+    <span class="tok-kw">try</span> expect(array[<span class="tok-number">2</span>] == <span class="tok-number">3</span>);
+
+    <span class="tok-comment">// 同样，使用编译期已知的索引进行切片将产生另一个指向</span>
+    <span class="tok-comment">// 数组的指针：</span>
+    <span class="tok-kw">const</span> ptr2 = slice[<span class="tok-number">2</span>..<span class="tok-number">3</span>];
+    <span class="tok-kw">try</span> expect(ptr2.len == <span class="tok-number">1</span>);
+    <span class="tok-kw">try</span> expect(ptr2[<span class="tok-number">0</span>] == <span class="tok-number">3</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(ptr2) == *[<span class="tok-number">1</span>]<span class="tok-type">u8</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_slices.zig</kbd>
+1/2 test_slices.test.using slices for strings...OK
+2/2 test_slices.test.slice pointer...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Pointers">指针</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#for">for</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a></li>
+</ul>
+
+
+      <h3 id="Sentinel-Terminated-Slices"><a href="https://ziglang.org/documentation/0.15.2/#toc-Sentinel-Terminated-Slices">哨兵终止切片</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Slices">§</a></h3>
+
+      <p>
+      语法 <code>[:x]T</code> 是一个具有运行时已知长度的切片，并且还保证在由长度索引的元素处有一个哨兵值。该类型不保证在此之前没有哨兵元素。哨兵终止切片允许对 <code>len</code> 索引进行元素访问。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_null_terminated_slice.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"0-terminated slice"</span> {
+    <span class="tok-kw">const</span> slice: [:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+
+    <span class="tok-kw">try</span> expect(slice.len == <span class="tok-number">5</span>);
+    <span class="tok-kw">try</span> expect(slice[<span class="tok-number">5</span>] == <span class="tok-number">0</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_null_terminated_slice.zig</kbd>
+1/1 test_null_terminated_slice.test.0-terminated slice...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      哨兵终止切片也可以使用切片语法的变体 <code>data[start..end :x]</code> 创建，其中 <code>data</code> 是多项指针、数组或切片，<code>x</code> 是哨兵值。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_null_terminated_slicing.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"0-terminated slicing"</span> {
+    <span class="tok-kw">var</span> array = [_]<span class="tok-type">u8</span>{ <span class="tok-number">3</span>, <span class="tok-number">2</span>, <span class="tok-number">1</span>, <span class="tok-number">0</span>, <span class="tok-number">3</span>, <span class="tok-number">2</span>, <span class="tok-number">1</span>, <span class="tok-number">0</span> };
+    <span class="tok-kw">var</span> runtime_length: <span class="tok-type">usize</span> = <span class="tok-number">3</span>;
+    _ = &amp;runtime_length;
+    <span class="tok-kw">const</span> slice = array[<span class="tok-number">0</span>..runtime_length :<span class="tok-number">0</span>];
+
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(slice) == [:<span class="tok-number">0</span>]<span class="tok-type">u8</span>);
+    <span class="tok-kw">try</span> expect(slice.len == <span class="tok-number">3</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_null_terminated_slicing.zig</kbd>
+1/1 test_null_terminated_slicing.test.0-terminated slicing...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      哨兵终止切片断言后备数据的哨兵位置中的元素实际上是哨兵值。如果不是这种情况，将导致安全检查的<a href="https://ziglang.org/documentation/0.15.2/#Illegal-Behavior">非法行为</a>。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_sentinel_mismatch.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"sentinel mismatch"</span> {
+    <span class="tok-kw">var</span> array = [_]<span class="tok-type">u8</span>{ <span class="tok-number">3</span>, <span class="tok-number">2</span>, <span class="tok-number">1</span>, <span class="tok-number">0</span> };
+
+    <span class="tok-comment">// 从长度为 2 的数组创建哨兵终止切片</span>
+    <span class="tok-comment">// 将导致值 `1` 占据哨兵元素位置。</span>
+    <span class="tok-comment">// 这与指示的哨兵值 `0` 不匹配，并将导致</span>
+    <span class="tok-comment">// 运行时 panic。</span>
+    <span class="tok-kw">var</span> runtime_length: <span class="tok-type">usize</span> = <span class="tok-number">2</span>;
+    _ = &amp;runtime_length;
+    <span class="tok-kw">const</span> slice = array[<span class="tok-number">0</span>..runtime_length :<span class="tok-number">0</span>];
+
+    _ = slice;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_sentinel_mismatch.zig</kbd>
+1/1 test_sentinel_mismatch.test.sentinel mismatch...thread 2902472 panic: sentinel mismatch: expected 0, found 1
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_sentinel_mismatch.zig:13:24</span>: <span class="sgr-2m">0x102c117 in test.sentinel mismatch (test_sentinel_mismatch.zig)</span>
+    const slice = array[0..runtime_length :0];
+                       <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:218:25</span>: <span class="sgr-2m">0x115cc90 in mainTerminal (test_runner.zig)</span>
+        if (test_fn.func()) |_| {
+                        <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/compiler/test_runner.zig:66:28</span>: <span class="sgr-2m">0x1155eb1 in main (test_runner.zig)</span>
+        return mainTerminal();
+                           <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:618:22</span>: <span class="sgr-2m">0x114fc4d in posixCallMainAndExit (std.zig)</span>
+            root.main();
+                     <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x114f4e1 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+error: the following test command crashed:
+/home/andy/dev/zig/.zig-cache/o/12c6cfa0971ea7c724c8448a09f20f6b/test --seed=0xb506c876
+</samp></pre></figure>
+
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Pointers">哨兵终止指针</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#Sentinel-Terminated-Arrays">哨兵终止数组</a></li>
+</ul>
+
+      
+      
+
+      <h2 id="struct"><a href="https://ziglang.org/documentation/0.15.2/#toc-struct">struct</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#struct">§</a></h2>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_structs.zig</cite></figcaption><pre><code><span class="tok-comment">// 声明一个结构体。</span>
+<span class="tok-comment">// Zig 对字段的顺序和结构体的大小不做保证，但</span>
+<span class="tok-comment">// 字段保证是 ABI 对齐的。</span>
+<span class="tok-kw">const</span> Point = <span class="tok-kw">struct</span> {
+    x: <span class="tok-type">f32</span>,
+    y: <span class="tok-type">f32</span>,
+};
+
+<span class="tok-comment">// 声明结构体的实例。</span>
+<span class="tok-kw">const</span> p: Point = .{
+    .x = <span class="tok-number">0.12</span>,
+    .y = <span class="tok-number">0.34</span>,
+};
+
+<span class="tok-comment">// 结构体命名空间中的函数可以使用点语法调用。</span>
+<span class="tok-kw">const</span> Vec3 = <span class="tok-kw">struct</span> {
+    x: <span class="tok-type">f32</span>,
+    y: <span class="tok-type">f32</span>,
+    z: <span class="tok-type">f32</span>,
+
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(x: <span class="tok-type">f32</span>, y: <span class="tok-type">f32</span>, z: <span class="tok-type">f32</span>) Vec3 {
+        <span class="tok-kw">return</span> Vec3{
+            .x = x,
+            .y = y,
+            .z = z,
+        };
+    }
+
+    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">dot</span>(self: Vec3, other: Vec3) <span class="tok-type">f32</span> {
+        <span class="tok-kw">return</span> self.x * other.x + self.y * other.y + self.z * other.z;
+    }
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"dot product"</span> {
+    <span class="tok-kw">const</span> v1 = Vec3.init(<span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>, <span class="tok-number">0.0</span>);
+    <span class="tok-kw">const</span> v2 = Vec3.init(<span class="tok-number">0.0</span>, <span class="tok-number">1.0</span>, <span class="tok-number">0.0</span>);
+    <span class="tok-kw">try</span> expect(v1.dot(v2) == <span class="tok-number">0.0</span>);
+
+    <span class="tok-comment">// 除了可以使用点语法调用外，结构体方法</span>
+    <span class="tok-comment">// 并不特殊。您可以像引用结构体内的任何其他声明一样</span>
+    <span class="tok-comment">// 引用它们：</span>
+    <span class="tok-kw">try</span> expect(Vec3.dot(v1, v2) == <span class="tok-number">0.0</span>);
+}
+
+<span class="tok-comment">// 结构体可以有声明。</span>
+<span class="tok-comment">// 结构体可以有 0 个字段。</span>
+<span class="tok-kw">const</span> Empty = <span class="tok-kw">struct</span> {
+    <span class="tok-kw">pub</span> <span class="tok-kw">const</span> PI = <span class="tok-number">3.14</span>;
+};
+<span class="tok-kw">test</span> <span class="tok-str">"struct namespaced variable"</span> {
+    <span class="tok-kw">try</span> expect(Empty.PI == <span class="tok-number">3.14</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@sizeOf</span>(Empty) == <span class="tok-number">0</span>);
+
+    <span class="tok-comment">// 空结构体可以像往常一样实例化。</span>
+    <span class="tok-kw">const</span> does_nothing: Empty = .{};
+
+    _ = does_nothing;
+}
+
+<span class="tok-comment">// 结构体字段顺序由编译器决定，但是，基指针</span>
+<span class="tok-comment">// 可以从字段指针计算出来：</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">setYBasedOnX</span>(x: *<span class="tok-type">f32</span>, y: <span class="tok-type">f32</span>) <span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> point: *Point = <span class="tok-builtin">@fieldParentPtr</span>(<span class="tok-str">"x"</span>, x);
+    point.y = y;
+}
+<span class="tok-kw">test</span> <span class="tok-str">"field parent pointer"</span> {
+    <span class="tok-kw">var</span> point = Point{
+        .x = <span class="tok-number">0.1234</span>,
+        .y = <span class="tok-number">0.5678</span>,
+    };
+    setYBasedOnX(&amp;point.x, <span class="tok-number">0.9</span>);
+    <span class="tok-kw">try</span> expect(point.y == <span class="tok-number">0.9</span>);
+}
+
+<span class="tok-comment">// 结构体可以从函数返回。</span>
+<span class="tok-kw">fn</span> <span class="tok-fn">LinkedList</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {
+        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> Node = <span class="tok-kw">struct</span> {
+            prev: ?*Node,
+            next: ?*Node,
+            data: T,
+        };
+
+        first: ?*Node,
+        last: ?*Node,
+        len: <span class="tok-type">usize</span>,
+    };
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"linked list"</span> {
+    <span class="tok-comment">// 在编译期调用的函数会被记忆化。</span>
+    <span class="tok-kw">try</span> expect(LinkedList(<span class="tok-type">i32</span>) == LinkedList(<span class="tok-type">i32</span>));
+
+    <span class="tok-kw">const</span> list = LinkedList(<span class="tok-type">i32</span>){
+        .first = <span class="tok-null">null</span>,
+        .last = <span class="tok-null">null</span>,
+        .len = <span class="tok-number">0</span>,
+    };
+    <span class="tok-kw">try</span> expect(list.len == <span class="tok-number">0</span>);
+
+    <span class="tok-comment">// 由于类型是一等值，您可以通过将类型</span>
+    <span class="tok-comment">// 分配给变量来实例化类型：</span>
+    <span class="tok-kw">const</span> ListOfInts = LinkedList(<span class="tok-type">i32</span>);
+    <span class="tok-kw">try</span> expect(ListOfInts == LinkedList(<span class="tok-type">i32</span>));
+
+    <span class="tok-kw">var</span> node = ListOfInts.Node{
+        .prev = <span class="tok-null">null</span>,
+        .next = <span class="tok-null">null</span>,
+        .data = <span class="tok-number">1234</span>,
+    };
+    <span class="tok-kw">const</span> list2 = LinkedList(<span class="tok-type">i32</span>){
+        .first = &amp;node,
+        .last = &amp;node,
+        .len = <span class="tok-number">1</span>,
+    };
+
+    <span class="tok-comment">// 当使用指向结构体的指针时，可以直接访问字段，</span>
+    <span class="tok-comment">// 而无需显式解引用指针。</span>
+    <span class="tok-comment">// 所以您可以这样做</span>
+    <span class="tok-kw">try</span> expect(list2.first.?.data == <span class="tok-number">1234</span>);
+    <span class="tok-comment">// 而不是 try expect(list2.first.?.*.data == 1234);</span>
+}
+
+<span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_structs.zig</kbd>
+1/4 test_structs.test.dot product...OK
+2/4 test_structs.test.struct namespaced variable...OK
+3/4 test_structs.test.field parent pointer...OK
+4/4 test_structs.test.linked list...OK
+All 4 tests passed.
+</samp></pre></figure>
+
+
+      <h3 id="Default-Field-Values"><a href="https://ziglang.org/documentation/0.15.2/#toc-Default-Field-Values">默认字段值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Default-Field-Values">§</a></h3>
+
+      <p>
+      每个结构体字段可能有一个表示默认字段值的表达式。此类表达式在<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>执行，并允许在结构体字面量表达式中省略该字段：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">struct_default_field_values.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Foo = <span class="tok-kw">struct</span> {
+    a: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>,
+    b: <span class="tok-type">i32</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"default struct initialization fields"</span> {
+    <span class="tok-kw">const</span> x: Foo = .{
+        .b = <span class="tok-number">5</span>,
+    };
+    <span class="tok-kw">if</span> (x.a + x.b != <span class="tok-number">1239</span>) {
+        <span class="tok-kw">comptime</span> <span class="tok-kw">unreachable</span>;
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test struct_default_field_values.zig</kbd>
+1/1 struct_default_field_values.test.default struct initialization fields...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <h4 id="Faulty-Default-Field-Values"><a href="https://ziglang.org/documentation/0.15.2/#toc-Faulty-Default-Field-Values">错误的默认字段值</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Faulty-Default-Field-Values">§</a></h4>
+
+      <p>
+      默认字段值仅在从初始化中省略该字段不会违反结构体的数据不变量时才适用。
+      </p>
+      <p>
+      例如，这里是对默认结构体字段初始化的不当使用：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">bad_default_value.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Threshold = <span class="tok-kw">struct</span> {
+    minimum: <span class="tok-type">f32</span> = <span class="tok-number">0.25</span>,
+    maximum: <span class="tok-type">f32</span> = <span class="tok-number">0.75</span>,
+
+    <span class="tok-kw">const</span> Category = <span class="tok-kw">enum</span> { low, medium, high };
+
+    <span class="tok-kw">fn</span> <span class="tok-fn">categorize</span>(t: Threshold, value: <span class="tok-type">f32</span>) Category {
+        assert(t.maximum &gt;= t.minimum);
+        <span class="tok-kw">if</span> (value &lt; t.minimum) <span class="tok-kw">return</span> .low;
+        <span class="tok-kw">if</span> (value &gt; t.maximum) <span class="tok-kw">return</span> .high;
+        <span class="tok-kw">return</span> .medium;
+    }
+};
+
+<span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> threshold: Threshold = .{
+        .maximum = <span class="tok-number">0.20</span>,
+    };
+    <span class="tok-kw">const</span> category = threshold.categorize(<span class="tok-number">0.90</span>);
+    <span class="tok-kw">try</span> std.fs.File.stdout().writeAll(<span class="tok-builtin">@tagName</span>(category));
+}
+
+<span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> assert = std.debug.assert;</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig build-exe bad_default_value.zig</kbd>
+$ <kbd>./bad_default_value</kbd>
+thread 2895237 panic: reached unreachable code
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/debug.zig:559:14</span>: <span class="sgr-2m">0x1044179 in assert (std.zig)</span>
+    if (!ok) unreachable; // assertion failure
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/bad_default_value.zig:8:15</span>: <span class="sgr-2m">0x113ec54 in categorize (bad_default_value.zig)</span>
+        assert(t.maximum &gt;= t.minimum);
+              <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/bad_default_value.zig:19:42</span>: <span class="sgr-2m">0x113d444 in main (bad_default_value.zig)</span>
+    const category = threshold.categorize(0.90);
+                                         <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:627:37</span>: <span class="sgr-2m">0x113dca9 in posixCallMainAndExit (std.zig)</span>
+            const result = root.main() catch |err| {
+                                    <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/start.zig:232:5</span>: <span class="sgr-2m">0x113d351 in _start (std.zig)</span>
+    asm volatile (switch (native_arch) {
+    <span class="sgr-32m">^</span>
+<span class="sgr-1m">???:?:?</span>: <span class="sgr-2m">0x0 in ??? (???)</span>
+(process terminated by signal)
+</samp></pre></figure>
+
+      <p>
+      上面您可以看到忽略此原则的危险。默认字段值导致数据不变量被违反，从而导致非法行为。
+      </p>
+      <p>
+      要解决此问题，请从所有结构体字段中删除默认值，并提供一个命名的默认值：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">struct_default_value.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> Threshold = <span class="tok-kw">struct</span> {
+    minimum: <span class="tok-type">f32</span>,
+    maximum: <span class="tok-type">f32</span>,
+
+    <span class="tok-kw">const</span> default: Threshold = .{
+        .minimum = <span class="tok-number">0.25</span>,
+        .maximum = <span class="tok-number">0.75</span>,
+    };
+};</code></pre></figure>
+
+      <p>如果结构体值需要运行时已知的值才能在不违反数据不变量的情况下初始化，则使用接受这些运行时值的初始化方法，并填充其余字段。</p>
+      
+      
+
+      <h3 id="extern-struct"><a href="https://ziglang.org/documentation/0.15.2/#toc-extern-struct">extern struct</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#extern-struct">§</a></h3>
+
+      <p><code><span class="tok-kw">extern</span> <span class="tok-kw">struct</span></code> 具有与目标的 C ABI 匹配的内存布局。</p>
+      <p>如果不需要明确定义的内存布局，<a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a> 是更好的选择，因为它对编译器的限制较少。</p>
+      <p>参见 <a href="https://ziglang.org/documentation/0.15.2/#packed-struct">packed struct</a>，它具有其后备整数的 ABI，这对于建模标志很有用。</p>
+      <p>另请参阅：</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern-union">extern union</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#extern-enum">extern enum</a></li>
+</ul>
+
+      
+
+      <h3 id="packed-struct"><a href="https://ziglang.org/documentation/0.15.2/#toc-packed-struct">packed struct</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#packed-struct">§</a></h3>
+
+      <p>
+      与 <code><span class="tok-kw">enum</span></code> 一样，<code><span class="tok-kw">packed</span></code> 结构体基于以不同方式解释整数的概念。所有紧凑结构体都有一个<strong>后备整数</strong>，该整数由字段的总位数隐式确定，或显式指定。紧凑结构体具有明确定义的内存布局 - 与其后备整数完全相同的 ABI。
+      </p>
+      <p>
+      紧凑结构体的每个字段被解释为逻辑位序列，从最低有效位到最高有效位排列。允许的字段类型：
+      </p>
+      <ul>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a>字段使用与其位宽完全相同的位数。例如，<code><span class="tok-type">u5</span></code> 将使用后备整数的 5 位。</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#Primitive-Types">bool</a> 字段恰好使用 1 位。</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a> 字段恰好使用其整数标签类型的位宽。</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#packed-union">packed union</a> 字段恰好使用具有最大位宽的联合字段的位宽。</li>
+        <li><code><span class="tok-kw">packed</span> <span class="tok-kw">struct</span></code> 字段使用其后备整数的位。</li>
+      </ul>
+      <p>
+      这意味着 <code><span class="tok-kw">packed</span> <span class="tok-kw">struct</span></code> 可以参与 <a href="https://ziglang.org/documentation/0.15.2/#bitCast">@bitCast</a> 或 <a href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a> 以重新解释内存。这甚至在<a href="https://ziglang.org/documentation/0.15.2/#comptime">编译期</a>也有效：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_packed_structs.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> native_endian = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>).target.cpu.arch.endian();
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Full = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    number: <span class="tok-type">u16</span>,
+};
+<span class="tok-kw">const</span> Divided = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    half1: <span class="tok-type">u8</span>,
+    quarter3: <span class="tok-type">u4</span>,
+    quarter4: <span class="tok-type">u4</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"@bitCast between packed structs"</span> {
+    <span class="tok-kw">try</span> doTheTest();
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> doTheTest();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">doTheTest</span>() !<span class="tok-type">void</span> {
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@sizeOf</span>(Full) == <span class="tok-number">2</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@sizeOf</span>(Divided) == <span class="tok-number">2</span>);
+    <span class="tok-kw">const</span> full = Full{ .number = <span class="tok-number">0x1234</span> };
+    <span class="tok-kw">const</span> divided: Divided = <span class="tok-builtin">@bitCast</span>(full);
+    <span class="tok-kw">try</span> expect(divided.half1 == <span class="tok-number">0x34</span>);
+    <span class="tok-kw">try</span> expect(divided.quarter3 == <span class="tok-number">0x2</span>);
+    <span class="tok-kw">try</span> expect(divided.quarter4 == <span class="tok-number">0x1</span>);
+
+    <span class="tok-kw">const</span> ordered: [<span class="tok-number">2</span>]<span class="tok-type">u8</span> = <span class="tok-builtin">@bitCast</span>(full);
+    <span class="tok-kw">switch</span> (native_endian) {
+        .big =&gt; {
+            <span class="tok-kw">try</span> expect(ordered[<span class="tok-number">0</span>] == <span class="tok-number">0x12</span>);
+            <span class="tok-kw">try</span> expect(ordered[<span class="tok-number">1</span>] == <span class="tok-number">0x34</span>);
+        },
+        .little =&gt; {
+            <span class="tok-kw">try</span> expect(ordered[<span class="tok-number">0</span>] == <span class="tok-number">0x34</span>);
+            <span class="tok-kw">try</span> expect(ordered[<span class="tok-number">1</span>] == <span class="tok-number">0x12</span>);
+        },
+    }
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_packed_structs.zig</kbd>
+1/1 test_packed_structs.test.@bitCast between packed structs...OK
+All 1 tests passed.
+</samp></pre></figure>
+      <p>
+      后备整数可以被推断或显式提供。当推断时，它将是无符号的。当显式提供时，其位宽将在编译期强制执行，以完全匹配字段的总位宽：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_missized_packed_struct.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"missized packed struct"</span> {
+    <span class="tok-kw">const</span> S = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span>(<span class="tok-type">u32</span>) { a: <span class="tok-type">u16</span>, b: <span class="tok-type">u8</span> };
+    _ = S{ .a = <span class="tok-number">4</span>, .b = <span class="tok-number">2</span> };
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_missized_packed_struct.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_missized_packed_struct.zig:2:29: </span><span class="sgr-31m">error: </span><span class="sgr-1m">backing integer type 'u32' has bit size 32 but the struct fields have a total bit size of 24
+</span>    const S = packed struct(u32) { a: u16, b: u8 };
+                            <span class="sgr-32m">^~~
+</span><span class="sgr-2m">referenced by:
+    test.missized packed struct: /home/andy/dev/zig/doc/langref/test_missized_packed_struct.zig:2:22
+</span>
+</samp></pre></figure>
+
+      <p>
+      Zig 允许获取非字节对齐字段的地址：
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_pointer_to_non-byte_aligned_field.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> BitField = <span class="tok-kw">packed</span> <span class="tok-kw">struct</span> {
+    a: <span class="tok-type">u3</span>,
+    b: <span class="tok-type">u3</span>,
+    c: <span class="tok-type">u2</span>,
+};
+
+<span class="tok-kw">var</span> foo = BitField{
+    .a = <span class="tok-number">1</span>,
+    .b = <span class="tok-number">2</span>,
+    .c = <span class="tok-number">3</span>,
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"pointer to non-byte-aligned field"</span> {
+    <span class="tok-kw">const</span> ptr = &amp;foo.b;
+    <span class="tok-kw">try</span> expect(ptr.* == <span class="tok-number">2</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_pointer_to_non-byte_aligned_field.zig</kbd>
+1/1 test_pointer_to_non-byte_aligned_field.test.pointer to non-byte-aligned field...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      然而，指向非字节对齐字段的指针具有特殊属性，在预期普通指针的地方不能传递：
+      </p>

@@ -6,4 +6,4 @@
 
 |名称|原始连接|
 |---|---|
-|`文档 - Zig编程语言.html`|[https://ziglang.org/documentation/0.15.2/](https://ziglang.org/documentation/0.15.2/)|
+|[文档 - Zig 编程语言 v0.15.2.html](./文档%20-%20Zig%20编程语言.html)|[https://ziglang.org/documentation/0.15.2/](https://ziglang.org/documentation/0.15.2/)|

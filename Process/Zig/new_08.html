@@ -1,0 +1,934 @@
+<figure><figcaption class="zig-cap"><cite class="file">test_type_coercion.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"类型强制转换 - 变量声明"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u16</span> = a;
+    _ = b;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"类型强制转换 - 函数调用"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">1</span>;
+    foo(a);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(b: <span class="tok-type">u16</span>) <span class="tok-type">void</span> {
+    _ = b;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"类型强制转换 - @as 内置函数"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b = <span class="tok-builtin">@as</span>(<span class="tok-type">u16</span>, a);
+    _ = b;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_type_coercion.zig</kbd>
+1/3 test_type_coercion.test.type coercion - variable declaration...OK
+2/3 test_type_coercion.test.type coercion - function call...OK
+3/3 test_type_coercion.test.type coercion - @as builtin...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      <p>
+      只有在如何从一种类型转换到另一种类型完全明确且转换保证安全时,才允许类型强制转换。有一个例外,即 <a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C 指针</a>。
+      </p>
+      <h4 id="Type-Coercion-Stricter-Qualification"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Stricter-Qualification">类型强制转换:更严格的限定</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Stricter-Qualification">§</a></h4>
+
+      <p>
+      在运行时具有相同表示的值可以被转换以增加限定符的严格性,无论限定符嵌套多深:
+      </p>
+      <ul>
+          <li><code><span class="tok-kw">const</span></code> - 允许从非 const 转换到 const</li>
+          <li><code><span class="tok-kw">volatile</span></code> - 允许从非 volatile 转换到 volatile</li>
+          <li><code><span class="tok-kw">align</span></code> - 允许从较大对齐转换到较小对齐 </li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">错误集</a> 到超集是允许的</li>
+      </ul>
+      <p>
+      这些转换在运行时是无操作的,因为值的表示不会改变。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_no_op_casts.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"类型强制转换 - const 限定"</span> {
+    <span class="tok-kw">var</span> a: <span class="tok-type">i32</span> = <span class="tok-number">1</span>;
+    <span class="tok-kw">const</span> b: *<span class="tok-type">i32</span> = &amp;a;
+    foo(b);
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>(_: *<span class="tok-kw">const</span> <span class="tok-type">i32</span>) <span class="tok-type">void</span> {}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_no_op_casts.zig</kbd>
+1/1 test_no_op_casts.test.type coercion - const qualification...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      此外,指针可以强制转换为 const 可选指针:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_pointer_coerce_const_optional.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+
+<span class="tok-kw">test</span> <span class="tok-str">"将 *[1][*:0]const u8 转换为 []const ?[*:0]const u8"</span> {
+    <span class="tok-kw">const</span> window_name = [<span class="tok-number">1</span>][*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>{<span class="tok-str">"window name"</span>};
+    <span class="tok-kw">const</span> x: []<span class="tok-kw">const</span> ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;window_name;
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, mem.span(x[<span class="tok-number">0</span>].?), <span class="tok-str">"window name"</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_pointer_coerce_const_optional.zig</kbd>
+1/1 test_pointer_coerce_const_optional.test.cast *[1][*:0]const u8 to []const ?[*:0]const u8...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Integer-and-Float-Widening"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Integer-and-Float-Widening">类型强制转换:整数和浮点数拓宽</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Integer-and-Float-Widening">§</a></h4>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a> 可以强制转换为能够表示旧类型所有值的整数类型,同样地,<a href="https://ziglang.org/documentation/0.15.2/#Floats">浮点数</a> 可以强制转换为能够表示旧类型所有值的浮点类型。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_integer_widening.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> builtin = <span class="tok-builtin">@import</span>(<span class="tok-str">"builtin"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+
+<span class="tok-kw">test</span> <span class="tok-str">"整数拓宽"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">250</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">u16</span> = a;
+    <span class="tok-kw">const</span> c: <span class="tok-type">u32</span> = b;
+    <span class="tok-kw">const</span> d: <span class="tok-type">u64</span> = c;
+    <span class="tok-kw">const</span> e: <span class="tok-type">u64</span> = d;
+    <span class="tok-kw">const</span> f: <span class="tok-type">u128</span> = e;
+    <span class="tok-kw">try</span> expect(f == a);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"无符号整数隐式转换为有符号整数"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">u8</span> = <span class="tok-number">250</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">i16</span> = a;
+    <span class="tok-kw">try</span> expect(b == <span class="tok-number">250</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"浮点数拓宽"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">f16</span> = <span class="tok-number">12.34</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">f32</span> = a;
+    <span class="tok-kw">const</span> c: <span class="tok-type">f64</span> = b;
+    <span class="tok-kw">const</span> d: <span class="tok-type">f128</span> = c;
+    <span class="tok-kw">try</span> expect(d == a);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_integer_widening.zig</kbd>
+1/3 test_integer_widening.test.integer widening...OK
+2/3 test_integer_widening.test.implicit unsigned integer to signed integer...OK
+3/3 test_integer_widening.test.float widening...OK
+All 3 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Float-to-Int"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Float-to-Int">类型强制转换:浮点数到整数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Float-to-Int">§</a></h4>
+
+      <p>
+      编译错误是合适的,因为这个有歧义的表达式给编译器留下了两种关于强制转换的选择。
+      </p>
+      <ul>
+        <li>将 <code><span class="tok-number">54.0</span></code> 转换为 <code><span class="tok-type">comptime_int</span></code> 得到 <code><span class="tok-builtin">@as</span>(<span class="tok-type">comptime_int</span>, <span class="tok-number">10</span>)</code>,再转换为 <code><span class="tok-builtin">@as</span>(<span class="tok-type">f32</span>, <span class="tok-number">10</span>)</code></li>
+        <li>将 <code><span class="tok-number">5</span></code> 转换为 <code><span class="tok-type">comptime_float</span></code> 得到 <code><span class="tok-builtin">@as</span>(<span class="tok-type">comptime_float</span>, <span class="tok-number">10.8</span>)</code>,再转换为 <code><span class="tok-builtin">@as</span>(<span class="tok-type">f32</span>, <span class="tok-number">10.8</span>)</code></li>
+      </ul>
+      <figure><figcaption class="zig-cap"><cite class="file">test_ambiguous_coercion.zig</cite></figcaption><pre><code><span class="tok-comment">// 浮点数到整数的编译时强制转换</span>
+<span class="tok-kw">test</span> <span class="tok-str">"隐式转换为 comptime_int"</span> {
+    <span class="tok-kw">const</span> f: <span class="tok-type">f32</span> = <span class="tok-number">54.0</span> / <span class="tok-number">5</span>;
+    _ = f;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_ambiguous_coercion.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_ambiguous_coercion.zig:3:25: </span><span class="sgr-31m">error: </span><span class="sgr-1m">ambiguous coercion of division operands 'comptime_float' and 'comptime_int'; non-zero remainder '4'
+</span>    const f: f32 = 54.0 / 5;
+                   <span class="sgr-32m">~~~~~^~~
+</span>
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Slices-Arrays-and-Pointers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Slices-Arrays-and-Pointers">类型强制转换:切片、数组和指针</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Slices-Arrays-and-Pointers">§</a></h4>
+
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_slices_arrays_and_pointers.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-comment">// 您可以将数组的常量指针赋值给带有元素类型 const 修饰符的切片。</span>
+<span class="tok-comment">// 这对于字符串字面量特别有用。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*const [N]T 转换为 []const T"</span> {
+    <span class="tok-kw">const</span> x1: []<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> x2: []<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;[<span class="tok-number">5</span>]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-number">111</span> };
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, x1, x2));
+
+    <span class="tok-kw">const</span> y: []<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">try</span> expect(y[<span class="tok-number">0</span>] == <span class="tok-number">1.2</span>);
+}
+
+<span class="tok-comment">// 同样,当目标类型是错误联合类型时,它也适用。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*const [N]T 转换为 E![]const T"</span> {
+    <span class="tok-kw">const</span> x1: <span class="tok-type">anyerror</span>![]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> x2: <span class="tok-type">anyerror</span>![]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;[<span class="tok-number">5</span>]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-number">111</span> };
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, <span class="tok-kw">try</span> x1, <span class="tok-kw">try</span> x2));
+
+    <span class="tok-kw">const</span> y: <span class="tok-type">anyerror</span>![]<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> y)[<span class="tok-number">0</span>] == <span class="tok-number">1.2</span>);
+}
+
+<span class="tok-comment">// 同样,当目标类型是可选类型时,它也适用。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*const [N]T 转换为 ?[]const T"</span> {
+    <span class="tok-kw">const</span> x1: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> x2: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = &amp;[<span class="tok-number">5</span>]<span class="tok-type">u8</span>{ <span class="tok-str">'h'</span>, <span class="tok-str">'e'</span>, <span class="tok-str">'l'</span>, <span class="tok-str">'l'</span>, <span class="tok-number">111</span> };
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, x1.?, x2.?));
+
+    <span class="tok-kw">const</span> y: ?[]<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">try</span> expect(y.?[<span class="tok-number">0</span>] == <span class="tok-number">1.2</span>);
+}
+
+<span class="tok-comment">// 在这种转换中,数组长度成为切片长度。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*[N]T 转换为 []T"</span> {
+    <span class="tok-kw">var</span> buf: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> x: []<span class="tok-type">u8</span> = &amp;buf;
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">u8</span>, x, <span class="tok-str">"hello"</span>));
+
+    <span class="tok-kw">const</span> buf2 = [<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> };
+    <span class="tok-kw">const</span> x2: []<span class="tok-kw">const</span> <span class="tok-type">f32</span> = &amp;buf2;
+    <span class="tok-kw">try</span> expect(std.mem.eql(<span class="tok-type">f32</span>, x2, &amp;[<span class="tok-number">2</span>]<span class="tok-type">f32</span>{ <span class="tok-number">1.2</span>, <span class="tok-number">3.4</span> }));
+}
+
+<span class="tok-comment">// 数组的单项指针可以强制转换为多项指针。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*[N]T 转换为 [*]T"</span> {
+    <span class="tok-kw">var</span> buf: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> x: [*]<span class="tok-type">u8</span> = &amp;buf;
+    <span class="tok-kw">try</span> expect(x[<span class="tok-number">4</span>] == <span class="tok-str">'o'</span>);
+    <span class="tok-comment">// x[5] 会是未捕获的越界指针解引用!</span>
+}
+
+<span class="tok-comment">// 同样,当目标类型是可选类型时,它也适用。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*[N]T 转换为 ?[*]T"</span> {
+    <span class="tok-kw">var</span> buf: [<span class="tok-number">5</span>]<span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>.*;
+    <span class="tok-kw">const</span> x: ?[*]<span class="tok-type">u8</span> = &amp;buf;
+    <span class="tok-kw">try</span> expect(x.?[<span class="tok-number">4</span>] == <span class="tok-str">'o'</span>);
+}
+
+<span class="tok-comment">// 单项指针可以转换为长度为 1 的单项数组。</span>
+<span class="tok-kw">test</span> <span class="tok-str">"*T 转换为 *[1]T"</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: *[<span class="tok-number">1</span>]<span class="tok-type">i32</span> = &amp;x;
+    <span class="tok-kw">const</span> z: [*]<span class="tok-type">i32</span> = y;
+    <span class="tok-kw">try</span> expect(z[<span class="tok-number">0</span>] == <span class="tok-number">1234</span>);
+}
+
+<span class="tok-comment">// 哨兵终止的切片可以强制转换为哨兵终止的指针</span>
+<span class="tok-kw">test</span> <span class="tok-str">"[:x]T 转换为 [*:x]T"</span> {
+    <span class="tok-kw">const</span> buf: [:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-str">"hello"</span>;
+    <span class="tok-kw">const</span> buf2: [*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = buf;
+    <span class="tok-kw">try</span> expect(buf2[<span class="tok-number">4</span>] == <span class="tok-str">'o'</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_slices_arrays_and_pointers.zig</kbd>
+1/8 test_coerce_slices_arrays_and_pointers.test.*const [N]T to []const T...OK
+2/8 test_coerce_slices_arrays_and_pointers.test.*const [N]T to E![]const T...OK
+3/8 test_coerce_slices_arrays_and_pointers.test.*const [N]T to ?[]const T...OK
+4/8 test_coerce_slices_arrays_and_pointers.test.*[N]T to []T...OK
+5/8 test_coerce_slices_arrays_and_pointers.test.*[N]T to [*]T...OK
+6/8 test_coerce_slices_arrays_and_pointers.test.*[N]T to ?[*]T...OK
+7/8 test_coerce_slices_arrays_and_pointers.test.*T to *[1]T...OK
+8/8 test_coerce_slices_arrays_and_pointers.test.[:x]T to [*:x]T...OK
+All 8 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#C-Pointers">C 指针</a></li>
+</ul>
+
+      
+      <h4 id="Type-Coercion-Optionals"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Optionals">类型强制转换:可选类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Optionals">§</a></h4>
+
+      <p>
+      <a href="https://ziglang.org/documentation/0.15.2/#Optionals">可选类型</a> 的载荷类型,以及 <a href="https://ziglang.org/documentation/0.15.2/#null">null</a>,可以强制转换为可选类型。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_optionals.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"强制转换为可选类型"</span> {
+    <span class="tok-kw">const</span> x: ?<span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: ?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">try</span> expect(x.? == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect(y == <span class="tok-null">null</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_optionals.zig</kbd>
+1/1 test_coerce_optionals.test.coerce to optionals...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>可选类型在 <a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">错误联合类型</a> 内部嵌套时也有效:</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_optional_wrapped_error_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"强制转换为错误联合类型包装的可选类型"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">anyerror</span>!?<span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: <span class="tok-type">anyerror</span>!?<span class="tok-type">i32</span> = <span class="tok-null">null</span>;
+
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> x).? == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> y) == <span class="tok-null">null</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_optional_wrapped_error_union.zig</kbd>
+1/1 test_coerce_optional_wrapped_error_union.test.coerce to optionals wrapped in error union...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Error-Unions"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Error-Unions">类型强制转换:错误联合类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Error-Unions">§</a></h4>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Error-Union-Type">错误联合类型</a> 的载荷类型,以及 <a href="https://ziglang.org/documentation/0.15.2/#Error-Set-Type">错误集类型</a>,可以强制转换为错误联合类型:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_to_error_union.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"强制转换为错误联合类型"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-number">1234</span>;
+    <span class="tok-kw">const</span> y: <span class="tok-type">anyerror</span>!<span class="tok-type">i32</span> = <span class="tok-kw">error</span>.Failure;
+
+    <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> x) == <span class="tok-number">1234</span>);
+    <span class="tok-kw">try</span> std.testing.expectError(<span class="tok-kw">error</span>.Failure, y);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_to_error_union.zig</kbd>
+1/1 test_coerce_to_error_union.test.coercion to error unions...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Compile-Time-Known-Numbers"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Compile-Time-Known-Numbers">类型强制转换:编译时已知数字</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Compile-Time-Known-Numbers">§</a></h4>
+
+      <p>当一个数字在 <a href="https://ziglang.org/documentation/0.15.2/#comptime">编译时</a> 已知可以在目标类型中表示时,它可以被强制转换:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_large_to_small.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"当值在编译时已知适合时,将较大的整数类型强制转换为较小的类型"</span> {
+    <span class="tok-kw">const</span> x: <span class="tok-type">u64</span> = <span class="tok-number">255</span>;
+    <span class="tok-kw">const</span> y: <span class="tok-type">u8</span> = x;
+    <span class="tok-kw">try</span> expect(y == <span class="tok-number">255</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_large_to_small.zig</kbd>
+1/1 test_coerce_large_to_small.test.coercing large integer type to smaller one when value is comptime-known to fit...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      <h4 id="Type-Coercion-Unions-and-Enums"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Unions-and-Enums">类型强制转换:联合类型和枚举</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Unions-and-Enums">§</a></h4>
+
+      <p>标记联合类型可以强制转换为枚举,而枚举可以强制转换为标记联合类型,前提是它们在 <a href="https://ziglang.org/documentation/0.15.2/#comptime">编译时</a> 已知是联合类型的一个字段,该字段只有一个可能的值,例如 <a href="https://ziglang.org/documentation/0.15.2/#void">void</a>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_unions_enums.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> E = <span class="tok-kw">enum</span> {
+    one,
+    two,
+    three,
+};
+
+<span class="tok-kw">const</span> U = <span class="tok-kw">union</span>(E) {
+    one: <span class="tok-type">i32</span>,
+    two: <span class="tok-type">f32</span>,
+    three,
+};
+
+<span class="tok-kw">const</span> U2 = <span class="tok-kw">union</span>(<span class="tok-kw">enum</span>) {
+    a: <span class="tok-type">void</span>,
+    b: <span class="tok-type">f32</span>,
+
+    <span class="tok-kw">fn</span> <span class="tok-fn">tag</span>(self: U2) <span class="tok-type">usize</span> {
+        <span class="tok-kw">switch</span> (self) {
+            .a =&gt; <span class="tok-kw">return</span> <span class="tok-number">1</span>,
+            .b =&gt; <span class="tok-kw">return</span> <span class="tok-number">2</span>,
+        }
+    }
+};
+
+<span class="tok-kw">test</span> <span class="tok-str">"联合类型和枚举之间的强制转换"</span> {
+    <span class="tok-kw">const</span> u = U{ .two = <span class="tok-number">12.34</span> };
+    <span class="tok-kw">const</span> e: E = u; <span class="tok-comment">// 将联合类型强制转换为枚举</span>
+    <span class="tok-kw">try</span> expect(e == E.two);
+
+    <span class="tok-kw">const</span> three = E.three;
+    <span class="tok-kw">const</span> u_2: U = three; <span class="tok-comment">// 将枚举强制转换为联合类型</span>
+    <span class="tok-kw">try</span> expect(u_2 == E.three);
+
+    <span class="tok-kw">const</span> u_3: U = .three; <span class="tok-comment">// 将枚举字面量强制转换为联合类型</span>
+    <span class="tok-kw">try</span> expect(u_3 == E.three);
+
+    <span class="tok-kw">const</span> u_4: U2 = .a; <span class="tok-comment">// 将枚举字面量强制转换为具有推断枚举标记类型的联合类型。</span>
+    <span class="tok-kw">try</span> expect(u_4.tag() == <span class="tok-number">1</span>);
+
+    <span class="tok-comment">// 以下示例无效。</span>
+    <span class="tok-comment">// error: coercion from enum '@TypeOf(.enum_literal)' to union 'test_coerce_unions_enum.U2' must initialize 'f32' field 'b'</span>
+    <span class="tok-comment">//var u_5: U2 = .b;</span>
+    <span class="tok-comment">//try expect(u_5.tag() == 2);</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_unions_enums.zig</kbd>
+1/1 test_coerce_unions_enums.test.coercion between unions and enums...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>另请参阅:</p><ul>
+<li><a href="https://ziglang.org/documentation/0.15.2/#union">union</a></li>
+<li><a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a></li>
+</ul>
+
+      
+      <h4 id="Type-Coercion-undefined"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-undefined">类型强制转换:undefined</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-undefined">§</a></h4>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#undefined">undefined</a> 可以强制转换为任何类型。</p>
+      
+
+      <h4 id="Type-Coercion-Tuples-to-Arrays"><a href="https://ziglang.org/documentation/0.15.2/#toc-Type-Coercion-Tuples-to-Arrays">类型强制转换:元组到数组</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Type-Coercion-Tuples-to-Arrays">§</a></h4>
+
+      <p><a href="https://ziglang.org/documentation/0.15.2/#Tuples">元组</a> 可以强制转换为数组,如果所有字段都具有相同的类型。</p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_coerce_tuples_arrays.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">const</span> Tuple = <span class="tok-kw">struct</span> { <span class="tok-type">u8</span>, <span class="tok-type">u8</span> };
+<span class="tok-kw">test</span> <span class="tok-str">"从同质元组强制转换为数组"</span> {
+    <span class="tok-kw">const</span> tuple: Tuple = .{ <span class="tok-number">5</span>, <span class="tok-number">6</span> };
+    <span class="tok-kw">const</span> array: [<span class="tok-number">2</span>]<span class="tok-type">u8</span> = tuple;
+    _ = array;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_coerce_tuples_arrays.zig</kbd>
+1/1 test_coerce_tuples_arrays.test.coercion from homogeneous tuple to array...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h3 id="Explicit-Casts"><a href="https://ziglang.org/documentation/0.15.2/#toc-Explicit-Casts">显式转换</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Explicit-Casts">§</a></h3>
+
+      <p>
+      显式转换通过 <a href="https://ziglang.org/documentation/0.15.2/#Builtin-Functions">内置函数</a> 执行。
+      有些显式转换是安全的;有些则不是。
+      有些显式转换执行语言级断言;有些则不执行。
+      有些显式转换在运行时是无操作的;有些则不是。
+      </p>
+      <ul>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#bitCast">@bitCast</a> - 改变类型但保持位表示</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#alignCast">@alignCast</a> - 使指针具有更大的对齐</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#enumFromInt">@enumFromInt</a> - 根据整数标记值获取枚举值</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#errorFromInt">@errorFromInt</a> - 根据整数值获取错误代码</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#errorCast">@errorCast</a> - 转换为更小的错误集</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#floatCast">@floatCast</a> - 将较大的浮点数转换为较小的浮点数</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#floatFromInt">@floatFromInt</a> - 将整数转换为浮点数值</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intCast">@intCast</a> - 在整数类型之间转换</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromBool">@intFromBool</a> - 将 true 转换为 1,false 转换为 0</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromEnum">@intFromEnum</a> - 获取枚举或标记联合类型的整数标记值</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromError">@intFromError</a> - 获取错误代码的整数值</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromFloat">@intFromFloat</a> - 获取浮点数值的整数部分</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#intFromPtr">@intFromPtr</a> - 获取指针的地址</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#ptrFromInt">@ptrFromInt</a> - 将地址转换为指针</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#ptrCast">@ptrCast</a> - 在指针类型之间转换</li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#truncate">@truncate</a> - 在整数类型之间转换,截断位</li>
+      </ul>
+      
+
+      <h3 id="Peer-Type-Resolution"><a href="https://ziglang.org/documentation/0.15.2/#toc-Peer-Type-Resolution">对等类型解析</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Peer-Type-Resolution">§</a></h3>
+
+      <p>对等类型解析发生在以下位置:</p>
+      <ul>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#switch">switch</a> 表达式</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#if">if</a> 表达式</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#while">while</a> 表达式</li>
+        <li><a href="https://ziglang.org/documentation/0.15.2/#for">for</a> 表达式</li>
+        <li>块中的多个 break 语句</li>
+        <li>一些 <a href="https://ziglang.org/documentation/0.15.2/#Table-of-Operators">二元操作</a></li>
+      </ul>
+      <p>
+      这种类型解析选择一个所有对等类型都可以强制转换为的类型。以下是一些示例:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_peer_type_resolution.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+<span class="tok-kw">const</span> mem = std.mem;
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等解析整数拓宽"</span> {
+    <span class="tok-kw">const</span> a: <span class="tok-type">i8</span> = <span class="tok-number">12</span>;
+    <span class="tok-kw">const</span> b: <span class="tok-type">i16</span> = <span class="tok-number">34</span>;
+    <span class="tok-kw">const</span> c = a + b;
+    <span class="tok-kw">try</span> expect(c == <span class="tok-number">46</span>);
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(c) == <span class="tok-type">i16</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等解析不同大小的数组为 const 切片"</span> {
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">true</span>), <span class="tok-str">"true"</span>));
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">false</span>), <span class="tok-str">"false"</span>));
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">true</span>), <span class="tok-str">"true"</span>));
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> expect(mem.eql(<span class="tok-type">u8</span>, boolToStr(<span class="tok-null">false</span>), <span class="tok-str">"false"</span>));
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">boolToStr</span>(b: <span class="tok-type">bool</span>) []<span class="tok-kw">const</span> <span class="tok-type">u8</span> {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (b) <span class="tok-str">"true"</span> <span class="tok-kw">else</span> <span class="tok-str">"false"</span>;
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等解析数组和 const 切片"</span> {
+    <span class="tok-kw">try</span> testPeerResolveArrayConstSlice(<span class="tok-null">true</span>);
+    <span class="tok-kw">try</span> <span class="tok-kw">comptime</span> testPeerResolveArrayConstSlice(<span class="tok-null">true</span>);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">testPeerResolveArrayConstSlice</span>(b: <span class="tok-type">bool</span>) !<span class="tok-type">void</span> {
+    <span class="tok-kw">const</span> value1 = <span class="tok-kw">if</span> (b) <span class="tok-str">"aoeu"</span> <span class="tok-kw">else</span> <span class="tok-builtin">@as</span>([]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, <span class="tok-str">"zz"</span>);
+    <span class="tok-kw">const</span> value2 = <span class="tok-kw">if</span> (b) <span class="tok-builtin">@as</span>([]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, <span class="tok-str">"zz"</span>) <span class="tok-kw">else</span> <span class="tok-str">"aoeu"</span>;
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, value1, <span class="tok-str">"aoeu"</span>));
+    <span class="tok-kw">try</span> expect(mem.eql(<span class="tok-type">u8</span>, value2, <span class="tok-str">"zz"</span>));
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等类型解析: ?T 和 T"</span> {
+    <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">true</span>, <span class="tok-null">false</span>).? == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">false</span>, <span class="tok-null">false</span>).? == <span class="tok-number">3</span>);
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">true</span>, <span class="tok-null">false</span>).? == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(peerTypeTAndOptionalT(<span class="tok-null">false</span>, <span class="tok-null">false</span>).? == <span class="tok-number">3</span>);
+    }
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">peerTypeTAndOptionalT</span>(c: <span class="tok-type">bool</span>, b: <span class="tok-type">bool</span>) ?<span class="tok-type">usize</span> {
+    <span class="tok-kw">if</span> (c) {
+        <span class="tok-kw">return</span> <span class="tok-kw">if</span> (b) <span class="tok-null">null</span> <span class="tok-kw">else</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-number">0</span>);
+    }
+
+    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-number">3</span>);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等类型解析: *[0]u8 和 []const u8"</span> {
+    <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">true</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">0</span>);
+    <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">false</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">1</span>);
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">true</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect(peerTypeEmptyArrayAndSlice(<span class="tok-null">false</span>, <span class="tok-str">"hi"</span>).len == <span class="tok-number">1</span>);
+    }
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">peerTypeEmptyArrayAndSlice</span>(a: <span class="tok-type">bool</span>, slice: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) []<span class="tok-kw">const</span> <span class="tok-type">u8</span> {
+    <span class="tok-kw">if</span> (a) {
+        <span class="tok-kw">return</span> &amp;[_]<span class="tok-type">u8</span>{};
+    }
+
+    <span class="tok-kw">return</span> slice[<span class="tok-number">0</span>..<span class="tok-number">1</span>];
+}
+<span class="tok-kw">test</span> <span class="tok-str">"对等类型解析: *[0]u8, []const u8, 和 anyerror![]u8"</span> {
+    {
+        <span class="tok-kw">var</span> data = <span class="tok-str">"hi"</span>.*;
+        <span class="tok-kw">const</span> slice = data[<span class="tok-number">0</span>..];
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">true</span>, slice)).len == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">false</span>, slice)).len == <span class="tok-number">1</span>);
+    }
+    <span class="tok-kw">comptime</span> {
+        <span class="tok-kw">var</span> data = <span class="tok-str">"hi"</span>.*;
+        <span class="tok-kw">const</span> slice = data[<span class="tok-number">0</span>..];
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">true</span>, slice)).len == <span class="tok-number">0</span>);
+        <span class="tok-kw">try</span> expect((<span class="tok-kw">try</span> peerTypeEmptyArrayAndSliceAndError(<span class="tok-null">false</span>, slice)).len == <span class="tok-number">1</span>);
+    }
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">peerTypeEmptyArrayAndSliceAndError</span>(a: <span class="tok-type">bool</span>, slice: []<span class="tok-type">u8</span>) <span class="tok-type">anyerror</span>![]<span class="tok-type">u8</span> {
+    <span class="tok-kw">if</span> (a) {
+        <span class="tok-kw">return</span> &amp;[_]<span class="tok-type">u8</span>{};
+    }
+
+    <span class="tok-kw">return</span> slice[<span class="tok-number">0</span>..<span class="tok-number">1</span>];
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等类型解析: *const T 和 ?*T"</span> {
+    <span class="tok-kw">const</span> a: *<span class="tok-kw">const</span> <span class="tok-type">usize</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x123456780</span>);
+    <span class="tok-kw">const</span> b: ?*<span class="tok-type">usize</span> = <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-number">0x123456780</span>);
+    <span class="tok-kw">try</span> expect(a == b);
+    <span class="tok-kw">try</span> expect(b == a);
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"对等类型解析: 错误联合类型 switch"</span> {
+    <span class="tok-comment">// 只有当错误情况仅是 switch 表达式时,非错误和错误情况才是对等的;</span>
+    <span class="tok-comment">// 模式 `if (x) {...} else |err| blk: { switch (err) {...} }` 不认为</span>
+    <span class="tok-comment">// 非错误和错误情况是对等的。</span>
+    <span class="tok-kw">var</span> a: <span class="tok-kw">error</span>{ A, B, C }!<span class="tok-type">u32</span> = <span class="tok-number">0</span>;
+    _ = &amp;a;
+    <span class="tok-kw">const</span> b = <span class="tok-kw">if</span> (a) |x|
+        x + <span class="tok-number">3</span>
+    <span class="tok-kw">else</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.A =&gt; <span class="tok-number">0</span>,
+        <span class="tok-kw">error</span>.B =&gt; <span class="tok-number">1</span>,
+        <span class="tok-kw">error</span>.C =&gt; <span class="tok-null">null</span>,
+    };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(b) == ?<span class="tok-type">u32</span>);
+
+    <span class="tok-comment">// 只有当错误情况仅是 switch 表达式时,非错误和错误情况才是对等的;</span>
+    <span class="tok-comment">// 模式 `x catch |err| blk: { switch (err) {...} }` 不认为解包的 `x`</span>
+    <span class="tok-comment">// 和错误情况是对等的。</span>
+    <span class="tok-kw">const</span> c = a <span class="tok-kw">catch</span> |err| <span class="tok-kw">switch</span> (err) {
+        <span class="tok-kw">error</span>.A =&gt; <span class="tok-number">0</span>,
+        <span class="tok-kw">error</span>.B =&gt; <span class="tok-number">1</span>,
+        <span class="tok-kw">error</span>.C =&gt; <span class="tok-null">null</span>,
+    };
+    <span class="tok-kw">try</span> expect(<span class="tok-builtin">@TypeOf</span>(c) == ?<span class="tok-type">u32</span>);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_peer_type_resolution.zig</kbd>
+1/8 test_peer_type_resolution.test.peer resolve int widening...OK
+2/8 test_peer_type_resolution.test.peer resolve arrays of different size to const slice...OK
+3/8 test_peer_type_resolution.test.peer resolve array and const slice...OK
+4/8 test_peer_type_resolution.test.peer type resolution: ?T and T...OK
+5/8 test_peer_type_resolution.test.peer type resolution: *[0]u8 and []const u8...OK
+6/8 test_peer_type_resolution.test.peer type resolution: *[0]u8, []const u8, and anyerror![]u8...OK
+7/8 test_peer_type_resolution.test.peer type resolution: *const T and ?*T...OK
+8/8 test_peer_type_resolution.test.peer type resolution: error union switch...OK
+All 8 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="Zero-Bit-Types"><a href="https://ziglang.org/documentation/0.15.2/#toc-Zero-Bit-Types">零位类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Zero-Bit-Types">§</a></h2>
+
+      <p>对于某些类型,<a href="https://ziglang.org/documentation/0.15.2/#sizeOf">@sizeOf</a> 为 0:</p>
+      <ul>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#void">void</a></li>
+          <li><a href="https://ziglang.org/documentation/0.15.2/#Integers">整数</a> <code><span class="tok-type">u0</span></code> 和 <code><span class="tok-type">i0</span></code>。</li>
+          <li>长度为 0 的 <a href="https://ziglang.org/documentation/0.15.2/#Arrays">数组</a> 和 <a href="https://ziglang.org/documentation/0.15.2/#Vectors">向量</a>,或元素类型为零位类型的数组和向量。</li>
+          <li>只有一个标签的 <a href="https://ziglang.org/documentation/0.15.2/#enum">enum</a>。</li>
+          <li>所有字段都是零位类型的 <a href="https://ziglang.org/documentation/0.15.2/#struct">struct</a>。</li>
+          <li>只有一个字段且该字段为零位类型的 <a href="https://ziglang.org/documentation/0.15.2/#union">union</a>。</li>
+      </ul>
+      <p>
+      这些类型只能有一个可能的值,因此需要 0 位来表示。使用这些类型的代码不会包含在最终生成的代码中:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">zero_bit_types.zig</cite></figcaption><pre><code><span class="tok-kw">export</span> <span class="tok-kw">fn</span> <span class="tok-fn">entry</span>() <span class="tok-type">void</span> {
+    <span class="tok-kw">var</span> x: <span class="tok-type">void</span> = {};
+    <span class="tok-kw">var</span> y: <span class="tok-type">void</span> = {};
+    x = y;
+    y = x;
+}</code></pre></figure>
+
+      <p>当这转换成机器代码时,<code>entry</code> 的主体中不生成代码,即使在 <a href="https://ziglang.org/documentation/0.15.2/#Debug">Debug</a> 模式下也是如此。例如,在 x86_64 上:</p>
+      <pre><code>0000000000000010 &lt;entry&gt;:
+  10:	55                   	push   %rbp
+  11:	48 89 e5             	mov    %rsp,%rbp
+  14:	5d                   	pop    %rbp
+  15:	c3                   	retq   </code></pre>
+      <p>这些汇编指令没有与 void 值相关联的任何代码 - 它们只执行函数调用序言和尾声。</p>
+
+      <h3 id="void"><a href="https://ziglang.org/documentation/0.15.2/#toc-void">void</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#void">§</a></h3>
+
+      <p>
+      <code><span class="tok-type">void</span></code> 可用于实例化泛型类型。例如,给定一个 <code>Map(Key, Value)</code>,可以为 <code>Value</code> 类型传递 <code><span class="tok-type">void</span></code> 来使其变成一个 <code>Set</code>:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_void_in_hashmap.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>);
+<span class="tok-kw">const</span> expect = std.testing.expect;
+
+<span class="tok-kw">test</span> <span class="tok-str">"使用 void 将 HashMap 转换为集合"</span> {
+    <span class="tok-kw">var</span> map = std.AutoHashMap(<span class="tok-type">i32</span>, <span class="tok-type">void</span>).init(std.testing.allocator);
+    <span class="tok-kw">defer</span> map.deinit();
+
+    <span class="tok-kw">try</span> map.put(<span class="tok-number">1</span>, {});
+    <span class="tok-kw">try</span> map.put(<span class="tok-number">2</span>, {});
+
+    <span class="tok-kw">try</span> expect(map.contains(<span class="tok-number">2</span>));
+    <span class="tok-kw">try</span> expect(!map.contains(<span class="tok-number">3</span>));
+
+    _ = map.remove(<span class="tok-number">2</span>);
+    <span class="tok-kw">try</span> expect(!map.contains(<span class="tok-number">2</span>));
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_void_in_hashmap.zig</kbd>
+1/1 test_void_in_hashmap.test.turn HashMap into a set with void...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>注意,这与为哈希映射值使用虚拟值不同。通过使用 <code><span class="tok-type">void</span></code> 作为值的类型,哈希映射条目类型没有值字段,因此哈希映射占用的空间更少。此外,所有处理存储和加载值的代码都被删除,如上所示。
+      </p>
+      <p>
+      <code><span class="tok-type">void</span></code> 不同于 <code><span class="tok-type">anyopaque</span></code>。
+      <code><span class="tok-type">void</span></code> 的已知大小为 0 字节,而 <code><span class="tok-type">anyopaque</span></code> 的大小未知但非零。
+      </p>
+      <p>
+      类型为 <code><span class="tok-type">void</span></code> 的表达式是唯一可以忽略其值的表达式。例如,忽略非 <code><span class="tok-type">void</span></code> 表达式会导致编译错误:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_expression_ignored.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"忽略表达式值"</span> {
+    foo();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-number">1234</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_expression_ignored.zig</kbd>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_expression_ignored.zig:2:8: </span><span class="sgr-31m">error: </span><span class="sgr-1m">value of type 'i32' ignored
+</span>    foo();
+    <span class="sgr-32m">~~~^~
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_expression_ignored.zig:2:8: </span><span class="sgr-36m">note: </span><span class="sgr-1m">all non-void values must be used
+</span><span class="sgr-1m">/home/andy/dev/zig/doc/langref/test_expression_ignored.zig:2:8: </span><span class="sgr-36m">note: </span><span class="sgr-1m">to discard the value, assign it to '_'
+</span>
+</samp></pre></figure>
+
+      <p>但是,如果表达式的类型为 <code><span class="tok-type">void</span></code>,则不会有错误。表达式结果可以通过将它们赋值给 <code>_</code> 来显式忽略。 </p>
+      <figure><figcaption class="zig-cap"><cite class="file">test_void_ignored.zig</cite></figcaption><pre><code><span class="tok-kw">test</span> <span class="tok-str">"void 被忽略"</span> {
+    returnsVoid();
+}
+
+<span class="tok-kw">test</span> <span class="tok-str">"显式忽略表达式值"</span> {
+    _ = foo();
+}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">returnsVoid</span>() <span class="tok-type">void</span> {}
+
+<span class="tok-kw">fn</span> <span class="tok-fn">foo</span>() <span class="tok-type">i32</span> {
+    <span class="tok-kw">return</span> <span class="tok-number">1234</span>;
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test test_void_ignored.zig</kbd>
+1/2 test_void_ignored.test.void is ignored...OK
+2/2 test_void_ignored.test.explicitly ignoring expression value...OK
+All 2 tests passed.
+</samp></pre></figure>
+
+      
+      
+
+      <h2 id="Result-Location-Semantics"><a href="https://ziglang.org/documentation/0.15.2/#toc-Result-Location-Semantics">结果位置语义</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Result-Location-Semantics">§</a></h2>
+
+      <p>
+      在编译期间,每个 Zig 表达式和子表达式都被分配可选的结果位置信息。这些信息规定了表达式应具有的类型(其结果类型),以及结果值应放置在内存中的位置(其结果位置)。该信息是可选的,因为并非每个表达式都有这些信息:例如,赋值给 <code>_</code> 既不提供关于表达式类型的任何信息,也不提供具体的内存位置来放置它。
+      </p>
+      <p>
+      作为一个激励性示例,考虑语句 <code><span class="tok-kw">const</span> x: <span class="tok-type">u32</span> = <span class="tok-number">42</span>;</code>。这里的类型注释为初始化表达式 <code><span class="tok-number">42</span></code> 提供了 <code><span class="tok-type">u32</span></code> 的结果类型,指示编译器将此整数(最初类型为 <code><span class="tok-type">comptime_int</span></code>)强制转换为此类型。我们很快会看到更多示例。
+      </p>
+      <p>
+      这不是实现细节:上面概述的逻辑被编码到 Zig 语言规范中,是该语言中类型推断的主要机制。该系统统称为"结果位置语义"。
+      </p>
+      <h3 id="Result-Types"><a href="https://ziglang.org/documentation/0.15.2/#toc-Result-Types">结果类型</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Result-Types">§</a></h3>
+
+      <p>
+      结果类型在可能的情况下通过表达式递归传播。例如,如果表达式 <code>&amp;e</code> 的结果类型为 <code>*<span class="tok-type">u32</span></code>,则 <code>e</code> 被赋予 <code><span class="tok-type">u32</span></code> 的结果类型,允许语言在获取引用之前执行此强制转换。
+      </p>
+      <p>
+      结果类型机制被诸如 <code><span class="tok-builtin">@intCast</span></code> 之类的转换内置函数所使用。这些内置函数不是以类型作为参数来指定要转换到的类型,而是使用它们的结果类型来确定此信息。结果类型通常从上下文中得知;在不知道的情况下,可以使用 <code><span class="tok-builtin">@as</span></code> 内置函数来显式提供结果类型。
+      </p>
+      <p>
+      我们可以如下分解简单表达式的每个组成部分的结果类型:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">result_type_propagation.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expectEqual = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expectEqual;
+<span class="tok-kw">test</span> <span class="tok-str">"结果类型通过结构体初始化器传播"</span> {
+    <span class="tok-kw">const</span> S = <span class="tok-kw">struct</span> { x: <span class="tok-type">u32</span> };
+    <span class="tok-kw">const</span> val: <span class="tok-type">u64</span> = <span class="tok-number">123</span>;
+    <span class="tok-kw">const</span> s: S = .{ .x = <span class="tok-builtin">@intCast</span>(val) };
+    <span class="tok-comment">// .{ .x = @intCast(val) }   由于类型注释,结果类型为 `S`</span>
+    <span class="tok-comment">//         @intCast(val)     由于字段 `S.x` 的类型,结果类型为 `u32`</span>
+    <span class="tok-comment">//                  val      没有结果类型,因为它允许是任何整数类型</span>
+    <span class="tok-kw">try</span> expectEqual(<span class="tok-builtin">@as</span>(<span class="tok-type">u32</span>, <span class="tok-number">123</span>), s.x);
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test result_type_propagation.zig</kbd>
+1/1 result_type_propagation.test.result type propagates through struct initializer...OK
+All 1 tests passed.
+</samp></pre></figure>
+
+      <p>
+      此结果类型信息对于上述转换内置函数以及避免构造强制转换前的值和在某些情况下避免显式类型强制转换都很有用。下表详细说明了一些常见表达式如何传播结果类型,其中 <code>x</code> 和 <code>y</code> 是任意子表达式。
+      </p>
+      <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">表达式</th>
+            <th scope="col">父结果类型</th>
+            <th scope="col">子表达式结果类型</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">const</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">var</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>val = x</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code><span class="tok-builtin">@TypeOf</span>(val)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@as</span>(T, x)</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&amp;x</code></th>
+            <td><code>*T</code></td>
+            <td><code>x</code> 是 <code>T</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&amp;x</code></th>
+            <td><code>[]T</code></td>
+            <td><code>x</code> 是 <code>T</code> 的某个数组</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>f(x)</code></th>
+            <td>-</td>
+            <td><code>x</code> 具有 <code>f</code> 的第一个参数的类型</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{x}</code></th>
+            <td><code>T</code></td>
+            <td><code>x</code> 是 <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"0"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{ .a = x }</code></th>
+            <td><code>T</code></td>
+            <td><code>x</code> 是 <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"a"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{x}</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"0"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{ .a = x }</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code><span class="tok-builtin">@FieldType</span>(T, <span class="tok-str">"a"</span>)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@Type</span>(x)</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code>std.builtin.Type</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@typeInfo</span>(x)</code></th>
+            <td>-</td>
+            <td><code>x</code> 是 <code><span class="tok-type">type</span></code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>x &lt;&lt; y</code></th>
+            <td>-</td>
+            <td><code>y</code> 是 <code>std.math.Log2IntCeil(<span class="tok-builtin">@TypeOf</span>(x))</code></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      
+      <h3 id="Result-Locations"><a href="https://ziglang.org/documentation/0.15.2/#toc-Result-Locations">结果位置</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Result-Locations">§</a></h3>
+
+      <p>
+      除了结果类型信息之外,每个表达式还可以被可选地分配一个结果位置:值必须直接写入的指针。该系统可用于在初始化数据结构时防止中间副本,这对于必须具有固定内存地址("固定"类型)的类型可能很重要。
+      </p>
+      <p>
+      当编译简单的赋值表达式 <code>x = e</code> 时,许多语言会在栈上创建临时值 <code>e</code>,然后将其赋值给 <code>x</code>,在此过程中可能执行类型强制转换。Zig 采用不同的方法。表达式 <code>e</code> 被赋予与 <code>x</code> 的类型匹配的结果类型,以及 <code>&amp;x</code> 的结果位置。对于许多 <code>e</code> 的语法形式,这没有实际影响。但是,在使用更复杂的语法形式时,它可能产生重要的语义效果。
+      </p>
+      <p>
+      例如,如果表达式 <code>.{ .a = x, .b = y }</code> 的结果位置为 <code>ptr</code>,则 <code>x</code> 被赋予 <code>&amp;ptr.a</code> 的结果位置,<code>y</code> 被赋予 <code>&amp;ptr.b</code> 的结果位置。如果没有这个系统,这个表达式将完全在栈上构造一个临时结构体值,然后才将其复制到目标地址。本质上,Zig 将赋值 <code>foo = .{ .a = x, .b = y }</code> 解糖为两个语句 <code>foo.a = x; foo.b = y;</code>。
+      </p>
+      <p>
+      当赋值聚合值时,如果初始化表达式依赖于聚合的前一个值,这有时可能很重要。最容易演示这一点的方法是尝试交换结构体或数组的字段 - 以下逻辑看起来合理,但实际上不是:
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">result_location_interfering_with_swap.zig</cite></figcaption><pre><code><span class="tok-kw">const</span> expect = <span class="tok-builtin">@import</span>(<span class="tok-str">"std"</span>).testing.expect;
+<span class="tok-kw">test</span> <span class="tok-str">"尝试使用数组初始化器交换数组元素"</span> {
+    <span class="tok-kw">var</span> arr: [<span class="tok-number">2</span>]<span class="tok-type">u32</span> = .{ <span class="tok-number">1</span>, <span class="tok-number">2</span> };
+    arr = .{ arr[<span class="tok-number">1</span>], arr[<span class="tok-number">0</span>] };
+    <span class="tok-comment">// 前一行等价于以下两行:</span>
+    <span class="tok-comment">//   arr[0] = arr[1];</span>
+    <span class="tok-comment">//   arr[1] = arr[0];</span>
+    <span class="tok-comment">// 所以这失败了!</span>
+    <span class="tok-kw">try</span> expect(arr[<span class="tok-number">0</span>] == <span class="tok-number">2</span>); <span class="tok-comment">// 成功</span>
+    <span class="tok-kw">try</span> expect(arr[<span class="tok-number">1</span>] == <span class="tok-number">1</span>); <span class="tok-comment">// 失败</span>
+}</code></pre></figure><figure><figcaption class="shell-cap">Shell</figcaption><pre><samp>$ <kbd>zig test result_location_interfering_with_swap.zig</kbd>
+1/1 result_location_interfering_with_swap.test.attempt to swap array elements with array initializer...FAIL (TestUnexpectedResult)
+<span class="sgr-1m">/home/andy/dev/zig/lib/std/testing.zig:607:14</span>: <span class="sgr-2m">0x102f019 in expect (std.zig)</span>
+    if (!ok) return error.TestUnexpectedResult;
+             <span class="sgr-32m">^</span>
+<span class="sgr-1m">/home/andy/dev/zig/doc/langref/result_location_interfering_with_swap.zig:10:5</span>: <span class="sgr-2m">0x102f144 in test.attempt to swap array elements with array initializer (result_location_interfering_with_swap.zig)</span>
+    try expect(arr[1] == 1); // fails
+    <span class="sgr-32m">^</span>
+0 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+/home/andy/dev/zig/.zig-cache/o/d439bc8d3e0f685e13e3c778e438793a/test --seed=0x9b2332d1
+</samp></pre></figure>
+
+      <p>
+      下表详细说明了一些常见表达式如何传播结果位置,其中 <code>x</code> 和 <code>y</code> 是任意子表达式。请注意,某些表达式即使它们本身具有结果位置,也无法向子表达式提供有意义的结果位置。
+      </p>
+      <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">表达式</th>
+            <th scope="col">结果位置</th>
+            <th scope="col">子表达式结果位置</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">const</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> 的结果位置为 <code>&amp;val</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-kw">var</span> val: T = x</code></th>
+            <td>-</td>
+            <td><code>x</code> 的结果位置为 <code>&amp;val</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>val = x</code></th>
+            <td>-</td>
+            <td><code>x</code> 的结果位置为 <code>&amp;val</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@as</span>(T, x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&amp;x</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>f(x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{x}</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 的结果位置为 <code>&amp;ptr[<span class="tok-number">0</span>]</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>.{ .a = x }</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 的结果位置为 <code>&amp;ptr.a</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{x}</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置(类型初始化器不传播结果位置)</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>T{ .a = x }</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置(类型初始化器不传播结果位置)</td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@Type</span>(x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置</td>
+          </tr>
+          <tr>
+            <th scope="row"><code><span class="tok-builtin">@typeInfo</span>(x)</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 没有结果位置</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>x &lt;&lt; y</code></th>
+            <td><code>ptr</code></td>
+            <td><code>x</code> 和 <code>y</code> 没有结果位置</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      
+      
+
+      <h2 id="comptime"><a href="https://ziglang.org/documentation/0.15.2/#toc-comptime">comptime</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#comptime">§</a></h2>
+
+      <p>
+      Zig 重视表达式是否在编译时已知的概念。
+      这个概念在几个不同的地方使用,这些构建块用于保持语言的小巧、可读和强大。
+      </p>
+      <h3 id="Introducing-the-Compile-Time-Concept"><a href="https://ziglang.org/documentation/0.15.2/#toc-Introducing-the-Compile-Time-Concept">介绍编译时概念</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Introducing-the-Compile-Time-Concept">§</a></h3>
+
+      <h4 id="Compile-Time-Parameters"><a href="https://ziglang.org/documentation/0.15.2/#toc-Compile-Time-Parameters">编译时参数</a> <a class="hdr" href="https://ziglang.org/documentation/0.15.2/#Compile-Time-Parameters">§</a></h4>
+
+      <p>
+      编译时参数是 Zig 实现泛型的方式。它是编译时鸭子类型。
+      </p>
+      <figure><figcaption class="zig-cap"><cite class="file">compile-time_duck_typing.zig</cite></figcaption><pre><code><span class="tok-kw">fn</span> <span class="tok-fn">max</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>, a: T, b: T) T {
+    <span class="tok-kw">return</span> <span class="tok-kw">if</span> (a &gt; b) a <span class="tok-kw">else</span> b;
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">gimmeTheBiggerFloat</span>(a: <span class="tok-type">f32</span>, b: <span class="tok-type">f32</span>) <span class="tok-type">f32</span> {
+    <span class="tok-kw">return</span> max(<span class="tok-type">f32</span>, a, b);
+}
+<span class="tok-kw">fn</span> <span class="tok-fn">gimmeTheBiggerInteger</span>(a: <span class="tok-type">u64</span>, b: <span class="tok-type">u64</span>) <span class="tok-type">u64</span> {
+    <span class="tok-kw">return</span> max(<span class="tok-type">u64</span>, a, b);
+}</code></pre></figure>
+
+      <p>
+      在 Zig 中,类型是一等公民。它们可以被赋值给变量,作为参数传递给函数,并从函数返回。但是,它们只能在<em>编译时</em>已知的表达式中使用,这就是为什么上述片段中的参数 <code>T</code> 必须用 <code><span class="tok-kw">comptime</span></code> 标记。
+      </p>
+      <p>
+      <code><span class="tok-kw">comptime</span></code> 参数意味着:
+      </p>
+      <ul>
+        <li>在调用点,该值必须在编译时已知,否则会导致编译错误。</li>
+        <li>在函数定义中,该值在编译时已知。</li>
+      </ul>
+      <p>
+      例如,如果我们向上述片段引入另一个函数:
+      </p>
