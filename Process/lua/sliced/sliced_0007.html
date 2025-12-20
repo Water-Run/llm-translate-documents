@@ -1,0 +1,1501 @@
+<!-- slice index: 7 -->
+<!-- lines 8973–10470 / total 11964 -->
+<!-- title: 6.5 – UTF-8 Support -->
+The string library provides all its functions inside the table
+<a name="pdf-string"><code>string</code></a>.
+It also sets a metatable for strings
+where the <code>__index</code> field points to the <code>string</code> table.
+Therefore, you can use the string functions in object-oriented style.
+For instance, <code>string.byte(s,i)</code>
+can be written as <code>s:byte(i)</code>.
+
+
+</p><p>
+The string library assumes one-byte character encodings.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.byte"><code>string.byte (s [, i [, j]])</code></a></h3>
+Returns the internal numeric codes of the characters <code>s[i]</code>,
+<code>s[i+1]</code>, ..., <code>s[j]</code>.
+The default value for <code>i</code> is&nbsp;1;
+the default value for <code>j</code> is&nbsp;<code>i</code>.
+These indices are corrected
+following the same rules of function <a href="#pdf-string.sub"><code>string.sub</code></a>.
+
+
+<p>
+Numeric codes are not necessarily portable across platforms.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.char"><code>string.char (···)</code></a></h3>
+Receives zero or more integers.
+Returns a string with length equal to the number of arguments,
+in which each character has the internal numeric code equal
+to its corresponding argument.
+
+
+<p>
+Numeric codes are not necessarily portable across platforms.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.dump"><code>string.dump (function [, strip])</code></a></h3>
+
+
+<p>
+Returns a string containing a binary representation
+(a <em>binary chunk</em>)
+of the given function,
+so that a later <a href="#pdf-load"><code>load</code></a> on this string returns
+a copy of the function (but with new upvalues).
+If <code>strip</code> is a true value,
+the binary representation may not include all debug information
+about the function,
+to save space.
+
+
+</p><p>
+Functions with upvalues have only their number of upvalues saved.
+When (re)loaded,
+those upvalues receive fresh instances.
+(See the <a href="#pdf-load"><code>load</code></a> function for details about
+how these upvalues are initialized.
+You can use the debug library to serialize
+and reload the upvalues of a function
+in a way adequate to your needs.)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.find"><code>string.find (s, pattern [, init [, plain]])</code></a></h3>
+
+
+<p>
+Looks for the first match of
+<code>pattern</code> (see <a href="#6.4.1">§6.4.1</a>) in the string <code>s</code>.
+If it finds a match, then <code>find</code> returns the indices of&nbsp;<code>s</code>
+where this occurrence starts and ends;
+otherwise, it returns <b>fail</b>.
+A third, optional numeric argument <code>init</code> specifies
+where to start the search;
+its default value is&nbsp;1 and can be negative.
+A <b>true</b> as a fourth, optional argument <code>plain</code>
+turns off the pattern matching facilities,
+so the function does a plain "find substring" operation,
+with no characters in <code>pattern</code> being considered magic.
+
+
+</p><p>
+If the pattern has captures,
+then in a successful match
+the captured values are also returned,
+after the two indices.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.format"><code>string.format (formatstring, ···)</code></a></h3>
+
+
+<p>
+Returns a formatted version of its variable number of arguments
+following the description given in its first argument,
+which must be a string.
+The format string follows the same rules as the ISO&nbsp;C function <code>sprintf</code>.
+The only differences are that the conversion specifiers and modifiers
+<code>F</code>, <code>n</code>, <code>*</code>, <code>h</code>, <code>L</code>, and <code>l</code> are not supported
+and that there is an extra specifier, <code>q</code>.
+Both width and precision, when present,
+are limited to two digits.
+
+
+</p><p>
+The specifier <code>q</code> formats booleans, nil, numbers, and strings
+in a way that the result is a valid constant in Lua source code.
+Booleans and nil are written in the obvious way
+(<code>true</code>, <code>false</code>, <code>nil</code>).
+Floats are written in hexadecimal,
+to preserve full precision.
+A string is written between double quotes,
+using escape sequences when necessary to ensure that
+it can safely be read back by the Lua interpreter.
+For instance, the call
+
+</p><pre>     string.format('%q', 'a string with "quotes" and \n new line')
+</pre><p>
+may produce the string:
+
+</p><pre>     "a string with \"quotes\" and \
+      new line"
+</pre><p>
+This specifier does not support modifiers (flags, width, precision).
+
+
+</p><p>
+The conversion specifiers
+<code>A</code>, <code>a</code>, <code>E</code>, <code>e</code>, <code>f</code>,
+<code>G</code>, and <code>g</code> all expect a number as argument.
+The specifiers <code>c</code>, <code>d</code>,
+<code>i</code>, <code>o</code>, <code>u</code>, <code>X</code>, and <code>x</code>
+expect an integer.
+When Lua is compiled with a C89 compiler,
+the specifiers <code>A</code> and <code>a</code> (hexadecimal floats)
+do not support modifiers.
+
+
+</p><p>
+The specifier <code>s</code> expects a string;
+if its argument is not a string,
+it is converted to one following the same rules of <a href="#pdf-tostring"><code>tostring</code></a>.
+If the specifier has any modifier,
+the corresponding string argument should not contain embedded zeros.
+
+
+</p><p>
+The specifier <code>p</code> formats the pointer
+returned by <a href="#lua_topointer"><code>lua_topointer</code></a>.
+That gives a unique string identifier for tables, userdata,
+threads, strings, and functions.
+For other values (numbers, nil, booleans),
+this specifier results in a string representing
+the pointer <code>NULL</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.gmatch"><code>string.gmatch (s, pattern [, init])</code></a></h3>
+Returns an iterator function that,
+each time it is called,
+returns the next captures from <code>pattern</code> (see <a href="#6.4.1">§6.4.1</a>)
+over the string <code>s</code>.
+If <code>pattern</code> specifies no captures,
+then the whole match is produced in each call.
+A third, optional numeric argument <code>init</code> specifies
+where to start the search;
+its default value is&nbsp;1 and can be negative.
+
+
+<p>
+As an example, the following loop
+will iterate over all the words from string <code>s</code>,
+printing one per line:
+
+</p><pre>     s = "hello world from Lua"
+     for w in string.gmatch(s, "%a+") do
+       print(w)
+     end
+</pre><p>
+The next example collects all pairs <code>key=value</code> from the
+given string into a table:
+
+</p><pre>     t = {}
+     s = "from=world, to=Lua"
+     for k, v in string.gmatch(s, "(%w+)=(%w+)") do
+       t[k] = v
+     end
+</pre>
+
+<p>
+For this function, a caret '<code>^</code>' at the start of a pattern does not
+work as an anchor, as this would prevent the iteration.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.gsub"><code>string.gsub (s, pattern, repl [, n])</code></a></h3>
+Returns a copy of <code>s</code>
+in which all (or the first <code>n</code>, if given)
+occurrences of the <code>pattern</code> (see <a href="#6.4.1">§6.4.1</a>) have been
+replaced by a replacement string specified by <code>repl</code>,
+which can be a string, a table, or a function.
+<code>gsub</code> also returns, as its second value,
+the total number of matches that occurred.
+The name <code>gsub</code> comes from <em>Global SUBstitution</em>.
+
+
+<p>
+If <code>repl</code> is a string, then its value is used for replacement.
+The character&nbsp;<code>%</code> works as an escape character:
+any sequence in <code>repl</code> of the form <code>%<em>d</em></code>,
+with <em>d</em> between 1 and 9,
+stands for the value of the <em>d</em>-th captured substring;
+the sequence <code>%0</code> stands for the whole match;
+the sequence <code>%%</code> stands for a single&nbsp;<code>%</code>.
+
+
+</p><p>
+If <code>repl</code> is a table, then the table is queried for every match,
+using the first capture as the key.
+
+
+</p><p>
+If <code>repl</code> is a function, then this function is called every time a
+match occurs, with all captured substrings passed as arguments,
+in order.
+
+
+</p><p>
+In any case,
+if the pattern specifies no captures,
+then it behaves as if the whole pattern was inside a capture.
+
+
+</p><p>
+If the value returned by the table query or by the function call
+is a string or a number,
+then it is used as the replacement string;
+otherwise, if it is <b>false</b> or <b>nil</b>,
+then there is no replacement
+(that is, the original match is kept in the string).
+
+
+</p><p>
+Here are some examples:
+
+</p><pre>     x = string.gsub("hello world", "(%w+)", "%1 %1")
+     --&gt; x="hello hello world world"
+     
+     x = string.gsub("hello world", "%w+", "%0 %0", 1)
+     --&gt; x="hello hello world"
+     
+     x = string.gsub("hello world from Lua", "(%w+)%s*(%w+)", "%2 %1")
+     --&gt; x="world hello Lua from"
+     
+     x = string.gsub("home = $HOME, user = $USER", "%$(%w+)", os.getenv)
+     --&gt; x="home = /home/roberto, user = roberto"
+     
+     x = string.gsub("4+5 = $return 4+5$", "%$(.-)%$", function (s)
+           return load(s)()
+         end)
+     --&gt; x="4+5 = 9"
+     
+     local t = {name="lua", version="5.4"}
+     x = string.gsub("$name-$version.tar.gz", "%$(%w+)", t)
+     --&gt; x="lua-5.4.tar.gz"
+</pre>
+
+
+
+<p>
+</p><hr><h3><a name="pdf-string.len"><code>string.len (s)</code></a></h3>
+
+
+<p>
+Receives a string and returns its length.
+The empty string <code>""</code> has length 0.
+Embedded zeros are counted,
+so <code>"a\000bc\000"</code> has length 5.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.lower"><code>string.lower (s)</code></a></h3>
+
+
+<p>
+Receives a string and returns a copy of this string with all
+uppercase letters changed to lowercase.
+All other characters are left unchanged.
+The definition of what an uppercase letter is depends on the current locale.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.match"><code>string.match (s, pattern [, init])</code></a></h3>
+
+
+<p>
+Looks for the first <em>match</em> of
+the <code>pattern</code> (see <a href="#6.4.1">§6.4.1</a>) in the string <code>s</code>.
+If it finds one, then <code>match</code> returns
+the captures from the pattern;
+otherwise it returns <b>fail</b>.
+If <code>pattern</code> specifies no captures,
+then the whole match is returned.
+A third, optional numeric argument <code>init</code> specifies
+where to start the search;
+its default value is&nbsp;1 and can be negative.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.pack"><code>string.pack (fmt, v1, v2, ···)</code></a></h3>
+
+
+<p>
+Returns a binary string containing the values <code>v1</code>, <code>v2</code>, etc.
+serialized in binary form (packed)
+according to the format string <code>fmt</code> (see <a href="#6.4.2">§6.4.2</a>).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.packsize"><code>string.packsize (fmt)</code></a></h3>
+
+
+<p>
+Returns the length of a string resulting from <a href="#pdf-string.pack"><code>string.pack</code></a>
+with the given format.
+The format string cannot have the variable-length options
+'<code>s</code>' or '<code>z</code>' (see <a href="#6.4.2">§6.4.2</a>).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.rep"><code>string.rep (s, n [, sep])</code></a></h3>
+
+
+<p>
+Returns a string that is the concatenation of <code>n</code> copies of
+the string <code>s</code> separated by the string <code>sep</code>.
+The default value for <code>sep</code> is the empty string
+(that is, no separator).
+Returns the empty string if <code>n</code> is not positive.
+
+
+</p><p>
+(Note that it is very easy to exhaust the memory of your machine
+with a single call to this function.)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.reverse"><code>string.reverse (s)</code></a></h3>
+
+
+<p>
+Returns a string that is the string <code>s</code> reversed.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.sub"><code>string.sub (s, i [, j])</code></a></h3>
+
+
+<p>
+Returns the substring of <code>s</code> that
+starts at <code>i</code>  and continues until <code>j</code>;
+<code>i</code> and <code>j</code> can be negative.
+If <code>j</code> is absent, then it is assumed to be equal to -1
+(which is the same as the string length).
+In particular,
+the call <code>string.sub(s,1,j)</code> returns a prefix of <code>s</code>
+with length <code>j</code>,
+and <code>string.sub(s, -i)</code> (for a positive <code>i</code>)
+returns a suffix of <code>s</code>
+with length <code>i</code>.
+
+
+</p><p>
+If, after the translation of negative indices,
+<code>i</code> is less than 1,
+it is corrected to 1.
+If <code>j</code> is greater than the string length,
+it is corrected to that length.
+If, after these corrections,
+<code>i</code> is greater than <code>j</code>,
+the function returns the empty string.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.unpack"><code>string.unpack (fmt, s [, pos])</code></a></h3>
+
+
+<p>
+Returns the values packed in string <code>s</code> (see <a href="#pdf-string.pack"><code>string.pack</code></a>)
+according to the format string <code>fmt</code> (see <a href="#6.4.2">§6.4.2</a>).
+An optional <code>pos</code> marks where
+to start reading in <code>s</code> (default is 1).
+After the read values,
+this function also returns the index of the first unread byte in <code>s</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-string.upper"><code>string.upper (s)</code></a></h3>
+
+
+<p>
+Receives a string and returns a copy of this string with all
+lowercase letters changed to uppercase.
+All other characters are left unchanged.
+The definition of what a lowercase letter is depends on the current locale.
+
+
+
+
+
+
+
+</p><h3>6.4.1 – <a name="6.4.1">Patterns</a></h3>
+
+
+
+<p>
+Patterns in Lua are described by regular strings,
+which are interpreted as patterns by the pattern-matching functions
+<a href="#pdf-string.find"><code>string.find</code></a>,
+<a href="#pdf-string.gmatch"><code>string.gmatch</code></a>,
+<a href="#pdf-string.gsub"><code>string.gsub</code></a>,
+and <a href="#pdf-string.match"><code>string.match</code></a>.
+This section describes the syntax and the meaning
+(that is, what they match) of these strings.
+
+
+
+
+
+</p><h4>Character Class:</h4><p>
+A <em>character class</em> is used to represent a set of characters.
+The following combinations are allowed in describing a character class:
+
+</p><ul>
+
+<li><b><em>x</em>: </b>
+(where <em>x</em> is not one of the <em>magic characters</em>
+<code>^$()%.[]*+-?</code>)
+represents the character <em>x</em> itself.
+</li>
+
+<li><b><code>.</code>: </b> (a dot) represents all characters.</li>
+
+<li><b><code>%a</code>: </b> represents all letters.</li>
+
+<li><b><code>%c</code>: </b> represents all control characters.</li>
+
+<li><b><code>%d</code>: </b> represents all digits.</li>
+
+<li><b><code>%g</code>: </b> represents all printable characters except space.</li>
+
+<li><b><code>%l</code>: </b> represents all lowercase letters.</li>
+
+<li><b><code>%p</code>: </b> represents all punctuation characters.</li>
+
+<li><b><code>%s</code>: </b> represents all space characters.</li>
+
+<li><b><code>%u</code>: </b> represents all uppercase letters.</li>
+
+<li><b><code>%w</code>: </b> represents all alphanumeric characters.</li>
+
+<li><b><code>%x</code>: </b> represents all hexadecimal digits.</li>
+
+<li><b><code>%<em>x</em></code>: </b> (where <em>x</em> is any non-alphanumeric character)
+represents the character <em>x</em>.
+This is the standard way to escape the magic characters.
+Any non-alphanumeric character
+(including all punctuation characters, even the non-magical)
+can be preceded by a '<code>%</code>' to represent itself in a pattern.
+</li>
+
+<li><b><code>[<em>set</em>]</code>: </b>
+represents the class which is the union of all
+characters in <em>set</em>.
+A range of characters can be specified by
+separating the end characters of the range,
+in ascending order, with a '<code>-</code>'.
+All classes <code>%</code><em>x</em> described above can also be used as
+components in <em>set</em>.
+All other characters in <em>set</em> represent themselves.
+For example, <code>[%w_]</code> (or <code>[_%w]</code>)
+represents all alphanumeric characters plus the underscore,
+<code>[0-7]</code> represents the octal digits,
+and <code>[0-7%l%-]</code> represents the octal digits plus
+the lowercase letters plus the '<code>-</code>' character.
+
+
+<p>
+You can put a closing square bracket in a set
+by positioning it as the first character in the set.
+You can put a hyphen in a set
+by positioning it as the first or the last character in the set.
+(You can also use an escape for both cases.)
+
+
+</p><p>
+The interaction between ranges and classes is not defined.
+Therefore, patterns like <code>[%a-z]</code> or <code>[a-%%]</code>
+have no meaning.
+</p></li>
+
+<li><b><code>[^<em>set</em>]</code>: </b>
+represents the complement of <em>set</em>,
+where <em>set</em> is interpreted as above.
+</li>
+
+</ul><p>
+For all classes represented by single letters (<code>%a</code>, <code>%c</code>, etc.),
+the corresponding uppercase letter represents the complement of the class.
+For instance, <code>%S</code> represents all non-space characters.
+
+
+</p><p>
+The definitions of letter, space, and other character groups
+depend on the current locale.
+In particular, the class <code>[a-z]</code> may not be equivalent to <code>%l</code>.
+
+
+
+
+
+</p><h4>Pattern Item:</h4><p>
+A <em>pattern item</em> can be
+
+</p><ul>
+
+<li>
+a single character class,
+which matches any single character in the class;
+</li>
+
+<li>
+a single character class followed by '<code>*</code>',
+which matches sequences of zero or more characters in the class.
+These repetition items will always match the longest possible sequence;
+</li>
+
+<li>
+a single character class followed by '<code>+</code>',
+which matches sequences of one or more characters in the class.
+These repetition items will always match the longest possible sequence;
+</li>
+
+<li>
+a single character class followed by '<code>-</code>',
+which also matches sequences of zero or more characters in the class.
+Unlike '<code>*</code>',
+these repetition items will always match the shortest possible sequence;
+</li>
+
+<li>
+a single character class followed by '<code>?</code>',
+which matches zero or one occurrence of a character in the class.
+It always matches one occurrence if possible;
+</li>
+
+<li>
+<code>%<em>n</em></code>, for <em>n</em> between 1 and 9;
+such item matches a substring equal to the <em>n</em>-th captured string
+(see below);
+</li>
+
+<li>
+<code>%b<em>xy</em></code>, where <em>x</em> and <em>y</em> are two distinct characters;
+such item matches strings that start with&nbsp;<em>x</em>, end with&nbsp;<em>y</em>,
+and where the <em>x</em> and <em>y</em> are <em>balanced</em>.
+This means that, if one reads the string from left to right,
+counting <em>+1</em> for an <em>x</em> and <em>-1</em> for a <em>y</em>,
+the ending <em>y</em> is the first <em>y</em> where the count reaches 0.
+For instance, the item <code>%b()</code> matches expressions with
+balanced parentheses.
+</li>
+
+<li>
+<code>%f[<em>set</em>]</code>, a <em>frontier pattern</em>;
+such item matches an empty string at any position such that
+the next character belongs to <em>set</em>
+and the previous character does not belong to <em>set</em>.
+The set <em>set</em> is interpreted as previously described.
+The beginning and the end of the subject are handled as if
+they were the character '<code>\0</code>'.
+</li>
+
+</ul>
+
+
+
+
+<h4>Pattern:</h4><p>
+A <em>pattern</em> is a sequence of pattern items.
+A caret '<code>^</code>' at the beginning of a pattern anchors the match at the
+beginning of the subject string.
+A '<code>$</code>' at the end of a pattern anchors the match at the
+end of the subject string.
+At other positions,
+'<code>^</code>' and '<code>$</code>' have no special meaning and represent themselves.
+
+
+
+
+
+</p><h4>Captures:</h4><p>
+A pattern can contain sub-patterns enclosed in parentheses;
+they describe <em>captures</em>.
+When a match succeeds, the substrings of the subject string
+that match captures are stored (<em>captured</em>) for future use.
+Captures are numbered according to their left parentheses.
+For instance, in the pattern <code>"(a*(.)%w(%s*))"</code>,
+the part of the string matching <code>"a*(.)%w(%s*)"</code> is
+stored as the first capture, and therefore has number&nbsp;1;
+the character matching "<code>.</code>" is captured with number&nbsp;2,
+and the part matching "<code>%s*</code>" has number&nbsp;3.
+
+
+</p><p>
+As a special case, the capture <code>()</code> captures
+the current string position (a number).
+For instance, if we apply the pattern <code>"()aa()"</code> on the
+string <code>"flaaap"</code>, there will be two captures: 3&nbsp;and&nbsp;5.
+
+
+
+
+
+</p><h4>Multiple matches:</h4><p>
+The function <a href="#pdf-string.gsub"><code>string.gsub</code></a> and the iterator <a href="#pdf-string.gmatch"><code>string.gmatch</code></a>
+match multiple occurrences of the given pattern in the subject.
+For these functions,
+a new match is considered valid only
+if it ends at least one byte after the end of the previous match.
+In other words, the pattern machine never accepts the
+empty string as a match immediately after another match.
+As an example,
+consider the results of the following code:
+
+</p><pre>     &gt; string.gsub("abc", "()a*()", print);
+     --&gt; 1   2
+     --&gt; 3   3
+     --&gt; 4   4
+</pre><p>
+The second and third results come from Lua matching an empty
+string after '<code>b</code>' and another one after '<code>c</code>'.
+Lua does not match an empty string after '<code>a</code>',
+because it would end at the same position of the previous match.
+
+
+
+
+
+
+
+</p><h3>6.4.2 – <a name="6.4.2">Format Strings for Pack and Unpack</a></h3>
+
+<p>
+The first argument to <a href="#pdf-string.pack"><code>string.pack</code></a>,
+<a href="#pdf-string.packsize"><code>string.packsize</code></a>, and <a href="#pdf-string.unpack"><code>string.unpack</code></a>
+is a format string,
+which describes the layout of the structure being created or read.
+
+
+</p><p>
+A format string is a sequence of conversion options.
+The conversion options are as follows:
+
+</p><ul>
+<li><b><code>&lt;</code>: </b>sets little endian</li>
+<li><b><code>&gt;</code>: </b>sets big endian</li>
+<li><b><code>=</code>: </b>sets native endian</li>
+<li><b><code>![<em>n</em>]</code>: </b>sets maximum alignment to <code>n</code>
+(default is native alignment)</li>
+<li><b><code>b</code>: </b>a signed byte (<code>char</code>)</li>
+<li><b><code>B</code>: </b>an unsigned byte (<code>char</code>)</li>
+<li><b><code>h</code>: </b>a signed <code>short</code> (native size)</li>
+<li><b><code>H</code>: </b>an unsigned <code>short</code> (native size)</li>
+<li><b><code>l</code>: </b>a signed <code>long</code> (native size)</li>
+<li><b><code>L</code>: </b>an unsigned <code>long</code> (native size)</li>
+<li><b><code>j</code>: </b>a <code>lua_Integer</code></li>
+<li><b><code>J</code>: </b>a <code>lua_Unsigned</code></li>
+<li><b><code>T</code>: </b>a <code>size_t</code> (native size)</li>
+<li><b><code>i[<em>n</em>]</code>: </b>a signed <code>int</code> with <code>n</code> bytes
+(default is native size)</li>
+<li><b><code>I[<em>n</em>]</code>: </b>an unsigned <code>int</code> with <code>n</code> bytes
+(default is native size)</li>
+<li><b><code>f</code>: </b>a <code>float</code> (native size)</li>
+<li><b><code>d</code>: </b>a <code>double</code> (native size)</li>
+<li><b><code>n</code>: </b>a <code>lua_Number</code></li>
+<li><b><code>c<em>n</em></code>: </b>a fixed-sized string with <code>n</code> bytes</li>
+<li><b><code>z</code>: </b>a zero-terminated string</li>
+<li><b><code>s[<em>n</em>]</code>: </b>a string preceded by its length
+coded as an unsigned integer with <code>n</code> bytes
+(default is a <code>size_t</code>)</li>
+<li><b><code>x</code>: </b>one byte of padding</li>
+<li><b><code>X<em>op</em></code>: </b>an empty item that aligns
+according to option <code>op</code>
+(which is otherwise ignored)</li>
+<li><b>'<code> </code>': </b>(space) ignored</li>
+</ul><p>
+(A "<code>[<em>n</em>]</code>" means an optional integral numeral.)
+Except for padding, spaces, and configurations
+(options "<code>xX &lt;=&gt;!</code>"),
+each option corresponds to an argument in <a href="#pdf-string.pack"><code>string.pack</code></a>
+or a result in <a href="#pdf-string.unpack"><code>string.unpack</code></a>.
+
+
+</p><p>
+For options "<code>!<em>n</em></code>", "<code>s<em>n</em></code>", "<code>i<em>n</em></code>", and "<code>I<em>n</em></code>",
+<code>n</code> can be any integer between 1 and 16.
+All integral options check overflows;
+<a href="#pdf-string.pack"><code>string.pack</code></a> checks whether the given value fits in the given size;
+<a href="#pdf-string.unpack"><code>string.unpack</code></a> checks whether the read value fits in a Lua integer.
+For the unsigned options,
+Lua integers are treated as unsigned values too.
+
+
+</p><p>
+Any format string starts as if prefixed by "<code>!1=</code>",
+that is,
+with maximum alignment of 1 (no alignment)
+and native endianness.
+
+
+</p><p>
+Native endianness assumes that the whole system is
+either big or little endian.
+The packing functions will not emulate correctly the behavior
+of mixed-endian formats.
+
+
+</p><p>
+Alignment works as follows:
+For each option,
+the format gets extra padding until the data starts
+at an offset that is a multiple of the minimum between the
+option size and the maximum alignment;
+this minimum must be a power of 2.
+Options "<code>c</code>" and "<code>z</code>" are not aligned;
+option "<code>s</code>" follows the alignment of its starting integer.
+
+
+</p><p>
+All padding is filled with zeros by <a href="#pdf-string.pack"><code>string.pack</code></a>
+and ignored by <a href="#pdf-string.unpack"><code>string.unpack</code></a>.
+
+
+
+
+
+
+
+</p><h2>6.5 – <a name="6.5">UTF-8 Support</a></h2>
+
+<p>
+This library provides basic support for UTF-8 encoding.
+It provides all its functions inside the table <a name="pdf-utf8"><code>utf8</code></a>.
+This library does not provide any support for Unicode other
+than the handling of the encoding.
+Any operation that needs the meaning of a character,
+such as character classification, is outside its scope.
+
+
+</p><p>
+Unless stated otherwise,
+all functions that expect a byte position as a parameter
+assume that the given position is either the start of a byte sequence
+or one plus the length of the subject string.
+As in the string library,
+negative indices count from the end of the string.
+
+
+</p><p>
+Functions that create byte sequences
+accept all values up to <code>0x7FFFFFFF</code>,
+as defined in the original UTF-8 specification;
+that implies byte sequences of up to six bytes.
+
+
+</p><p>
+Functions that interpret byte sequences only accept
+valid sequences (well formed and not overlong).
+By default, they only accept byte sequences
+that result in valid Unicode code points,
+rejecting values greater than <code>10FFFF</code> and surrogates.
+A boolean argument <code>lax</code>, when available,
+lifts these checks,
+so that all values up to <code>0x7FFFFFFF</code> are accepted.
+(Not well formed and overlong sequences are still rejected.)
+
+
+</p><p>
+</p><hr><h3><a name="pdf-utf8.char"><code>utf8.char (···)</code></a></h3>
+
+
+<p>
+Receives zero or more integers,
+converts each one to its corresponding UTF-8 byte sequence
+and returns a string with the concatenation of all these sequences.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-utf8.charpattern"><code>utf8.charpattern</code></a></h3>
+
+
+<p>
+The pattern (a string, not a function) "<code>[\0-\x7F\xC2-\xFD][\x80-\xBF]*</code>"
+(see <a href="#6.4.1">§6.4.1</a>),
+which matches exactly one UTF-8 byte sequence,
+assuming that the subject is a valid UTF-8 string.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-utf8.codes"><code>utf8.codes (s [, lax])</code></a></h3>
+
+
+<p>
+Returns values so that the construction
+
+</p><pre>     for p, c in utf8.codes(s) do <em>body</em> end
+</pre><p>
+will iterate over all UTF-8 characters in string <code>s</code>,
+with <code>p</code> being the position (in bytes) and <code>c</code> the code point
+of each character.
+It raises an error if it meets any invalid byte sequence.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-utf8.codepoint"><code>utf8.codepoint (s [, i [, j [, lax]]])</code></a></h3>
+
+
+<p>
+Returns the code points (as integers) from all characters in <code>s</code>
+that start between byte position <code>i</code> and <code>j</code> (both included).
+The default for <code>i</code> is 1 and for <code>j</code> is <code>i</code>.
+It raises an error if it meets any invalid byte sequence.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-utf8.len"><code>utf8.len (s [, i [, j [, lax]]])</code></a></h3>
+
+
+<p>
+Returns the number of UTF-8 characters in string <code>s</code>
+that start between positions <code>i</code> and <code>j</code> (both inclusive).
+The default for <code>i</code> is 1 and for <code>j</code> is -1.
+If it finds any invalid byte sequence,
+returns <b>fail</b> plus the position of the first invalid byte.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-utf8.offset"><code>utf8.offset (s, n [, i])</code></a></h3>
+
+
+<p>
+Returns the position (in bytes) where the encoding of the
+<code>n</code>-th character of <code>s</code>
+(counting from position <code>i</code>) starts.
+A negative <code>n</code> gets characters before position <code>i</code>.
+The default for <code>i</code> is 1 when <code>n</code> is non-negative
+and <code>#s + 1</code> otherwise,
+so that <code>utf8.offset(s, -n)</code> gets the offset of the
+<code>n</code>-th character from the end of the string.
+If the specified character is neither in the subject
+nor right after its end,
+the function returns <b>fail</b>.
+
+
+</p><p>
+As a special case,
+when <code>n</code> is 0 the function returns the start of the encoding
+of the character that contains the <code>i</code>-th byte of <code>s</code>.
+
+
+</p><p>
+This function assumes that <code>s</code> is a valid UTF-8 string.
+
+
+
+
+
+
+
+</p><h2>6.6 – <a name="6.6">Table Manipulation</a></h2>
+
+<p>
+This library provides generic functions for table manipulation.
+It provides all its functions inside the table <a name="pdf-table"><code>table</code></a>.
+
+
+</p><p>
+Remember that, whenever an operation needs the length of a table,
+all caveats about the length operator apply (see <a href="#3.4.7">§3.4.7</a>).
+All functions ignore non-numeric keys
+in the tables given as arguments.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.concat"><code>table.concat (list [, sep [, i [, j]]])</code></a></h3>
+
+
+<p>
+Given a list where all elements are strings or numbers,
+returns the string <code>list[i]..sep..list[i+1] ··· sep..list[j]</code>.
+The default value for <code>sep</code> is the empty string,
+the default for <code>i</code> is 1,
+and the default for <code>j</code> is <code>#list</code>.
+If <code>i</code> is greater than <code>j</code>, returns the empty string.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.insert"><code>table.insert (list, [pos,] value)</code></a></h3>
+
+
+<p>
+Inserts element <code>value</code> at position <code>pos</code> in <code>list</code>,
+shifting up the elements
+<code>list[pos], list[pos+1], ···, list[#list]</code>.
+The default value for <code>pos</code> is <code>#list+1</code>,
+so that a call <code>table.insert(t,x)</code> inserts <code>x</code> at the end
+of the list <code>t</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.move"><code>table.move (a1, f, e, t [,a2])</code></a></h3>
+
+
+<p>
+Moves elements from the table <code>a1</code> to the table <code>a2</code>,
+performing the equivalent to the following
+multiple assignment:
+<code>a2[t],··· = a1[f],···,a1[e]</code>.
+The default for <code>a2</code> is <code>a1</code>.
+The destination range can overlap with the source range.
+The number of elements to be moved must fit in a Lua integer.
+
+
+</p><p>
+Returns the destination table <code>a2</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.pack"><code>table.pack (···)</code></a></h3>
+
+
+<p>
+Returns a new table with all arguments stored into keys 1, 2, etc.
+and with a field "<code>n</code>" with the total number of arguments.
+Note that the resulting table may not be a sequence,
+if some arguments are <b>nil</b>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.remove"><code>table.remove (list [, pos])</code></a></h3>
+
+
+<p>
+Removes from <code>list</code> the element at position <code>pos</code>,
+returning the value of the removed element.
+When <code>pos</code> is an integer between 1 and <code>#list</code>,
+it shifts down the elements
+<code>list[pos+1], list[pos+2], ···, list[#list]</code>
+and erases element <code>list[#list]</code>;
+The index <code>pos</code> can also be 0 when <code>#list</code> is 0,
+or <code>#list + 1</code>.
+
+
+</p><p>
+The default value for <code>pos</code> is <code>#list</code>,
+so that a call <code>table.remove(l)</code> removes the last element
+of the list <code>l</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.sort"><code>table.sort (list [, comp])</code></a></h3>
+
+
+<p>
+Sorts the list elements in a given order, <em>in-place</em>,
+from <code>list[1]</code> to <code>list[#list]</code>.
+If <code>comp</code> is given,
+then it must be a function that receives two list elements
+and returns true when the first element must come
+before the second in the final order,
+so that, after the sort,
+<code>i &lt;= j</code> implies <code>not comp(list[j],list[i])</code>.
+If <code>comp</code> is not given,
+then the standard Lua operator <code>&lt;</code> is used instead.
+
+
+</p><p>
+The <code>comp</code> function must define a consistent order;
+more formally, the function must define a strict weak order.
+(A weak order is similar to a total order,
+but it can equate different elements for comparison purposes.)
+
+
+</p><p>
+The sort algorithm is not stable:
+Different elements considered equal by the given order
+may have their relative positions changed by the sort.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-table.unpack"><code>table.unpack (list [, i [, j]])</code></a></h3>
+
+
+<p>
+Returns the elements from the given list.
+This function is equivalent to
+
+</p><pre>     return list[i], list[i+1], ···, list[j]
+</pre><p>
+By default, <code>i</code> is&nbsp;1 and <code>j</code> is <code>#list</code>.
+
+
+
+
+
+
+
+</p><h2>6.7 – <a name="6.7">Mathematical Functions</a></h2>
+
+<p>
+This library provides basic mathematical functions.
+It provides all its functions and constants inside the table <a name="pdf-math"><code>math</code></a>.
+Functions with the annotation "<code>integer/float</code>" give
+integer results for integer arguments
+and float results for non-integer arguments.
+The rounding functions
+<a href="#pdf-math.ceil"><code>math.ceil</code></a>, <a href="#pdf-math.floor"><code>math.floor</code></a>, and <a href="#pdf-math.modf"><code>math.modf</code></a>
+return an integer when the result fits in the range of an integer,
+or a float otherwise.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.abs"><code>math.abs (x)</code></a></h3>
+
+
+<p>
+Returns the maximum value between <code>x</code> and <code>-x</code>. (integer/float)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.acos"><code>math.acos (x)</code></a></h3>
+
+
+<p>
+Returns the arc cosine of <code>x</code> (in radians).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.asin"><code>math.asin (x)</code></a></h3>
+
+
+<p>
+Returns the arc sine of <code>x</code> (in radians).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.atan"><code>math.atan (y [, x])</code></a></h3>
+
+
+<p>
+ 
+Returns the arc tangent of <code>y/x</code> (in radians),
+using the signs of both arguments to find the
+quadrant of the result.
+It also handles correctly the case of <code>x</code> being zero.
+
+
+</p><p>
+The default value for <code>x</code> is 1,
+so that the call <code>math.atan(y)</code>
+returns the arc tangent of <code>y</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.ceil"><code>math.ceil (x)</code></a></h3>
+
+
+<p>
+Returns the smallest integral value greater than or equal to <code>x</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.cos"><code>math.cos (x)</code></a></h3>
+
+
+<p>
+Returns the cosine of <code>x</code> (assumed to be in radians).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.deg"><code>math.deg (x)</code></a></h3>
+
+
+<p>
+Converts the angle <code>x</code> from radians to degrees.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.exp"><code>math.exp (x)</code></a></h3>
+
+
+<p>
+Returns the value <em>e<sup>x</sup></em>
+(where <code>e</code> is the base of natural logarithms).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.floor"><code>math.floor (x)</code></a></h3>
+
+
+<p>
+Returns the largest integral value less than or equal to <code>x</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.fmod"><code>math.fmod (x, y)</code></a></h3>
+
+
+<p>
+Returns the remainder of the division of <code>x</code> by <code>y</code>
+that rounds the quotient towards zero. (integer/float)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.huge"><code>math.huge</code></a></h3>
+
+
+<p>
+The float value <code>HUGE_VAL</code>,
+a value greater than any other numeric value.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.log"><code>math.log (x [, base])</code></a></h3>
+
+
+<p>
+Returns the logarithm of <code>x</code> in the given base.
+The default for <code>base</code> is <em>e</em>
+(so that the function returns the natural logarithm of <code>x</code>).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.max"><code>math.max (x, ···)</code></a></h3>
+
+
+<p>
+Returns the argument with the maximum value,
+according to the Lua operator <code>&lt;</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.maxinteger"><code>math.maxinteger</code></a></h3>
+An integer with the maximum value for an integer.
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-math.min"><code>math.min (x, ···)</code></a></h3>
+
+
+<p>
+Returns the argument with the minimum value,
+according to the Lua operator <code>&lt;</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.mininteger"><code>math.mininteger</code></a></h3>
+An integer with the minimum value for an integer.
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-math.modf"><code>math.modf (x)</code></a></h3>
+
+
+<p>
+Returns the integral part of <code>x</code> and the fractional part of <code>x</code>.
+Its second result is always a float.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.pi"><code>math.pi</code></a></h3>
+
+
+<p>
+The value of <em>&#960;</em>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.rad"><code>math.rad (x)</code></a></h3>
+
+
+<p>
+Converts the angle <code>x</code> from degrees to radians.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.random"><code>math.random ([m [, n]])</code></a></h3>
+
+
+<p>
+When called without arguments,
+returns a pseudo-random float with uniform distribution
+in the range  <em>[0,1)</em>.  
+When called with two integers <code>m</code> and <code>n</code>,
+<code>math.random</code> returns a pseudo-random integer
+with uniform distribution in the range <em>[m, n]</em>.
+The call <code>math.random(n)</code>, for a positive <code>n</code>,
+is equivalent to <code>math.random(1,n)</code>.
+The call <code>math.random(0)</code> produces an integer with
+all bits (pseudo)random.
+
+
+</p><p>
+This function uses the <code>xoshiro256**</code> algorithm to produce
+pseudo-random 64-bit integers,
+which are the results of calls with argument&nbsp;0.
+Other results (ranges and floats)
+are unbiased extracted from these integers.
+
+
+</p><p>
+Lua initializes its pseudo-random generator with the equivalent of
+a call to <a href="#pdf-math.randomseed"><code>math.randomseed</code></a> with no arguments,
+so that <code>math.random</code> should generate
+different sequences of results each time the program runs.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.randomseed"><code>math.randomseed ([x [, y]])</code></a></h3>
+
+
+<p>
+When called with at least one argument,
+the integer parameters <code>x</code> and <code>y</code> are
+joined into a 128-bit <em>seed</em> that
+is used to reinitialize the pseudo-random generator;
+equal seeds produce equal sequences of numbers.
+The default for <code>y</code> is zero.
+
+
+</p><p>
+When called with no arguments,
+Lua generates a seed with
+a weak attempt for randomness.
+
+
+</p><p>
+This function returns the two seed components
+that were effectively used,
+so that setting them again repeats the sequence.
+
+
+</p><p>
+To ensure a required level of randomness to the initial state
+(or contrarily, to have a deterministic sequence,
+for instance when debugging a program),
+you should call <a href="#pdf-math.randomseed"><code>math.randomseed</code></a> with explicit arguments.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.sin"><code>math.sin (x)</code></a></h3>
+
+
+<p>
+Returns the sine of <code>x</code> (assumed to be in radians).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.sqrt"><code>math.sqrt (x)</code></a></h3>
+
+
+<p>
+Returns the square root of <code>x</code>.
+(You can also use the expression <code>x^0.5</code> to compute this value.)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.tan"><code>math.tan (x)</code></a></h3>
+
+
+<p>
+Returns the tangent of <code>x</code> (assumed to be in radians).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.tointeger"><code>math.tointeger (x)</code></a></h3>
+
+
+<p>
+If the value <code>x</code> is convertible to an integer,
+returns that integer.
+Otherwise, returns <b>fail</b>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.type"><code>math.type (x)</code></a></h3>
+
+
+<p>
+Returns "<code>integer</code>" if <code>x</code> is an integer,
+"<code>float</code>" if it is a float,
+or <b>fail</b> if <code>x</code> is not a number.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-math.ult"><code>math.ult (m, n)</code></a></h3>
+
+
+<p>
+Returns a boolean,
+<b>true</b> if and only if integer <code>m</code> is below integer <code>n</code> when
+they are compared as unsigned integers.
+
+
+
+
+
+
+
+</p><h2>6.8 – <a name="6.8">Input and Output Facilities</a></h2>
+
+<p>
+The I/O library provides two different styles for file manipulation.
+The first one uses implicit file handles;
+that is, there are operations to set a default input file and a
+default output file,
+and all input/output operations are done over these default files.
+The second style uses explicit file handles.
+
+
+</p><p>
+When using implicit file handles,
+all operations are supplied by table <a name="pdf-io"><code>io</code></a>.
+When using explicit file handles,
+the operation <a href="#pdf-io.open"><code>io.open</code></a> returns a file handle
+and then all operations are supplied as methods of the file handle.
+
+
+</p><p>
+The metatable for file handles provides metamethods
+for <code>__gc</code> and <code>__close</code> that try
+to close the file when called.
+
+
+</p><p>
+The table <code>io</code> also provides
+three predefined file handles with their usual meanings from C:
+<a name="pdf-io.stdin"><code>io.stdin</code></a>, <a name="pdf-io.stdout"><code>io.stdout</code></a>, and <a name="pdf-io.stderr"><code>io.stderr</code></a>.
+The I/O library never closes these files.
+
+
+</p><p>
+Unless otherwise stated,
+all I/O functions return <b>fail</b> on failure,
+plus an error message as a second result and
+a system-dependent error code as a third result,
+and some non-false value on success.
+On non-POSIX systems,
+the computation of the error message and error code
+in case of errors
+may be not thread safe,
+because they rely on the global C variable <code>errno</code>.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-io.close"><code>io.close ([file])</code></a></h3>
+
+
+<p>
+Equivalent to <code>file:close()</code>.
+Without a <code>file</code>, closes the default output file.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-io.flush"><code>io.flush ()</code></a></h3>
+
+
+<p>
+Equivalent to <code>io.output():flush()</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-io.input"><code>io.input ([file])</code></a></h3>
+<!-- slice ends -->

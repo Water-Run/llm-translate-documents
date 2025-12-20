@@ -1,0 +1,1497 @@
+<!-- slice index: 6 -->
+<!-- lines 7479–8973 / total 11964 -->
+<!-- title: 6 – The Standard Libraries -->
+<p>
+Finishes the use of buffer <code>B</code> leaving the final string on
+the top of the stack.
+
+
+
+
+
+</p><hr><h3><a name="luaL_pushresultsize"><code>luaL_pushresultsize</code></a></h3><p>
+<span class="apii">[-?, +1, <em>m</em>]</span>
+</p><pre>void luaL_pushresultsize (luaL_Buffer *B, size_t sz);</pre>
+
+<p>
+Equivalent to the sequence <a href="#luaL_addsize"><code>luaL_addsize</code></a>, <a href="#luaL_pushresult"><code>luaL_pushresult</code></a>.
+
+
+
+
+
+</p><hr><h3><a name="luaL_ref"><code>luaL_ref</code></a></h3><p>
+<span class="apii">[-1, +0, <em>m</em>]</span>
+</p><pre>int luaL_ref (lua_State *L, int t);</pre>
+
+<p>
+Creates and returns a <em>reference</em>,
+in the table at index <code>t</code>,
+for the object on the top of the stack (and pops the object).
+
+
+</p><p>
+A reference is a unique integer key.
+As long as you do not manually add integer keys into the table <code>t</code>,
+<a href="#luaL_ref"><code>luaL_ref</code></a> ensures the uniqueness of the key it returns.
+You can retrieve an object referred by the reference <code>r</code>
+by calling <code>lua_rawgeti(L, t, r)</code>.
+The function <a href="#luaL_unref"><code>luaL_unref</code></a> frees a reference.
+
+
+</p><p>
+If the object on the top of the stack is <b>nil</b>,
+<a href="#luaL_ref"><code>luaL_ref</code></a> returns the constant <a name="pdf-LUA_REFNIL"><code>LUA_REFNIL</code></a>.
+The constant <a name="pdf-LUA_NOREF"><code>LUA_NOREF</code></a> is guaranteed to be different
+from any reference returned by <a href="#luaL_ref"><code>luaL_ref</code></a>.
+
+
+
+
+
+</p><hr><h3><a name="luaL_Reg"><code>luaL_Reg</code></a></h3>
+<pre>typedef struct luaL_Reg {
+  const char *name;
+  lua_CFunction func;
+} luaL_Reg;</pre>
+
+<p>
+Type for arrays of functions to be registered by
+<a href="#luaL_setfuncs"><code>luaL_setfuncs</code></a>.
+<code>name</code> is the function name and <code>func</code> is a pointer to
+the function.
+Any array of <a href="#luaL_Reg"><code>luaL_Reg</code></a> must end with a sentinel entry
+in which both <code>name</code> and <code>func</code> are <code>NULL</code>.
+
+
+
+
+
+</p><hr><h3><a name="luaL_requiref"><code>luaL_requiref</code></a></h3><p>
+<span class="apii">[-0, +1, <em>e</em>]</span>
+</p><pre>void luaL_requiref (lua_State *L, const char *modname,
+                    lua_CFunction openf, int glb);</pre>
+
+<p>
+If <code>package.loaded[modname]</code> is not true,
+calls the function <code>openf</code> with the string <code>modname</code> as an argument
+and sets the call result to <code>package.loaded[modname]</code>,
+as if that function has been called through <a href="#pdf-require"><code>require</code></a>.
+
+
+</p><p>
+If <code>glb</code> is true,
+also stores the module into the global <code>modname</code>.
+
+
+</p><p>
+Leaves a copy of the module on the stack.
+
+
+
+
+
+</p><hr><h3><a name="luaL_setfuncs"><code>luaL_setfuncs</code></a></h3><p>
+<span class="apii">[-nup, +0, <em>m</em>]</span>
+</p><pre>void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup);</pre>
+
+<p>
+Registers all functions in the array <code>l</code>
+(see <a href="#luaL_Reg"><code>luaL_Reg</code></a>) into the table on the top of the stack
+(below optional upvalues, see next).
+
+
+</p><p>
+When <code>nup</code> is not zero,
+all functions are created with <code>nup</code> upvalues,
+initialized with copies of the <code>nup</code> values
+previously pushed on the stack
+on top of the library table.
+These values are popped from the stack after the registration.
+
+
+</p><p>
+A function with a <code>NULL</code> value represents a placeholder,
+which is filled with <b>false</b>.
+
+
+
+
+
+</p><hr><h3><a name="luaL_setmetatable"><code>luaL_setmetatable</code></a></h3><p>
+<span class="apii">[-0, +0, –]</span>
+</p><pre>void luaL_setmetatable (lua_State *L, const char *tname);</pre>
+
+<p>
+Sets the metatable of the object on the top of the stack
+as the metatable associated with name <code>tname</code>
+in the registry (see <a href="#luaL_newmetatable"><code>luaL_newmetatable</code></a>).
+
+
+
+
+
+</p><hr><h3><a name="luaL_Stream"><code>luaL_Stream</code></a></h3>
+<pre>typedef struct luaL_Stream {
+  FILE *f;
+  lua_CFunction closef;
+} luaL_Stream;</pre>
+
+<p>
+The standard representation for file handles
+used by the standard I/O library.
+
+
+</p><p>
+A file handle is implemented as a full userdata,
+with a metatable called <code>LUA_FILEHANDLE</code>
+(where <code>LUA_FILEHANDLE</code> is a macro with the actual metatable's name).
+The metatable is created by the I/O library
+(see <a href="#luaL_newmetatable"><code>luaL_newmetatable</code></a>).
+
+
+</p><p>
+This userdata must start with the structure <code>luaL_Stream</code>;
+it can contain other data after this initial structure.
+The field <code>f</code> points to the corresponding C stream
+(or it can be <code>NULL</code> to indicate an incompletely created handle).
+The field <code>closef</code> points to a Lua function
+that will be called to close the stream
+when the handle is closed or collected;
+this function receives the file handle as its sole argument and
+must return either a true value, in case of success,
+or a false value plus an error message, in case of error.
+Once Lua calls this field,
+it changes the field value to <code>NULL</code>
+to signal that the handle is closed.
+
+
+
+
+
+</p><hr><h3><a name="luaL_testudata"><code>luaL_testudata</code></a></h3><p>
+<span class="apii">[-0, +0, <em>m</em>]</span>
+</p><pre>void *luaL_testudata (lua_State *L, int arg, const char *tname);</pre>
+
+<p>
+This function works like <a href="#luaL_checkudata"><code>luaL_checkudata</code></a>,
+except that, when the test fails,
+it returns <code>NULL</code> instead of raising an error.
+
+
+
+
+
+</p><hr><h3><a name="luaL_tolstring"><code>luaL_tolstring</code></a></h3><p>
+<span class="apii">[-0, +1, <em>e</em>]</span>
+</p><pre>const char *luaL_tolstring (lua_State *L, int idx, size_t *len);</pre>
+
+<p>
+Converts any Lua value at the given index to a C&nbsp;string
+in a reasonable format.
+The resulting string is pushed onto the stack and also
+returned by the function (see <a href="#4.1.3">§4.1.3</a>).
+If <code>len</code> is not <code>NULL</code>,
+the function also sets <code>*len</code> with the string length.
+
+
+</p><p>
+If the value has a metatable with a <code>__tostring</code> field,
+then <code>luaL_tolstring</code> calls the corresponding metamethod
+with the value as argument,
+and uses the result of the call as its result.
+
+
+
+
+
+</p><hr><h3><a name="luaL_traceback"><code>luaL_traceback</code></a></h3><p>
+<span class="apii">[-0, +1, <em>m</em>]</span>
+</p><pre>void luaL_traceback (lua_State *L, lua_State *L1, const char *msg,
+                     int level);</pre>
+
+<p>
+Creates and pushes a traceback of the stack <code>L1</code>.
+If <code>msg</code> is not <code>NULL</code>, it is appended
+at the beginning of the traceback.
+The <code>level</code> parameter tells at which level
+to start the traceback.
+
+
+
+
+
+</p><hr><h3><a name="luaL_typeerror"><code>luaL_typeerror</code></a></h3><p>
+<span class="apii">[-0, +0, <em>v</em>]</span>
+</p><pre>int luaL_typeerror (lua_State *L, int arg, const char *tname);</pre>
+
+<p>
+Raises a type error for the argument <code>arg</code>
+of the C&nbsp;function that called it,
+using a standard message;
+<code>tname</code> is a "name" for the expected type.
+This function never returns.
+
+
+
+
+
+</p><hr><h3><a name="luaL_typename"><code>luaL_typename</code></a></h3><p>
+<span class="apii">[-0, +0, –]</span>
+</p><pre>const char *luaL_typename (lua_State *L, int index);</pre>
+
+<p>
+Returns the name of the type of the value at the given index.
+
+
+
+
+
+</p><hr><h3><a name="luaL_unref"><code>luaL_unref</code></a></h3><p>
+<span class="apii">[-0, +0, –]</span>
+</p><pre>void luaL_unref (lua_State *L, int t, int ref);</pre>
+
+<p>
+Releases the reference <code>ref</code> from the table at index <code>t</code>
+(see <a href="#luaL_ref"><code>luaL_ref</code></a>).
+The entry is removed from the table,
+so that the referred object can be collected.
+The reference <code>ref</code> is also freed to be used again.
+
+
+</p><p>
+If <code>ref</code> is <a href="#pdf-LUA_NOREF"><code>LUA_NOREF</code></a> or <a href="#pdf-LUA_REFNIL"><code>LUA_REFNIL</code></a>,
+<a href="#luaL_unref"><code>luaL_unref</code></a> does nothing.
+
+
+
+
+
+</p><hr><h3><a name="luaL_where"><code>luaL_where</code></a></h3><p>
+<span class="apii">[-0, +1, <em>m</em>]</span>
+</p><pre>void luaL_where (lua_State *L, int lvl);</pre>
+
+<p>
+Pushes onto the stack a string identifying the current position
+of the control at level <code>lvl</code> in the call stack.
+Typically this string has the following format:
+
+</p><pre>     <em>chunkname</em>:<em>currentline</em>:
+</pre><p>
+Level&nbsp;0 is the running function,
+level&nbsp;1 is the function that called the running function,
+etc.
+
+
+</p><p>
+This function is used to build a prefix for error messages.
+
+
+
+
+
+
+
+</p><h1>6 – <a name="6">The Standard Libraries</a></h1>
+
+
+
+<p>
+The standard Lua libraries provide useful functions
+that are implemented in&nbsp;C through the C&nbsp;API.
+Some of these functions provide essential services to the language
+(e.g., <a href="#pdf-type"><code>type</code></a> and <a href="#pdf-getmetatable"><code>getmetatable</code></a>);
+others provide access to outside services (e.g., I/O);
+and others could be implemented in Lua itself,
+but that for different reasons
+deserve an implementation in C (e.g., <a href="#pdf-table.sort"><code>table.sort</code></a>).
+
+
+</p><p>
+All libraries are implemented through the official C&nbsp;API
+and are provided as separate C&nbsp;modules.
+Unless otherwise noted,
+these library functions do not adjust its number of arguments
+to its expected parameters.
+For instance, a function documented as <code>foo(arg)</code>
+should not be called without an argument.
+
+
+</p><p>
+The notation <b>fail</b> means a false value representing
+some kind of failure.
+(Currently, <b>fail</b> is equal to <b>nil</b>,
+but that may change in future versions.
+The recommendation is to always test the success of these functions
+with <code>(not status)</code>, instead of <code>(status == nil)</code>.)
+
+
+</p><p>
+Currently, Lua has the following standard libraries:
+
+</p><ul>
+
+<li>basic library (<a href="#6.1">§6.1</a>);</li>
+
+<li>coroutine library (<a href="#6.2">§6.2</a>);</li>
+
+<li>package library (<a href="#6.3">§6.3</a>);</li>
+
+<li>string manipulation (<a href="#6.4">§6.4</a>);</li>
+
+<li>basic UTF-8 support (<a href="#6.5">§6.5</a>);</li>
+
+<li>table manipulation (<a href="#6.6">§6.6</a>);</li>
+
+<li>mathematical functions (<a href="#6.7">§6.7</a>) (sin, log, etc.);</li>
+
+<li>input and output (<a href="#6.8">§6.8</a>);</li>
+
+<li>operating system facilities (<a href="#6.9">§6.9</a>);</li>
+
+<li>debug facilities (<a href="#6.10">§6.10</a>).</li>
+
+</ul><p>
+Except for the basic and the package libraries,
+each library provides all its functions as fields of a global table
+or as methods of its objects.
+
+
+</p><p>
+To have access to these libraries,
+the C&nbsp;host program should call the <a href="#luaL_openlibs"><code>luaL_openlibs</code></a> function,
+which opens all standard libraries.
+Alternatively,
+the host program can open them individually by using
+<a href="#luaL_requiref"><code>luaL_requiref</code></a> to call
+<a name="pdf-luaopen_base"><code>luaopen_base</code></a> (for the basic library),
+<a name="pdf-luaopen_package"><code>luaopen_package</code></a> (for the package library),
+<a name="pdf-luaopen_coroutine"><code>luaopen_coroutine</code></a> (for the coroutine library),
+<a name="pdf-luaopen_string"><code>luaopen_string</code></a> (for the string library),
+<a name="pdf-luaopen_utf8"><code>luaopen_utf8</code></a> (for the UTF-8 library),
+<a name="pdf-luaopen_table"><code>luaopen_table</code></a> (for the table library),
+<a name="pdf-luaopen_math"><code>luaopen_math</code></a> (for the mathematical library),
+<a name="pdf-luaopen_io"><code>luaopen_io</code></a> (for the I/O library),
+<a name="pdf-luaopen_os"><code>luaopen_os</code></a> (for the operating system library),
+and <a name="pdf-luaopen_debug"><code>luaopen_debug</code></a> (for the debug library).
+These functions are declared in <a name="pdf-lualib.h"><code>lualib.h</code></a>.
+
+
+
+
+
+</p><h2>6.1 – <a name="6.1">Basic Functions</a></h2>
+
+<p>
+The basic library provides core functions to Lua.
+If you do not include this library in your application,
+you should check carefully whether you need to provide
+implementations for some of its facilities.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-assert"><code>assert (v [, message])</code></a></h3>
+
+
+<p>
+Raises an error if
+the value of its argument <code>v</code> is false (i.e., <b>nil</b> or <b>false</b>);
+otherwise, returns all its arguments.
+In case of error,
+<code>message</code> is the error object;
+when absent, it defaults to "<code>assertion failed!</code>"
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-collectgarbage"><code>collectgarbage ([opt [, arg]])</code></a></h3>
+
+
+<p>
+This function is a generic interface to the garbage collector.
+It performs different functions according to its first argument, <code>opt</code>:
+
+</p><ul>
+
+<li><b>"<code>collect</code>": </b>
+Performs a full garbage-collection cycle.
+This is the default option.
+</li>
+
+<li><b>"<code>stop</code>": </b>
+Stops automatic execution of the garbage collector.
+The collector will run only when explicitly invoked,
+until a call to restart it.
+</li>
+
+<li><b>"<code>restart</code>": </b>
+Restarts automatic execution of the garbage collector.
+</li>
+
+<li><b>"<code>count</code>": </b>
+Returns the total memory in use by Lua in Kbytes.
+The value has a fractional part,
+so that it multiplied by 1024
+gives the exact number of bytes in use by Lua.
+</li>
+
+<li><b>"<code>step</code>": </b>
+Performs a garbage-collection step.
+The step "size" is controlled by <code>arg</code>.
+With a zero value,
+the collector will perform one basic (indivisible) step.
+For non-zero values,
+the collector will perform as if that amount of memory
+(in Kbytes) had been allocated by Lua.
+Returns <b>true</b> if the step finished a collection cycle.
+</li>
+
+<li><b>"<code>isrunning</code>": </b>
+Returns a boolean that tells whether the collector is running
+(i.e., not stopped).
+</li>
+
+<li><b>"<code>incremental</code>": </b>
+Change the collector mode to incremental.
+This option can be followed by three numbers:
+the garbage-collector pause,
+the step multiplier,
+and the step size (see <a href="#2.5.1">§2.5.1</a>).
+A zero means to not change that value.
+</li>
+
+<li><b>"<code>generational</code>": </b>
+Change the collector mode to generational.
+This option can be followed by two numbers:
+the garbage-collector minor multiplier
+and the major multiplier (see <a href="#2.5.2">§2.5.2</a>).
+A zero means to not change that value.
+</li>
+
+</ul><p>
+See <a href="#2.5">§2.5</a> for more details about garbage collection
+and some of these options.
+
+
+</p><p>
+This function should not be called by a finalizer.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-dofile"><code>dofile ([filename])</code></a></h3>
+Opens the named file and executes its content as a Lua chunk.
+When called without arguments,
+<code>dofile</code> executes the content of the standard input (<code>stdin</code>).
+Returns all values returned by the chunk.
+In case of errors, <code>dofile</code> propagates the error
+to its caller.
+(That is, <code>dofile</code> does not run in protected mode.)
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-error"><code>error (message [, level])</code></a></h3>
+Raises an error (see <a href="#2.3">§2.3</a>) with <code>message</code> as the error object.
+This function never returns.
+
+
+<p>
+Usually, <code>error</code> adds some information about the error position
+at the beginning of the message, if the message is a string.
+The <code>level</code> argument specifies how to get the error position.
+With level&nbsp;1 (the default), the error position is where the
+<code>error</code> function was called.
+Level&nbsp;2 points the error to where the function
+that called <code>error</code> was called; and so on.
+Passing a level&nbsp;0 avoids the addition of error position information
+to the message.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-_G"><code>_G</code></a></h3>
+A global variable (not a function) that
+holds the global environment (see <a href="#2.2">§2.2</a>).
+Lua itself does not use this variable;
+changing its value does not affect any environment,
+nor vice versa.
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-getmetatable"><code>getmetatable (object)</code></a></h3>
+
+
+<p>
+If <code>object</code> does not have a metatable, returns <b>nil</b>.
+Otherwise,
+if the object's metatable has a <code>__metatable</code> field,
+returns the associated value.
+Otherwise, returns the metatable of the given object.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-ipairs"><code>ipairs (t)</code></a></h3>
+
+
+<p>
+Returns three values (an iterator function, the table <code>t</code>, and 0)
+so that the construction
+
+</p><pre>     for i,v in ipairs(t) do <em>body</em> end
+</pre><p>
+will iterate over the key–value pairs
+(<code>1,t[1]</code>), (<code>2,t[2]</code>), ...,
+up to the first absent index.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-load"><code>load (chunk [, chunkname [, mode [, env]]])</code></a></h3>
+
+
+<p>
+Loads a chunk.
+
+
+</p><p>
+If <code>chunk</code> is a string, the chunk is this string.
+If <code>chunk</code> is a function,
+<code>load</code> calls it repeatedly to get the chunk pieces.
+Each call to <code>chunk</code> must return a string that concatenates
+with previous results.
+A return of an empty string, <b>nil</b>, or no value signals the end of the chunk.
+
+
+</p><p>
+If there are no syntactic errors,
+<code>load</code> returns the compiled chunk as a function;
+otherwise, it returns <b>fail</b> plus the error message.
+
+
+</p><p>
+When you load a main chunk,
+the resulting function will always have exactly one upvalue,
+the <code>_ENV</code> variable (see <a href="#2.2">§2.2</a>).
+However,
+when you load a binary chunk created from a function (see <a href="#pdf-string.dump"><code>string.dump</code></a>),
+the resulting function can have an arbitrary number of upvalues,
+and there is no guarantee that its first upvalue will be
+the <code>_ENV</code> variable.
+(A non-main function may not even have an <code>_ENV</code> upvalue.)
+
+
+</p><p>
+Regardless, if the resulting function has any upvalues,
+its first upvalue is set to the value of <code>env</code>,
+if that parameter is given,
+or to the value of the global environment.
+Other upvalues are initialized with <b>nil</b>.
+All upvalues are fresh, that is,
+they are not shared with any other function.
+
+
+</p><p>
+<code>chunkname</code> is used as the name of the chunk for error messages
+and debug information (see <a href="#4.7">§4.7</a>).
+When absent,
+it defaults to <code>chunk</code>, if <code>chunk</code> is a string,
+or to "<code>=(load)</code>" otherwise.
+
+
+</p><p>
+The string <code>mode</code> controls whether the chunk can be text or binary
+(that is, a precompiled chunk).
+It may be the string "<code>b</code>" (only binary chunks),
+"<code>t</code>" (only text chunks),
+or "<code>bt</code>" (both binary and text).
+The default is "<code>bt</code>".
+
+
+</p><p>
+It is safe to load malformed binary chunks;
+<code>load</code> signals an appropriate error.
+However,
+Lua does not check the consistency of the code inside binary chunks;
+running maliciously crafted bytecode can crash the interpreter.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-loadfile"><code>loadfile ([filename [, mode [, env]]])</code></a></h3>
+
+
+<p>
+Similar to <a href="#pdf-load"><code>load</code></a>,
+but gets the chunk from file <code>filename</code>
+or from the standard input,
+if no file name is given.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-next"><code>next (table [, index])</code></a></h3>
+
+
+<p>
+Allows a program to traverse all fields of a table.
+Its first argument is a table and its second argument
+is an index in this table.
+A call to <code>next</code> returns the next index of the table
+and its associated value.
+When called with <b>nil</b> as its second argument,
+<code>next</code> returns an initial index
+and its associated value.
+When called with the last index,
+or with <b>nil</b> in an empty table,
+<code>next</code> returns <b>nil</b>.
+If the second argument is absent, then it is interpreted as <b>nil</b>.
+In particular,
+you can use <code>next(t)</code> to check whether a table is empty.
+
+
+</p><p>
+The order in which the indices are enumerated is not specified,
+<em>even for numeric indices</em>.
+(To traverse a table in numerical order,
+use a numerical <b>for</b>.)
+
+
+</p><p>
+You should not assign any value to a non-existent field in a table
+during its traversal.
+You may however modify existing fields.
+In particular, you may set existing fields to nil.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-pairs"><code>pairs (t)</code></a></h3>
+
+
+<p>
+If <code>t</code> has a metamethod <code>__pairs</code>,
+calls it with <code>t</code> as argument and returns the first three
+results from the call.
+
+
+</p><p>
+Otherwise,
+returns three values: the <a href="#pdf-next"><code>next</code></a> function, the table <code>t</code>, and <b>nil</b>,
+so that the construction
+
+</p><pre>     for k,v in pairs(t) do <em>body</em> end
+</pre><p>
+will iterate over all key–value pairs of table <code>t</code>.
+
+
+</p><p>
+See function <a href="#pdf-next"><code>next</code></a> for the caveats of modifying
+the table during its traversal.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-pcall"><code>pcall (f [, arg1, ···])</code></a></h3>
+
+
+<p>
+Calls the function <code>f</code> with
+the given arguments in <em>protected mode</em>.
+This means that any error inside&nbsp;<code>f</code> is not propagated;
+instead, <code>pcall</code> catches the error
+and returns a status code.
+Its first result is the status code (a boolean),
+which is <b>true</b> if the call succeeds without errors.
+In such case, <code>pcall</code> also returns all results from the call,
+after this first result.
+In case of any error, <code>pcall</code> returns <b>false</b> plus the error object.
+Note that errors caught by <code>pcall</code> do not call a message handler.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-print"><code>print (···)</code></a></h3>
+Receives any number of arguments
+and prints their values to <code>stdout</code>,
+converting each argument to a string
+following the same rules of <a href="#pdf-tostring"><code>tostring</code></a>.
+
+
+<p>
+The function <code>print</code> is not intended for formatted output,
+but only as a quick way to show a value,
+for instance for debugging.
+For complete control over the output,
+use <a href="#pdf-string.format"><code>string.format</code></a> and <a href="#pdf-io.write"><code>io.write</code></a>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-rawequal"><code>rawequal (v1, v2)</code></a></h3>
+Checks whether <code>v1</code> is equal to <code>v2</code>,
+without invoking the <code>__eq</code> metamethod.
+Returns a boolean.
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-rawget"><code>rawget (table, index)</code></a></h3>
+Gets the real value of <code>table[index]</code>,
+without using the <code>__index</code> metavalue.
+<code>table</code> must be a table;
+<code>index</code> may be any value.
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-rawlen"><code>rawlen (v)</code></a></h3>
+Returns the length of the object <code>v</code>,
+which must be a table or a string,
+without invoking the <code>__len</code> metamethod.
+Returns an integer.
+
+
+
+
+<p>
+</p><hr><h3><a name="pdf-rawset"><code>rawset (table, index, value)</code></a></h3>
+Sets the real value of <code>table[index]</code> to <code>value</code>,
+without using the <code>__newindex</code> metavalue.
+<code>table</code> must be a table,
+<code>index</code> any value different from <b>nil</b> and NaN,
+and <code>value</code> any Lua value.
+
+
+<p>
+This function returns <code>table</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-select"><code>select (index, ···)</code></a></h3>
+
+
+<p>
+If <code>index</code> is a number,
+returns all arguments after argument number <code>index</code>;
+a negative number indexes from the end (-1 is the last argument).
+Otherwise, <code>index</code> must be the string <code>"#"</code>,
+and <code>select</code> returns the total number of extra arguments it received.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-setmetatable"><code>setmetatable (table, metatable)</code></a></h3>
+
+
+<p>
+Sets the metatable for the given table.
+If <code>metatable</code> is <b>nil</b>,
+removes the metatable of the given table.
+If the original metatable has a <code>__metatable</code> field,
+raises an error.
+
+
+</p><p>
+This function returns <code>table</code>.
+
+
+</p><p>
+To change the metatable of other types from Lua code,
+you must use the debug library (<a href="#6.10">§6.10</a>).
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-tonumber"><code>tonumber (e [, base])</code></a></h3>
+
+
+<p>
+When called with no <code>base</code>,
+<code>tonumber</code> tries to convert its argument to a number.
+If the argument is already a number or
+a string convertible to a number,
+then <code>tonumber</code> returns this number;
+otherwise, it returns <b>fail</b>.
+
+
+</p><p>
+The conversion of strings can result in integers or floats,
+according to the lexical conventions of Lua (see <a href="#3.1">§3.1</a>).
+The string may have leading and trailing spaces and a sign.
+
+
+</p><p>
+When called with <code>base</code>,
+then <code>e</code> must be a string to be interpreted as
+an integer numeral in that base.
+The base may be any integer between 2 and 36, inclusive.
+In bases above&nbsp;10, the letter '<code>A</code>' (in either upper or lower case)
+represents&nbsp;10, '<code>B</code>' represents&nbsp;11, and so forth,
+with '<code>Z</code>' representing 35.
+If the string <code>e</code> is not a valid numeral in the given base,
+the function returns <b>fail</b>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-tostring"><code>tostring (v)</code></a></h3>
+
+
+<p>
+Receives a value of any type and
+converts it to a string in a human-readable format.
+
+
+</p><p>
+If the metatable of <code>v</code> has a <code>__tostring</code> field,
+then <code>tostring</code> calls the corresponding value
+with <code>v</code> as argument,
+and uses the result of the call as its result.
+Otherwise, if the metatable of <code>v</code> has a <code>__name</code> field
+with a string value,
+<code>tostring</code> may use that string in its final result.
+
+
+</p><p>
+For complete control of how numbers are converted,
+use <a href="#pdf-string.format"><code>string.format</code></a>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-type"><code>type (v)</code></a></h3>
+
+
+<p>
+Returns the type of its only argument, coded as a string.
+The possible results of this function are
+"<code>nil</code>" (a string, not the value <b>nil</b>),
+"<code>number</code>",
+"<code>string</code>",
+"<code>boolean</code>",
+"<code>table</code>",
+"<code>function</code>",
+"<code>thread</code>",
+and "<code>userdata</code>".
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-_VERSION"><code>_VERSION</code></a></h3>
+
+
+<p>
+A global variable (not a function) that
+holds a string containing the running Lua version.
+The current value of this variable is "<code>Lua 5.4</code>".
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-warn"><code>warn (msg1, ···)</code></a></h3>
+
+
+<p>
+Emits a warning with a message composed by the concatenation
+of all its arguments (which should be strings).
+
+
+</p><p>
+By convention,
+a one-piece message starting with '<code>@</code>'
+is intended to be a <em>control message</em>,
+which is a message to the warning system itself.
+In particular, the standard warning function in Lua
+recognizes the control messages "<code>@off</code>",
+to stop the emission of warnings,
+and "<code>@on</code>", to (re)start the emission;
+it ignores unknown control messages.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-xpcall"><code>xpcall (f, msgh [, arg1, ···])</code></a></h3>
+
+
+<p>
+This function is similar to <a href="#pdf-pcall"><code>pcall</code></a>,
+except that it sets a new message handler <code>msgh</code>.
+
+
+
+
+
+
+
+</p><h2>6.2 – <a name="6.2">Coroutine Manipulation</a></h2>
+
+<p>
+This library comprises the operations to manipulate coroutines,
+which come inside the table <a name="pdf-coroutine"><code>coroutine</code></a>.
+See <a href="#2.6">§2.6</a> for a general description of coroutines.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.close"><code>coroutine.close (co)</code></a></h3>
+
+
+<p>
+Closes coroutine <code>co</code>,
+that is,
+closes all its pending to-be-closed variables
+and puts the coroutine in a dead state.
+The given coroutine must be dead or suspended.
+In case of error
+(either the original error that stopped the coroutine or
+errors in closing methods),
+returns <b>false</b> plus the error object;
+otherwise returns <b>true</b>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.create"><code>coroutine.create (f)</code></a></h3>
+
+
+<p>
+Creates a new coroutine, with body <code>f</code>.
+<code>f</code> must be a function.
+Returns this new coroutine,
+an object with type <code>"thread"</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.isyieldable"><code>coroutine.isyieldable ([co])</code></a></h3>
+
+
+<p>
+Returns <b>true</b> when the coroutine <code>co</code> can yield.
+The default for <code>co</code> is the running coroutine.
+
+
+</p><p>
+A coroutine is yieldable if it is not the main thread and
+it is not inside a non-yieldable C&nbsp;function.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.resume"><code>coroutine.resume (co [, val1, ···])</code></a></h3>
+
+
+<p>
+Starts or continues the execution of coroutine <code>co</code>.
+The first time you resume a coroutine,
+it starts running its body.
+The values <code>val1</code>, ... are passed
+as the arguments to the body function.
+If the coroutine has yielded,
+<code>resume</code> restarts it;
+the values <code>val1</code>, ... are passed
+as the results from the yield.
+
+
+</p><p>
+If the coroutine runs without any errors,
+<code>resume</code> returns <b>true</b> plus any values passed to <code>yield</code>
+(when the coroutine yields) or any values returned by the body function
+(when the coroutine terminates).
+If there is any error,
+<code>resume</code> returns <b>false</b> plus the error message.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.running"><code>coroutine.running ()</code></a></h3>
+
+
+<p>
+Returns the running coroutine plus a boolean,
+<b>true</b> when the running coroutine is the main one.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.status"><code>coroutine.status (co)</code></a></h3>
+
+
+<p>
+Returns the status of the coroutine <code>co</code>, as a string:
+<code>"running"</code>,
+if the coroutine is running
+(that is, it is the one that called <code>status</code>);
+<code>"suspended"</code>, if the coroutine is suspended in a call to <code>yield</code>,
+or if it has not started running yet;
+<code>"normal"</code> if the coroutine is active but not running
+(that is, it has resumed another coroutine);
+and <code>"dead"</code> if the coroutine has finished its body function,
+or if it has stopped with an error.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.wrap"><code>coroutine.wrap (f)</code></a></h3>
+
+
+<p>
+Creates a new coroutine, with body <code>f</code>;
+<code>f</code> must be a function.
+Returns a function that resumes the coroutine each time it is called.
+Any arguments passed to this function behave as the
+extra arguments to <code>resume</code>.
+The function returns the same values returned by <code>resume</code>,
+except the first boolean.
+In case of error,
+the function closes the coroutine and propagates the error.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-coroutine.yield"><code>coroutine.yield (···)</code></a></h3>
+
+
+<p>
+Suspends the execution of the calling coroutine.
+Any arguments to <code>yield</code> are passed as extra results to <code>resume</code>.
+
+
+
+
+
+
+
+</p><h2>6.3 – <a name="6.3">Modules</a></h2>
+
+<p>
+The package library provides basic
+facilities for loading modules in Lua.
+It exports one function directly in the global environment:
+<a href="#pdf-require"><code>require</code></a>.
+Everything else is exported in the table <a name="pdf-package"><code>package</code></a>.
+
+
+</p><p>
+</p><hr><h3><a name="pdf-require"><code>require (modname)</code></a></h3>
+
+
+<p>
+Loads the given module.
+The function starts by looking into the <a href="#pdf-package.loaded"><code>package.loaded</code></a> table
+to determine whether <code>modname</code> is already loaded.
+If it is, then <code>require</code> returns the value stored
+at <code>package.loaded[modname]</code>.
+(The absence of a second result in this case
+signals that this call did not have to load the module.)
+Otherwise, it tries to find a <em>loader</em> for the module.
+
+
+</p><p>
+To find a loader,
+<code>require</code> is guided by the table <a href="#pdf-package.searchers"><code>package.searchers</code></a>.
+Each item in this table is a search function,
+that searches for the module in a particular way.
+By changing this table,
+we can change how <code>require</code> looks for a module.
+The following explanation is based on the default configuration
+for <a href="#pdf-package.searchers"><code>package.searchers</code></a>.
+
+
+</p><p>
+First <code>require</code> queries <code>package.preload[modname]</code>.
+If it has a value,
+this value (which must be a function) is the loader.
+Otherwise <code>require</code> searches for a Lua loader using the
+path stored in <a href="#pdf-package.path"><code>package.path</code></a>.
+If that also fails, it searches for a C&nbsp;loader using the
+path stored in <a href="#pdf-package.cpath"><code>package.cpath</code></a>.
+If that also fails,
+it tries an <em>all-in-one</em> loader (see <a href="#pdf-package.searchers"><code>package.searchers</code></a>).
+
+
+</p><p>
+Once a loader is found,
+<code>require</code> calls the loader with two arguments:
+<code>modname</code> and an extra value,
+a <em>loader data</em>,
+also returned by the searcher.
+The loader data can be any value useful to the module;
+for the default searchers,
+it indicates where the loader was found.
+(For instance, if the loader came from a file,
+this extra value is the file path.)
+If the loader returns any non-nil value,
+<code>require</code> assigns the returned value to <code>package.loaded[modname]</code>.
+If the loader does not return a non-nil value and
+has not assigned any value to <code>package.loaded[modname]</code>,
+then <code>require</code> assigns <b>true</b> to this entry.
+In any case, <code>require</code> returns the
+final value of <code>package.loaded[modname]</code>.
+Besides that value, <code>require</code> also returns as a second result
+the loader data returned by the searcher,
+which indicates how <code>require</code> found the module.
+
+
+</p><p>
+If there is any error loading or running the module,
+or if it cannot find any loader for the module,
+then <code>require</code> raises an error.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.config"><code>package.config</code></a></h3>
+
+
+<p>
+A string describing some compile-time configurations for packages.
+This string is a sequence of lines:
+
+</p><ul>
+
+<li>The first line is the directory separator string.
+Default is '<code>\</code>' for Windows and '<code>/</code>' for all other systems.</li>
+
+<li>The second line is the character that separates templates in a path.
+Default is '<code>;</code>'.</li>
+
+<li>The third line is the string that marks the
+substitution points in a template.
+Default is '<code>?</code>'.</li>
+
+<li>The fourth line is a string that, in a path in Windows,
+is replaced by the executable's directory.
+Default is '<code>!</code>'.</li>
+
+<li>The fifth line is a mark to ignore all text after it
+when building the <code>luaopen_</code> function name.
+Default is '<code>-</code>'.</li>
+
+</ul>
+
+
+
+<p>
+</p><hr><h3><a name="pdf-package.cpath"><code>package.cpath</code></a></h3>
+
+
+<p>
+A string with the path used by <a href="#pdf-require"><code>require</code></a>
+to search for a C&nbsp;loader.
+
+
+</p><p>
+Lua initializes the C&nbsp;path <a href="#pdf-package.cpath"><code>package.cpath</code></a> in the same way
+it initializes the Lua path <a href="#pdf-package.path"><code>package.path</code></a>,
+using the environment variable <a name="pdf-LUA_CPATH_5_4"><code>LUA_CPATH_5_4</code></a>,
+or the environment variable <a name="pdf-LUA_CPATH"><code>LUA_CPATH</code></a>,
+or a default path defined in <code>luaconf.h</code>.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.loaded"><code>package.loaded</code></a></h3>
+
+
+<p>
+A table used by <a href="#pdf-require"><code>require</code></a> to control which
+modules are already loaded.
+When you require a module <code>modname</code> and
+<code>package.loaded[modname]</code> is not false,
+<a href="#pdf-require"><code>require</code></a> simply returns the value stored there.
+
+
+</p><p>
+This variable is only a reference to the real table;
+assignments to this variable do not change the
+table used by <a href="#pdf-require"><code>require</code></a>.
+The real table is stored in the C registry (see <a href="#4.3">§4.3</a>),
+indexed by the key <a name="pdf-LUA_LOADED_TABLE"><code>LUA_LOADED_TABLE</code></a>, a string.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.loadlib"><code>package.loadlib (libname, funcname)</code></a></h3>
+
+
+<p>
+Dynamically links the host program with the C&nbsp;library <code>libname</code>.
+
+
+</p><p>
+If <code>funcname</code> is "<code>*</code>",
+then it only links with the library,
+making the symbols exported by the library
+available to other dynamically linked libraries.
+Otherwise,
+it looks for a function <code>funcname</code> inside the library
+and returns this function as a C&nbsp;function.
+So, <code>funcname</code> must follow the <a href="#lua_CFunction"><code>lua_CFunction</code></a> prototype
+(see <a href="#lua_CFunction"><code>lua_CFunction</code></a>).
+
+
+</p><p>
+This is a low-level function.
+It completely bypasses the package and module system.
+Unlike <a href="#pdf-require"><code>require</code></a>,
+it does not perform any path searching and
+does not automatically adds extensions.
+<code>libname</code> must be the complete file name of the C&nbsp;library,
+including if necessary a path and an extension.
+<code>funcname</code> must be the exact name exported by the C&nbsp;library
+(which may depend on the C&nbsp;compiler and linker used).
+
+
+</p><p>
+This functionality is not supported by ISO&nbsp;C.
+As such, it is only available on some platforms
+(Windows, Linux, Mac OS X, Solaris, BSD,
+plus other Unix systems that support the <code>dlfcn</code> standard).
+
+
+</p><p>
+This function is inherently insecure,
+as it allows Lua to call any function in any readable dynamic
+library in the system.
+(Lua calls any function assuming the function
+has a proper prototype and respects a proper protocol
+(see <a href="#lua_CFunction"><code>lua_CFunction</code></a>).
+Therefore,
+calling an arbitrary function in an arbitrary dynamic library
+more often than not results in an access violation.)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.path"><code>package.path</code></a></h3>
+
+
+<p>
+A string with the path used by <a href="#pdf-require"><code>require</code></a>
+to search for a Lua loader.
+
+
+</p><p>
+At start-up, Lua initializes this variable with
+the value of the environment variable <a name="pdf-LUA_PATH_5_4"><code>LUA_PATH_5_4</code></a> or
+the environment variable <a name="pdf-LUA_PATH"><code>LUA_PATH</code></a> or
+with a default path defined in <code>luaconf.h</code>,
+if those environment variables are not defined.
+A "<code>;;</code>" in the value of the environment variable
+is replaced by the default path.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.preload"><code>package.preload</code></a></h3>
+
+
+<p>
+A table to store loaders for specific modules
+(see <a href="#pdf-require"><code>require</code></a>).
+
+
+</p><p>
+This variable is only a reference to the real table;
+assignments to this variable do not change the
+table used by <a href="#pdf-require"><code>require</code></a>.
+The real table is stored in the C registry (see <a href="#4.3">§4.3</a>),
+indexed by the key <a name="pdf-LUA_PRELOAD_TABLE"><code>LUA_PRELOAD_TABLE</code></a>, a string.
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.searchers"><code>package.searchers</code></a></h3>
+
+
+<p>
+A table used by <a href="#pdf-require"><code>require</code></a> to control how to find modules.
+
+
+</p><p>
+Each entry in this table is a <em>searcher function</em>.
+When looking for a module,
+<a href="#pdf-require"><code>require</code></a> calls each of these searchers in ascending order,
+with the module name (the argument given to <a href="#pdf-require"><code>require</code></a>) as its
+sole argument.
+If the searcher finds the module,
+it returns another function, the module <em>loader</em>,
+plus an extra value, a <em>loader data</em>,
+that will be passed to that loader and
+returned as a second result by <a href="#pdf-require"><code>require</code></a>.
+If it cannot find the module,
+it returns a string explaining why
+(or <b>nil</b> if it has nothing to say).
+
+
+</p><p>
+Lua initializes this table with four searcher functions.
+
+
+</p><p>
+The first searcher simply looks for a loader in the
+<a href="#pdf-package.preload"><code>package.preload</code></a> table.
+
+
+</p><p>
+The second searcher looks for a loader as a Lua library,
+using the path stored at <a href="#pdf-package.path"><code>package.path</code></a>.
+The search is done as described in function <a href="#pdf-package.searchpath"><code>package.searchpath</code></a>.
+
+
+</p><p>
+The third searcher looks for a loader as a C&nbsp;library,
+using the path given by the variable <a href="#pdf-package.cpath"><code>package.cpath</code></a>.
+Again,
+the search is done as described in function <a href="#pdf-package.searchpath"><code>package.searchpath</code></a>.
+For instance,
+if the C&nbsp;path is the string
+
+</p><pre>     "./?.so;./?.dll;/usr/local/?/init.so"
+</pre><p>
+the searcher for module <code>foo</code>
+will try to open the files <code>./foo.so</code>, <code>./foo.dll</code>,
+and <code>/usr/local/foo/init.so</code>, in that order.
+Once it finds a C&nbsp;library,
+this searcher first uses a dynamic link facility to link the
+application with the library.
+Then it tries to find a C&nbsp;function inside the library to
+be used as the loader.
+The name of this C&nbsp;function is the string "<code>luaopen_</code>"
+concatenated with a copy of the module name where each dot
+is replaced by an underscore.
+Moreover, if the module name has a hyphen,
+its suffix after (and including) the first hyphen is removed.
+For instance, if the module name is <code>a.b.c-v2.1</code>,
+the function name will be <code>luaopen_a_b_c</code>.
+
+
+</p><p>
+The fourth searcher tries an <em>all-in-one loader</em>.
+It searches the C&nbsp;path for a library for
+the root name of the given module.
+For instance, when requiring <code>a.b.c</code>,
+it will search for a C&nbsp;library for <code>a</code>.
+If found, it looks into it for an open function for
+the submodule;
+in our example, that would be <code>luaopen_a_b_c</code>.
+With this facility, a package can pack several C&nbsp;submodules
+into one single library,
+with each submodule keeping its original open function.
+
+
+</p><p>
+All searchers except the first one (preload) return as the extra value
+the file path where the module was found,
+as returned by <a href="#pdf-package.searchpath"><code>package.searchpath</code></a>.
+The first searcher always returns the string "<code>:preload:</code>".
+
+
+</p><p>
+Searchers should raise no errors and have no side effects in Lua.
+(They may have side effects in C,
+for instance by linking the application with a library.)
+
+
+
+
+</p><p>
+</p><hr><h3><a name="pdf-package.searchpath"><code>package.searchpath (name, path [, sep [, rep]])</code></a></h3>
+
+
+<p>
+Searches for the given <code>name</code> in the given <code>path</code>.
+
+
+</p><p>
+A path is a string containing a sequence of
+<em>templates</em> separated by semicolons.
+For each template,
+the function replaces each interrogation mark (if any)
+in the template with a copy of <code>name</code>
+wherein all occurrences of <code>sep</code>
+(a dot, by default)
+were replaced by <code>rep</code>
+(the system's directory separator, by default),
+and then tries to open the resulting file name.
+
+
+</p><p>
+For instance, if the path is the string
+
+</p><pre>     "./?.lua;./?.lc;/usr/local/?/init.lua"
+</pre><p>
+the search for the name <code>foo.a</code>
+will try to open the files
+<code>./foo/a.lua</code>, <code>./foo/a.lc</code>, and
+<code>/usr/local/foo/a/init.lua</code>, in that order.
+
+
+</p><p>
+Returns the resulting name of the first file that it can
+open in read mode (after closing the file),
+or <b>fail</b> plus an error message if none succeeds.
+(This error message lists all file names it tried to open.)
+
+
+
+
+
+
+
+</p><h2>6.4 – <a name="6.4">String Manipulation</a></h2>
+
+
+
+<p>
+This library provides generic functions for string manipulation,
+such as finding and extracting substrings, and pattern matching.
+When indexing a string in Lua, the first character is at position&nbsp;1
+(not at&nbsp;0, as in C).
+Indices are allowed to be negative and are interpreted as indexing backwards,
+from the end of the string.
+Thus, the last character is at position -1, and so on.
+
+
+</p><p>
+<!-- slice ends -->

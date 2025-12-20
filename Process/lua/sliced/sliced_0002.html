@@ -1,0 +1,1491 @@
+<!-- slice index: 2 -->
+<!-- lines 1497–2984 / total 11964 -->
+<!-- title: 3.4 – Expressions -->
+Lua has <em>empty statements</em>
+that allow you to separate statements with semicolons,
+start a block with a semicolon
+or write two semicolons in sequence:
+
+</p><pre>	stat ::= ‘<b>;</b>’
+</pre>
+
+<p>
+Both function calls and assignments
+can start with an open parenthesis.
+This possibility leads to an ambiguity in Lua's grammar.
+Consider the following fragment:
+
+</p><pre>     a = b + c
+     (print or io.write)('done')
+</pre><p>
+The grammar could see this fragment in two ways:
+
+</p><pre>     a = b + c(print or io.write)('done')
+     
+     a = b + c; (print or io.write)('done')
+</pre><p>
+The current parser always sees such constructions
+in the first way,
+interpreting the open parenthesis
+as the start of the arguments to a call.
+To avoid this ambiguity,
+it is a good practice to always precede with a semicolon
+statements that start with a parenthesis:
+
+</p><pre>     ;(print or io.write)('done')
+</pre>
+
+<p>
+A block can be explicitly delimited to produce a single statement:
+
+</p><pre>	stat ::= <b>do</b> block <b>end</b>
+</pre><p>
+Explicit blocks are useful
+to control the scope of variable declarations.
+Explicit blocks are also sometimes used to
+add a <b>return</b> statement in the middle
+of another block (see <a href="#3.3.4">§3.3.4</a>).
+
+
+
+
+
+</p><h3>3.3.2 – <a name="3.3.2">Chunks</a></h3>
+
+<p>
+The unit of compilation of Lua is called a <em>chunk</em>.
+Syntactically,
+a chunk is simply a block:
+
+</p><pre>	chunk ::= block
+</pre>
+
+<p>
+Lua handles a chunk as the body of an anonymous function
+with a variable number of arguments
+(see <a href="#3.4.11">§3.4.11</a>).
+As such, chunks can define local variables,
+receive arguments, and return values.
+Moreover, such anonymous function is compiled as in the
+scope of an external local variable called <code>_ENV</code> (see <a href="#2.2">§2.2</a>).
+The resulting function always has <code>_ENV</code> as its only external variable,
+even if it does not use that variable.
+
+
+</p><p>
+A chunk can be stored in a file or in a string inside the host program.
+To execute a chunk,
+Lua first <em>loads</em> it,
+precompiling the chunk's code into instructions for a virtual machine,
+and then Lua executes the compiled code
+with an interpreter for the virtual machine.
+
+
+</p><p>
+Chunks can also be precompiled into binary form;
+see the program <code>luac</code> and the function <a href="#pdf-string.dump"><code>string.dump</code></a> for details.
+Programs in source and compiled forms are interchangeable;
+Lua automatically detects the file type and acts accordingly (see <a href="#pdf-load"><code>load</code></a>).
+
+
+
+
+
+</p><h3>3.3.3 – <a name="3.3.3">Assignment</a></h3>
+
+<p>
+Lua allows multiple assignments.
+Therefore, the syntax for assignment
+defines a list of variables on the left side
+and a list of expressions on the right side.
+The elements in both lists are separated by commas:
+
+</p><pre>	stat ::= varlist ‘<b>=</b>’ explist
+	varlist ::= var {‘<b>,</b>’ var}
+	explist ::= exp {‘<b>,</b>’ exp}
+</pre><p>
+Expressions are discussed in <a href="#3.4">§3.4</a>.
+
+
+</p><p>
+Before the assignment,
+the list of values is <em>adjusted</em> to the length of
+the list of variables (see <a href="#3.4.12">§3.4.12</a>).
+
+
+</p><p>
+If a variable is both assigned and read
+inside a multiple assignment,
+Lua ensures that all reads get the value of the variable
+before the assignment.
+Thus the code
+
+</p><pre>     i = 3
+     i, a[i] = i+1, 20
+</pre><p>
+sets <code>a[3]</code> to 20, without affecting <code>a[4]</code>
+because the <code>i</code> in <code>a[i]</code> is evaluated (to 3)
+before it is assigned&nbsp;4.
+Similarly, the line
+
+</p><pre>     x, y = y, x
+</pre><p>
+exchanges the values of <code>x</code> and <code>y</code>,
+and
+
+</p><pre>     x, y, z = y, z, x
+</pre><p>
+cyclically permutes the values of <code>x</code>, <code>y</code>, and <code>z</code>.
+
+
+</p><p>
+Note that this guarantee covers only accesses
+syntactically inside the assignment statement.
+If a function or a metamethod called during the assignment
+changes the value of a variable,
+Lua gives no guarantees about the order of that access.
+
+
+</p><p>
+An assignment to a global name <code>x = val</code>
+is equivalent to the assignment
+<code>_ENV.x = val</code> (see <a href="#2.2">§2.2</a>).
+
+
+</p><p>
+The meaning of assignments to table fields and
+global variables (which are actually table fields, too)
+can be changed via metatables (see <a href="#2.4">§2.4</a>).
+
+
+
+
+
+</p><h3>3.3.4 – <a name="3.3.4">Control Structures</a></h3><p>
+The control structures
+<b>if</b>, <b>while</b>, and <b>repeat</b> have the usual meaning and
+familiar syntax:
+
+
+
+
+</p><pre>	stat ::= <b>while</b> exp <b>do</b> block <b>end</b>
+	stat ::= <b>repeat</b> block <b>until</b> exp
+	stat ::= <b>if</b> exp <b>then</b> block {<b>elseif</b> exp <b>then</b> block} [<b>else</b> block] <b>end</b>
+</pre><p>
+Lua also has a <b>for</b> statement, in two flavors (see <a href="#3.3.5">§3.3.5</a>).
+
+
+</p><p>
+The condition expression of a
+control structure can return any value.
+Both <b>false</b> and <b>nil</b> test false.
+All values different from <b>nil</b> and <b>false</b> test true.
+In particular, the number 0 and the empty string also test true.
+
+
+</p><p>
+In the <b>repeat</b>–<b>until</b> loop,
+the inner block does not end at the <b>until</b> keyword,
+but only after the condition.
+So, the condition can refer to local variables
+declared inside the loop block.
+
+
+</p><p>
+The <b>goto</b> statement transfers the program control to a label.
+For syntactical reasons,
+labels in Lua are considered statements too:
+
+
+
+</p><pre>	stat ::= <b>goto</b> Name
+	stat ::= label
+	label ::= ‘<b>::</b>’ Name ‘<b>::</b>’
+</pre>
+
+<p>
+A label is visible in the entire block where it is defined,
+except inside nested functions.
+A goto can jump to any visible label as long as it does not
+enter into the scope of a local variable.
+A label should not be declared
+where a label with the same name is visible,
+even if this other label has been declared in an enclosing block.
+
+
+</p><p>
+The <b>break</b> statement terminates the execution of a
+<b>while</b>, <b>repeat</b>, or <b>for</b> loop,
+skipping to the next statement after the loop:
+
+
+</p><pre>	stat ::= <b>break</b>
+</pre><p>
+A <b>break</b> ends the innermost enclosing loop.
+
+
+</p><p>
+The <b>return</b> statement is used to return values
+from a function or a chunk
+(which is handled as an anonymous function).
+
+Functions can return more than one value,
+so the syntax for the <b>return</b> statement is
+
+</p><pre>	stat ::= <b>return</b> [explist] [‘<b>;</b>’]
+</pre>
+
+<p>
+The <b>return</b> statement can only be written
+as the last statement of a block.
+If it is necessary to <b>return</b> in the middle of a block,
+then an explicit inner block can be used,
+as in the idiom <code>do return end</code>,
+because now <b>return</b> is the last statement in its (inner) block.
+
+
+
+
+
+</p><h3>3.3.5 – <a name="3.3.5">For Statement</a></h3>
+
+<p>
+
+The <b>for</b> statement has two forms:
+one numerical and one generic.
+
+
+
+</p><h4>The numerical <b>for</b> loop</h4>
+
+<p>
+The numerical <b>for</b> loop repeats a block of code while a
+control variable goes through an arithmetic progression.
+It has the following syntax:
+
+</p><pre>	stat ::= <b>for</b> Name ‘<b>=</b>’ exp ‘<b>,</b>’ exp [‘<b>,</b>’ exp] <b>do</b> block <b>end</b>
+</pre><p>
+The given identifier (Name) defines the control variable,
+which is a new variable local to the loop body (<em>block</em>).
+
+
+</p><p>
+The loop starts by evaluating once the three control expressions.
+Their values are called respectively
+the <em>initial value</em>, the <em>limit</em>, and the <em>step</em>.
+If the step is absent, it defaults to&nbsp;1.
+
+
+</p><p>
+If both the initial value and the step are integers,
+the loop is done with integers;
+note that the limit may not be an integer.
+Otherwise, the three values are converted to
+floats and the loop is done with floats.
+Beware of floating-point accuracy in this case.
+
+
+</p><p>
+After that initialization,
+the loop body is repeated with the value of the control variable
+going through an arithmetic progression,
+starting at the initial value,
+with a common difference given by the step.
+A negative step makes a decreasing sequence;
+a step equal to zero raises an error.
+The loop continues while the value is less than
+or equal to the limit
+(greater than or equal to for a negative step).
+If the initial value is already greater than the limit
+(or less than, if the step is negative),
+the body is not executed.
+
+
+</p><p>
+For integer loops,
+the control variable never wraps around;
+instead, the loop ends in case of an overflow.
+
+
+</p><p>
+You should not change the value of the control variable
+during the loop.
+If you need its value after the loop,
+assign it to another variable before exiting the loop.
+
+
+
+
+
+</p><h4>The generic <b>for</b> loop</h4>
+
+<p>
+The generic <b>for</b> statement works over functions,
+called <em>iterators</em>.
+On each iteration, the iterator function is called to produce a new value,
+stopping when this new value is <b>nil</b>.
+The generic <b>for</b> loop has the following syntax:
+
+</p><pre>	stat ::= <b>for</b> namelist <b>in</b> explist <b>do</b> block <b>end</b>
+	namelist ::= Name {‘<b>,</b>’ Name}
+</pre><p>
+A <b>for</b> statement like
+
+</p><pre>     for <em>var_1</em>, ···, <em>var_n</em> in <em>explist</em> do <em>body</em> end
+</pre><p>
+works as follows.
+
+
+</p><p>
+The names <em>var_i</em> declare loop variables local to the loop body.
+The first of these variables is the <em>control variable</em>.
+
+
+</p><p>
+The loop starts by evaluating <em>explist</em>
+to produce four values:
+an <em>iterator function</em>,
+a <em>state</em>,
+an initial value for the control variable,
+and a <em>closing value</em>.
+
+
+</p><p>
+Then, at each iteration,
+Lua calls the iterator function with two arguments:
+the state and the control variable.
+The results from this call are then assigned to the loop variables,
+following the rules of multiple assignments (see <a href="#3.3.3">§3.3.3</a>).
+If the control variable becomes <b>nil</b>,
+the loop terminates.
+Otherwise, the body is executed and the loop goes
+to the next iteration.
+
+
+</p><p>
+The closing value behaves like a
+to-be-closed variable (see <a href="#3.3.8">§3.3.8</a>),
+which can be used to release resources when the loop ends.
+Otherwise, it does not interfere with the loop.
+
+
+</p><p>
+You should not change the value of the control variable
+during the loop.
+
+
+
+
+
+
+
+</p><h3>3.3.6 – <a name="3.3.6">Function Calls as Statements</a></h3><p>
+To allow possible side-effects,
+function calls can be executed as statements:
+
+</p><pre>	stat ::= functioncall
+</pre><p>
+In this case, all returned values are thrown away.
+Function calls are explained in <a href="#3.4.10">§3.4.10</a>.
+
+
+
+
+
+</p><h3>3.3.7 – <a name="3.3.7">Local Declarations</a></h3><p>
+Local variables can be declared anywhere inside a block.
+The declaration can include an initialization:
+
+</p><pre>	stat ::= <b>local</b> attnamelist [‘<b>=</b>’ explist]
+	attnamelist ::=  Name attrib {‘<b>,</b>’ Name attrib}
+</pre><p>
+If present, an initial assignment has the same semantics
+of a multiple assignment (see <a href="#3.3.3">§3.3.3</a>).
+Otherwise, all variables are initialized with <b>nil</b>.
+
+
+</p><p>
+Each variable name may be postfixed by an attribute
+(a name between angle brackets):
+
+</p><pre>	attrib ::= [‘<b>&lt;</b>’ Name ‘<b>&gt;</b>’]
+</pre><p>
+There are two possible attributes:
+<code>const</code>, which declares a constant variable,
+that is, a variable that cannot be assigned to
+after its initialization;
+and <code>close</code>, which declares a to-be-closed variable (see <a href="#3.3.8">§3.3.8</a>).
+A list of variables can contain at most one to-be-closed variable.
+
+
+</p><p>
+A chunk is also a block (see <a href="#3.3.2">§3.3.2</a>),
+and so local variables can be declared in a chunk outside any explicit block.
+
+
+</p><p>
+The visibility rules for local variables are explained in <a href="#3.5">§3.5</a>.
+
+
+
+
+
+</p><h3>3.3.8 – <a name="3.3.8">To-be-closed Variables</a></h3>
+
+<p>
+A to-be-closed variable behaves like a constant local variable,
+except that its value is <em>closed</em> whenever the variable
+goes out of scope, including normal block termination,
+exiting its block by <b>break</b>/<b>goto</b>/<b>return</b>,
+or exiting by an error.
+
+
+</p><p>
+Here, to <em>close</em> a value means
+to call its <code>__close</code> metamethod.
+When calling the metamethod,
+the value itself is passed as the first argument
+and the error object that caused the exit (if any)
+is passed as a second argument;
+if there was no error, the second argument is <b>nil</b>.
+
+
+</p><p>
+The value assigned to a to-be-closed variable
+must have a <code>__close</code> metamethod
+or be a false value.
+(<b>nil</b> and <b>false</b> are ignored as to-be-closed values.)
+
+
+</p><p>
+If several to-be-closed variables go out of scope at the same event,
+they are closed in the reverse order that they were declared.
+
+
+</p><p>
+If there is any error while running a closing method,
+that error is handled like an error in the regular code
+where the variable was defined.
+After an error,
+the other pending closing methods will still be called.
+
+
+</p><p>
+If a coroutine yields and is never resumed again,
+some variables may never go out of scope,
+and therefore they will never be closed.
+(These variables are the ones created inside the coroutine
+and in scope at the point where the coroutine yielded.)
+Similarly, if a coroutine ends with an error,
+it does not unwind its stack,
+so it does not close any variable.
+In both cases,
+you can either use finalizers
+or call <a href="#pdf-coroutine.close"><code>coroutine.close</code></a> to close the variables.
+However, if the coroutine was created
+through <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a>,
+then its corresponding function will close the coroutine
+in case of errors.
+
+
+
+
+
+
+
+</p><h2>3.4 – <a name="3.4">Expressions</a></h2>
+
+
+
+<p>
+The basic expressions in Lua are the following:
+
+</p><pre>	exp ::= prefixexp
+	exp ::= <b>nil</b> | <b>false</b> | <b>true</b>
+	exp ::= Numeral
+	exp ::= LiteralString
+	exp ::= functiondef
+	exp ::= tableconstructor
+	exp ::= ‘<b>...</b>’
+	exp ::= exp binop exp
+	exp ::= unop exp
+	prefixexp ::= var | functioncall | ‘<b>(</b>’ exp ‘<b>)</b>’
+</pre>
+
+<p>
+Numerals and literal strings are explained in <a href="#3.1">§3.1</a>;
+variables are explained in <a href="#3.2">§3.2</a>;
+function definitions are explained in <a href="#3.4.11">§3.4.11</a>;
+function calls are explained in <a href="#3.4.10">§3.4.10</a>;
+table constructors are explained in <a href="#3.4.9">§3.4.9</a>.
+Vararg expressions,
+denoted by three dots ('<code>...</code>'), can only be used when
+directly inside a variadic function;
+they are explained in <a href="#3.4.11">§3.4.11</a>.
+
+
+</p><p>
+Binary operators comprise arithmetic operators (see <a href="#3.4.1">§3.4.1</a>),
+bitwise operators (see <a href="#3.4.2">§3.4.2</a>),
+relational operators (see <a href="#3.4.4">§3.4.4</a>), logical operators (see <a href="#3.4.5">§3.4.5</a>),
+and the concatenation operator (see <a href="#3.4.6">§3.4.6</a>).
+Unary operators comprise the unary minus (see <a href="#3.4.1">§3.4.1</a>),
+the unary bitwise NOT (see <a href="#3.4.2">§3.4.2</a>),
+the unary logical <b>not</b> (see <a href="#3.4.5">§3.4.5</a>),
+and the unary <em>length operator</em> (see <a href="#3.4.7">§3.4.7</a>).
+
+
+
+
+
+</p><h3>3.4.1 – <a name="3.4.1">Arithmetic Operators</a></h3><p>
+Lua supports the following arithmetic operators:
+
+</p><ul>
+<li><b><code>+</code>: </b>addition</li>
+<li><b><code>-</code>: </b>subtraction</li>
+<li><b><code>*</code>: </b>multiplication</li>
+<li><b><code>/</code>: </b>float division</li>
+<li><b><code>//</code>: </b>floor division</li>
+<li><b><code>%</code>: </b>modulo</li>
+<li><b><code>^</code>: </b>exponentiation</li>
+<li><b><code>-</code>: </b>unary minus</li>
+</ul>
+
+<p>
+With the exception of exponentiation and float division,
+the arithmetic operators work as follows:
+If both operands are integers,
+the operation is performed over integers and the result is an integer.
+Otherwise, if both operands are numbers,
+then they are converted to floats,
+the operation is performed following the machine's rules
+for floating-point arithmetic
+(usually the IEEE 754 standard),
+and the result is a float.
+(The string library coerces strings to numbers in
+arithmetic operations; see <a href="#3.4.3">§3.4.3</a> for details.)
+
+
+</p><p>
+Exponentiation and float division (<code>/</code>)
+always convert their operands to floats
+and the result is always a float.
+Exponentiation uses the ISO&nbsp;C function <code>pow</code>,
+so that it works for non-integer exponents too.
+
+
+</p><p>
+Floor division (<code>//</code>) is a division
+that rounds the quotient towards minus infinity,
+resulting in the floor of the division of its operands.
+
+
+</p><p>
+Modulo is defined as the remainder of a division
+that rounds the quotient towards minus infinity (floor division).
+
+
+</p><p>
+In case of overflows in integer arithmetic,
+all operations <em>wrap around</em>.
+
+
+
+</p><h3>3.4.2 – <a name="3.4.2">Bitwise Operators</a></h3><p>
+Lua supports the following bitwise operators:
+
+</p><ul>
+<li><b><code>&amp;</code>: </b>bitwise AND</li>
+<li><b><code>|</code>: </b>bitwise OR</li>
+<li><b><code>~</code>: </b>bitwise exclusive OR</li>
+<li><b><code>&gt;&gt;</code>: </b>right shift</li>
+<li><b><code>&lt;&lt;</code>: </b>left shift</li>
+<li><b><code>~</code>: </b>unary bitwise NOT</li>
+</ul>
+
+<p>
+All bitwise operations convert its operands to integers
+(see <a href="#3.4.3">§3.4.3</a>),
+operate on all bits of those integers,
+and result in an integer.
+
+
+</p><p>
+Both right and left shifts fill the vacant bits with zeros.
+Negative displacements shift to the other direction;
+displacements with absolute values equal to or higher than
+the number of bits in an integer
+result in zero (as all bits are shifted out).
+
+
+
+
+
+</p><h3>3.4.3 – <a name="3.4.3">Coercions and Conversions</a></h3><p>
+Lua provides some automatic conversions between some
+types and representations at run time.
+Bitwise operators always convert float operands to integers.
+Exponentiation and float division
+always convert integer operands to floats.
+All other arithmetic operations applied to mixed numbers
+(integers and floats) convert the integer operand to a float.
+The C API also converts both integers to floats and
+floats to integers, as needed.
+Moreover, string concatenation accepts numbers as arguments,
+besides strings.
+
+
+</p><p>
+In a conversion from integer to float,
+if the integer value has an exact representation as a float,
+that is the result.
+Otherwise,
+the conversion gets the nearest higher or
+the nearest lower representable value.
+This kind of conversion never fails.
+
+
+</p><p>
+The conversion from float to integer
+checks whether the float has an exact representation as an integer
+(that is, the float has an integral value and
+it is in the range of integer representation).
+If it does, that representation is the result.
+Otherwise, the conversion fails.
+
+
+</p><p>
+Several places in Lua coerce strings to numbers when necessary.
+In particular,
+the string library sets metamethods that try to coerce
+strings to numbers in all arithmetic operations.
+If the conversion fails,
+the library calls the metamethod of the other operand
+(if present) or it raises an error.
+Note that bitwise operators do not do this coercion.
+
+
+</p><p>
+It is always a good practice not to rely on the
+implicit coercions from strings to numbers,
+as they are not always applied;
+in particular, <code>"1"==1</code> is false and <code>"1"&lt;1</code> raises an error
+(see <a href="#3.4.4">§3.4.4</a>).
+These coercions exist mainly for compatibility and may be removed
+in future versions of the language.
+
+
+</p><p>
+A string is converted to an integer or a float
+following its syntax and the rules of the Lua lexer.
+The string may have also leading and trailing whitespaces and a sign.
+All conversions from strings to numbers
+accept both a dot and the current locale mark
+as the radix character.
+(The Lua lexer, however, accepts only a dot.)
+If the string is not a valid numeral,
+the conversion fails.
+If necessary, the result of this first step is then converted
+to a specific number subtype following the previous rules
+for conversions between floats and integers.
+
+
+</p><p>
+The conversion from numbers to strings uses a
+non-specified human-readable format.
+To convert numbers to strings in any specific way,
+use the function <a href="#pdf-string.format"><code>string.format</code></a>.
+
+
+
+
+
+</p><h3>3.4.4 – <a name="3.4.4">Relational Operators</a></h3><p>
+Lua supports the following relational operators:
+
+</p><ul>
+<li><b><code>==</code>: </b>equality</li>
+<li><b><code>~=</code>: </b>inequality</li>
+<li><b><code>&lt;</code>: </b>less than</li>
+<li><b><code>&gt;</code>: </b>greater than</li>
+<li><b><code>&lt;=</code>: </b>less or equal</li>
+<li><b><code>&gt;=</code>: </b>greater or equal</li>
+</ul><p>
+These operators always result in <b>false</b> or <b>true</b>.
+
+
+</p><p>
+Equality (<code>==</code>) first compares the type of its operands.
+If the types are different, then the result is <b>false</b>.
+Otherwise, the values of the operands are compared.
+Strings are equal if they have the same byte content.
+Numbers are equal if they denote the same mathematical value.
+
+
+</p><p>
+Tables, userdata, and threads
+are compared by reference:
+two objects are considered equal only if they are the same object.
+Every time you create a new object
+(a table, a userdata, or a thread),
+this new object is different from any previously existing object.
+A function is always equal to itself.
+Functions with any detectable difference
+(different behavior, different definition) are always different.
+Functions created at different times but with no detectable differences
+may be classified as equal or not
+(depending on internal caching details).
+
+
+</p><p>
+You can change the way that Lua compares tables and userdata
+by using the <code>__eq</code> metamethod (see <a href="#2.4">§2.4</a>).
+
+
+</p><p>
+Equality comparisons do not convert strings to numbers
+or vice versa.
+Thus, <code>"0"==0</code> evaluates to <b>false</b>,
+and <code>t[0]</code> and <code>t["0"]</code> denote different
+entries in a table.
+
+
+</p><p>
+The operator <code>~=</code> is exactly the negation of equality (<code>==</code>).
+
+
+</p><p>
+The order operators work as follows.
+If both arguments are numbers,
+then they are compared according to their mathematical values,
+regardless of their subtypes.
+Otherwise, if both arguments are strings,
+then their values are compared according to the current locale.
+Otherwise, Lua tries to call the <code>__lt</code> or the <code>__le</code>
+metamethod (see <a href="#2.4">§2.4</a>).
+A comparison <code>a &gt; b</code> is translated to <code>b &lt; a</code>
+and <code>a &gt;= b</code> is translated to <code>b &lt;= a</code>.
+
+
+</p><p>
+Following the IEEE 754 standard,
+the special value NaN is considered neither less than,
+nor equal to, nor greater than any value, including itself.
+
+
+
+
+
+</p><h3>3.4.5 – <a name="3.4.5">Logical Operators</a></h3><p>
+The logical operators in Lua are
+<b>and</b>, <b>or</b>, and <b>not</b>.
+Like the control structures (see <a href="#3.3.4">§3.3.4</a>),
+all logical operators consider both <b>false</b> and <b>nil</b> as false
+and anything else as true.
+
+
+</p><p>
+The negation operator <b>not</b> always returns <b>false</b> or <b>true</b>.
+The conjunction operator <b>and</b> returns its first argument
+if this value is <b>false</b> or <b>nil</b>;
+otherwise, <b>and</b> returns its second argument.
+The disjunction operator <b>or</b> returns its first argument
+if this value is different from <b>nil</b> and <b>false</b>;
+otherwise, <b>or</b> returns its second argument.
+Both <b>and</b> and <b>or</b> use short-circuit evaluation;
+that is,
+the second operand is evaluated only if necessary.
+Here are some examples:
+
+</p><pre>     10 or 20            --&gt; 10
+     10 or error()       --&gt; 10
+     nil or "a"          --&gt; "a"
+     nil and 10          --&gt; nil
+     false and error()   --&gt; false
+     false and nil       --&gt; false
+     false or nil        --&gt; nil
+     10 and 20           --&gt; 20
+</pre>
+
+
+
+
+<h3>3.4.6 – <a name="3.4.6">Concatenation</a></h3><p>
+The string concatenation operator in Lua is
+denoted by two dots ('<code>..</code>').
+If both operands are strings or numbers,
+then the numbers are converted to strings
+in a non-specified format (see <a href="#3.4.3">§3.4.3</a>).
+Otherwise, the <code>__concat</code> metamethod is called (see <a href="#2.4">§2.4</a>).
+
+
+
+
+
+</p><h3>3.4.7 – <a name="3.4.7">The Length Operator</a></h3>
+
+<p>
+The length operator is denoted by the unary prefix operator <code>#</code>.
+
+
+</p><p>
+The length of a string is its number of bytes.
+(That is the usual meaning of string length when each
+character is one byte.)
+
+
+</p><p>
+The length operator applied on a table
+returns a border in that table.
+A <em>border</em> in a table <code>t</code> is any non-negative integer
+that satisfies the following condition:
+
+</p><pre>     (border == 0 or t[border] ~= nil) and
+     (t[border + 1] == nil or border == math.maxinteger)
+</pre><p>
+In words,
+a border is any positive integer index present in the table
+that is followed by an absent index,
+plus two limit cases:
+zero, when index 1 is absent;
+and the maximum value for an integer, when that index is present.
+Note that keys that are not positive integers
+do not interfere with borders.
+
+
+</p><p>
+A table with exactly one border is called a <em>sequence</em>.
+For instance, the table <code>{10, 20, 30, 40, 50}</code> is a sequence,
+as it has only one border (5).
+The table <code>{10, 20, 30, nil, 50}</code> has two borders (3 and 5),
+and therefore it is not a sequence.
+(The <b>nil</b> at index 4 is called a <em>hole</em>.)
+The table <code>{nil, 20, 30, nil, nil, 60, nil}</code>
+has three borders (0, 3, and 6),
+so it is not a sequence, too.
+The table <code>{}</code> is a sequence with border 0.
+
+
+</p><p>
+When <code>t</code> is a sequence,
+<code>#t</code> returns its only border,
+which corresponds to the intuitive notion of the length of the sequence.
+When <code>t</code> is not a sequence,
+<code>#t</code> can return any of its borders.
+(The exact one depends on details of
+the internal representation of the table,
+which in turn can depend on how the table was populated and
+the memory addresses of its non-numeric keys.)
+
+
+</p><p>
+The computation of the length of a table
+has a guaranteed worst time of <em>O(log n)</em>,
+where <em>n</em> is the largest integer key in the table.
+
+
+</p><p>
+A program can modify the behavior of the length operator for
+any value but strings through the <code>__len</code> metamethod (see <a href="#2.4">§2.4</a>).
+
+
+
+
+
+</p><h3>3.4.8 – <a name="3.4.8">Precedence</a></h3><p>
+Operator precedence in Lua follows the table below,
+from lower to higher priority:
+
+</p><pre>     or
+     and
+     &lt;     &gt;     &lt;=    &gt;=    ~=    ==
+     |
+     ~
+     &amp;
+     &lt;&lt;    &gt;&gt;
+     ..
+     +     -
+     *     /     //    %
+     unary operators (not   #     -     ~)
+     ^
+</pre><p>
+As usual,
+you can use parentheses to change the precedences of an expression.
+The concatenation ('<code>..</code>') and exponentiation ('<code>^</code>')
+operators are right associative.
+All other binary operators are left associative.
+
+
+
+
+
+</p><h3>3.4.9 – <a name="3.4.9">Table Constructors</a></h3><p>
+Table constructors are expressions that create tables.
+Every time a constructor is evaluated, a new table is created.
+A constructor can be used to create an empty table
+or to create a table and initialize some of its fields.
+The general syntax for constructors is
+
+</p><pre>	tableconstructor ::= ‘<b>{</b>’ [fieldlist] ‘<b>}</b>’
+	fieldlist ::= field {fieldsep field} [fieldsep]
+	field ::= ‘<b>[</b>’ exp ‘<b>]</b>’ ‘<b>=</b>’ exp | Name ‘<b>=</b>’ exp | exp
+	fieldsep ::= ‘<b>,</b>’ | ‘<b>;</b>’
+</pre>
+
+<p>
+Each field of the form <code>[exp1] = exp2</code> adds to the new table an entry
+with key <code>exp1</code> and value <code>exp2</code>.
+A field of the form <code>name = exp</code> is equivalent to
+<code>["name"] = exp</code>.
+Fields of the form <code>exp</code> are equivalent to
+<code>[i] = exp</code>, where <code>i</code> are consecutive integers
+starting with 1;
+fields in the other formats do not affect this counting.
+For example,
+
+</p><pre>     a = { [f(1)] = g; "x", "y"; x = 1, f(x), [30] = 23; 45 }
+</pre><p>
+is equivalent to
+
+</p><pre>     do
+       local t = {}
+       t[f(1)] = g
+       t[1] = "x"         -- 1st exp
+       t[2] = "y"         -- 2nd exp
+       t.x = 1            -- t["x"] = 1
+       t[3] = f(x)        -- 3rd exp
+       t[30] = 23
+       t[4] = 45          -- 4th exp
+       a = t
+     end
+</pre>
+
+<p>
+The order of the assignments in a constructor is undefined.
+(This order would be relevant only when there are repeated keys.)
+
+
+</p><p>
+If the last field in the list has the form <code>exp</code>
+and the expression is a multires expression,
+then all values returned by this expression enter the list consecutively
+(see <a href="#3.4.12">§3.4.12</a>).
+
+
+</p><p>
+The field list can have an optional trailing separator,
+as a convenience for machine-generated code.
+
+
+
+
+
+</p><h3>3.4.10 – <a name="3.4.10">Function Calls</a></h3><p>
+A function call in Lua has the following syntax:
+
+</p><pre>	functioncall ::= prefixexp args
+</pre><p>
+In a function call,
+first prefixexp and args are evaluated.
+If the value of prefixexp has type <em>function</em>,
+then this function is called
+with the given arguments.
+Otherwise, if present,
+the prefixexp <code>__call</code> metamethod is called:
+its first argument is the value of prefixexp,
+followed by the original call arguments
+(see <a href="#2.4">§2.4</a>).
+
+
+</p><p>
+The form
+
+</p><pre>	functioncall ::= prefixexp ‘<b>:</b>’ Name args
+</pre><p>
+can be used to emulate methods.
+A call <code>v:name(<em>args</em>)</code>
+is syntactic sugar for <code>v.name(v,<em>args</em>)</code>,
+except that <code>v</code> is evaluated only once.
+
+
+</p><p>
+Arguments have the following syntax:
+
+</p><pre>	args ::= ‘<b>(</b>’ [explist] ‘<b>)</b>’
+	args ::= tableconstructor
+	args ::= LiteralString
+</pre><p>
+All argument expressions are evaluated before the call.
+A call of the form <code>f{<em>fields</em>}</code> is
+syntactic sugar for <code>f({<em>fields</em>})</code>;
+that is, the argument list is a single new table.
+A call of the form <code>f'<em>string</em>'</code>
+(or <code>f"<em>string</em>"</code> or <code>f[[<em>string</em>]]</code>)
+is syntactic sugar for <code>f('<em>string</em>')</code>;
+that is, the argument list is a single literal string.
+
+
+</p><p>
+A call of the form <code>return <em>functioncall</em></code> not in the
+scope of a to-be-closed variable is called a <em>tail call</em>.
+Lua implements <em>proper tail calls</em>
+(or <em>proper tail recursion</em>):
+In a tail call,
+the called function reuses the stack entry of the calling function.
+Therefore, there is no limit on the number of nested tail calls that
+a program can execute.
+However, a tail call erases any debug information about the
+calling function.
+Note that a tail call only happens with a particular syntax,
+where the <b>return</b> has one single function call as argument,
+and it is outside the scope of any to-be-closed variable.
+This syntax makes the calling function return exactly
+the returns of the called function,
+without any intervening action.
+So, none of the following examples are tail calls:
+
+</p><pre>     return (f(x))        -- results adjusted to 1
+     return 2 * f(x)      -- result multiplied by 2
+     return x, f(x)       -- additional results
+     f(x); return         -- results discarded
+     return x or f(x)     -- results adjusted to 1
+</pre>
+
+
+
+
+<h3>3.4.11 – <a name="3.4.11">Function Definitions</a></h3>
+
+<p>
+The syntax for function definition is
+
+</p><pre>	functiondef ::= <b>function</b> funcbody
+	funcbody ::= ‘<b>(</b>’ [parlist] ‘<b>)</b>’ block <b>end</b>
+</pre>
+
+<p>
+The following syntactic sugar simplifies function definitions:
+
+</p><pre>	stat ::= <b>function</b> funcname funcbody
+	stat ::= <b>local</b> <b>function</b> Name funcbody
+	funcname ::= Name {‘<b>.</b>’ Name} [‘<b>:</b>’ Name]
+</pre><p>
+The statement
+
+</p><pre>     function f () <em>body</em> end
+</pre><p>
+translates to
+
+</p><pre>     f = function () <em>body</em> end
+</pre><p>
+The statement
+
+</p><pre>     function t.a.b.c.f () <em>body</em> end
+</pre><p>
+translates to
+
+</p><pre>     t.a.b.c.f = function () <em>body</em> end
+</pre><p>
+The statement
+
+</p><pre>     local function f () <em>body</em> end
+</pre><p>
+translates to
+
+</p><pre>     local f; f = function () <em>body</em> end
+</pre><p>
+not to
+
+</p><pre>     local f = function () <em>body</em> end
+</pre><p>
+(This only makes a difference when the body of the function
+contains references to <code>f</code>.)
+
+
+</p><p>
+A function definition is an executable expression,
+whose value has type <em>function</em>.
+When Lua precompiles a chunk,
+all its function bodies are precompiled too,
+but they are not created yet.
+Then, whenever Lua executes the function definition,
+the function is <em>instantiated</em> (or <em>closed</em>).
+This function instance, or <em>closure</em>,
+is the final value of the expression.
+
+
+</p><p>
+Parameters act as local variables that are
+initialized with the argument values:
+
+</p><pre>	parlist ::= namelist [‘<b>,</b>’ ‘<b>...</b>’] | ‘<b>...</b>’
+</pre><p>
+When a Lua function is called,
+it adjusts its list of arguments to
+the length of its list of parameters (see <a href="#3.4.12">§3.4.12</a>),
+unless the function is a <em>variadic function</em>,
+which is indicated by three dots ('<code>...</code>')
+at the end of its parameter list.
+A variadic function does not adjust its argument list;
+instead, it collects all extra arguments and supplies them
+to the function through a <em>vararg expression</em>,
+which is also written as three dots.
+The value of this expression is a list of all actual extra arguments,
+similar to a function with multiple results (see <a href="#3.4.12">§3.4.12</a>).
+
+
+</p><p>
+As an example, consider the following definitions:
+
+</p><pre>     function f(a, b) end
+     function g(a, b, ...) end
+     function r() return 1,2,3 end
+</pre><p>
+Then, we have the following mapping from arguments to parameters and
+to the vararg expression:
+
+</p><pre>     CALL             PARAMETERS
+     
+     f(3)             a=3, b=nil
+     f(3, 4)          a=3, b=4
+     f(3, 4, 5)       a=3, b=4
+     f(r(), 10)       a=1, b=10
+     f(r())           a=1, b=2
+     
+     g(3)             a=3, b=nil, ... --&gt;  (nothing)
+     g(3, 4)          a=3, b=4,   ... --&gt;  (nothing)
+     g(3, 4, 5, 8)    a=3, b=4,   ... --&gt;  5  8
+     g(5, r())        a=5, b=1,   ... --&gt;  2  3
+</pre>
+
+<p>
+Results are returned using the <b>return</b> statement (see <a href="#3.3.4">§3.3.4</a>).
+If control reaches the end of a function
+without encountering a <b>return</b> statement,
+then the function returns with no results.
+
+
+</p><p>
+
+There is a system-dependent limit on the number of values
+that a function may return.
+This limit is guaranteed to be greater than 1000.
+
+
+</p><p>
+The <em>colon</em> syntax
+is used to emulate <em>methods</em>,
+adding an implicit extra parameter <code>self</code> to the function.
+Thus, the statement
+
+</p><pre>     function t.a.b.c:f (<em>params</em>) <em>body</em> end
+</pre><p>
+is syntactic sugar for
+
+</p><pre>     t.a.b.c.f = function (self, <em>params</em>) <em>body</em> end
+</pre>
+
+
+
+
+<h3>3.4.12 – <a name="3.4.12">Lists of expressions, multiple results,
+and adjustment</a></h3>
+
+<p>
+Both function calls and vararg expressions can result in multiple values.
+These expressions are called <em>multires expressions</em>.
+
+
+</p><p>
+When a multires expression is used as the last element
+of a list of expressions,
+all results from the expression are added to the
+list of values produced by the list of expressions.
+Note that a single expression
+in a place that expects a list of expressions
+is the last expression in that (singleton) list.
+
+
+</p><p>
+These are the places where Lua expects a list of expressions:
+
+</p><ul>
+
+<li>A <b>return</b> statement,
+for instance <code>return e1, e2, e3</code> (see <a href="#3.3.4">§3.3.4</a>).</li>
+
+<li>A table constructor,
+for instance <code>{e1, e2, e3}</code> (see <a href="#3.4.9">§3.4.9</a>).</li>
+
+<li>The arguments of a function call,
+for instance <code>foo(e1, e2, e3)</code> (see <a href="#3.4.10">§3.4.10</a>).</li>
+
+<li>A multiple assignment,
+for instance <code>a , b, c = e1, e2, e3</code> (see <a href="#3.3.3">§3.3.3</a>).</li>
+
+<li>A local declaration,
+for instance <code>local a , b, c = e1, e2, e3</code> (see <a href="#3.3.7">§3.3.7</a>).</li>
+
+<li>The initial values in a generic <b>for</b> loop,
+for instance <code>for k in e1, e2, e3 do ... end</code> (see <a href="#3.3.5">§3.3.5</a>).</li>
+
+</ul><p>
+In the last four cases,
+the list of values from the list of expressions
+must be <em>adjusted</em> to a specific length:
+the number of parameters in a call to a non-variadic function
+(see <a href="#3.4.11">§3.4.11</a>),
+the number of variables in a multiple assignment or
+a local declaration,
+and exactly four values for a generic <b>for</b> loop.
+The <em>adjustment</em> follows these rules:
+If there are more values than needed,
+the extra values are thrown away;
+if there are fewer values than needed,
+the list is extended with <b>nil</b>'s.
+When the list of expressions ends with a multires expression,
+all results from that expression enter the list of values
+before the adjustment.
+
+
+</p><p>
+When a multires expression is used
+in a list of expressions without being the last element,
+or in a place where the syntax expects a single expression,
+Lua adjusts the result list of that expression to one element.
+As a particular case,
+the syntax expects a single expression inside a parenthesized expression;
+therefore, adding parentheses around a multires expression
+forces it to produce exactly one result.
+
+
+</p><p>
+We seldom need to use a vararg expression in a place
+where the syntax expects a single expression.
+(Usually it is simpler to add a regular parameter before
+the variadic part and use that parameter.)
+When there is such a need,
+we recommend assigning the vararg expression
+to a single variable and using that variable
+in its place.
+
+
+</p><p>
+Here are some examples of uses of mutlres expressions.
+In all cases, when the construction needs
+"the n-th result" and there is no such result,
+it uses a <b>nil</b>.
+
+</p><pre>     print(x, f())      -- prints x and all results from f().
+     print(x, (f()))    -- prints x and the first result from f().
+     print(f(), x)      -- prints the first result from f() and x.
+     print(1 + f())     -- prints 1 added to the first result from f().
+     local x = ...      -- x gets the first vararg argument.
+     x,y = ...          -- x gets the first vararg argument,
+                        -- y gets the second vararg argument.
+     x,y,z = w, f()     -- x gets w, y gets the first result from f(),
+                        -- z gets the second result from f().
+     x,y,z = f()        -- x gets the first result from f(),
+                        -- y gets the second result from f(),
+                        -- z gets the third result from f().
+     x,y,z = f(), g()   -- x gets the first result from f(),
+                        -- y gets the first result from g(),
+                        -- z gets the second result from g().
+     x,y,z = (f())      -- x gets the first result from f(), y and z get nil.
+     return f()         -- returns all results from f().
+     return x, ...      -- returns x and all received vararg arguments.
+     return x,y,f()     -- returns x, y, and all results from f().
+     {f()}              -- creates a list with all results from f().
+     {...}              -- creates a list with all vararg arguments.
+     {f(), 5}           -- creates a list with the first result from f() and 5.
+</pre>
+
+
+
+
+
+
+<h2>3.5 – <a name="3.5">Visibility Rules</a></h2>
+
+<p>
+
+Lua is a lexically scoped language.
+The scope of a local variable begins at the first statement after
+its declaration and lasts until the last non-void statement
+of the innermost block that includes the declaration.
+(<em>Void statements</em> are labels and empty statements.)
+Consider the following example:
+
+</p><pre>     x = 10                -- global variable
+     do                    -- new block
+       local x = x         -- new 'x', with value 10
+       print(x)            --&gt; 10
+       x = x+1
+       do                  -- another block
+         local x = x+1     -- another 'x'
+         print(x)          --&gt; 12
+       end
+       print(x)            --&gt; 11
+     end
+     print(x)              --&gt; 10  (the global one)
+</pre>
+
+<p>
+Notice that, in a declaration like <code>local x = x</code>,
+the new <code>x</code> being declared is not in scope yet,
+and so the second <code>x</code> refers to the outside variable.
+
+
+</p><p>
+Because of the lexical scoping rules,
+local variables can be freely accessed by functions
+defined inside their scope.
+A local variable used by an inner function is called an <em>upvalue</em>
+(or <em>external local variable</em>, or simply <em>external variable</em>)
+inside the inner function.
+
+
+</p><p>
+Notice that each execution of a <b>local</b> statement
+defines new local variables.
+Consider the following example:
+
+</p><pre>     a = {}
+     local x = 20
+     for i = 1, 10 do
+       local y = 0
+       a[i] = function () y = y + 1; return x + y end
+     end
+</pre><p>
+The loop creates ten closures
+(that is, ten instances of the anonymous function).
+Each of these closures uses a different <code>y</code> variable,
+while all of them share the same <code>x</code>.
+
+
+
+
+
+</p><h1>4 – <a name="4">The Application Program Interface</a></h1>
+
+
+
+<p>
+
+This section describes the C&nbsp;API for Lua, that is,
+the set of C&nbsp;functions available to the host program to communicate
+with Lua.
+All API functions and related types and constants
+are declared in the header file <a name="pdf-lua.h"><code>lua.h</code></a>.
+
+
+</p><p>
+Even when we use the term "function",
+any facility in the API may be provided as a macro instead.
+Except where stated otherwise,
+all such macros use each of their arguments exactly once
+(except for the first argument, which is always a Lua state),
+and so do not generate any hidden side-effects.
+
+
+</p><p>
+As in most C&nbsp;libraries,
+the Lua API functions do not check their arguments
+for validity or consistency.
+However, you can change this behavior by compiling Lua
+with the macro <a name="pdf-LUA_USE_APICHECK"><code>LUA_USE_APICHECK</code></a> defined.
+
+
+</p><p>
+The Lua library is fully reentrant:
+it has no global variables.
+It keeps all information it needs in a dynamic structure,
+called the <em>Lua state</em>.
+
+
+</p><p>
+Each Lua state has one or more threads,
+which correspond to independent, cooperative lines of execution.
+The type <a href="#lua_State"><code>lua_State</code></a> (despite its name) refers to a thread.
+(Indirectly, through the thread, it also refers to the
+Lua state associated to the thread.)
+
+
+</p><p>
+A pointer to a thread must be passed as the first argument to
+every function in the library, except to <a href="#lua_newstate"><code>lua_newstate</code></a>,
+which creates a Lua state from scratch and returns a pointer
+to the <em>main thread</em> in the new state.
+
+
+
+
+
+</p><h2>4.1 – <a name="4.1">The Stack</a></h2>
+
+
+
+<p>
+Lua uses a <em>virtual stack</em> to pass values to and from C.
+Each element in this stack represents a Lua value
+(<b>nil</b>, number, string, etc.).
+Functions in the API can access this stack through the
+Lua state parameter that they receive.
+
+
+</p><p>
+Whenever Lua calls C, the called function gets a new stack,
+which is independent of previous stacks and of stacks of
+C&nbsp;functions that are still active.
+This stack initially contains any arguments to the C&nbsp;function
+and it is where the C&nbsp;function can store temporary
+Lua values and must push its results
+to be returned to the caller (see <a href="#lua_CFunction"><code>lua_CFunction</code></a>).
+
+
+</p><p>
+For convenience,
+most query operations in the API do not follow a strict stack discipline.
+Instead, they can refer to any element in the stack
+by using an <em>index</em>:
+A positive index represents an absolute stack position,
+starting at&nbsp;1 as the bottom of the stack;
+a negative index represents an offset relative to the top of the stack.
+More specifically, if the stack has <em>n</em> elements,
+then index&nbsp;1 represents the first element
+(that is, the element that was pushed onto the stack first)
+and
+index&nbsp;<em>n</em> represents the last element;
+index&nbsp;-1 also represents the last element
+(that is, the element at the&nbsp;top)
+and index <em>-n</em> represents the first element.
+
+
+
+
+
+</p><h3>4.1.1 – <a name="4.1.1">Stack Size</a></h3>
+
+<p>
+When you interact with the Lua API,
+you are responsible for ensuring consistency.
+In particular,
+<em>you are responsible for controlling stack overflow</em>.
+When you call any API function,
+you must ensure the stack has enough room to accommodate the results.
+
+
+</p><p>
+There is one exception to the above rule:
+When you call a Lua function
+without a fixed number of results (see <a href="#lua_call"><code>lua_call</code></a>),
+Lua ensures that the stack has enough space for all results.
+However, it does not ensure any extra space.
+So, before pushing anything on the stack after such a call
+you should use <a href="#lua_checkstack"><code>lua_checkstack</code></a>.
+
+
+</p><p>
+<!-- slice ends -->

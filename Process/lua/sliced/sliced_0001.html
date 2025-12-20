@@ -1,0 +1,1501 @@
+<!-- slice index: 1 -->
+<!-- lines 0–1497 / total 11964 -->
+<!-- title: Lua 5.4 Reference Manual -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+<title>Lua 5.4 Reference Manual</title>
+<link rel="stylesheet" type="text/css" href="Lua%205.4%20Reference%20Manual_files/lua.css">
+<link rel="stylesheet" type="text/css" href="Lua%205.4%20Reference%20Manual_files/manual.css">
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+</head>
+
+<body>
+
+<h1>
+<a href="https://www.lua.org/"><img src="Lua%205.4%20Reference%20Manual_files/logo.gif" alt="Lua"></a>
+Lua 5.4 Reference Manual
+</h1>
+
+<p>
+by Roberto Ierusalimschy, Luiz Henrique de Figueiredo, Waldemar Celes
+
+</p><p>
+<small>
+Copyright © 2020–2025 Lua.org, PUC-Rio.
+Freely available under the terms of the
+<a href="https://www.lua.org/license.html">Lua license</a>.
+</small>
+
+</p><div class="menubar">
+<a href="https://www.lua.org/manual/5.4/contents.html#contents">contents</a>
+·
+<a href="https://www.lua.org/manual/5.4/contents.html#index">index</a>
+·
+<a href="https://www.lua.org/manual/">other versions</a>
+</div>
+
+<!-- ====================================================================== -->
+<p>
+
+<!-- $Id: manual.of $ -->
+
+
+
+
+</p><h1>1 – <a name="1">Introduction</a></h1>
+
+<p>
+Lua is a powerful, efficient, lightweight, embeddable scripting language.
+It supports procedural programming,
+object-oriented programming, functional programming,
+data-driven programming, and data description.
+
+
+</p><p>
+Lua combines simple procedural syntax with powerful data description
+constructs based on associative arrays and extensible semantics.
+Lua is dynamically typed,
+runs by interpreting bytecode with a register-based
+virtual machine,
+and has automatic memory management with
+a generational garbage collection,
+making it ideal for configuration, scripting,
+and rapid prototyping.
+
+
+</p><p>
+Lua is implemented as a library, written in <em>clean C</em>,
+the common subset of standard&nbsp;C and C++.
+The Lua distribution includes a host program called <code>lua</code>,
+which uses the Lua library to offer a complete,
+standalone Lua interpreter,
+for interactive or batch use.
+Lua is intended to be used both as a powerful, lightweight,
+embeddable scripting language for any program that needs one,
+and as a powerful but lightweight and efficient stand-alone language.
+
+
+</p><p>
+As an extension language, Lua has no notion of a "main" program:
+it works <em>embedded</em> in a host client,
+called the <em>embedding program</em> or simply the <em>host</em>.
+(Frequently, this host is the stand-alone <code>lua</code> program.)
+The host program can invoke functions to execute a piece of Lua code,
+can write and read Lua variables,
+and can register C&nbsp;functions to be called by Lua code.
+Through the use of C&nbsp;functions, Lua can be augmented to cope with
+a wide range of different domains,
+thus creating customized programming languages sharing a syntactical framework.
+
+
+</p><p>
+Lua is free software,
+and is provided as usual with no guarantees,
+as stated in its license.
+The implementation described in this manual is available
+at Lua's official web site, <code>www.lua.org</code>.
+
+
+</p><p>
+Like any other reference manual,
+this document is dry in places.
+For a discussion of the decisions behind the design of Lua,
+see the technical papers available at Lua's web site.
+For a detailed introduction to programming in Lua,
+see Roberto's book, <em>Programming in Lua</em>.
+
+
+
+</p><h1>2 – <a name="2">Basic Concepts</a></h1>
+
+
+
+<p>
+This section describes the basic concepts of the language.
+
+
+
+
+
+</p><h2>2.1 – <a name="2.1">Values and Types</a></h2>
+
+<p>
+Lua is a dynamically typed language.
+This means that
+variables do not have types; only values do.
+There are no type definitions in the language.
+All values carry their own type.
+
+
+</p><p>
+All values in Lua are first-class values.
+This means that all values can be stored in variables,
+passed as arguments to other functions, and returned as results.
+
+
+</p><p>
+There are eight basic types in Lua:
+<em>nil</em>, <em>boolean</em>, <em>number</em>,
+<em>string</em>, <em>function</em>, <em>userdata</em>,
+<em>thread</em>, and <em>table</em>.
+The type <em>nil</em> has one single value, <b>nil</b>,
+whose main property is to be different from any other value;
+it often represents the absence of a useful value.
+The type <em>boolean</em> has two values, <b>false</b> and <b>true</b>.
+Both <b>nil</b> and <b>false</b> make a condition false;
+they are collectively called <em>false values</em>.
+Any other value makes a condition true.
+Despite its name,
+<b>false</b> is frequently used as an alternative to <b>nil</b>,
+with the key difference that <b>false</b> behaves
+like a regular value in a table,
+while a <b>nil</b> in a table represents an absent key.
+
+
+</p><p>
+The type <em>number</em> represents both
+integer numbers and real (floating-point) numbers,
+using two subtypes: <em>integer</em> and <em>float</em>.
+Standard Lua uses 64-bit integers and double-precision (64-bit) floats,
+but you can also compile Lua so that it
+uses 32-bit integers and/or single-precision (32-bit) floats.
+The option with 32 bits for both integers and floats
+is particularly attractive
+for small machines and embedded systems.
+(See macro <code>LUA_32BITS</code> in file <code>luaconf.h</code>.)
+
+
+</p><p>
+Unless stated otherwise,
+any overflow when manipulating integer values <em>wrap around</em>,
+according to the usual rules of two-complement arithmetic.
+(In other words,
+the actual result is the unique representable integer
+that is equal modulo <em>2<sup>n</sup></em> to the mathematical result,
+where <em>n</em> is the number of bits of the integer type.)
+
+
+</p><p>
+Lua has explicit rules about when each subtype is used,
+but it also converts between them automatically as needed (see <a href="#3.4.3">§3.4.3</a>).
+Therefore,
+the programmer may choose to mostly ignore the difference
+between integers and floats
+or to assume complete control over the representation of each number.
+
+
+</p><p>
+The type <em>string</em> represents immutable sequences of bytes.
+
+Lua is 8-bit clean:
+strings can contain any 8-bit value,
+including embedded zeros ('<code>\0</code>').
+Lua is also encoding-agnostic;
+it makes no assumptions about the contents of a string.
+The length of any string in Lua must fit in a Lua integer.
+
+
+</p><p>
+Lua can call (and manipulate) functions written in Lua and
+functions written in C (see <a href="#3.4.10">§3.4.10</a>).
+Both are represented by the type <em>function</em>.
+
+
+</p><p>
+The type <em>userdata</em> is provided to allow arbitrary C&nbsp;data to
+be stored in Lua variables.
+A userdata value represents a block of raw memory.
+There are two kinds of userdata:
+<em>full userdata</em>,
+which is an object with a block of memory managed by Lua,
+and <em>light userdata</em>,
+which is simply a C&nbsp;pointer value.
+Userdata has no predefined operations in Lua,
+except assignment and identity test.
+By using <em>metatables</em>,
+the programmer can define operations for full userdata values
+(see <a href="#2.4">§2.4</a>).
+Userdata values cannot be created or modified in Lua,
+only through the C&nbsp;API.
+This guarantees the integrity of data owned by
+the host program and C&nbsp;libraries.
+
+
+</p><p>
+The type <em>thread</em> represents independent threads of execution
+and it is used to implement coroutines (see <a href="#2.6">§2.6</a>).
+Lua threads are not related to operating-system threads.
+Lua supports coroutines on all systems,
+even those that do not support threads natively.
+
+
+</p><p>
+The type <em>table</em> implements associative arrays,
+that is, arrays that can have as indices not only numbers,
+but any Lua value except <b>nil</b> and NaN.
+(<em>Not a Number</em> is a special floating-point value
+used by the IEEE 754 standard to represent
+undefined numerical results, such as <code>0/0</code>.)
+Tables can be <em>heterogeneous</em>;
+that is, they can contain values of all types (except <b>nil</b>).
+Any key associated to the value <b>nil</b> is not considered part of the table.
+Conversely, any key that is not part of a table has
+an associated value <b>nil</b>.
+
+
+</p><p>
+Tables are the sole data-structuring mechanism in Lua;
+they can be used to represent ordinary arrays, lists,
+symbol tables, sets, records, graphs, trees, etc.
+To represent records, Lua uses the field name as an index.
+The language supports this representation by
+providing <code>a.name</code> as syntactic sugar for <code>a["name"]</code>.
+There are several convenient ways to create tables in Lua
+(see <a href="#3.4.9">§3.4.9</a>).
+
+
+</p><p>
+Like indices,
+the values of table fields can be of any type.
+In particular,
+because functions are first-class values,
+table fields can contain functions.
+Thus tables can also carry <em>methods</em> (see <a href="#3.4.11">§3.4.11</a>).
+
+
+</p><p>
+The indexing of tables follows
+the definition of raw equality in the language.
+The expressions <code>a[i]</code> and <code>a[j]</code>
+denote the same table element
+if and only if <code>i</code> and <code>j</code> are raw equal
+(that is, equal without metamethods).
+In particular, floats with integral values
+are equal to their respective integers
+(e.g., <code>1.0 == 1</code>).
+To avoid ambiguities,
+any float used as a key that is equal to an integer
+is converted to that integer.
+For instance, if you write <code>a[2.0] = true</code>,
+the actual key inserted into the table will be the integer <code>2</code>.
+
+
+</p><p>
+Tables, functions, threads, and (full) userdata values are <em>objects</em>:
+variables do not actually <em>contain</em> these values,
+only <em>references</em> to them.
+Assignment, parameter passing, and function returns
+always manipulate references to such values;
+these operations do not imply any kind of copy.
+
+
+</p><p>
+The library function <a href="#pdf-type"><code>type</code></a> returns a string describing the type
+of a given value (see <a href="#pdf-type"><code>type</code></a>).
+
+
+
+
+
+</p><h2>2.2 – <a name="2.2">Environments and the Global Environment</a></h2>
+
+<p>
+As we will discuss further in <a href="#3.2">§3.2</a> and <a href="#3.3.3">§3.3.3</a>,
+any reference to a free name
+(that is, a name not bound to any declaration) <code>var</code>
+is syntactically translated to <code>_ENV.var</code>.
+Moreover, every chunk is compiled in the scope of
+an external local variable named <code>_ENV</code> (see <a href="#3.3.2">§3.3.2</a>),
+so <code>_ENV</code> itself is never a free name in a chunk.
+
+
+</p><p>
+Despite the existence of this external <code>_ENV</code> variable and
+the translation of free names,
+<code>_ENV</code> is a completely regular name.
+In particular,
+you can define new variables and parameters with that name.
+Each reference to a free name uses the <code>_ENV</code> that is
+visible at that point in the program,
+following the usual visibility rules of Lua (see <a href="#3.5">§3.5</a>).
+
+
+</p><p>
+Any table used as the value of <code>_ENV</code> is called an <em>environment</em>.
+
+
+</p><p>
+Lua keeps a distinguished environment called the <em>global environment</em>.
+This value is kept at a special index in the C registry (see <a href="#4.3">§4.3</a>).
+In Lua, the global variable <a href="#pdf-_G"><code>_G</code></a> is initialized with this same value.
+(<a href="#pdf-_G"><code>_G</code></a> is never used internally,
+so changing its value will affect only your own code.)
+
+
+</p><p>
+When Lua loads a chunk,
+the default value for its <code>_ENV</code> variable
+is the global environment (see <a href="#pdf-load"><code>load</code></a>).
+Therefore, by default,
+free names in Lua code refer to entries in the global environment
+and, therefore, they are also called <em>global variables</em>.
+Moreover, all standard libraries are loaded in the global environment
+and some functions there operate on that environment.
+You can use <a href="#pdf-load"><code>load</code></a> (or <a href="#pdf-loadfile"><code>loadfile</code></a>)
+to load a chunk with a different environment.
+(In C, you have to load the chunk and then change the value
+of its first upvalue; see <a href="#lua_setupvalue"><code>lua_setupvalue</code></a>.)
+
+
+
+
+
+</p><h2>2.3 – <a name="2.3">Error Handling</a></h2>
+
+<p>
+Several operations in Lua can <em>raise</em> an error.
+An error interrupts the normal flow of the program,
+which can continue by <em>catching</em> the error.
+
+
+</p><p>
+Lua code can explicitly raise an error by calling the
+<a href="#pdf-error"><code>error</code></a> function.
+(This function never returns.)
+
+
+</p><p>
+To catch errors in Lua,
+you can do a <em>protected call</em>,
+using <a href="#pdf-pcall"><code>pcall</code></a> (or <a href="#pdf-xpcall"><code>xpcall</code></a>).
+The function <a href="#pdf-pcall"><code>pcall</code></a> calls a given function in <em>protected mode</em>.
+Any error while running the function stops its execution,
+and control returns immediately to <code>pcall</code>,
+which returns a status code.
+
+
+</p><p>
+Because Lua is an embedded extension language,
+Lua code starts running by a call
+from C&nbsp;code in the host program.
+(When you use Lua standalone,
+the <code>lua</code> application is the host program.)
+Usually, this call is protected;
+so, when an otherwise unprotected error occurs during
+the compilation or execution of a Lua chunk,
+control returns to the host,
+which can take appropriate measures,
+such as printing an error message.
+
+
+</p><p>
+Whenever there is an error,
+an <em>error object</em>
+is propagated with information about the error.
+Lua itself only generates errors whose error object is a string,
+but programs can generate errors with
+any value as the error object.
+It is up to the Lua program or its host to handle such error objects.
+For historical reasons,
+an error object is often called an <em>error message</em>,
+even though it does not have to be a string.
+
+
+</p><p>
+When you use <a href="#pdf-xpcall"><code>xpcall</code></a> (or <a href="#lua_pcall"><code>lua_pcall</code></a>, in C)
+you can give a <em>message handler</em>
+to be called in case of errors.
+This function is called with the original error object
+and returns a new error object.
+It is called before the error unwinds the stack,
+so that it can gather more information about the error,
+for instance by inspecting the stack and creating a stack traceback.
+This message handler is still protected by the protected call;
+so, an error inside the message handler
+will call the message handler again.
+If this loop goes on for too long,
+Lua breaks it and returns an appropriate message.
+The message handler is called only for regular runtime errors.
+It is not called for memory-allocation errors
+nor for errors while running finalizers or other message handlers.
+
+
+</p><p>
+Lua also offers a system of <em>warnings</em> (see <a href="#pdf-warn"><code>warn</code></a>).
+Unlike errors, warnings do not interfere
+in any way with program execution.
+They typically only generate a message to the user,
+although this behavior can be adapted from C (see <a href="#lua_setwarnf"><code>lua_setwarnf</code></a>).
+
+
+
+
+
+</p><h2>2.4 – <a name="2.4">Metatables and Metamethods</a></h2>
+
+<p>
+Every value in Lua can have a <em>metatable</em>.
+This <em>metatable</em> is an ordinary Lua table
+that defines the behavior of the original value
+under certain events.
+You can change several aspects of the behavior
+of a value by setting specific fields in its metatable.
+For instance, when a non-numeric value is the operand of an addition,
+Lua checks for a function in the field <code>__add</code> of the value's metatable.
+If it finds one,
+Lua calls this function to perform the addition.
+
+
+</p><p>
+The key for each event in a metatable is a string
+with the event name prefixed by two underscores;
+the corresponding value is called a <em>metavalue</em>.
+For most events, the metavalue must be a function,
+which is then called a <em>metamethod</em>.
+In the previous example, the key is the string "<code>__add</code>"
+and the metamethod is the function that performs the addition.
+Unless stated otherwise,
+a metamethod can in fact be any callable value,
+which is either a function or a value with a <code>__call</code> metamethod.
+
+
+</p><p>
+You can query the metatable of any value
+using the <a href="#pdf-getmetatable"><code>getmetatable</code></a> function.
+Lua queries metamethods in metatables using a raw access (see <a href="#pdf-rawget"><code>rawget</code></a>).
+
+
+</p><p>
+You can replace the metatable of tables
+using the <a href="#pdf-setmetatable"><code>setmetatable</code></a> function.
+You cannot change the metatable of other types from Lua code,
+except by using the debug library (<a href="#6.10">§6.10</a>).
+
+
+</p><p>
+Tables and full userdata have individual metatables,
+although multiple tables and userdata can share their metatables.
+Values of all other types share one single metatable per type;
+that is, there is one single metatable for all numbers,
+one for all strings, etc.
+By default, a value has no metatable,
+but the string library sets a metatable for the string type (see <a href="#6.4">§6.4</a>).
+
+
+</p><p>
+A detailed list of operations controlled by metatables is given next.
+Each event is identified by its corresponding key.
+By convention, all metatable keys used by Lua are composed by
+two underscores followed by lowercase Latin letters.
+
+
+
+</p><ul>
+
+<li><b><code>__add</code>: </b>
+the addition (<code>+</code>) operation.
+If any operand for an addition is not a number,
+Lua will try to call a metamethod.
+It starts by checking the first operand (even if it is a number);
+if that operand does not define a metamethod for <code>__add</code>,
+then Lua will check the second operand.
+If Lua can find a metamethod,
+it calls the metamethod with the two operands as arguments,
+and the result of the call
+(adjusted to one value)
+is the result of the operation.
+Otherwise, if no metamethod is found,
+Lua raises an error.
+</li>
+
+<li><b><code>__sub</code>: </b>
+the subtraction (<code>-</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__mul</code>: </b>
+the multiplication (<code>*</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__div</code>: </b>
+the division (<code>/</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__mod</code>: </b>
+the modulo (<code>%</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__pow</code>: </b>
+the exponentiation (<code>^</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__unm</code>: </b>
+the negation (unary <code>-</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__idiv</code>: </b>
+the floor division (<code>//</code>) operation.
+Behavior similar to the addition operation.
+</li>
+
+<li><b><code>__band</code>: </b>
+the bitwise AND (<code>&amp;</code>) operation.
+Behavior similar to the addition operation,
+except that Lua will try a metamethod
+if any operand is neither an integer
+nor a float coercible to an integer (see <a href="#3.4.3">§3.4.3</a>).
+</li>
+
+<li><b><code>__bor</code>: </b>
+the bitwise OR (<code>|</code>) operation.
+Behavior similar to the bitwise AND operation.
+</li>
+
+<li><b><code>__bxor</code>: </b>
+the bitwise exclusive OR (binary <code>~</code>) operation.
+Behavior similar to the bitwise AND operation.
+</li>
+
+<li><b><code>__bnot</code>: </b>
+the bitwise NOT (unary <code>~</code>) operation.
+Behavior similar to the bitwise AND operation.
+</li>
+
+<li><b><code>__shl</code>: </b>
+the bitwise left shift (<code>&lt;&lt;</code>) operation.
+Behavior similar to the bitwise AND operation.
+</li>
+
+<li><b><code>__shr</code>: </b>
+the bitwise right shift (<code>&gt;&gt;</code>) operation.
+Behavior similar to the bitwise AND operation.
+</li>
+
+<li><b><code>__concat</code>: </b>
+the concatenation (<code>..</code>) operation.
+Behavior similar to the addition operation,
+except that Lua will try a metamethod
+if any operand is neither a string nor a number
+(which is always coercible to a string).
+</li>
+
+<li><b><code>__len</code>: </b>
+the length (<code>#</code>) operation.
+If the object is not a string,
+Lua will try its metamethod.
+If there is a metamethod,
+Lua calls it with the object as argument,
+and the result of the call
+(always adjusted to one value)
+is the result of the operation.
+If there is no metamethod but the object is a table,
+then Lua uses the table length operation (see <a href="#3.4.7">§3.4.7</a>).
+Otherwise, Lua raises an error.
+</li>
+
+<li><b><code>__eq</code>: </b>
+the equal (<code>==</code>) operation.
+Behavior similar to the addition operation,
+except that Lua will try a metamethod only when the values
+being compared are either both tables or both full userdata
+and they are not primitively equal.
+The result of the call is always converted to a boolean.
+</li>
+
+<li><b><code>__lt</code>: </b>
+the less than (<code>&lt;</code>) operation.
+Behavior similar to the addition operation,
+except that Lua will try a metamethod only when the values
+being compared are neither both numbers nor both strings.
+Moreover, the result of the call is always converted to a boolean.
+</li>
+
+<li><b><code>__le</code>: </b>
+the less equal (<code>&lt;=</code>) operation.
+Behavior similar to the less than operation.
+</li>
+
+<li><b><code>__index</code>: </b>
+The indexing access operation <code>table[key]</code>.
+This event happens when <code>table</code> is not a table or
+when <code>key</code> is not present in <code>table</code>.
+The metavalue is looked up in the metatable of <code>table</code>.
+
+
+<p>
+The metavalue for this event can be either a function, a table,
+or any value with an <code>__index</code> metavalue.
+If it is a function,
+it is called with <code>table</code> and <code>key</code> as arguments,
+and the result of the call
+(adjusted to one value)
+is the result of the operation.
+Otherwise,
+the final result is the result of indexing this metavalue with <code>key</code>.
+This indexing is regular, not raw,
+and therefore can trigger another <code>__index</code> metavalue.
+</p></li>
+
+<li><b><code>__newindex</code>: </b>
+The indexing assignment <code>table[key] = value</code>.
+Like the index event,
+this event happens when <code>table</code> is not a table or
+when <code>key</code> is not present in <code>table</code>.
+The metavalue is looked up in the metatable of <code>table</code>.
+
+
+<p>
+Like with indexing,
+the metavalue for this event can be either a function, a table,
+or any value with an <code>__newindex</code> metavalue.
+If it is a function,
+it is called with <code>table</code>, <code>key</code>, and <code>value</code> as arguments.
+Otherwise,
+Lua repeats the indexing assignment over this metavalue
+with the same key and value.
+This assignment is regular, not raw,
+and therefore can trigger another <code>__newindex</code> metavalue.
+
+
+</p><p>
+Whenever a <code>__newindex</code> metavalue is invoked,
+Lua does not perform the primitive assignment.
+If needed,
+the metamethod itself can call <a href="#pdf-rawset"><code>rawset</code></a>
+to do the assignment.
+</p></li>
+
+<li><b><code>__call</code>: </b>
+The call operation <code>func(args)</code>.
+This event happens when Lua tries to call a non-function value
+(that is, <code>func</code> is not a function).
+The metamethod is looked up in <code>func</code>.
+If present,
+the metamethod is called with <code>func</code> as its first argument,
+followed by the arguments of the original call (<code>args</code>).
+All results of the call
+are the results of the operation.
+This is the only metamethod that allows multiple results.
+</li>
+
+</ul>
+
+<p>
+In addition to the previous list,
+the interpreter also respects the following keys in metatables:
+<code>__gc</code> (see <a href="#2.5.3">§2.5.3</a>),
+<code>__close</code> (see <a href="#3.3.8">§3.3.8</a>),
+<code>__mode</code> (see <a href="#2.5.4">§2.5.4</a>),
+and <code>__name</code>.
+(The entry <code>__name</code>,
+when it contains a string,
+may be used by <a href="#pdf-tostring"><code>tostring</code></a> and in error messages.)
+
+
+</p><p>
+For the unary operators (negation, length, and bitwise NOT),
+the metamethod is computed and called with a dummy second operand,
+equal to the first one.
+This extra operand is only to simplify Lua's internals
+(by making these operators behave like a binary operation)
+and may be removed in future versions.
+For most uses this extra operand is irrelevant.
+
+
+</p><p>
+Because metatables are regular tables,
+they can contain arbitrary fields,
+not only the event names defined above.
+Some functions in the standard library
+(e.g., <a href="#pdf-tostring"><code>tostring</code></a>)
+use other fields in metatables for their own purposes.
+
+
+</p><p>
+It is a good practice to add all needed metamethods to a table
+before setting it as a metatable of some object.
+In particular, the <code>__gc</code> metamethod works only when this order
+is followed (see <a href="#2.5.3">§2.5.3</a>).
+It is also a good practice to set the metatable of an object
+right after its creation.
+
+
+
+
+
+</p><h2>2.5 – <a name="2.5">Garbage Collection</a></h2>
+
+
+
+<p>
+Lua performs automatic memory management.
+This means that
+you do not have to worry about allocating memory for new objects
+or freeing it when the objects are no longer needed.
+Lua manages memory automatically by running
+a <em>garbage collector</em> to collect all <em>dead</em> objects.
+All memory used by Lua is subject to automatic management:
+strings, tables, userdata, functions, threads, internal structures, etc.
+
+
+</p><p>
+An object is considered <em>dead</em>
+as soon as the collector can be sure the object
+will not be accessed again in the normal execution of the program.
+("Normal execution" here excludes finalizers,
+which can resurrect dead objects (see <a href="#2.5.3">§2.5.3</a>),
+and excludes also operations using the debug library.)
+Note that the time when the collector can be sure that an object
+is dead may not coincide with the programmer's expectations.
+The only guarantees are that Lua will not collect an object
+that may still be accessed in the normal execution of the program,
+and it will eventually collect an object
+that is inaccessible from Lua.
+(Here,
+<em>inaccessible from Lua</em> means that neither a variable nor
+another live object refer to the object.)
+Because Lua has no knowledge about C&nbsp;code,
+it never collects objects accessible through the registry (see <a href="#4.3">§4.3</a>),
+which includes the global environment (see <a href="#2.2">§2.2</a>).
+
+
+</p><p>
+The garbage collector (GC) in Lua can work in two modes:
+incremental and generational.
+
+
+</p><p>
+The default GC mode with the default parameters
+are adequate for most uses.
+However, programs that waste a large proportion of their time
+allocating and freeing memory can benefit from other settings.
+Keep in mind that the GC behavior is non-portable
+both across platforms and across different Lua releases;
+therefore, optimal settings are also non-portable.
+
+
+</p><p>
+You can change the GC mode and parameters by calling
+<a href="#lua_gc"><code>lua_gc</code></a> in&nbsp;C
+or <a href="#pdf-collectgarbage"><code>collectgarbage</code></a> in Lua.
+You can also use these functions to control
+the collector directly (e.g., to stop and restart it).
+
+
+
+
+
+</p><h3>2.5.1 – <a name="2.5.1">Incremental Garbage Collection</a></h3>
+
+<p>
+In incremental mode,
+each GC cycle performs a mark-and-sweep collection in small steps
+interleaved with the program's execution.
+In this mode,
+the collector uses three numbers to control its garbage-collection cycles:
+the <em>garbage-collector pause</em>,
+the <em>garbage-collector step multiplier</em>,
+and the <em>garbage-collector step size</em>.
+
+
+</p><p>
+The garbage-collector pause
+controls how long the collector waits before starting a new cycle.
+The collector starts a new cycle when the use of memory
+hits <em>n%</em> of the use after the previous collection.
+Larger values make the collector less aggressive.
+Values equal to or less than 100 mean the collector will not wait to
+start a new cycle.
+A value of 200 means that the collector waits for the total memory in use
+to double before starting a new cycle.
+The default value is 200; the maximum value is 1000.
+
+
+</p><p>
+The garbage-collector step multiplier
+controls the speed of the collector relative to
+memory allocation,
+that is,
+how many elements it marks or sweeps for each
+kilobyte of memory allocated.
+Larger values make the collector more aggressive but also increase
+the size of each incremental step.
+You should not use values less than 100,
+because they make the collector too slow and
+can result in the collector never finishing a cycle.
+The default value is 100;  the maximum value is 1000.
+
+
+</p><p>
+The garbage-collector step size controls the
+size of each incremental step,
+specifically how many bytes the interpreter allocates
+before performing a step.
+This parameter is logarithmic:
+A value of <em>n</em> means the interpreter will allocate <em>2<sup>n</sup></em>
+bytes between steps and perform equivalent work during the step.
+A large value (e.g., 60) makes the collector a stop-the-world
+(non-incremental) collector.
+The default value is 13,
+which means steps of approximately 8&nbsp;Kbytes.
+
+
+
+
+
+</p><h3>2.5.2 – <a name="2.5.2">Generational Garbage Collection</a></h3>
+
+<p>
+In generational mode,
+the collector does frequent <em>minor</em> collections,
+which traverses only objects recently created.
+If after a minor collection the use of memory is still above a limit,
+the collector does a stop-the-world <em>major</em> collection,
+which traverses all objects.
+The generational mode uses two parameters:
+the <em>minor multiplier</em> and the <em>the major multiplier</em>.
+
+
+</p><p>
+The minor multiplier controls the frequency of minor collections.
+For a minor multiplier <em>x</em>,
+a new minor collection will be done when memory
+grows <em>x%</em> larger than the memory in use after the previous major
+collection.
+For instance, for a multiplier of 20,
+the collector will do a minor collection when the use of memory
+gets 20% larger than the use after the previous major collection.
+The default value is 20; the maximum value is 200.
+
+
+</p><p>
+The major multiplier controls the frequency of major collections.
+For a major multiplier <em>x</em>,
+a new major collection will be done when memory
+grows <em>x%</em> larger than the memory in use after the previous major
+collection.
+For instance, for a multiplier of 100,
+the collector will do a major collection when the use of memory
+gets larger than twice the use after the previous collection.
+The default value is 100; the maximum value is 1000.
+
+
+
+
+
+</p><h3>2.5.3 – <a name="2.5.3">Garbage-Collection Metamethods</a></h3>
+
+<p>
+You can set garbage-collector metamethods for tables
+and, using the C&nbsp;API,
+for full userdata (see <a href="#2.4">§2.4</a>).
+These metamethods, called <em>finalizers</em>,
+are called when the garbage collector detects that the
+corresponding table or userdata is dead.
+Finalizers allow you to coordinate Lua's garbage collection
+with external resource management such as closing files,
+network or database connections,
+or freeing your own memory.
+
+
+</p><p>
+For an object (table or userdata) to be finalized when collected,
+you must <em>mark</em> it for finalization.
+
+You mark an object for finalization when you set its metatable
+and the metatable has a <code>__gc</code> metamethod.
+Note that if you set a metatable without a <code>__gc</code> field
+and later create that field in the metatable,
+the object will not be marked for finalization.
+
+
+</p><p>
+When a marked object becomes dead,
+it is not collected immediately by the garbage collector.
+Instead, Lua puts it in a list.
+After the collection,
+Lua goes through that list.
+For each object in the list,
+it checks the object's <code>__gc</code> metamethod:
+If it is present,
+Lua calls it with the object as its single argument.
+
+
+</p><p>
+At the end of each garbage-collection cycle,
+the finalizers are called in
+the reverse order that the objects were marked for finalization,
+among those collected in that cycle;
+that is, the first finalizer to be called is the one associated
+with the object marked last in the program.
+The execution of each finalizer may occur at any point during
+the execution of the regular code.
+
+
+</p><p>
+Because the object being collected must still be used by the finalizer,
+that object (and other objects accessible only through it)
+must be <em>resurrected</em> by Lua.
+Usually, this resurrection is transient,
+and the object memory is freed in the next garbage-collection cycle.
+However, if the finalizer stores the object in some global place
+(e.g., a global variable),
+then the resurrection is permanent.
+Moreover, if the finalizer marks a finalizing object for finalization again,
+its finalizer will be called again in the next cycle where the
+object is dead.
+In any case,
+the object memory is freed only in a GC cycle where
+the object is dead and not marked for finalization.
+
+
+</p><p>
+When you close a state (see <a href="#lua_close"><code>lua_close</code></a>),
+Lua calls the finalizers of all objects marked for finalization,
+following the reverse order that they were marked.
+If any finalizer marks objects for collection during that phase,
+these marks have no effect.
+
+
+</p><p>
+Finalizers cannot yield nor run the garbage collector.
+Because they can run in unpredictable times,
+it is good practice to restrict each finalizer
+to the minimum necessary to properly release
+its associated resource.
+
+
+</p><p>
+Any error while running a finalizer generates a warning;
+the error is not propagated.
+
+
+
+
+
+</p><h3>2.5.4 – <a name="2.5.4">Weak Tables</a></h3>
+
+<p>
+A <em>weak table</em> is a table whose elements are
+<em>weak references</em>.
+A weak reference is ignored by the garbage collector.
+In other words,
+if the only references to an object are weak references,
+then the garbage collector will collect that object.
+
+
+</p><p>
+A weak table can have weak keys, weak values, or both.
+A table with weak values allows the collection of its values,
+but prevents the collection of its keys.
+A table with both weak keys and weak values allows the collection of
+both keys and values.
+In any case, if either the key or the value is collected,
+the whole pair is removed from the table.
+The weakness of a table is controlled by the
+<code>__mode</code> field of its metatable.
+This metavalue, if present, must be one of the following strings:
+"<code>k</code>", for a table with weak keys;
+"<code>v</code>", for a table with weak values;
+or "<code>kv</code>", for a table with both weak keys and values.
+
+
+</p><p>
+A table with weak keys and strong values
+is also called an <em>ephemeron table</em>.
+In an ephemeron table,
+a value is considered reachable only if its key is reachable.
+In particular,
+if the only reference to a key comes through its value,
+the pair is removed.
+
+
+</p><p>
+Any change in the weakness of a table may take effect only
+at the next collect cycle.
+In particular, if you change the weakness to a stronger mode,
+Lua may still collect some items from that table
+before the change takes effect.
+
+
+</p><p>
+Only objects that have an explicit construction
+are removed from weak tables.
+Values, such as numbers and light C&nbsp;functions,
+are not subject to garbage collection,
+and therefore are not removed from weak tables
+(unless their associated values are collected).
+Although strings are subject to garbage collection,
+they do not have an explicit construction and
+their equality is by value;
+they behave more like values than like objects.
+Therefore, they are not removed from weak tables.
+
+
+</p><p>
+Resurrected objects
+(that is, objects being finalized
+and objects accessible only through objects being finalized)
+have a special behavior in weak tables.
+They are removed from weak values before running their finalizers,
+but are removed from weak keys only in the next collection
+after running their finalizers, when such objects are actually freed.
+This behavior allows the finalizer to access properties
+associated with the object through weak tables.
+
+
+</p><p>
+If a weak table is among the resurrected objects in a collection cycle,
+it may not be properly cleared until the next cycle.
+
+
+
+
+
+
+
+</p><h2>2.6 – <a name="2.6">Coroutines</a></h2>
+
+<p>
+Lua supports coroutines,
+also called <em>collaborative multithreading</em>.
+A coroutine in Lua represents an independent thread of execution.
+Unlike threads in multithread systems, however,
+a coroutine only suspends its execution by explicitly calling
+a yield function.
+
+
+</p><p>
+You create a coroutine by calling <a href="#pdf-coroutine.create"><code>coroutine.create</code></a>.
+Its sole argument is a function
+that is the main function of the coroutine.
+The <code>create</code> function only creates a new coroutine and
+returns a handle to it (an object of type <em>thread</em>);
+it does not start the coroutine.
+
+
+</p><p>
+You execute a coroutine by calling <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>.
+When you first call <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>,
+passing as its first argument
+a thread returned by <a href="#pdf-coroutine.create"><code>coroutine.create</code></a>,
+the coroutine starts its execution by
+calling its main function.
+Extra arguments passed to <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> are passed
+as arguments to that function.
+After the coroutine starts running,
+it runs until it terminates or <em>yields</em>.
+
+
+</p><p>
+A coroutine can terminate its execution in two ways:
+normally, when its main function returns
+(explicitly or implicitly, after the last instruction);
+and abnormally, if there is an unprotected error.
+In case of normal termination,
+<a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> returns <b>true</b>,
+plus any values returned by the coroutine main function.
+In case of errors, <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> returns <b>false</b>
+plus the error object.
+In this case, the coroutine does not unwind its stack,
+so that it is possible to inspect it after the error
+with the debug API.
+
+
+</p><p>
+A coroutine yields by calling <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a>.
+When a coroutine yields,
+the corresponding <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> returns immediately,
+even if the yield happens inside nested function calls
+(that is, not in the main function,
+but in a function directly or indirectly called by the main function).
+In the case of a yield, <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> also returns <b>true</b>,
+plus any values passed to <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a>.
+The next time you resume the same coroutine,
+it continues its execution from the point where it yielded,
+with the call to <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a> returning any extra
+arguments passed to <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>.
+
+
+</p><p>
+Like <a href="#pdf-coroutine.create"><code>coroutine.create</code></a>,
+the <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a> function also creates a coroutine,
+but instead of returning the coroutine itself,
+it returns a function that, when called, resumes the coroutine.
+Any arguments passed to this function
+go as extra arguments to <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>.
+<a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a> returns all the values returned by <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>,
+except the first one (the boolean error code).
+Unlike <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>,
+the function created by <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a>
+propagates any error to the caller.
+In this case,
+the function also closes the coroutine (see <a href="#pdf-coroutine.close"><code>coroutine.close</code></a>).
+
+
+</p><p>
+As an example of how coroutines work,
+consider the following code:
+
+</p><pre>     function foo (a)
+       print("foo", a)
+       return coroutine.yield(2*a)
+     end
+     
+     co = coroutine.create(function (a,b)
+           print("co-body", a, b)
+           local r = foo(a+1)
+           print("co-body", r)
+           local r, s = coroutine.yield(a+b, a-b)
+           print("co-body", r, s)
+           return b, "end"
+     end)
+     
+     print("main", coroutine.resume(co, 1, 10))
+     print("main", coroutine.resume(co, "r"))
+     print("main", coroutine.resume(co, "x", "y"))
+     print("main", coroutine.resume(co, "x", "y"))
+</pre><p>
+When you run it, it produces the following output:
+
+</p><pre>     co-body 1       10
+     foo     2
+     main    true    4
+     co-body r
+     main    true    11      -9
+     co-body x       y
+     main    true    10      end
+     main    false   cannot resume dead coroutine
+</pre>
+
+<p>
+You can also create and manipulate coroutines through the C API:
+see functions <a href="#lua_newthread"><code>lua_newthread</code></a>, <a href="#lua_resume"><code>lua_resume</code></a>,
+and <a href="#lua_yield"><code>lua_yield</code></a>.
+
+
+
+
+
+</p><h1>3 – <a name="3">The Language</a></h1>
+
+
+
+<p>
+This section describes the lexis, the syntax, and the semantics of Lua.
+In other words,
+this section describes
+which tokens are valid,
+how they can be combined,
+and what their combinations mean.
+
+
+</p><p>
+Language constructs will be explained using the usual extended BNF notation,
+in which
+{<em>a</em>}&nbsp;means&nbsp;0 or more <em>a</em>'s, and
+[<em>a</em>]&nbsp;means an optional <em>a</em>.
+Non-terminals are shown like non-terminal,
+keywords are shown like <b>kword</b>,
+and other terminal symbols are shown like ‘<b>=</b>’.
+The complete syntax of Lua can be found in <a href="#9">§9</a>
+at the end of this manual.
+
+
+
+
+
+</p><h2>3.1 – <a name="3.1">Lexical Conventions</a></h2>
+
+<p>
+Lua is a free-form language.
+It ignores spaces and comments between lexical elements (tokens),
+except as delimiters between two tokens.
+In source code,
+Lua recognizes as spaces the standard ASCII whitespace
+characters space, form feed, newline,
+carriage return, horizontal tab, and vertical tab.
+
+
+</p><p>
+<em>Names</em>
+(also called <em>identifiers</em>)
+in Lua can be any string of Latin letters,
+Arabic-Indic digits, and underscores,
+not beginning with a digit and
+not being a reserved word.
+Identifiers are used to name variables, table fields, and labels.
+
+
+</p><p>
+The following <em>keywords</em> are reserved
+and cannot be used as names:
+
+
+</p><pre>     and       break     do        else      elseif    end
+     false     for       function  goto      if        in
+     local     nil       not       or        repeat    return
+     then      true      until     while
+</pre>
+
+<p>
+Lua is a case-sensitive language:
+<code>and</code> is a reserved word, but <code>And</code> and <code>AND</code>
+are two different, valid names.
+As a convention,
+programs should avoid creating
+names that start with an underscore followed by
+one or more uppercase letters (such as <a href="#pdf-_VERSION"><code>_VERSION</code></a>).
+
+
+</p><p>
+The following strings denote other tokens:
+
+</p><pre>     +     -     *     /     %     ^     #
+     &amp;     ~     |     &lt;&lt;    &gt;&gt;    //
+     ==    ~=    &lt;=    &gt;=    &lt;     &gt;     =
+     (     )     {     }     [     ]     ::
+     ;     :     ,     .     ..    ...
+</pre>
+
+<p>
+A <em>short literal string</em>
+can be delimited by matching single or double quotes,
+and can contain the following C-like escape sequences:
+'<code>\a</code>' (bell),
+'<code>\b</code>' (backspace),
+'<code>\f</code>' (form feed),
+'<code>\n</code>' (newline),
+'<code>\r</code>' (carriage return),
+'<code>\t</code>' (horizontal tab),
+'<code>\v</code>' (vertical tab),
+'<code>\\</code>' (backslash),
+'<code>\"</code>' (quotation mark [double quote]),
+and '<code>\'</code>' (apostrophe [single quote]).
+A backslash followed by a line break
+results in a newline in the string.
+The escape sequence '<code>\z</code>' skips the following span
+of whitespace characters,
+including line breaks;
+it is particularly useful to break and indent a long literal string
+into multiple lines without adding the newlines and spaces
+into the string contents.
+A short literal string cannot contain unescaped line breaks
+nor escapes not forming a valid escape sequence.
+
+
+</p><p>
+We can specify any byte in a short literal string,
+including embedded zeros,
+by its numeric value.
+This can be done
+with the escape sequence <code>\x<em>XX</em></code>,
+where <em>XX</em> is a sequence of exactly two hexadecimal digits,
+or with the escape sequence <code>\<em>ddd</em></code>,
+where <em>ddd</em> is a sequence of up to three decimal digits.
+(Note that if a decimal escape sequence is to be followed by a digit,
+it must be expressed using exactly three digits.)
+
+
+</p><p>
+The UTF-8 encoding of a Unicode character
+can be inserted in a literal string with
+the escape sequence <code>\u{<em>XXX</em>}</code>
+(with mandatory enclosing braces),
+where <em>XXX</em> is a sequence of one or more hexadecimal digits
+representing the character code point.
+This code point can be any value less than <em>2<sup>31</sup></em>.
+(Lua uses the original UTF-8 specification here,
+which is not restricted to valid Unicode code points.)
+
+
+</p><p>
+Literal strings can also be defined using a long format
+enclosed by <em>long brackets</em>.
+We define an <em>opening long bracket of level <em>n</em></em> as an opening
+square bracket followed by <em>n</em> equal signs followed by another
+opening square bracket.
+So, an opening long bracket of level&nbsp;0 is written as <code>[[</code>, 
+an opening long bracket of level&nbsp;1 is written as <code>[=[</code>, 
+and so on.
+A <em>closing long bracket</em> is defined similarly;
+for instance,
+a closing long bracket of level&nbsp;4 is written as  <code>]====]</code>.
+A <em>long literal</em> starts with an opening long bracket of any level and
+ends at the first closing long bracket of the same level.
+It can contain any text except a closing bracket of the same level.
+Literals in this bracketed form can run for several lines,
+do not interpret any escape sequences,
+and ignore long brackets of any other level.
+Any kind of end-of-line sequence
+(carriage return, newline, carriage return followed by newline,
+or newline followed by carriage return)
+is converted to a simple newline.
+When the opening long bracket is immediately followed by a newline,
+the newline is not included in the string.
+
+
+</p><p>
+As an example, in a system using ASCII
+(in which '<code>a</code>' is coded as&nbsp;97,
+newline is coded as&nbsp;10, and '<code>1</code>' is coded as&nbsp;49),
+the five literal strings below denote the same string:
+
+</p><pre>     a = 'alo\n123"'
+     a = "alo\n123\""
+     a = '\97lo\10\04923"'
+     a = [[alo
+     123"]]
+     a = [==[
+     alo
+     123"]==]
+</pre>
+
+<p>
+Any byte in a literal string not
+explicitly affected by the previous rules represents itself.
+However, Lua opens files for parsing in text mode,
+and the system's file functions may have problems with
+some control characters.
+So, it is safer to represent
+binary data as a quoted literal with
+explicit escape sequences for the non-text characters.
+
+
+</p><p>
+A <em>numeric constant</em> (or <em>numeral</em>)
+can be written with an optional fractional part
+and an optional decimal exponent,
+marked by a letter '<code>e</code>' or '<code>E</code>'.
+Lua also accepts hexadecimal constants,
+which start with <code>0x</code> or <code>0X</code>.
+Hexadecimal constants also accept an optional fractional part
+plus an optional binary exponent,
+marked by a letter '<code>p</code>' or '<code>P</code>' and written in decimal.
+(For instance, <code>0x1.fp10</code> denotes 1984,
+which is <em>0x1f / 16</em> multiplied by <em>2<sup>10</sup></em>.)
+
+
+</p><p>
+A numeric constant with a radix point or an exponent
+denotes a float;
+otherwise,
+if its value fits in an integer or it is a hexadecimal constant,
+it denotes an integer;
+otherwise (that is, a decimal integer numeral that overflows),
+it denotes a float.
+Hexadecimal numerals with neither a radix point nor an exponent
+always denote an integer value;
+if the value overflows, it <em>wraps around</em>
+to fit into a valid integer.
+
+
+</p><p>
+Examples of valid integer constants are
+
+</p><pre>     3   345   0xff   0xBEBADA
+</pre><p>
+Examples of valid float constants are
+
+</p><pre>     3.0     3.1416     314.16e-2     0.31416E1     34e1
+     0x0.1E  0xA23p-4   0X1.921FB54442D18P+1
+</pre>
+
+<p>
+A <em>comment</em> starts with a double hyphen (<code>--</code>)
+anywhere outside a string.
+If the text immediately after <code>--</code> is not an opening long bracket,
+the comment is a <em>short comment</em>,
+which runs until the end of the line.
+Otherwise, it is a <em>long comment</em>,
+which runs until the corresponding closing long bracket.
+
+
+
+
+
+</p><h2>3.2 – <a name="3.2">Variables</a></h2>
+
+<p>
+Variables are places that store values.
+There are three kinds of variables in Lua:
+global variables, local variables, and table fields.
+
+
+</p><p>
+A single name can denote a global variable or a local variable
+(or a function's formal parameter,
+which is a particular kind of local variable):
+
+</p><pre>	var ::= Name
+</pre><p>
+Name denotes identifiers (see <a href="#3.1">§3.1</a>).
+
+
+</p><p>
+Any variable name is assumed to be global unless explicitly declared
+as a local (see <a href="#3.3.7">§3.3.7</a>).
+Local variables are <em>lexically scoped</em>:
+local variables can be freely accessed by functions
+defined inside their scope (see <a href="#3.5">§3.5</a>).
+
+
+</p><p>
+Before the first assignment to a variable, its value is <b>nil</b>.
+
+
+</p><p>
+Square brackets are used to index a table:
+
+</p><pre>	var ::= prefixexp ‘<b>[</b>’ exp ‘<b>]</b>’
+</pre><p>
+The meaning of accesses to table fields can be changed via metatables
+(see <a href="#2.4">§2.4</a>).
+
+
+</p><p>
+The syntax <code>var.Name</code> is just syntactic sugar for
+<code>var["Name"]</code>:
+
+</p><pre>	var ::= prefixexp ‘<b>.</b>’ Name
+</pre>
+
+<p>
+An access to a global variable <code>x</code>
+is equivalent to <code>_ENV.x</code>.
+Due to the way that chunks are compiled,
+the variable <code>_ENV</code> itself is never global (see <a href="#2.2">§2.2</a>).
+
+
+
+
+
+</p><h2>3.3 – <a name="3.3">Statements</a></h2>
+
+
+
+<p>
+Lua supports an almost conventional set of statements,
+similar to those in other conventional languages.
+This set includes
+blocks, assignments, control structures, function calls,
+and variable declarations.
+
+
+
+
+
+</p><h3>3.3.1 – <a name="3.3.1">Blocks</a></h3>
+
+<p>
+A block is a list of statements,
+which are executed sequentially:
+
+</p><pre>	block ::= {stat}
+</pre><p>
+<!-- slice ends -->
