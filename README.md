@@ -6,4 +6,5 @@
 
 |名称|原始连接|
 |---|---|
-|[文档 - Zig 编程语言 v0.15.2.html](./文档%20-%20Zig%20编程语言%20v0.15.2.html)|[https://ziglang.org/documentation/0.15.2/](https://ziglang.org/documentation/0.15.2/)|
+|[文档 - Zig 编程语言 v0.15.2](./文档%20-%20Zig%20编程语言%20v0.15.2.html)|[https://ziglang.org/documentation/0.15.2/](https://ziglang.org/documentation/0.15.2/)|
+|[Lua 5.4 参考手册](./Lua%205.4%20参考手册.html)|[https://www.lua.org/manual/5.4/manual.html](https://www.lua.org/manual/5.4/manual.html)|
