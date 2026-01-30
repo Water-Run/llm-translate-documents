@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>MiniScript 快速参考</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            background-color: #9e9e9e;
+            padding: 20px;
+        }
+
+        .page {
+            width: 612px;
+            height: 950px;
+            background: white;
+            margin: 0 auto;
+            padding: 25px 20px 15px 20px;
+            box-shadow: 1px 1px 3px 1px #333;
+            position: relative;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .column {
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        h1 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        h2 {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            color: #000;
+        }
+
+        h3 {
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            color: #000;
+        }
+
+        p {
+            margin-bottom: 6px;
+            text-align: justify;
+        }
+
+        pre,
+        code {
+            font-family: "Consolas", "Courier New", monospace;
+            background: #f5f5f5;
+            font-size: 9px;
+        }
+
+        pre {
+            padding: 6px;
+            margin: 6px 0;
+            overflow-x: auto;
+            line-height: 1.3;
+        }
+
+        code {
+            padding: 1px 3px;
+        }
+
+        .comment {
+            color: #7f7f7f;
+        }
+
+        .operators {
+            margin: 4px 0;
+        }
+
+        .operators div {
+            display: flex;
+            margin: 2px 0;
+        }
+
+        .operators code {
+            min-width: 80px;
+            margin-right: 8px;
+        }
+
+        .page-footer {
+            position: absolute;
+            bottom: 6px;            
+            left: 20px;
+            right: 20px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+        }
+
+        .version-info {
+            font-size: 8px;
+            color: #7f7f7f;
+            margin-bottom: 4px;
+        }
+
+        .translation-info {
+            font-size: 6px;             
+            color: #7f7f7f;
+            white-space: nowrap;
+            overflow: hidden;         
+            text-overflow: ellipsis;   
+        }
+        .translation-info a {
+            color: #7f7f7f;
+            text-decoration: none;
+        }
+
+        .translation-info a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="content">
+            <!-- 第一列 -->
+            <div class="column">
+                <h1>欢迎使用 MiniScript！</h1>
+                <p>MiniScript 是一种易于阅读和编写的高级面向对象编程语言。</p>
+
+                <h2>简洁语法</h2>
+                <p>每行放置一条语句，无需分号，除非要在一行中连接多条语句。</p>
+                <p>代码块由关键字分隔（见下文）。缩进不影响程序运行（但有助于提高可读性）。</p>
+                <p>注释以 <code>//</code> 开头。</p>
+                <p>函数调用时不要使用空括号，<code>if</code> 或 <code>while</code> 块的条件也不需要括号。</p>
+                <p>所有变量默认为局部变量。MiniScript 区分大小写。</p>
+
+                <h2>控制流</h2>
+                <h3>if, else if, else, end if</h3>
+                <p>使用 <code>if</code> 块根据条件执行不同操作。可以包含零个或多个 <code>else if</code> 块以及一个可选的 <code>else</code> 块。</p>
+                <pre>if 2+2 == 4 then
+    print "数学正确！"
+else if pi > 3 then
+    print "π 很美味"
+else if "a" < "b" then
+    print "我会排序"
+else
+    print "最后机会"
+end if</pre>
+
+                <h3>while, end while</h3>
+                <p>使用 <code>while</code> 块在条件为真时循环执行。</p>
+                <pre>s = "Spam"
+while s.len < 50
+    s = s + ", spam"
+end while
+print s + " and spam!"</pre>
+
+                <h3>for, end for</h3>
+                <p><code>for</code> 循环可以遍历任何列表，包括使用 <code>range</code> 函数轻松创建的列表。</p>
+                <pre>for i in range(10, 1)
+    print i + "..."
+end for
+print "发射！"</pre>
+
+                <h3>break 与 continue</h3>
+                <p><code>break</code> 语句跳出 <code>while</code> 或 <code>for</code> 循环。<code>continue</code>
+                    语句跳到循环顶部，跳过当前迭代的剩余部分。</p>
+            </div>
+
+            <!-- 第二列 -->
+            <div class="column">
+                <h1>数据类型</h1>
+
+                <h3>数值</h3>
+                <p>所有数值以全精度格式存储。数值也可表示 true (1) 和 false (0)。运算符：</p>
+                <div class="operators">
+                    <div><code>+, -, *, /</code> 标准数学运算</div>
+                    <div><code>%</code> 取模（余数）</div>
+                    <div><code>^</code> 幂运算</div>
+                    <div><code>and, or, not</code> 逻辑运算符</div>
+                    <div><code>==, !=, >, >=, <, <=</code> 比较运算符</div>
+                </div>
+
+                <h3>字符串</h3>
+                <p>文本存储为 Unicode 字符串。用引号括起来表示字符串。如需在字符串中包含引号，请连续输入两个引号。</p>
+                <pre>print "好的，""鲍勃""。"</pre>
+                <p>运算符：</p>
+                <div class="operators">
+                    <div><code>+</code> 字符串连接</div>
+                    <div><code>-</code> 字符串减法（截断）</div>
+                    <div><code>*, /</code> 复制、分割</div>
+                    <div><code>==, !=, >, >=, <, <=</code> 比较</div>
+                    <div><code>[i]</code> 获取第 i 个字符</div>
+                    <div><code>[i:j]</code> 获取从 i 到 j 的切片</div>
+                </div>
+
+                <h3>列表</h3>
+                <p>用方括号编写列表。使用 <code>for</code> 遍历列表，或用基于 0 的索引（方括号）获取单个元素。负索引从末尾计数。使用冒号分隔的两个索引获取切片（子集）。</p>
+                <pre>x = [2, 4, 6, 8]
+x[0]   <span class="comment">// 2</span>
+x[-1]  <span class="comment">// 8</span>
+x[1:3] <span class="comment">// [4, 6]</span>
+x[2]=5 <span class="comment">// x 变为 [2,4,5,8]</span></pre>
+                <p>运算符：</p>
+                <div class="operators">
+                    <div><code>+</code> 列表连接</div>
+                    <div><code>*, /</code> 复制、分割</div>
+                    <div><code>[i]</code> 获取/设置第 i 个元素</div>
+                    <div><code>[i:j]</code> 获取从 i 到 j 的切片</div>
+                </div>
+
+                <h3>映射</h3>
+                <p>映射是一组与唯一键关联的值。用花括号创建映射；用方括号获取或设置单个值。键和值可以是任何类型。</p>
+                <pre>m = {1:"一", 2:"二"}
+m[1]   <span class="comment">// "一"</span>
+m[2] = "dos"</pre>
+                <p>运算符：</p>
+                <div class="operators">
+                    <div><code>+</code> 映射连接</div>
+                    <div><code>[k]</code> 获取/设置键 k 的值</div>
+                    <div><code>.ident</code> 通过标识符获取/设置值</div>
+                </div>
+            </div>
+
+            <!-- 第三列 -->
+            <div class="column">
+                <h1>函数</h1>
+                <p>使用 <code>function()</code> 创建函数，包含带可选默认值的参数。将结果赋给变量，然后通过该变量调用。使用 <code>@</code> 引用函数而不调用它。</p>
+                <pre>triple = function(n=1)
+    return n*3
+end function
+print triple      <span class="comment">// 3</span>
+print triple(5)   <span class="comment">// 15</span>
+f = @triple
+print f(5)   <span class="comment">// 同样是 15</span></pre>
+
+                <h1>类与对象</h1>
+                <p>类或对象是一个带有特殊 <code>__isa</code> 条目的映射，该条目指向父类。使用 <code>new</code> 运算符时会自动设置。</p>
+                <pre>Shape = {"sides":0}
+Square = new Shape
+Square.sides = 4
+x = new Square
+x.sides  <span class="comment">// 4</span></pre>
+                <p>通过点语法调用的函数会获得一个 <code>self</code> 变量，指向被调用的对象。</p>
+                <pre>Shape.degrees = function()
+    return 180*(self.sides-2)
+end function
+x.degrees   <span class="comment">// 360</span></pre>
+
+                <h1>内置函数</h1>
+                <h3>数值</h3>
+                <pre>abs(x)     acos(x)    asin(x)
+atan(y,x)  ceil(x)    char(i)
+cos(r)     floor(x)   log(x,b)
+round(x,d) rnd        rnd(seed)
+pi         sign(x)    sin(r)
+sqrt(x)    str(x)     tan(r)</pre>
+
+                <h3>字符串</h3>
+                <pre>.indexOf(s)    .insert(i,s)
+.len           .val        .code
+.remove(s)     .lower      .upper
+.replace(a,b)  .split(d)</pre>
+
+                <h3>列表/映射</h3>
+                <pre>.hasIndex(i)   .indexOf(x)
+.insert(i,v)   .join(s)
+.push(x)       .pop        .pull
+.indexes       .values
+.len           .sum        .sort
+.shuffle       .remove(i)
+range(from,to,step)</pre>
+
+                <h3>其他</h3>
+                <pre>print(s)   time       wait(sec)
+locals     outer      globals
+yield</pre>
+            </div>
+        </div>
+
+        <!-- 页面底部 -->
+        <div class="page-footer">
+            <div class="version-info">MiniScript 快速参考 版本 1.5</div>
+            <div class="translation-info">
+                翻译: WaterRun | 模型: Claude-Opus-4.5 | 原文: https://miniscript.org/files/MiniScript-QuickRef.pdf | GitHub:
+                <a
+                    href="https://github.com/Water-Run/llm-translate-documents">https://github.com/Water-Run/llm-translate-documents</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
