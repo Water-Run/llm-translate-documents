@@ -1,0 +1,1 @@
+#set page(margin: 0pt)
