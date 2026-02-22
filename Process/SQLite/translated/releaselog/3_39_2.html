@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.39.2 On 2022-07-21</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.39.2 On 2022-07-21</h2><p><b>Prior changes from version 3.39.0 (2022-06-25):</b></p>
+<p><ol class='lessindent'>
+<li value='1'> Add (long overdue) support for <a href="../lang_select.html#rjoin">RIGHT and FULL OUTER JOIN</a>.
+<li> Add new binary comparison operators <a href="../lang_expr.html#isdf">IS NOT DISTINCT FROM</a> and <a href="../lang_expr.html#isdf">IS DISTINCT FROM</a>
+     that are equivalent to IS and IS NOT, respective, for compatibility with
+     PostgreSQL and SQL standards.
+<li> Add a new return code (value "3") from the <a href="../c3ref/vtab_distinct.html">sqlite3_vtab_distinct()</a>
+     interface that indicates a query that has both DISTINCT and ORDER BY
+     clauses.
+<li> Added the <a href="../c3ref/db_name.html">sqlite3_db_name()</a> interface.
+<li> The unix os interface resolves all symbolic links in database
+     filenames to create a canonical name for the database before the
+     file is opened.
+     If the <a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOFOLLOW</a> flag is used with <a href="../c3ref/open.html">sqlite3_open_v2()</a>
+     or similar, the open will fail if any element of the path is a
+     symbolic link.
+<li> Defer materializing views until the materialization
+     is actually needed, thus avoiding unnecessary work if the materialization turns
+     out to never be used.
+<li> The <a href="../lang_select.html#resultset">HAVING clause</a> of a <a href="../lang_select.html">SELECT statement</a> is now allowed on any aggregate query,
+     even queries that do not have a <a href="../lang_select.html#resultset">GROUP BY clause</a>.
+<li> Many <a href="../cpu.html#microopt">microoptimizations</a> collectively reduce CPU cycles by about 2.3%.
+</ol>
+<p><b>Prior changes from version 3.39.1 (2022-07-13):</b></p>
+<p><ol class='lessindent'>
+<li value='9'> Fix an incorrect result from a query that uses a view that contains a compound
+     SELECT in which only one arm contains a RIGHT JOIN and where the view is not
+     the first FROM clause term of the query that contains the view.
+     <a href="https://sqlite.org/forum/forumpost/174afeae5734d42d">forum post 174afeae5734d42d</a>.
+<li> Fix some harmless compiler warnings.
+<li> Fix a long-standing problem with <a href="../lang_altertable.html#altertabrename">ALTER TABLE RENAME</a> that can only arise
+     if the <a href="../c3ref/limit.html">sqlite3_limit</a>(<a href="../c3ref/c_limit_attached.html#sqlitelimitsqllength">SQLITE_LIMIT_SQL_LENGTH</a>) is set to a very small value.
+<li> Fix a long-standing problem in <a href="../fts3.html">FTS3</a> that can only arise when compiled with
+     the <a href="../compile.html#enable_fts3_parenthesis">SQLITE_ENABLE_FTS3_PARENTHESIS</a> compile-time option.
+<li> Fix the build so that is works when the <a href="../compile.html#debug">SQLITE_DEBUG</a> and
+     <a href="../compile.html#omit_windowfunc">SQLITE_OMIT_WINDOWFUNC</a> compile-time options are both provided at the
+     same time.
+<li> Fix the initial-prefix optimization for the <a href="../lang_expr.html#regexp">REGEXP</a> extension so that it works
+     correctly even if the prefix contains characters that require a 3-byte UTF8
+     encoding.
+<li> Enhance the <a href="../stmt.html">sqlite_stmt</a> virtual table so that it buffers all of its output.
+</ol>
+<p><b>Changes in this specific patch release, version 3.39.2 (2022-07-21):</b></p>
+<p><ol class='lessindent'>
+<li value='16'> Fix a performance regression in the query planner associated with rearranging
+     the order of FROM clause terms in the presences of a LEFT JOIN.
+<li> Apply fixes for CVE-2022-35737,  Chromium bugs 1343348 and 1345947,
+     <a href="https://sqlite.org/forum/forumpost/3607259d3c">forum post 3607259d3c</a>, and
+     other minor problems discovered by internal testing.
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2022-07-21 15:24:47 698edb77537b67c41adc68f9b892db56bcf9a55e00371a61420f3ddd668e6603
+<li>SHA3-256 for sqlite3.c: bffbaafa94706f0ed234f183af3eb46e6485e7e2c75983173ded76e0da805f11
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

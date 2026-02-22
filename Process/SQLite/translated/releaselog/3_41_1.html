@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.41.1 On 2023-03-10</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.41.1 On 2023-03-10</h2><p><b>Prior changes from version 3.41.0 (2023-02-21):</b></p>
+<p><ol class='lessindent'>
+<li value='1'>Query planner improvements:
+    <ol type="a">
+    <li> Make use of <a href="../expridx.html">indexed expressions</a> within an aggregate query that
+         includes a GROUP BY clause.
+    <li> The query planner has improved awareness of when an index is
+         a <a href="../queryplanner.html#covidx">covering index</a> and adjusts predicted runtimes accordingly.
+    <li> The query planner is more aggressive about using <a href="../optoverview.html#coroutines">co-routines</a> rather
+         than materializing subqueries and views.
+    <li> Queries against the built-in table-valued functions <a href="../json1.html#jtree">json_tree()</a> and
+         <a href="../json1.html#jeach">json_each()</a> will now usually treat "ORDER BY rowid" as a no-op.
+    <li> Enhance the ability of the query planner to use <a href="../expridx.html">indexed expressions</a>
+         even if the expression has been modified by the
+         <a href="../optoverview.html#constprop">constant-propagation optimization</a>.
+         (See <a href="https://sqlite.org/forum/forumpost/0a539c76db3b9e29">forum thread 0a539c7</a>.)
+    </ol>
+<li>Add the built-in <a href="../lang_corefunc.html#unhex">unhex()</a> SQL function.
+<li>Add the base64 and base85 application-defined functions as an extension and
+    include that extension in the <a href="../cli.html">CLI</a>.
+<li>Add the <a href="../c3ref/stmt_scanstatus.html">sqlite3_stmt_scanstatus_v2()</a> interface. (This interface is only
+    available if SQLite is compiled using <a href="../compile.html#enable_stmt_scanstatus">SQLITE_ENABLE_STMT_SCANSTATUS</a>.)
+<li>In-memory databases created using <a href="../c3ref/deserialize.html">sqlite3_deserialize()</a> now report their
+    filename as an empty string, not as 'x'.
+<li>Changes to the <a href="../cli.html">CLI</a>:
+    <ol type="a">
+    <li> Add the new base64() and base85() SQL functions
+    <li> Enhanced <a href="../eqp.html">EXPLAIN QUERY PLAN</a> output using the new <a href="../c3ref/stmt_scanstatus.html">sqlite3_stmt_scanstatus_v2()</a>
+         interface when compiled using <a href="../compile.html#enable_stmt_scanstatus">SQLITE_ENABLE_STMT_SCANSTATUS</a>.
+    <li> The "<tt>.scanstats est</tt>" command provides query planner estimates in profiles.
+    <li> The continuation prompt indicates if the input is currently inside of a
+         string literal, identifier literal, comment, trigger definition, etc.
+    <li> Enhance the --safe command-line option to disallow dangerous SQL functions.
+    <li> The <a href="../quirks.html#dblquote">double-quoted string misfeature</a> is now disabled by default for CLI
+         builds.  Legacy use cases can reenable the misfeature at run-time using
+         the "<tt>.dbconfig dqs_dml on</tt>" and "<tt>.dbconfig dqs_ddl on</tt>"
+         commands.
+    </ol>
+<li>Enhance the <a href="../pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> command so that it detects when text strings in
+    a table are equivalent to but not byte-for-byte identical to the same strings in the index.
+<li>Enhance the <a href="../carray.html">carray table-valued function</a> so that it is able to bind an array of
+    BLOB objects.
+<li>Added the <a href="../c3ref/interrupt.html">sqlite3_is_interrupted()</a> interface.
+<li>Long-running calls to <a href="../c3ref/prepare.html">sqlite3_prepare()</a> and similar now invoke the
+    <a href="../c3ref/progress_handler.html">progress handler callback</a> and react to <a href="../c3ref/interrupt.html">sqlite3_interrupt()</a>.
+<li>The <a href="../c3ref/vtab_in_first.html">sqlite3_vtab_in_first()</a> and <a href="../c3ref/vtab_in_first.html">sqlite3_vtab_in_next()</a> functions are enhanced so that
+    they reliably detect if they are invoked on a parameter that was not selected for
+    multi-value IN processing using <a href="../c3ref/vtab_in.html">sqlite3_vtab_in()</a>.
+    They return SQLITE_ERROR instead of SQLITE_MISUSE in this case.
+<li>The parser now ignores excess parentheses around a subquery on the right-hand side
+    of an IN operator, so that SQLite now works the same as PostgreSQL in this regard.
+    Formerly, SQLite treated the subquery as an expression with an implied "LIMIT 1".
+<li>Added the <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlresetcache">SQLITE_FCNTL_RESET_CACHE</a> option to the <a href="../c3ref/file_control.html">sqlite3_file_control()</a> API.
+<li>Makefile improvements:
+    <ol type="a">
+    <li>The new makefile target "sqlite3r.c" builds an <a href="../amalgamation.html">amalgamation</a> that includes
+        the <a href="../recovery.html">recovery extension</a>.
+    <li>New makefile targets "devtest" and "releasetest" for running a
+        quick developmental test prior to doing a check-in and for doing a full
+        release test, respectively.
+    </ol>
+<li>Miscellaneous performance enhancements.
+</ol>
+<p><b>Changes in this specific patch release, version 3.41.1 (2023-03-10):</b></p>
+<p><ol class='lessindent'>
+<li value='16'> Provide compile-time options -DHAVE_LOG2=0 and -DHAVE_LOG10=0 to enable SQLite to be
+     compiled on systems that omit the standard library functions log2() and log10(), repectively.
+<li> Ensure that the datatype for column t1.x in 
+     "<tt>CREATE TABLE t1 AS SELECT CAST(7 AS INT) AS x;</tt>" continues to be INT and is not NUM,
+     for historical compatibility.
+<li> Enhance <a href="../pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> to detect when extra bytes appear at the end of an
+     index record.
+<li> Fix various obscure bugs reported by the user community.  See the
+     <a href="https://sqlite.org/src/timeline?from=version-3.41.0&to=version-3.41.1">timeline of changes</a>
+     for details.
+     
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2023-03-10 12:13:52 20399f3eda5ec249d147ba9e48da6e87f969d7966a9a896764ca437ff7e737ff
+<li>SHA3-256 for sqlite3.c: d0d9db8425570f4a57def04fb8f4ac84f5c3e4e71d3d4d10472e3639c5fdf09f
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

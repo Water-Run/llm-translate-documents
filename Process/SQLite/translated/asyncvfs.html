@@ -1,0 +1,207 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 的异步 I/O 模块</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly" style="text-align:right;font-size:0.8em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+
+
+<h1 align="center">SQLite 的异步 I/O 模块</h1>
+
+<hr>
+<p><font size=+1><b>注意：</b> 
+<a href="wal.html">WAL 模式</a> 配合 <a href="pragma.html#pragma_synchronous">PRAGMA synchronous</a> 设置为 NORMAL 可以避免在事务提交期间调用 fsync()，且只在 <a href="wal.html#ckpt">检查点</a> 操作时才会调用 fsync()。使用 <a href="wal.html">WAL 模式</a> 在很大程度上消除了对该异步 I/O 模块的需求。因此，此模块已经不再受支持。源代码继续存在于 SQLite 源代码树中，但它不属于任何标准构建且不再维护。此文档保留以供历史参考。</font></p><hr>
+
+<p>通常，当 SQLite 写入数据库文件时，它会等待写操作完成后再将控制权返回给调用的应用程序。由于与 CPU 密集型操作相比，写入文件系统通常非常缓慢，这可能成为性能瓶颈。异步 I/O 后端是一个扩展，它使 SQLite 通过在后台运行的独立线程执行所有写请求。虽然这并没有减少整体系统资源（CPU、磁盘带宽等）的消耗，但即便在写入数据库时，SQLite 也能够迅速将控制权返回给调用方。</p>
+
+<h2>1.0 功能</h2>
+
+<p>通过异步 I/O，写请求由在后台运行的独立线程处理。这意味着发起数据库写入的线程无需等待（某些时候十分缓慢的）磁盘 I/O 完成。写操作看起来很快完成，但实际上它仍然是在后台以其惯常的慢速进行。</p>
+
+<p>异步 I/O 看似提供了更好的响应性，但这是有代价的。你将失去持久性属性。使用 SQLite 默认的 I/O 后端时，一旦写操作完成，你就可以确定写入的数据已经安全地落在磁盘上。但在异步 I/O 中情况并非如此。如果在数据库写入之后但在异步写线程完成之前程序崩溃或断电，那么数据库的更改可能永远无法落盘，下一位数据库使用者可能看不到你的更改。</p>
+
+<p>在使用异步 I/O 时你会失去持久性，但仍然保留 ACID 的其他几个部分：原子性、一致性与隔离性。许多应用完全可以在不依赖持久性的前提下正常运行。</p>
+
+<h3>1.1 工作原理</h3>
+
+<p>异步 I/O 的工作方式是创建一个 SQLite <a href="c3ref/vfs.html">VFS 对象</a> 并通过 <a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a> 注册它。当通过该 VFS 打开的文件被写入时（使用 vfs xWrite() 方法），数据不会直接写到磁盘，而是被放入“写队列”中，由后台线程处理。</p>
+
+<p>当使用该异步 VFS 打开的文件被读取时（使用 vfs xRead() 方法），数据会从磁盘上的文件以及写队列中读取，因此从 VFS 读取器的角度来看，xWrite() 已经完成。</p>
+
+<p>异步 I/O VFS 通过 sqlite3async_initialize() 和 sqlite3async_shutdown() API 函数注册（以及注销）。详情请参阅下面的“编译与使用”部分。</p>
+
+<h3>1.2 限制</h3>
+
+<p>为了熟悉异步 I/O 的核心思想，这个实现刻意保持简单。未来可能会加入更多功能。</p>
+
+<p>例如，按照当前实现方式，如果写操作以超过后台写线程 I/O 能力的稳定速度进行，待处理写操作的队列会无限增长。如果这种状况持续足够久，主机系统可能耗尽内存。一个更成熟的模块可以跟踪待处理写请求的数量，并在队列过长时停止接受新的写请求。</p>
+
+<h3>1.3 锁定与并发</h3>
+
+<p>在同一个进程中使用该异步 I/O 实现的多个连接可以并发访问同一个数据库文件。从使用者的角度来看，如果所有连接都在同一进程内，那么异步后端的并发性与“正常”SQLite 没有区别。</p>
+
+<p>如果启用了文件锁（默认启用），那么多个进程的连接也可以读取和写入数据库文件。不过并发性会降低，具体如下：</p>
+
+<ul>
+<li><p> 当使用异步 I/O 的连接开始一个数据库事务时，数据库会立即被加锁。但锁不会在写队列中的相关操作刷到磁盘之前释放。这意味着（例如）在发出 "<a href="lang_transaction.html">COMMIT</a>" 或 "<a href="lang_transaction.html">ROLLBACK</a>" 之后，数据库可能在一段时间内仍然保持加锁状态。</p>
+
+<li><p> 如果一个使用异步 I/O 的应用连续迅速执行事务，其他数据库使用者可能会被排除在数据库之外。这是因为在执行 <a href="lang_transaction.html">BEGIN</a> 时，数据库锁会立即建立。但对应的 COMMIT 或 ROLLBACK 发生时，只有在写队列的相关部分刷写完成后锁才会释放。因此，如果在写队列刷写完成之前 COMMIT 后紧接着 BEGIN，数据库将永远无法解锁，从而阻止其他进程访问数据库。</p>
+</ul>
+
+<p>可以在运行时通过 sqlite3async_control() API（下文详述）禁用文件锁。这在使用 NFS 或其它网络文件系统时可提升性能，因为省去了建立文件锁所需的同步往返。但如果在禁用文件锁的情况下多个连接尝试访问同一个数据库文件，则很可能导致应用崩溃和数据库损坏。</p>
+
+
+<h2>2.0 编译与使用</h2>
+
+<p>异步 I/O 扩展由一个 C 源文件（sqlite3async.c）和一个头文件（sqlite3async.h）组成，它们位于 SQLite 源代码树的 <a href="https://sqlite.org/src/dir?name=ext/async"><tt>ext/async/</tt> 子文件夹</a> 中，定义了应用程序用于激活和控制此模块功能的 C API。</p>
+
+<p>要使用该扩展，请将 sqlite3async.c 编译进使用 SQLite 的应用程序中。然后使用 sqlite3async.h 中定义的 API 来初始化和配置该模块。</p>
+
+<p>异步 I/O VFS API 的详细描述写在 sqlite3async.h 的注释中。通常使用该 API 包括以下步骤：</p>
+
+<ol>
+<li><p>通过调用 sqlite3async_initialize() 函数向 SQLite 注册异步 I/O VFS。</p>
+
+<li><p>创建一个后台线程来执行写操作，并调用 sqlite3async_run()。</p>
+
+<li><p>使用普通的 SQLite API 通过异步 I/O VFS 读取和写入数据库。</p>
+</ol>
+
+<p>请参阅 <a href="https://sqlite.org/src/finfo?name=ext/async/sqlite3async.h">sqlite3async.h 头文件</a> 中的注释以获取详情。</p>
+
+
+<h2>3.0 移植</h2>
+
+<p>当前异步 I/O 扩展兼容 win32 系统以及支持 pthreads 接口的系统，包括 Mac OS X、Linux 和其他各种 Unix。</p>
+
+<p>若要将异步 I/O 扩展移植到其他平台，用户必须为新平台实现互斥量和条件变量原语。目前没有公开的接口允许这样做，但只需修改 sqlite3async.c 中的代码以包含新平台的并发原语相对容易。请在 sqlite3async.c 中搜索注释字符串 "PORTING FUNCTIONS" 以获取详细信息。然后实现以下各函数的新版本：</p>
+
+<blockquote><pre>
+static void async_mutex_enter(int eMutex);
+static void async_mutex_leave(int eMutex);
+static void async_cond_wait(int eCond, int eMutex);
+static void async_cond_signal(int eCond);
+static void async_sched_yield(void);
+</pre></blockquote>
+
+<p>以上各函数所需的功能在 sqlite3async.c 的注释中有说明。</p>
+<p align="center"><small><i>本页面最近更新于 2025-05-31 13:08:22Z </small></i></p>
+
+</body></html>

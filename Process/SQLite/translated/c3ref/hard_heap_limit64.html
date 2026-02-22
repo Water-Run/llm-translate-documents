@@ -1,0 +1,186 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>对堆大小施加限制</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。迅速。可靠。<br>任选四项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_hard_heap_limit64 sqlite3_soft_heap_limit64 -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>对堆大小施加限制</h2>
+</div>
+<blockquote><pre>
+sqlite3_int64 sqlite3_soft_heap_limit64(sqlite3_int64 N);
+sqlite3_int64 sqlite3_hard_heap_limit64(sqlite3_int64 N);
+</pre></blockquote>
+<p>
+这些接口会对单个进程中所有数据库连接所使用的堆内存总量施加限制。</p>
+
+<p>sqlite3_soft_heap_limit64() 接口会设置和/或查询 SQLite 可分配的堆内存软限制。
+SQLite 会努力在软堆限制下保持堆内存使用，通过在堆内存使用接近限制时减少页缓存中保留的页数。
+软堆限制是“软性”的，因为尽管 SQLite 会尽力保持在限制之下，但它宁可超出限制也不会返回
+<a href="../rescode.html#nomem">SQLITE_NOMEM</a> 错误。换句话说，软堆限制只是建议。</p>
+
+<p>sqlite3_hard_heap_limit64(N) 接口为分配的内存总量设置 N 字节的硬上限。
+sqlite3_hard_heap_limit64(N) 接口与 sqlite3_soft_heap_limit64(N) 类似，
+只是当达到硬堆限制时，内存分配会失败。</p>
+
+<p>sqlite3_soft_heap_limit64() 和 sqlite3_hard_heap_limit64() 的返回值
+是在调用前堆限制的大小，如果发生错误则为负值。如果参数 N 为负数，
+则堆限制不会改变。因此，可以通过调用
+sqlite3_soft_heap_limit64(-1) 或 sqlite3_hard_heap_limit(-1) 来确定当前堆限制的大小。</p>
+
+<p>将堆限制设置为零会禁用堆限制机制。</p>
+
+<p>软堆限制不能大于硬堆限制。
+如果启用了硬堆限制，并且调用 sqlite3_soft_heap_limit(N) 所指定的 N 大于硬堆限制，
+那么软堆限制将被设置为硬堆限制的值。
+只要启用硬堆限制，软堆限制就会自动启用。当调用 sqlite3_hard_heap_limit64(N)
+并且软堆限制超出 1..N 的范围时，软堆限制将被设置为 N。
+在启用硬堆限制时调用 sqlite3_soft_heap_limit64(0) 会使软堆限制等于硬堆限制。</p>
+
+<p>也可以通过
+<a href="../pragma.html#pragma_soft_heap_limit">PRAGMA soft_heap_limit</a>
+和 <a href="../pragma.html#pragma_hard_heap_limit">PRAGMA hard_heap_limit</a>
+来调整内存分配限制。</p>
+
+<p>如果满足以下一项或多项条件，目前的实现不会强制执行堆限制：</p>
+
+<p><ul>
+<li> 限制值设为零。
+<li> 使用
+<a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmemstatus">SQLITE_CONFIG_MEMSTATUS</a>,...) 的启动时选项
+和 <a href="../compile.html#default_memstatus">SQLITE_DEFAULT_MEMSTATUS</a> 编译时选项组合禁用内存计数。
+<li> 使用
+<a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpcache2">SQLITE_CONFIG_PCACHE2</a>,...)
+指定了替代的页缓存实现。
+<li> 页缓存从
+<a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a>,...)
+提供的自己的内存池中分配，而不是从堆中分配。
+</ul></p>
+
+<p>在未来版本中，SQLite 强制执行堆限制的情况可能会发生变化。
+</p><p>另见
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+
+</body>
+</html>

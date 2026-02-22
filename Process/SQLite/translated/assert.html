@@ -1,0 +1,263 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>在 SQLite 中使用 assert()</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+在 SQLite 中使用 assert()
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#assert_and_similar_macros_in_sqlite">1. SQLite 中的 assert() 和类似宏</a></div>
+<div class="fancy-toc2"><a href="#philosophy_of_assert_">1.1. assert() 的理念</a></div>
+<div class="fancy-toc2"><a href="#different_behaviors_according_to_build_type">1.2. 根据构建类型的不同行为</a></div>
+<div class="fancy-toc1"><a href="#examples">2. 示例</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="assert_and_similar_macros_in_sqlite"><span>1. </span>SQLite 中的 assert() 和类似宏</h1>
+
+<p>
+assert(X) 宏是 <a href="https://en.wikipedia.org/wiki/Assert.h">标准 C</a> 的一部分，定义在 &lt;assert.h&gt; 头文件中。
+SQLite 还添加了三个其他类似 assert() 的宏，分别命名为 NEVER(X)、ALWAYS(X) 和 testcase(X)。
+
+</p><ul>
+<li><p><b>assert(X)</b> &rarr;
+assert(X) 语句表示条件 X 始终为真。换句话说，X 是一个不变量。assert(X) 宏的行为类似过程，它没有返回值。
+
+</p></li><li><p><b>ALWAYS(X)</b> &rarr;
+ALWAYS(X) 函数表示在开发者所知范围内条件 X 始终为真，但并没有证据表明 X 绝对是真的，或者证明过程复杂且容易出错，或者此证明依赖于未来可能发生变化的实现细节。ALWAYS(X) 的行为类似一个返回布尔值 X 的函数，通常用于 “if” 语句的条件中。
+
+</p></li><li><p><b>NEVER(X)</b> &rarr;
+NEVER(X) 函数表示条件 X 永远为假。这是 ALWAYS(X) 的否定版本。
+
+</p></li><li><p><b>testcase(X)</b> &rarr;
+testcase(X) 语句表示 X 有时为真，有时为假。换句话说，testcase(X) 表示 X 肯定不是不变量。由于 SQLite 使用 100% 的 <a href="testing.html#mcdc">MC/DC 测试</a>，testcase(X) 宏的存在不仅表明 X 可能为真或假，同时也存在测试用例来演示这一点。
+</p></li></ul>
+
+<p>
+SQLite 版本 3.22.0（2018-01-22）包含 5290 个 assert() 宏、839 个 testcase() 宏、88 个 ALWAYS() 宏和 63 个 NEVER() 宏。
+
+</p><h2 id="philosophy_of_assert_"><span>1.1. </span>assert() 的理念</h2>
+
+<p>在 SQLite 中，assert(X) 的存在意味着开发者已经证明 X 始终为真。读者可以依赖 X 为真来帮助他们推理代码。assert(X) 是对 X 真值的强烈声明，毫无疑问。
+
+</p><p>ALWAYS(X) 和 NEVER(X) 宏对 X 的真值则是较弱的声明。ALWAYS(X) 或 NEVER(X) 的存在意味着开发者相信 X 总是为真或为假，但没有证据支持，或者证据复杂且容易出错，或者证据依赖于系统中可能发生变化的其他方面。
+
+</p><p>其他系统有时会以类似 SQLite 中 ALWAYS(X) 或 NEVER(X) 的方式使用 assert(X)。开发者可能会将 assert(X) 作为 <a href="https://blog.regehr.org/archives/1576">一种默示的承认：他们并不完全相信 X 始终为真</a>。
+我们认为这种使用方式是错误的，并违反了在 C 中提供 assert() 的初衷和目的。assert(X) 不应被视为用于防止错误的安全网或顶绳。assert(X) 也不适合作为纵深防御。在这些情况下，应使用 ALWAYS(X)、NEVER(X) 宏或类似机制，因为 ALWAYS(X) 或 NEVER(X) 后面会紧跟实际处理问题的代码，当程序员的推理证明是错的时，这些代码会被执行。由于跟随 ALWAYS(X) 或 NEVER(X) 的代码未经测试，它应当非常简单，类似 “return” 语句，以便通过检查轻松验证。
+
+</p><p>
+由于 assert() 容易被误用，某些程序语言理论家和设计者对其持否定态度。例如，<a href="https://golang.org">Go 编程语言</a> 的设计者有意 <a href="https://golang.org/doc/faq#assertions">省略了内置的 assert()</a>。
+他们认为 assert() 的误用带来的危害超过了将其作为语言内建所带来的好处。
+SQLite 的开发者不同意这种观点。事实上，本文的初衷就是为了反击 “assert() 有害” 的普遍看法。
+根据我们的经验，如果没有 assert()，SQLite 的开发、测试和维护将会困难得多。
+
+</p><h2 id="different_behaviors_according_to_build_type"><span>1.2. </span>根据构建类型的不同行为</h2>
+
+<p>SQLite 软件通过三种不同的构建来验证。
+</p><ol>
+<li> 功能测试构建用于验证源代码。
+</li><li> 覆盖测试构建用于验证测试套件，确认测试套件提供 100% 的 MC/DC。
+</li><li> 发布构建用于验证生成的机器码。
+</li></ol>
+<p>所有测试在这三种构建中都必须给出相同的答案。详见 <a href="testing.html">“SQLite 的测试方式”</a> 文档。
+
+</p><p>各个 assert() 相关的宏会根据 SQLite 的构建方式表现不同。
+
+</p><table striped="1" style="margin:1em auto; width:80%; border-spacing:0">
+<tr style="text-align:left"><th></th><th>功能测试</th><th>覆盖测试</th><th>发布</th></tr>
+<tr style="text-align:left;background-color:#DDDDDD"><th valign="top">assert(X)
+</th><td>如果 X 为假则调用 abort()
+</td><td>无操作
+</td><td>无操作
+</td></tr>
+<tr style="text-align:left"><th valign="top">ALWAYS(X)
+</th><td>如果 X 为假则调用 abort()
+</td><td>始终为真
+</td><td>直接返回 X 的值
+</td></tr>
+<tr style="text-align:left;background-color:#DDDDDD"><th valign="top">NEVER(X)
+</th><td>如果 X 为真则调用 abort()
+</td><td>始终为假
+</td><td>直接返回 X 的值
+</td></tr>
+<tr style="text-align:left"><th valign="top">testcase(X)
+</th><td>无操作
+</td><td>如果 X 为真则执行一些无害的工作
+</td><td>无操作
+</td></tr>
+</table>
+
+<p>标准 C 中 assert(X) 的默认行为是在发布构建中启用。这是一个合理的默认值。然而，SQLite 代码库在性能敏感区域中含有许多 assert() 语句。保持 assert(X) 打开会导致 SQLite 运行速度变慢约三倍。此外，SQLite 力求在交付配置中提供 100% 的 MC/DC，这在开启 assert(X) 时显然无法实现。出于这些原因，SQLite 的发布构建中 assert(X) 被设为无操作。
+
+</p><p>在功能测试中，ALWAYS(X) 和 NEVER(X) 的行为与 assert(X) 相同，因为开发者希望在 X 的值与预期不符时立即收到警报。但在交付时，ALWAYS(X) 和 NEVER(X) 只是简单的透传宏，用于实现纵深防御。覆盖测试中，ALWAYS(X) 和 NEVER(X) 被硬编码为布尔常量，以防止生成不可达的机器码。
+
+</p><p>testcase(X) 宏通常是无操作，但在覆盖测试构建中会生成少量额外代码，其中至少包含一个分支，以验证存在既能使 X 为真又能使 X 为假的测试用例。
+
+</p><h1 id="examples"><span>2. </span>示例</h1>
+
+<p>assert() 语句经常用于验证内部函数和方法的前置条件。
+示例：<a href="https://sqlite.org/src/artifact/c1e97e4c6f?ln=1048">https://sqlite.org/src/artifact/c1e97e4c6f?ln=1048</a>。
+这被认为比仅在头文件注释中声明前置条件更好，因为 assert() 会被实际执行。在像 SQLite 这样高度测试的程序中，读者知道前置条件在对 SQLite 运行的数亿个测试用例中始终为真，因为 assert() 已经验证了它。
+相比之下，头文件注释中的文本前置条件未经测试。它可能在代码编写时为真，但谁能保证现在仍然如此？
+
+</p><p>
+有时 SQLite 使用可在编译时求值的 assert() 语句。参见
+<a href="https://sqlite.org/src/artifact/c1e97e4c6f?ln=2130-2138">https://sqlite.org/src/artifact/c1e97e4c6f?ln=2130-2138</a>。
+四个 assert() 语句验证了编译时常量的值，以便读者可以快速检查后续 if 语句的有效性，而无需在其他头文件中查找常量值。
+
+</p><p>
+有时会使用编译时 assert() 语句来验证 SQLite 是否被正确编译。例如，
+<a href="https://sqlite.org/src/artifact/c1e97e4c6f?ln=157">https://sqlite.org/src/artifact/c1e97e4c6f?ln=157</a>
+验证 SQLITE_PTRSIZE 预处理宏是否针对目标架构正确设置。
+
+</p><p>
+CORRUPT_DB 宏在许多 assert() 语句中被使用。
+在功能测试构建中，CORRUPT_DB 引用一个全局变量，当数据库文件可能损坏时该变量为真。该变量默认为真，因为我们通常不知道数据库是否损坏，但在处理已知格式正确的数据库时，可以将该全局变量设为假。
+然后 CORRUPT_DB 宏可用于类似
+<a href="https://sqlite.org/src/artifact/18a53540aa3?ln=1679-1680">https://sqlite.org/src/artifact/18a53540aa3?ln=1679-1680</a>
+中看到的 assert() 语句。这些 assert() 指定了对于一致的数据库文件为真的例程前置条件，但如果数据库文件损坏，前置条件可能为假。了解这些条件对于尝试单独理解某段代码的读者非常有帮助。
+
+</p><p>
+ALWAYS(X) 和 NEVER(X) 函数被用在我们始终希望测试发生的地方，即使开发者认为 X 的值始终为真或为假。例如，sqlite3BtreeCloseCursor() 例程必须将关闭的游标从所有游标的链表中移除。我们知道该游标确实在链表上，因此循环必须通过 “break” 语句终止，但在
+<a href="https://sqlite.org/src/artifact/18a53540aa3?ln=4371">https://sqlite.org/src/artifact/18a53540aa3?ln=4371</a>
+处使用 ALWAYS(X) 测试可以防止在代码的其他部分出现错误并破坏链表时遍历至链表末尾。
+
+</p><p>
+ALWAYS(X) 或 NEVER(X) 有时用于验证那些若其他代码部分以微妙方式修改便会改变的前置条件。在
+<a href="https://sqlite.org/src/artifact/18a53540aa3?ln=5512-5516">https://sqlite.org/src/artifact/18a53540aa3?ln=5512-5516</a>
+我们测试了两个仅在 sqlite3BtreeRowCountEst() 函数使用范围有限的情况下才为真的前置条件。未来对 SQLite 的增强可能会以新方式使用 sqlite3BtreeRowCountEst()，届时这些前置条件不再成立，NEVER() 宏会在情况出现时迅速提醒开发者。但如果出于某种原因这些前置条件在发布构建中不再满足，程序仍会保持理性行为，不会发生未定义内存访问。
+
+</p><p>
+testcase() 宏通常用于验证不等式比较的边界情况是否受到检查。例如，
+<a href="https://sqlite.org/src/artifact/18a53540aa3?ln=5766">https://sqlite.org/src/artifact/18a53540aa3?ln=5766</a>。
+这类检查有助于防止 off-by-one 错误。
+</p>
+
+</body></html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Syntax: insert-stmt</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h1 align='center'>insert-stmt</h1>
+<div class='imgcontainer'>
+<div style="max-width:601px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 601.066 922.104" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="45.36,17.28 33.84,21.6 33.84,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L39.6,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M60.48,32.4L91.296,32.4A15.12 15.12 0 0 0 106.416 17.28A15.12 15.12 0 0 0 91.296 2.16L60.48,2.16A15.12 15.12 0 0 0 45.36 17.28A15.12 15.12 0 0 0 60.48 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="75.888" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">WITH</text>
+<path d="M166.536,62.64L252.302,62.64A15.12 15.12 0 0 0 267.422 47.52L267.422,47.52A15.12 15.12 0 0 0 252.302 32.4L166.536,32.4A15.12 15.12 0 0 0 151.416 47.52L151.416,47.52A15.12 15.12 0 0 0 166.536 62.64Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="209.419" y="47.52" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">RECURSIVE</text>
+<polygon points="209.419,17.28 197.899,21.6 197.899,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M106.416,17.28L203.659,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="357.422,17.28 345.902,21.6 345.902,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M209.419,17.28L351.662,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M357.422,32.4L583.906,32.4L583.906,2.16L357.422,2.16Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="470.664" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">common-table-expression</text>
+<polygon points="151.416,47.52 139.896,51.84 139.896,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M106.416,17.28 L 113.916,17.28 Q 121.416,17.28 121.416,32.28 L 121.416,32.52 Q 121.416,47.52 133.536,47.52 L 145.656,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="290.462,47.52 278.942,51.84 278.942,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M267.422,47.52L284.702,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M290.462,47.52 L 297.962,47.52 Q 305.462,47.52 305.462,32.52 L 305.462,32.28 Q 305.462,17.28 320.462,17.28 L 330.902,17.28 L 345.902,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M470.664,70.2A15.12 15.12 0 0 0 485.784 55.08L485.784,55.08A15.12 15.12 0 0 0 470.664 39.96A15.12 15.12 0 0 0 455.544 55.08L455.544,55.08A15.12 15.12 0 0 0 470.664 70.2Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="470.664" y="55.08" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="485.784,55.08 497.304,50.76 497.304,59.4" style="fill:rgb(0,0,0)"/>
+<path d="M583.906,17.28 L 591.406,17.28 Q 598.906,17.28 598.906,32.28 L 598.906,40.08 Q 598.906,55.08 583.906,55.08 L 506.544,55.08 L 491.544,55.08"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M455.544,55.08 L 349.382,55.08 Q 334.382,55.08 334.382,40.08 L 334.382,32.28 Q 334.382,17.28 340.142,17.28 L 345.902,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="294.833,83.808 306.353,79.488 306.353,88.128" style="fill:rgb(0,0,0)"/>
+<path d="M583.906,17.28 L 591.406,17.28 Q 598.906,17.28 598.906,32.28 L 598.906,68.808 Q 598.906,83.808 583.906,83.808 L 315.593,83.808 L 300.593,83.808"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="24.36,53.28 20.04,41.76 28.68,41.76" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28 L 16.86,17.28 Q 24.36,17.28 24.36,32.28 L 24.36,32.52 L 24.36,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M60.48,145.8L124.589,145.8A15.12 15.12 0 0 0 139.709 130.68A15.12 15.12 0 0 0 124.589 115.56L60.48,115.56A15.12 15.12 0 0 0 45.36 130.68A15.12 15.12 0 0 0 60.48 145.8Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="92.5344" y="130.68" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">REPLACE</text>
+<path d="M60.48,183.6L109.382,183.6A15.12 15.12 0 0 0 124.502 168.48A15.12 15.12 0 0 0 109.382 153.36L60.48,153.36A15.12 15.12 0 0 0 45.36 168.48A15.12 15.12 0 0 0 60.48 183.6Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="84.9312" y="168.48" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">INSERT</text>
+<polygon points="166.022,198.72 154.502,203.04 154.502,194.4" style="fill:rgb(0,0,0)"/>
+<path d="M124.502,168.48 L 132.002,168.48 Q 139.502,168.48 139.502,183.48 L 139.502,183.72 Q 139.502,198.72 149.882,198.72 L 160.262,198.72"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M181.142,213.84L187.997,213.84A15.12 15.12 0 0 0 203.117 198.72A15.12 15.12 0 0 0 187.997 183.6L181.142,183.6A15.12 15.12 0 0 0 166.022 198.72A15.12 15.12 0 0 0 181.142 213.84Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="184.57" y="198.72" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">OR</text>
+<polygon points="244.637,349.92 233.117,354.24 233.117,345.6" style="fill:rgb(0,0,0)"/>
+<path d="M203.117,198.72 L 210.617,198.72 Q 218.117,198.72 218.117,213.72 L 218.117,334.92 Q 218.117,349.92 228.497,349.92 L 238.877,349.92"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M259.757,365.04L337.344,365.04A15.12 15.12 0 0 0 352.464 349.92A15.12 15.12 0 0 0 337.344 334.8L259.757,334.8A15.12 15.12 0 0 0 244.637 349.92A15.12 15.12 0 0 0 259.757 365.04Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="298.55" y="349.92" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">ROLLBACK</text>
+<polygon points="369.744,349.92 358.224,354.24 358.224,345.6" style="fill:rgb(0,0,0)"/>
+<path d="M352.464,349.92L363.984,349.92"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="411.264,130.68 399.744,135 399.744,126.36" style="fill:rgb(0,0,0)"/>
+<path d="M369.744,349.92 L 377.244,349.92 Q 384.744,349.92 384.744,334.92 L 384.744,145.68 Q 384.744,130.68 395.124,130.68 L 405.504,130.68"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M426.384,145.8L453.168,145.8A15.12 15.12 0 0 0 468.288 130.68A15.12 15.12 0 0 0 453.168 115.56L426.384,115.56A15.12 15.12 0 0 0 411.264 130.68A15.12 15.12 0 0 0 426.384 145.8Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="439.776" y="130.68" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">INTO</text>
+<polygon points="45.36,168.48 33.84,172.8 33.84,164.16" style="fill:rgb(0,0,0)"/>
+<path d="M24.36,53.28 L 24.36,153.48 Q 24.36,168.48 31.98,168.48 L 39.6,168.48"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="45.36,130.68 33.84,135 33.84,126.36" style="fill:rgb(0,0,0)"/>
+<path d="M24.36,115.56 L 24.36,123.12 Q 24.36,130.68 31.98,130.68 L 39.6,130.68"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M294.833,83.808 L 39.36,83.808 Q 24.36,83.808 24.36,91.308 L 24.36,98.808"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M139.709,130.68L399.744,130.68"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="369.744,168.48 358.224,172.8 358.224,164.16" style="fill:rgb(0,0,0)"/>
+<path d="M124.502,168.48L363.984,168.48"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M369.744,168.48 L 377.244,168.48 Q 384.744,168.48 384.744,160.98 L 384.744,153.48"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M259.757,213.84L301.632,213.84A15.12 15.12 0 0 0 316.752 198.72A15.12 15.12 0 0 0 301.632 183.6L259.757,183.6A15.12 15.12 0 0 0 244.637 198.72A15.12 15.12 0 0 0 259.757 213.84Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="280.694" y="198.72" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">ABORT</text>
+<polygon points="244.637,198.72 233.117,203.04 233.117,194.4" style="fill:rgb(0,0,0)"/>
+<path d="M203.117,198.72L238.877,198.72"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="369.744,198.72 358.224,203.04 358.224,194.4" style="fill:rgb(0,0,0)"/>
+<path d="M316.752,198.72L363.984,198.72"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M369.744,198.72 L 377.244,198.72 Q 384.744,198.72 384.744,191.22 L 384.744,183.72"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M259.757,251.64L281.702,251.64A15.12 15.12 0 0 0 296.822 236.52A15.12 15.12 0 0 0 281.702 221.4L259.757,221.4A15.12 15.12 0 0 0 244.637 236.52A15.12 15.12 0 0 0 259.757 251.64Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="270.73" y="236.52" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">FAIL</text>
+<polygon points="244.637,236.52 233.117,240.84 233.117,232.2" style="fill:rgb(0,0,0)"/>
+<path d="M218.117,221.4 L 218.117,228.96 Q 218.117,236.52 228.497,236.52 L 238.877,236.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="369.744,236.52 358.224,240.84 358.224,232.2" style="fill:rgb(0,0,0)"/>
+<path d="M296.822,236.52L363.984,236.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M369.744,236.52 L 377.244,236.52 Q 384.744,236.52 384.744,229.02 L 384.744,221.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M259.757,289.44L311.885,289.44A15.12 15.12 0 0 0 327.005 274.32A15.12 15.12 0 0 0 311.885 259.2L259.757,259.2A15.12 15.12 0 0 0 244.637 274.32A15.12 15.12 0 0 0 259.757 289.44Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="285.821" y="274.32" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">IGNORE</text>
+<polygon points="244.637,274.32 233.117,278.64 233.117,270" style="fill:rgb(0,0,0)"/>
+<path d="M218.117,259.2 L 218.117,266.76 Q 218.117,274.32 228.497,274.32 L 238.877,274.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="369.744,274.32 358.224,278.64 358.224,270" style="fill:rgb(0,0,0)"/>
+<path d="M327.005,274.32L363.984,274.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M369.744,274.32 L 377.244,274.32 Q 384.744,274.32 384.744,266.82 L 384.744,259.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M259.757,327.24L323.866,327.24A15.12 15.12 0 0 0 338.986 312.12A15.12 15.12 0 0 0 323.866 297L259.757,297A15.12 15.12 0 0 0 244.637 312.12A15.12 15.12 0 0 0 259.757 327.24Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="291.811" y="312.12" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">REPLACE</text>
+<polygon points="244.637,312.12 233.117,316.44 233.117,307.8" style="fill:rgb(0,0,0)"/>
+<path d="M218.117,297 L 218.117,304.56 Q 218.117,312.12 228.497,312.12 L 238.877,312.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="369.744,312.12 358.224,316.44 358.224,307.8" style="fill:rgb(0,0,0)"/>
+<path d="M338.986,312.12L363.984,312.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M369.744,312.12 L 377.244,312.12 Q 384.744,312.12 384.744,304.62 L 384.744,297.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M60.48,455.76L156.845,455.76A15.12 15.12 0 0 0 171.965 440.64A15.12 15.12 0 0 0 156.845 425.52L60.48,425.52A15.12 15.12 0 0 0 45.36 440.64A15.12 15.12 0 0 0 60.48 455.76Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="108.662" y="440.64" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">schema-name</text>
+<polygon points="195.005,440.64 183.485,444.96 183.485,436.32" style="fill:rgb(0,0,0)"/>
+<path d="M171.965,440.64L189.245,440.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M210.125,455.76A15.12 15.12 0 0 0 225.245 440.64A15.12 15.12 0 0 0 210.125 425.52A15.12 15.12 0 0 0 195.005 440.64A15.12 15.12 0 0 0 210.125 455.76Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="210.125" y="440.64" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">.</text>
+<polygon points="261.245,440.64 249.725,444.96 249.725,436.32" style="fill:rgb(0,0,0)"/>
+<path d="M225.245,440.64L255.485,440.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M276.365,455.76L351.533,455.76A15.12 15.12 0 0 0 366.653 440.64A15.12 15.12 0 0 0 351.533 425.52L276.365,425.52A15.12 15.12 0 0 0 261.245 440.64A15.12 15.12 0 0 0 276.365 455.76Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="313.949" y="440.64" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">table-name</text>
+<polygon points="402.653,440.64 391.133,444.96 391.133,436.32" style="fill:rgb(0,0,0)"/>
+<path d="M366.653,440.64L396.893,440.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M417.773,455.76L421.747,455.76A15.12 15.12 0 0 0 436.867 440.64A15.12 15.12 0 0 0 421.747 425.52L417.773,425.52A15.12 15.12 0 0 0 402.653 440.64A15.12 15.12 0 0 0 417.773 455.76Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="419.76" y="440.64" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">AS</text>
+<polygon points="459.907,440.64 448.387,444.96 448.387,436.32" style="fill:rgb(0,0,0)"/>
+<path d="M436.867,440.64L454.147,440.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M475.027,455.76L495.706,455.76A15.12 15.12 0 0 0 510.826 440.64A15.12 15.12 0 0 0 495.706 425.52L475.027,425.52A15.12 15.12 0 0 0 459.907 440.64A15.12 15.12 0 0 0 475.027 455.76Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="485.366" y="440.64" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">alias</text>
+<polygon points="483.288,238.68 478.968,227.16 487.608,227.16" style="fill:rgb(0,0,0)"/>
+<path d="M468.288,130.68 L 475.788,130.68 Q 483.288,130.68 483.288,145.68 L 483.288,217.92 L 483.288,232.92"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="171.965,395.28 183.485,390.96 183.485,399.6" style="fill:rgb(0,0,0)"/>
+<path d="M483.288,238.68 L 483.288,380.28 Q 483.288,395.28 468.288,395.28 L 192.725,395.28 L 177.725,395.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="45.36,440.64 33.84,444.96 33.84,436.32" style="fill:rgb(0,0,0)"/>
+<path d="M171.965,395.28 L 35.76,395.28 Q 20.76,395.28 20.76,410.28 L 20.76,425.64 Q 20.76,440.64 30.18,440.64 L 39.6,440.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="234.725,423.72 230.405,412.2 239.045,412.2" style="fill:rgb(0,0,0)"/>
+<path d="M261.245,395.28 L 247.985,395.28 Q 234.725,395.28 234.725,406.62 L 234.725,417.96"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M234.725,423.72 L 234.725,432.18 Q 234.725,440.64 242.225,440.64 L 249.725,440.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M60.48,546.48A15.12 15.12 0 0 0 75.6 531.36A15.12 15.12 0 0 0 60.48 516.24A15.12 15.12 0 0 0 45.36 531.36A15.12 15.12 0 0 0 60.48 546.48Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="60.48" y="531.36" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">(</text>
+<polygon points="111.6,531.36 100.08,535.68 100.08,527.04" style="fill:rgb(0,0,0)"/>
+<path d="M75.6,531.36L105.84,531.36"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M126.72,546.48L220.781,546.48A15.12 15.12 0 0 0 235.901 531.36A15.12 15.12 0 0 0 220.781 516.24L126.72,516.24A15.12 15.12 0 0 0 111.6 531.36A15.12 15.12 0 0 0 126.72 546.48Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="173.75" y="531.36" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">column-name</text>
+<polygon points="271.901,531.36 260.381,535.68 260.381,527.04" style="fill:rgb(0,0,0)"/>
+<path d="M235.901,531.36L266.141,531.36"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M287.021,546.48A15.12 15.12 0 0 0 302.141 531.36A15.12 15.12 0 0 0 287.021 516.24A15.12 15.12 0 0 0 271.901 531.36A15.12 15.12 0 0 0 287.021 546.48Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="287.021" y="531.36" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">)</text>
+<path d="M173.75,580.5A15.12 15.12 0 0 0 188.87 565.38A15.12 15.12 0 0 0 173.75 550.26A15.12 15.12 0 0 0 158.63 565.38A15.12 15.12 0 0 0 173.75 580.5Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="173.75" y="565.38" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="188.87,565.38 200.39,561.06 200.39,569.7" style="fill:rgb(0,0,0)"/>
+<path d="M235.901,531.36 L 243.401,531.36 Q 250.901,531.36 250.901,546.36 L 250.901,550.38 Q 250.901,565.38 235.901,565.38 L 209.63,565.38 L 194.63,565.38"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M158.63,565.38 L 100.08,565.38 Q 85.08,565.38 85.08,550.38 L 85.08,546.36 Q 85.08,531.36 92.58,531.36 L 100.08,531.36"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="173.75,595.62 185.27,591.3 185.27,599.94" style="fill:rgb(0,0,0)"/>
+<path d="M302.141,531.36 L 309.641,531.36 Q 317.141,531.36 317.141,546.36 L 317.141,580.62 Q 317.141,595.62 302.141,595.62 L 194.51,595.62 L 179.51,595.62"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M173.75,595.62 L 39.36,595.62 Q 24.36,595.62 24.36,603.12 L 24.36,610.62"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="436.867,486 448.387,481.68 448.387,490.32" style="fill:rgb(0,0,0)"/>
+<path d="M510.826,440.64 L 518.326,440.64 Q 525.826,440.64 525.826,455.64 L 525.826,471 Q 525.826,486 510.826,486 L 457.627,486 L 442.627,486"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="45.36,531.36 33.84,535.68 33.84,527.04" style="fill:rgb(0,0,0)"/>
+<path d="M436.867,486 L 39.36,486 Q 24.36,486 24.36,501 L 24.36,516.36 Q 24.36,531.36 31.98,531.36 L 39.6,531.36"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="381.653,469.08 377.333,457.56 385.973,457.56" style="fill:rgb(0,0,0)"/>
+<path d="M366.653,440.64 L 374.153,440.64 Q 381.653,440.64 381.653,451.98 L 381.653,463.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M381.653,469.08 L 381.653,477.54 Q 381.653,486 374.153,486 L 366.653,486"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M60.48,671.22L112.838,671.22A15.12 15.12 0 0 0 127.958 656.1A15.12 15.12 0 0 0 112.838 640.98L60.48,640.98A15.12 15.12 0 0 0 45.36 656.1A15.12 15.12 0 0 0 60.48 671.22Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="86.6592" y="656.1" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">VALUES</text>
+<polygon points="163.958,656.1 152.438,660.42 152.438,651.78" style="fill:rgb(0,0,0)"/>
+<path d="M127.958,656.1L158.198,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M179.078,671.22A15.12 15.12 0 0 0 194.198 656.1A15.12 15.12 0 0 0 179.078 640.98A15.12 15.12 0 0 0 163.958 656.1A15.12 15.12 0 0 0 179.078 671.22Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="179.078" y="656.1" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">(</text>
+<polygon points="230.198,656.1 218.678,660.42 218.678,651.78" style="fill:rgb(0,0,0)"/>
+<path d="M194.198,656.1L224.438,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M230.198,671.22L279.389,671.22L279.389,640.98L230.198,640.98Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="254.794" y="656.1" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">expr</text>
+<polygon points="315.389,656.1 303.869,660.42 303.869,651.78" style="fill:rgb(0,0,0)"/>
+<path d="M279.389,656.1L309.629,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M330.509,671.22A15.12 15.12 0 0 0 345.629 656.1A15.12 15.12 0 0 0 330.509 640.98A15.12 15.12 0 0 0 315.389 656.1A15.12 15.12 0 0 0 330.509 671.22Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="330.509" y="656.1" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">)</text>
+<polygon points="45.36,656.1 33.84,660.42 33.84,651.78" style="fill:rgb(0,0,0)"/>
+<path d="M24.36,516.24 L 24.36,641.1 Q 24.36,656.1 31.98,656.1 L 39.6,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M254.794,705.24A15.12 15.12 0 0 0 269.914 690.12A15.12 15.12 0 0 0 254.794 675A15.12 15.12 0 0 0 239.674 690.12A15.12 15.12 0 0 0 254.794 705.24Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="254.794" y="690.12" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="269.914,690.12 281.434,685.8 281.434,694.44" style="fill:rgb(0,0,0)"/>
+<path d="M279.389,656.1 L 286.889,656.1 Q 294.389,656.1 294.389,671.1 L 294.389,675.12 Q 294.389,690.12 285.031,690.12 L 275.674,690.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M239.674,690.12 L 218.678,690.12 Q 203.678,690.12 203.678,675.12 L 203.678,671.1 Q 203.678,656.1 211.178,656.1 L 218.678,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M254.794,743.04A15.12 15.12 0 0 0 269.914 727.92A15.12 15.12 0 0 0 254.794 712.8A15.12 15.12 0 0 0 239.674 727.92A15.12 15.12 0 0 0 254.794 743.04Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="254.794" y="727.92" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="269.914,727.92 281.434,723.6 281.434,732.24" style="fill:rgb(0,0,0)"/>
+<path d="M345.629,656.1 L 353.129,656.1 Q 360.629,656.1 360.629,671.1 L 360.629,712.92 Q 360.629,727.92 345.629,727.92 L 290.674,727.92 L 275.674,727.92"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M239.674,727.92 L 152.438,727.92 Q 137.438,727.92 137.438,712.92 L 137.438,671.1 Q 137.438,656.1 144.938,656.1 L 152.438,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="387.149,693.9 375.629,698.22 375.629,689.58" style="fill:rgb(0,0,0)"/>
+<path d="M345.629,656.1 L 353.129,656.1 Q 360.629,656.1 360.629,671.1 L 360.629,678.9 Q 360.629,693.9 371.009,693.9 L 381.389,693.9"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M387.149,709.02L512.141,709.02L512.141,678.78L387.149,678.78Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="449.645" y="693.9" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">upsert-clause</text>
+<polygon points="535.181,693.9 523.661,698.22 523.661,689.58" style="fill:rgb(0,0,0)"/>
+<path d="M512.141,693.9L529.421,693.9"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M535.181,693.9 L 542.681,693.9 Q 550.181,693.9 550.181,701.4 L 550.181,708.9"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="535.181,656.1 523.661,660.42 523.661,651.78" style="fill:rgb(0,0,0)"/>
+<path d="M345.629,656.1L529.421,656.1"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M45.36,788.4L149.616,788.4L149.616,758.16L45.36,758.16Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="97.488" y="773.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">select-stmt</text>
+<polygon points="535.181,773.28 523.661,777.6 523.661,768.96" style="fill:rgb(0,0,0)"/>
+<path d="M149.616,773.28L529.421,773.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M535.181,773.28 L 542.681,773.28 Q 550.181,773.28 550.181,780.78 L 550.181,788.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="45.36,773.28 33.84,777.6 33.84,768.96" style="fill:rgb(0,0,0)"/>
+<path d="M24.36,640.98 L 24.36,758.28 Q 24.36,773.28 31.98,773.28 L 39.6,773.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M387.149,818.64L512.141,818.64L512.141,788.4L387.149,788.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="449.645" y="803.52" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">upsert-clause</text>
+<polygon points="535.181,803.52 523.661,807.84 523.661,799.2" style="fill:rgb(0,0,0)"/>
+<path d="M512.141,803.52L529.421,803.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M535.181,803.52 L 542.681,803.52 Q 550.181,803.52 550.181,811.02 L 550.181,818.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="387.149,803.52 375.629,807.84 375.629,799.2" style="fill:rgb(0,0,0)"/>
+<path d="M345.629,773.28 L 353.129,773.28 Q 360.629,773.28 360.629,788.28 L 360.629,788.52 Q 360.629,803.52 371.009,803.52 L 381.389,803.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M60.48,856.44L125.856,856.44A15.12 15.12 0 0 0 140.976 841.32A15.12 15.12 0 0 0 125.856 826.2L60.48,826.2A15.12 15.12 0 0 0 45.36 841.32A15.12 15.12 0 0 0 60.48 856.44Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="93.168" y="841.32" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">DEFAULT</text>
+<polygon points="164.016,841.32 152.496,845.64 152.496,837" style="fill:rgb(0,0,0)"/>
+<path d="M140.976,841.32L158.256,841.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M179.136,856.44L231.494,856.44A15.12 15.12 0 0 0 246.614 841.32A15.12 15.12 0 0 0 231.494 826.2L179.136,826.2A15.12 15.12 0 0 0 164.016 841.32A15.12 15.12 0 0 0 179.136 856.44Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="205.315" y="841.32" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">VALUES</text>
+<polygon points="535.181,841.32 523.661,845.64 523.661,837" style="fill:rgb(0,0,0)"/>
+<path d="M246.614,841.32L529.421,841.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="45.36,841.32 33.84,845.64 33.84,837" style="fill:rgb(0,0,0)"/>
+<path d="M24.36,758.16 L 24.36,826.32 Q 24.36,841.32 31.98,841.32 L 39.6,841.32"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M361.229,919.944L512.141,919.944L512.141,889.704L361.229,889.704Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="436.685" y="904.824" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">returning-clause</text>
+<polygon points="591.701,904.824 580.181,909.144 580.181,900.504" style="fill:rgb(0,0,0)"/>
+<path d="M512.141,904.824L585.941,904.824"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="595.301" cy="904.824" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M535.181,656.1 L 542.681,656.1 Q 550.181,656.1 550.181,671.1 L 550.181,889.824 Q 550.181,904.824 557.681,904.824 L 565.181,904.824"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="436.685,871.56 448.205,867.24 448.205,875.88" style="fill:rgb(0,0,0)"/>
+<path d="M535.181,841.32 L 542.681,841.32 Q 550.181,841.32 550.181,856.32 L 550.181,856.56 Q 550.181,871.56 535.181,871.56 L 457.445,871.56 L 442.445,871.56"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="361.229,904.824 349.709,909.144 349.709,900.504" style="fill:rgb(0,0,0)"/>
+<path d="M436.685,871.56 L 349.709,871.56 Q 334.709,871.56 334.709,886.56 L 334.709,889.824 Q 334.709,904.824 345.089,904.824 L 355.469,904.824"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div><br>
+
+Used by:&nbsp;&nbsp; <a href='./create-trigger-stmt.html'>create-trigger-stmt</a>&nbsp;&nbsp; <a href='./sql-stmt.html'>sql-stmt</a><br></br>
+References:&nbsp;&nbsp; <a href='./common-table-expression.html'>common-table-expression</a>&nbsp;&nbsp; <a href='./expr.html'>expr</a>&nbsp;&nbsp; <a href='./returning-clause.html'>returning-clause</a>&nbsp;&nbsp; <a href='./select-stmt.html'>select-stmt</a>&nbsp;&nbsp; <a href='./upsert-clause.html'>upsert-clause</a><br></br>
+See also:&nbsp;&nbsp; <a href='../lang_createtrigger.html'>lang_createtrigger.html</a>&nbsp;&nbsp; <a href='../lang_insert.html'>lang_insert.html</a>
+</div>
+
+
+

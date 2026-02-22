@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.51.2 On 2026-01-09</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.51.2 On 2026-01-09</h2><p><b>Prior changes from version 3.51.0 (2025-11-04):</b></p>
+<p><ol class='lessindent'>
+<li value='1'> New macros in <tt>sqlite3.h</tt>:
+    <ol type="a">
+    <li> <tt>SQLITE_SCM_BRANCH</tt> &rarr; the name of the branch from which the source code is taken.
+    <li> <tt>SQLITE_SCM_TAGS</tt> &rarr; space-separated list of tags on the source code check-in.
+    <li> <tt>SQLITE_SCM_DATETIME</tt> &rarr; ISO-8601 date and time of the source code check-in.
+    </ol>
+<li>Two new JSON functions, <a href="../json1.html#jbeach">jsonb_each()</a> and <a href="../json1.html#jbtree">jsonb_tree()</a> work the same as the existing
+    json_each() and json_tree() functions except that they return <a href="../json1.html#jsonbx">JSONB</a> for the "value" column
+    when the "type" is 'array' or 'object'.
+<li>The <a href="../carray.html">carray</a> and <a href="../percentile.html">percentile</a> extensions are now built
+    into <a href="../amalgamation.html">the amalgamation</a>, though they are disabled by default and must be activated
+    at compile-time using the
+    <a href="../compile.html#enable_carray">-DSQLITE_ENABLE_CARRAY</a> and/or <a href="../compile.html#enable_percentile">-DSQLITE_ENABLE_PERCENTILE</a> options, respectively.
+<li>Enhancements to <a href="../tclsqlite.html">TCL Interface</a>:
+    <ol type="a">
+    <li> Add the <code>-asdict</code> flag to the <code>eval</code> command
+         to have it set the row data as a dict instead of an array.
+    <li> User-defined functions may now <code>break</code> to return an
+         SQL NULL.
+    </ol>
+<li><a href="../cli.html">CLI</a> enhancements:
+    <ol type="a">
+    <li> Increase the precision of ".timer" to microseconds.
+    <li> Enhance the "box" and "column" formatting modes to deal
+         with double-wide characters.
+    <li> The ".imposter" command provides read-only <a href="../imposter.html">imposter tables</a>
+         that work with <a href="../lang_vacuum.html">VACUUM</a> and do not require the --unsafe-testing
+         option.
+    <li> Add the --ifexists option to the CLI command-line option and to
+         the <a href="../cli.html#dotopen">.open command</a>.
+    <li> Limit columns widths set by the ".width" command to 30,000 or less,
+         as there is not good reason to have wider columns, but supporting
+         wider columns provides opportunity to malefactors.
+    </ol>
+<li>Performance enhancements:
+    <ol type="a">
+    <li> Use fewer CPU cycles to commit a read transaction.
+    <li> Early detection of joins that return no rows due to one or more
+         of the tables containing no rows.
+    <li> Avoid evaluation of scalar subqueries if the result of the subquery
+         does not change the result of the overall expression.
+    <li> Faster window function queries when using 
+         "<tt>BETWEEN :x FOLLOWING AND :y FOLLOWING</tt>" with a large :y.
+    </ol>
+<li>Add the <a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint=NOOP;</a> command and the
+    <a href="../c3ref/c_checkpoint_full.html">SQLITE_CHECKPOINT_NOOP</a> argument for <a href="../c3ref/wal_checkpoint_v2.html">sqlite3_wal_checkpoint_v2()</a>.
+<li>Add the <a href="../c3ref/set_errmsg.html">sqlite3_set_errmsg()</a> API for use by extensions.
+<li>Add the <a href="../c3ref/db_status.html">sqlite3_db_status64()</a> API, which works just like the existing
+    <a href="../c3ref/db_status.html">sqlite3_db_status()</a> API except that it returns 64-bit results.
+<li>Add the <a href="../c3ref/c_dbstatus_options.html">SQLITE_DBSTATUS_TEMPBUF_SPILL</a> option to the <a href="../c3ref/db_status.html">sqlite3_db_status()</a>
+    and <a href="../c3ref/db_status.html">sqlite3_db_status64()</a> interfaces.
+<li>In the <a href="../sessionintro.html">session extension</a> add the <a href="../session/sqlite3changeset_apply.html">sqlite3changeset_apply_v3()</a> interface.
+<li>For the <a href="../printf.html">built-in printf()</a> and the <a href="../lang_corefunc.html#format">format() SQL function</a>,
+    omit the leading '-' from negative floating point numbers if the
+    '+' flag is omitted and the "#" flag is present and all displayed digits are '0'.
+    Use '%#f' or similar to avoid outputs like '-0.00' and instead show just '0.00'.
+<li>Improved error messages generated by <a href="../fts5.html">FTS5</a>.
+<li>Enforce STRICT typing on computed columns.
+<li>Improved support for VxWorks
+<li> JavaScript/WASM now supports 64-bit WASM. The canonical builds continue to be
+     32-bit but creating one's own 64-bit build is now as simple
+     as running "make".
+<li>Improved resistance to database corruption caused by an application
+    <a href="../howtocorrupt.html#posix_close_bug">breaking Posix advisory locks using close()</a>.
+</ol>
+<p><b>Prior changes from version 3.51.1 (2025-11-28):</b></p>
+<p><ol class='lessindent'>
+<li value='18'> Fix incorrect results from nested EXISTS queries caused by the
+     optimization in item 6b in the 3.51.0 release.
+<li> Fix a latent bug in <a href="../fts5.html#the_fts5vocab_virtual_table_module">fts5vocab</a> virtual table, exposed by
+     new optimizations in the 3.51.0 release
+</ol>
+<p><b>Changes in this specific patch release, version 3.51.2 (2026-01-09):</b></p>
+<p><ol class='lessindent'>
+<li value='20'> Fix an obscure deadlock in the new broken-posix-lock detection logic
+     in item 17 above.
+<li> Fix multiple problems in the EXISTS-to-JOIN optimization that was added
+     as part of optimization item 6b above.
+<li> Other minor bug fixes.
+<li>SQLITE_SOURCE_ID: 2026-01-09 17:27:48 b270f8339eb13b504d0b2ba154ebca966b7dde08e40c3ed7d559749818cb2075
+<li>SHA3-256 for sqlite3.c: 733b3fcc6cccb1e334424b9b91a9d68b618385b76ebfcbb106690bd3a9e61367
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

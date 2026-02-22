@@ -1,0 +1,145 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Enable Or Disable Extension Loading</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_enable_load_extension -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>启用或禁用扩展加载</h2>
+</div>
+<blockquote><pre>
+int sqlite3_enable_load_extension(sqlite3 *db, int onoff);
+</pre></blockquote>
+<p>
+为了避免在尚未准备好处理<a href="../loadext.html">扩展加载</a>的旧应用中造成安全漏洞，同时也为了在评估用户输入的 SQL 时禁用扩展加载，提供下面的 API 来打开和关闭 <a href="../c3ref/load_extension.html">sqlite3_load_extension()</a> 机制。</p>
+
+<p>扩展加载默认是关闭的。将 sqlite3_enable_load_extension() 调用的 onoff 设置为 1 即可开启扩展加载，将 onoff 设置为 0 即可再次关闭扩展加载。</p>
+
+<p>此接口可启用或禁用 C API <a href="../c3ref/load_extension.html">sqlite3_load_extension()</a> 以及 SQL 函数 <a href="../lang_corefunc.html#load_extension">load_extension()</a>。使用 <a href="../c3ref/db_config.html">sqlite3_db_config</a>(db,<a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableloadextension">SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION</a>,..) 则只启用或禁用 C API。</p>
+
+<p><b>安全警告：</b>建议使用 <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableloadextension">SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION</a> 方法开启扩展加载，而不是使用此接口，这样 <a href="../lang_corefunc.html#load_extension">load_extension()</a> SQL 函数保持禁用。这可以防止 SQL 注入让攻击者获得扩展加载的能力。
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 以及
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+
+</body></html>

@@ -1,0 +1,176 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Mutex Methods Object</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_mutex_methods -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>互斥方法对象</h2>
+</div>
+<blockquote><pre>
+typedef struct sqlite3_mutex_methods sqlite3_mutex_methods;
+struct sqlite3_mutex_methods {
+  int (*xMutexInit)(void);
+  int (*xMutexEnd)(void);
+  sqlite3_mutex *(*xMutexAlloc)(int);
+  void (*xMutexFree)(sqlite3_mutex *);
+  void (*xMutexEnter)(sqlite3_mutex *);
+  int (*xMutexTry)(sqlite3_mutex *);
+  void (*xMutexLeave)(sqlite3_mutex *);
+  int (*xMutexHeld)(sqlite3_mutex *);
+  int (*xMutexNotheld)(sqlite3_mutex *);
+};
+</pre></blockquote>
+<p>
+此结构体的实例定义了分配和使用互斥锁所需的底层例程。</p>
+
+<p>通常，SQLite 提供的默认互斥锁实现已经足够，然而应用程序可以针对特定部署或 SQLite 未提供合适实现的系统替换自定义实现。在这种情况下，应用程序会创建并填充此结构体的实例，并将其与 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmutex">SQLITE_CONFIG_MUTEX</a> 选项一起传递给 sqlite3_config()。另外，此结构体的实例还可以在使用 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfiggetmutex">SQLITE_CONFIG_GETMUTEX</a> 选项查询当前互斥锁实现时，作为输出变量使用。</p>
+
+<p>此结构体定义的 xMutexInit 方法会在 sqlite3_initialize() 函数初始化系统时调用。对于每一次有效调用 <a href="../c3ref/initialize.html">sqlite3_initialize()</a>，SQLite 都会恰好调用一次 xMutexInit 例程。</p>
+
+<p>此结构体定义的 xMutexEnd 方法会在 sqlite3_shutdown() 函数关闭系统时调用。此方法的实现应当释放互斥锁方法实现获取的所有未完成资源，尤其是由 xMutexInit 方法获取的资源。对于每一次调用 <a href="../c3ref/initialize.html">sqlite3_shutdown()</a>，xMutexEnd() 接口都会被恰好调用一次。</p>
+
+<p>此结构体剩余的七个方法（xMutexAlloc、xMutexFree、xMutexEnter、xMutexTry、xMutexLeave、xMutexHeld 和 xMutexNotheld）分别实现以下接口：</p>
+
+<p><ul>
+<li>  <a href="../c3ref/mutex_alloc.html">sqlite3_mutex_alloc()</a> </li>
+<li>  <a href="../c3ref/mutex_alloc.html">sqlite3_mutex_free()</a> </li>
+<li>  <a href="../c3ref/mutex_alloc.html">sqlite3_mutex_enter()</a> </li>
+<li>  <a href="../c3ref/mutex_alloc.html">sqlite3_mutex_try()</a> </li>
+<li>  <a href="../c3ref/mutex_alloc.html">sqlite3_mutex_leave()</a> </li>
+<li>  <a href="../c3ref/mutex_held.html">sqlite3_mutex_held()</a> </li>
+<li>  <a href="../c3ref/mutex_held.html">sqlite3_mutex_notheld()</a> </li>
+</ul></p>
+
+<p>唯一的区别在于，上述公共 sqlite3_XXX 函数在传入 NULL 指针而不是有效互斥锁句柄时会静默忽略该调用。而该结构体定义的方法的实现并不需要处理这种情况。将 NULL 指针传入而不是有效互斥锁句柄的结果是未定义的（即可以接受实现会在传入 NULL 指针时发生段错误）。</p>
+
+<p>xMutexInit() 方法必须是线程安全的。在同一进程内多次调用 xMutexInit()，且在调用期间未插入 xMutexEnd()，都不应造成任何影响。第二次及以后的 xMutexInit() 调用必须是无操作的。</p>
+
+<p>xMutexInit() 不得使用 SQLite 的内存分配（<a href="../c3ref/free.html">sqlite3_malloc()</a> 及其相关函数）。类似地，xMutexAlloc() 在为静态互斥锁分配时不得使用 SQLite 内存分配。然而 xMutexAlloc() 在为快速或递归互斥锁分配时可以使用 SQLite 内存分配。</p>
+
+<p>当调用 <a href="../c3ref/initialize.html">sqlite3_shutdown()</a> 时，SQLite 会调用 xMutexEnd() 方法，但前提是之前对 xMutexInit 的调用返回了 SQLITE_OK。如果 xMutexInit 在任何方面失败，期望其在返回前自行清理资源。</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+
+</body>
+</html>

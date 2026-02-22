@@ -1,0 +1,205 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>创建或重新定义 SQL 函数</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译<br>小巧。快速。可靠。随便选三个。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: {function creation routines} sqlite3_create_function sqlite3_create_function16 sqlite3_create_function_v2 sqlite3_create_window_function -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>创建或重新定义 SQL 函数</h2>
+</div>
+<blockquote><pre>
+int sqlite3_create_function(
+  sqlite3 *db,
+  const char *zFunctionName,
+  int nArg,
+  int eTextRep,
+  void *pApp,
+  void (*xFunc)(sqlite3_context*,int,sqlite3_value**),
+  void (*xStep)(sqlite3_context*,int,sqlite3_value**),
+  void (*xFinal)(sqlite3_context*)
+);
+int sqlite3_create_function16(
+  sqlite3 *db,
+  const void *zFunctionName,
+  int nArg,
+  int eTextRep,
+  void *pApp,
+  void (*xFunc)(sqlite3_context*,int,sqlite3_value**),
+  void (*xStep)(sqlite3_context*,int,sqlite3_value**),
+  void (*xFinal)(sqlite3_context*)
+);
+int sqlite3_create_function_v2(
+  sqlite3 *db,
+  const char *zFunctionName,
+  int nArg,
+  int eTextRep,
+  void *pApp,
+  void (*xFunc)(sqlite3_context*,int,sqlite3_value**),
+  void (*xStep)(sqlite3_context*,int,sqlite3_value**),
+  void (*xFinal)(sqlite3_context*),
+  void(*xDestroy)(void*)
+);
+int sqlite3_create_window_function(
+  sqlite3 *db,
+  const char *zFunctionName,
+  int nArg,
+  int eTextRep,
+  void *pApp,
+  void (*xStep)(sqlite3_context*,int,sqlite3_value**),
+  void (*xFinal)(sqlite3_context*),
+  void (*xValue)(sqlite3_context*),
+  void (*xInverse)(sqlite3_context*,int,sqlite3_value**),
+  void(*xDestroy)(void*)
+);
+</pre></blockquote>
+<p>
+这些函数（统称为“函数创建例程”）用于添加 SQL 函数或聚合函数，或重新定义现有 SQL 函数或聚合函数的行为。三种“sqlite3_create_function*”例程之间的唯一区别在于第二个参数（要创建的函数名）所期望的文本编码，以及应用数据指针是否具有析构回调。函数 sqlite3_create_window_function() 的作用类似，但允许用户提供实现<a href="../windowfunctions.html#aggwinfunc">聚合窗口函数</a>所需的额外回调函数。</p>
+
+<p>第一个参数是要向其添加 SQL 函数的<a href="../c3ref/sqlite3.html">数据库连接</a>。如果一个应用程序使用多个数据库连接，那么自定义 SQL 函数必须分别添加到每个数据库连接中。</p>
+
+<p>第二个参数是要创建或重新定义的 SQL 函数的名称。该名称的长度限制为 UTF-8 表示中的 255 字节，不包括空终止符。请注意，此名称长度限制是 UTF-8 字节而非字符或 UTF-16 字节。任何尝试创建名称更长的函数都会导致返回 <a href="../rescode.html#misuse">SQLITE_MISUSE</a>。</p>
+
+<p>第三个参数（nArg）是 SQL 函数或聚合函数所需的参数个数。如果该参数为 -1，则该 SQL 函数或聚合函数可以接受介于 0 与 <a href="../c3ref/limit.html">sqlite3_limit</a>(<a href="../c3ref/c_limit_attached.html#sqlitelimitfunctionarg">SQLITE_LIMIT_FUNCTION_ARG</a>) 设定的限制之间的任意数量的参数。如果第三个参数小于 -1 或大于 127，则行为未定义。</p>
+
+<p>第四个参数 eTextRep 指定该 SQL 函数希望其参数采用何种<a href="../c3ref/c_any.html">文本编码</a>。如果函数实现会在输入上调用 <a href="../c3ref/value_blob.html">sqlite3_value_text16le()</a>，应用程序应将此参数设为 <a href="../c3ref/c_any.html">SQLITE_UTF16LE</a>；如果实现会调用 <a href="../c3ref/value_blob.html">sqlite3_value_text16be()</a>，则设为 <a href="../c3ref/c_any.html">SQLITE_UTF16BE</a>；如果使用的是 <a href="../c3ref/value_blob.html">sqlite3_value_text16()</a>，则设为 <a href="../c3ref/c_any.html">SQLITE_UTF16</a>；否则设为 <a href="../c3ref/c_any.html">SQLITE_UTF8</a>。同一个 SQL 函数可以使用不同的首选文本编码多次注册，并为每种编码提供不同的实现。当存在同一函数的多个实现时，SQLite 会选择涉及最少数据转换的那一个。</p>
+
+<p>第四个参数也可以可选地与 <a href="../c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a> 做或运算，以表示该函数在同一 SQL 语句中给定相同输入时总是返回相同结果。大多数 SQL 函数都是确定性的。内置的 <a href="../lang_corefunc.html#random">random()</a> SQL 函数就是一个非确定性的例子。SQLite 查询规划器能够对确定性函数执行额外优化，因此在可能的情况下推荐使用 <a href="../c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a> 标志。</p>
+
+<p>第四个参数还可以可选地包含 <a href="../c3ref/c_deterministic.html#sqlitedirectonly">SQLITE_DIRECTONLY</a> 标志，该标志如果存在则会禁止函数在 VIEW、TRIGGER、CHECK 约束、计算列表达式、索引表达式或部分索引的 WHERE 子句中被调用。</p>
+
+<p>为了最佳安全性，建议对所有不需要在触发器、视图、CHECK 约束或数据库架构其他元素中使用的自定义 SQL 函数启用 <a href="../c3ref/c_deterministic.html#sqlitedirectonly">SQLITE_DIRECTONLY</a> 标志。对于具有副作用或会泄露内部应用状态的 SQL 函数尤其推荐此标志。若不启用此标志，攻击者可能能够修改数据库文件的架构，使其中包含由攻击者选定参数调用该函数，而应用在打开并读取该数据库文件时会执行这些调用。</p>
+
+<p>第五个参数是任意指针。函数实现可以通过 <a href="../c3ref/user_data.html">sqlite3_user_data()</a> 访问该指针。</p>
+
+<p>第六、第七和第八个参数（xFunc、xStep 和 xFinal）传递给三种“sqlite3_create_function*”函数，分别是实现该 SQL 函数或聚合函数的 C 语言函数指针。标量 SQL 函数仅需实现 xFunc 回调；xStep 和 xFinal 参数必须传递 NULL 指针。聚合 SQL 函数需要实现 xStep 和 xFinal，并且 xFunc 必须传递 NULL。要删除已有的 SQL 函数或聚合函数，请为这三个函数回调传递 NULL 指针。</p>
+
+<p>传递给 sqlite3_create_window_function 的第六、第七、第八和第九参数（xStep、xFinal、xValue 和 xInverse）是实现新函数的 C 语言回调指针。xStep 与 xFinal 必须都非 NULL。xValue 与 xInverse 可以同时为 NULL，此时会创建一个普通聚合函数；也可以都非 NULL，此时新函数可作为聚合函数或聚合窗口函数使用。有关聚合窗口函数实现的更多细节，可在<a href="../windowfunctions.html#udfwinfunc">此处</a>了解。</p>
+
+<p>如果传递给 sqlite3_create_function_v2() 或 sqlite3_create_window_function() 的最后一个参数非 NULL，则它是应用数据指针的析构函数。当函数被覆盖或数据库连接关闭时会调用该析构函数；若 sqlite3_create_function_v2() 调用失败，也会调用该析构函数。调用析构函数时，会传入一个参数，即 sqlite3_create_function_v2() 第五个参数所指向的应用数据指针的副本。</p>
+
+<p>允许用相同名称但参数数量或首选文本编码不同的多个实现来注册同一个函数。SQLite 会选择最符合 SQL 函数使用方式的实现。具有非负 nArg 参数的实现比具有负 nArg 的实现更匹配；首选文本编码与数据库编码匹配的实现比编码不同的实现更匹配；UTF16le与UTF16be之间的编码差异比 UTF8 与 UTF16 之间的编码差异更接近。</p>
+
+<p>内置函数可以被新的自定义函数重载。</p>
+
+<p>允许自定义函数调用其他 SQLite 接口。不过此类调用不得关闭数据库连接，也不得终结或重置当前运行该函数的预编译语句。</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象列表</a>、
+  <a href="../c3ref/constlist.html">常量列表</a> 和
+  <a href="../c3ref/funclist.html">函数列表</a>。</p>
+
+</body></html>

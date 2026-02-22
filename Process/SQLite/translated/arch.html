@@ -1,0 +1,377 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 架构</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+精巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 架构
+</div>
+</div>
+
+
+
+
+<h1>介绍</h1>
+
+
+<p>本文档描述了SQLite库的架构。这里的信息对希望了解或
+修改SQLite内部工作原理的人非常有用。
+</p>
+
+<div class="rightsidebar imgcontainer">
+<div style="max-width:367px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" width="367" height="453" viewBox="0 0 490.32 605.52" data-pikchr-date="20250319161943">
+<path d="M2.16,293.76L236.16,293.76L236.16,2.16L2.16,2.16Z"  style="fill:rgb(216,236,208);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M2.16,603.36L236.16,603.36L236.16,311.76L2.16,311.76Z"  style="fill:rgb(208,236,232);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M254.16,347.76L488.16,347.76L488.16,2.16L254.16,2.16Z"  style="fill:rgb(232,216,208);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M254.16,603.36L488.16,603.36L488.16,394.56L254.16,394.56Z"  style="fill:rgb(224,236,200);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M38.16,92.16L200.16,92.16L200.16,38.16L38.16,38.16Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="119.16" y="65.16" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">接口</text>
+<polygon points="119.16,120.96 114.84,109.44 123.48,109.44" style="fill:rgb(0,0,0)"/>
+<path d="M119.16,92.16L119.16,115.2"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M38.16,174.96L200.16,174.96L200.16,120.96L38.16,120.96Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="119.16" y="135.209" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">SQL命令</text>
+<text x="119.16" y="160.711" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">处理器</text>
+<polygon points="119.16,203.76 114.84,192.24 123.48,192.24" style="fill:rgb(0,0,0)"/>
+<path d="M119.16,174.96L119.16,198"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M38.16,257.76L200.16,257.76L200.16,203.76L38.16,203.76Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="119.16" y="230.76" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">虚拟机</text>
+<polygon points="119.16,347.76 114.84,336.24 123.48,336.24" style="fill:rgb(0,0,0)"/>
+<path d="M119.16,257.76L119.16,342"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M38.16,401.76L200.16,401.76L200.16,347.76L38.16,347.76Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="119.16" y="374.76" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">B树</text>
+<polygon points="119.16,430.56 114.84,419.04 123.48,419.04" style="fill:rgb(0,0,0)"/>
+<path d="M119.16,401.76L119.16,424.8"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M38.16,484.56L200.16,484.56L200.16,430.56L38.16,430.56Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="119.16" y="457.56" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">页面管理器</text>
+<polygon points="119.16,513.36 114.84,501.84 123.48,501.84" style="fill:rgb(0,0,0)"/>
+<path d="M119.16,484.56L119.16,507.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M38.16,567.36L200.16,567.36L200.16,513.36L38.16,513.36Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="119.16" y="540.36" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">操作系统接口</text>
+<path d="M290.16,92.16L452.16,92.16L452.16,38.16L290.16,38.16Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="371.16" y="65.16" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">词法器</text>
+<polygon points="371.16,120.96 366.84,109.44 375.48,109.44" style="fill:rgb(0,0,0)"/>
+<path d="M371.16,92.16L371.16,115.2"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M290.16,174.96L452.16,174.96L452.16,120.96L290.16,120.96Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="371.16" y="147.96" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">语法分析器</text>
+<polygon points="371.16,203.76 366.84,192.24 375.48,192.24" style="fill:rgb(0,0,0)"/>
+<path d="M371.16,174.96L371.16,198"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M290.16,311.76L452.16,311.76L452.16,203.76L290.16,203.76Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="371.16" y="245.009" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">代码</text>
+<text x="371.16" y="270.511" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">生成器</text>
+<path d="M290.16,484.56L452.16,484.56L452.16,430.56L290.16,430.56Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="371.16" y="457.56" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">实用工具</text>
+<path d="M290.16,567.36L452.16,567.36L452.16,513.36L290.16,513.36Z"  style="fill:rgb(255,255,255);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="371.16" y="540.36" text-anchor="middle" fill="rgb(0,0,0)" font-size="110%" dominant-baseline="central">测试代码</text>
+<polygon points="290.16,78.66 281.572,87.4699 277.897,79.6505" style="fill:rgb(0,0,0)"/>
+<path d="M200.16,120.96L284.947,81.1101"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="200.16,174.96 212.033,178.185 206.985,185.197" style="fill:rgb(0,0,0)"/>
+<path d="M290.16,239.76L204.834,178.326"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="20.16" y="147.96" text-anchor="middle" font-style="italic" fill="rgb(0,0,0)" font-size="110%" transform="rotate(-90 20.16,147.96)" dominant-baseline="central">核心</text>
+<text x="20.16" y="457.56" text-anchor="middle" font-style="italic" fill="rgb(0,0,0)" font-size="110%" transform="rotate(-90 20.16,457.56)" dominant-baseline="central">后端</text>
+<text x="470.16" y="174.96" text-anchor="middle" font-style="italic" fill="rgb(0,0,0)" font-size="110%" transform="rotate(-90 470.16,174.96)" dominant-baseline="central">SQL编译器</text>
+<text x="470.16" y="498.96" text-anchor="middle" font-style="italic" fill="rgb(0,0,0)" font-size="110%" transform="rotate(-90 470.16,498.96)" dominant-baseline="central">辅助工具</text>
+</svg>
+</div>
+</div>
+
+<p>
+旁边的图示展示了SQLite的主要组成部分及其协作方式。下面的文字
+解释了各个组件的职责。
+</p>
+
+<h1>概述</h1>
+
+<p>SQLite通过将SQL文本编译成<a href="opcode.html">字节码</a>，然后使用
+虚拟机运行该字节码来工作。
+
+<p><a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>及其相关接口充当
+将SQL文本转换为字节码的编译器。<a href="c3ref/stmt.html">sqlite3_stmt</a>对象是
+包含执行单条SQL语句的字节码程序的容器。<a href="c3ref/step.html">sqlite3_step()</a>接口将字节码程序
+传递给虚拟机，并运行该程序直到它完成、或形成一个要返回的结果行、或遇到致命错误、或被<a href="c3ref/interrupt.html">中断</a>。
+
+<h1>接口</h1>
+
+<p>大部分<a href="c3ref/intro.html">C语言接口</a>在源文件
+<a href='https://sqlite.org/src/file/src/main.c'>main.c</a>、
+<a href='https://sqlite.org/src/file/src/legacy.c'>legacy.c</a>和
+<a href='https://sqlite.org/src/file/src/vdbeapi.c'>vdbeapi.c</a>中，
+尽管有些例程散布在其他文件中以便访问文件作用域的数据结构。
+<a href="c3ref/free_table.html">sqlite3_get_table()</a>例程在<a href='https://sqlite.org/src/file/src/table.c'>table.c</a>中实现。
+<a href="c3ref/mprintf.html">sqlite3_mprintf()</a>例程在<a href='https://sqlite.org/src/file/src/printf.c'>printf.c</a>中。
+<a href="c3ref/complete.html">sqlite3_complete()</a>接口在<a href='https://sqlite.org/src/file/src/complete.c'>complete.c</a>中。
+<a href="tclsqlite.html">TCL接口</a>在<a href='https://sqlite.org/src/file/src/tclsqlite.c'>tclsqlite.c</a>中实现。
+
+<p>为避免名称冲突，SQLite库中的所有外部符号都以前缀<b>sqlite3</b>开头。
+那些打算对外使用（换句话说，构成SQLite API）的符号会加上下划线，
+因此以<b>sqlite3_</b>开头。扩展API有时在下划线前加上扩展名；例如：
+<b>sqlite3rbu_</b>或<b>sqlite3session_</b>。</p>
+
+<h1>词法器</h1>
+
+<p>当包含SQL语句的字符串要被求值时，它首先被发送到词法器。
+词法器将
+SQL文本拆分成词法单元，并一个接一个地传递给语法分析器。
+词法器在文件<file>tokenize.c</b>中手工编码。
+
+<p>请注意，在此设计中，词法器会调用语法分析器。熟悉YACC和BISON的人可能习惯于
+相反的方式——让语法分析器调用词法器。然而让词法器调用语法分析器更好，
+因为它可以变为线程安全，并且运行得更快。</p>
+
+<h1>语法分析器</h1>
+
+<p>语法分析器根据上下文赋予词法单元语义。SQLite的语法分析器由
+<a href="lemon.html">Lemon语法分析器生成器</a>生成。
+Lemon执行与YACC/BISON相同的工作，但它使用
+不同的输入语法，错误率更低。
+Lemon还生成可重入且线程安全的语法分析器。
+Lemon定义了非终结符析构函数的概念，因此当遇到语法错误时不会泄露内存。
+驱动Lemon并定义SQLite支持的SQL语言的文法文件在<a href='https://sqlite.org/src/file/src/parse.y'>parse.y</a>中。
+
+<p>由于Lemon通常不在开发机器上预装，SQLite发行版在“tool”子目录中
+包含了完整的Lemon源代码（仅一个C文件）。
+</p>
+
+<h1>代码生成器</h1>
+
+<p>在语法分析器将词法单元组装成解析树后，
+代码生成器会分析该解析树并生成
+<a href="opcode.html">字节码</a>来执行SQL语句的工作。
+<a href="c3ref/stmt.html">预编译语句</a>对象是此字节码的容器。
+代码生成器包含许多文件，包括：
+<a href='https://sqlite.org/src/file/src/attach.c'>attach.c</a>、
+<a href='https://sqlite.org/src/file/src/auth.c'>auth.c</a>、
+<a href='https://sqlite.org/src/file/src/build.c'>build.c</a>、
+<a href='https://sqlite.org/src/file/src/delete.c'>delete.c</a>、
+<a href='https://sqlite.org/src/file/src/expr.c'>expr.c</a>、
+<a href='https://sqlite.org/src/file/src/insert.c'>insert.c</a>、
+<a href='https://sqlite.org/src/file/src/pragma.c'>pragma.c</a>、
+<a href='https://sqlite.org/src/file/src/select.c'>select.c</a>、
+<a href='https://sqlite.org/src/file/src/trigger.c'>trigger.c</a>、
+<a href='https://sqlite.org/src/file/src/update.c'>update.c</a>、
+<a href='https://sqlite.org/src/file/src/vacuum.c'>vacuum.c</a>、
+<a href='https://sqlite.org/src/file/src/where.c'>where.c</a>、
+<a href='https://sqlite.org/src/file/src/wherecode.c'>wherecode.c</a>和
+<a href='https://sqlite.org/src/file/src/whereexpr.c'>whereexpr.c</a>。
+这些文件中包含了大部分真正的魔法。
+<a href='https://sqlite.org/src/file/src/expr.c'>expr.c</a>处理表达式的代码生成。
+<b>where*.c</b>处理SELECT、UPDATE和DELETE语句中WHERE子句的代码生成。
+文件 <a href='https://sqlite.org/src/file/src/attach.c'>attach.c</a>、
+<a href='https://sqlite.org/src/file/src/delete.c'>delete.c</a>、
+<a href='https://sqlite.org/src/file/src/insert.c'>insert.c</a>、
+<a href='https://sqlite.org/src/file/src/select.c'>select.c</a>、
+<a href='https://sqlite.org/src/file/src/trigger.c'>trigger.c</a>、
+<a href='https://sqlite.org/src/file/src/update.c'>update.c</a>和<a href='https://sqlite.org/src/file/src/vacuum.c'>vacuum.c</a>
+负责名称相同的SQL语句的代码生成。
+（每个文件在必要时调用
+<a href='https://sqlite.org/src/file/src/expr.c'>expr.c</a>和<a href='https://sqlite.org/src/file/src/where.c'>where.c</a>中的例程。）
+其他所有SQL语句都由<a href='https://sqlite.org/src/file/src/build.c'>build.c</a>编码。
+<a href='https://sqlite.org/src/file/src/auth.c'>auth.c</a>文件实现了
+<a href="c3ref/set_authorizer.html">sqlite3_set_authorizer()</a>的功能。</p>
+
+<p>代码生成器，特别是<b>where*.c</b>和
+<a href='https://sqlite.org/src/file/src/select.c'>select.c</a>中的逻辑，有时被称为
+<a href="optoverview.html">查询规划器</a>。
+对于任何特定SQL语句，可能存在
+成百上千甚至数百万种不同的算法来计算答案。
+查询规划器是一个AI，它努力从数百万种选择中挑选出
+最佳算法。</p>
+
+<h1>字节码引擎</h1>
+
+<p>由代码生成器创建的<a href="opcode.html">字节码</a>程序由
+虚拟机运行。
+
+<p>虚拟机本身完全包含在单个源文件
+<a href='https://sqlite.org/src/file/src/vdbe.c'>vdbe.c</a>中。
+<a href='https://sqlite.org/src/file/src/vdbe.h'>vdbe.h</a>头文件定义了虚拟机与SQLite库其余部分之间的接口，
+而<a href='https://sqlite.org/src/file/src/vdbeInt.h'>vdbeInt.h</a>定义了对虚拟机自身私有的结构和接口。
+各种其他<b>vdbe*.c</b>文件作为虚拟机的辅助。
+<a href='https://sqlite.org/src/file/src/vdbeaux.c'>vdbeaux.c</a>文件包含虚拟机使用的实用程序以及库其余部分用来构建VM程序的接口模块。
+<a href='https://sqlite.org/src/file/src/vdbeapi.c'>vdbeapi.c</a>文件包含诸如
+<a href="c3ref/bind_blob.html">sqlite3_bind_int()</a>和<a href="c3ref/step.html">sqlite3_step()</a>等
+对虚拟机的外部接口。各类值（字符串、整数、浮点数和BLOB）存储在名为“Mem”的内部对象中，
+该对象由<a href='https://sqlite.org/src/file/src/vdbemem.c'>vdbemem.c</a>实现。</p>
+
+<p>
+SQLite通过回调C语言例程实现SQL函数。
+即使是内置的SQL函数也是这样实现的。
+大多数内置SQL函数（例如：<a href="lang_corefunc.html#abs">abs()</a>、
+<a href="lang_aggfunc.html#count">count()</a>、
+<a href="lang_corefunc.html#substr">substr()</a>等）可以在<a href='https://sqlite.org/src/file/src/func.c'>func.c</a>源文件中找到。
+日期和时间转换函数在<a href='https://sqlite.org/src/file/src/date.c'>date.c</a>中。
+一些函数，例如<a href="lang_corefunc.html#coalesce">coalesce()</a>
+和<a href="lang_corefunc.html#typeof">typeof()</a>，由代码生成器直接以字节码实现。
+</p>
+
+<h1>B树</h1>
+
+<p>SQLite数据库在磁盘上使用<a href='https://sqlite.org/src/file/src/btree.c'>btree.c</a>源文件中的B树实现进行维护。
+每个表和每个索引在数据库中都使用单独的B树。所有B树都存储在相同的磁盘文件中。
+<a href="fileformat2.html">文件格式</a>详尽且稳定，并被保证向前兼容。</p>
+
+<p>B树子系统与SQLite库其余部分的接口由头文件<a href='https://sqlite.org/src/file/src/btree.h'>btree.h</a>定义。
+</p>
+
+<h1>页面缓存</h1>
+
+<p>B树模块以固定大小的页面向磁盘请求信息。
+默认的<a href="pragma.html#pragma_page_size">page_size</a>是4096字节，但可以是介于512到65536之间的任意2的幂。
+页面缓存负责读取、写入和缓存这些页面。
+页面缓存还提供回滚和原子提交的抽象，并负责数据库文件的锁定。
+B树驱动从页面缓存中请求特定页面，并在需要修改页面或提交/回滚更改时通知页面缓存。
+页面缓存处理所有棘手的细节，以确保请求快速、安全、高效地完成。</p>
+
+<p>主要的页面缓存实现位于<a href='https://sqlite.org/src/file/src/pager.c'>pager.c</a>文件中。
+<a href="wal.html">WAL模式</a>的逻辑位于独立的<a href='https://sqlite.org/src/file/src/wal.c'>wal.c</a>文件中。
+内存缓存由<a href='https://sqlite.org/src/file/src/pcache.c'>pcache.c</a>和<a href='https://sqlite.org/src/file/src/pcache1.c'>pcache1.c</a>文件实现。
+页面缓存子系统与SQLite其他部分之间的接口由头文件<a href='https://sqlite.org/src/file/src/pager.h'>pager.h</a>定义。
+</p>
+
+<h1>操作系统接口</h1>
+
+<p>
+为了在不同操作系统之间提供可移植性，
+SQLite使用一个称为<a href="vfs.html">VFS</a>的抽象对象。
+每个VFS提供打开、读取、写入和关闭磁盘文件的方法，以及
+查找当前时间或获取随机数等其他操作系统特定的任务，以初始化内置伪随机数生成器。
+SQLite目前为类Unix系统（<a href='https://sqlite.org/src/file/src/os_unix.c'>os_unix.c</a>文件）和Windows（<a href='https://sqlite.org/src/file/src/os_win.c'>os_win.c</a>文件）提供VFS。
+</p>
+
+<h1>实用工具</h1>
+
+<p>
+内存分配、不区分大小写的字符串比较例程、
+可移植的文本转数字转换例程以及其他实用程序都位于<a href='https://sqlite.org/src/file/src/util.c'>util.c</a>中。
+语法分析器使用的符号表由<a href='https://sqlite.org/src/file/src/hash.c'>hash.c</a>中的散列表维护。
+<a href='https://sqlite.org/src/file/src/utf.c'>utf.c</a>源文件包含Unicode转换子例程。
+SQLite还在<a href="printf.html">printf()</a>（带有一些扩展）中拥有自己的私有实现，位于<a href='https://sqlite.org/src/file/src/printf.c'>printf.c</a>，
+以及自己的伪随机数生成器（PRNG），位于<a href='https://sqlite.org/src/file/src/random.c'>random.c</a>。
+</p>
+
+<h1>测试代码</h1>
+
+<p>
+源码树中的“src/”文件夹下以<b>test</b>开头的文件仅用于测试，不包含在标准库构建中。
+</p>
+
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </small></i></p>

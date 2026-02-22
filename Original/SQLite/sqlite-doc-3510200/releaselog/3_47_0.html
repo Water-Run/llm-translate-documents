@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.47.0 On 2024-10-21</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.47.0 On 2024-10-21</h2><p><ol class='lessindent'>
+<li> Allow arbitrary expressions in the second argument to the <a href="../lang_createtrigger.html#raise">RAISE function</a>.
+<li> If the RHS of <a href="../json1.html#jptr">the ->> operator</a> is negative, then access array elements counting from the right.
+<li> Fix a problem with rolling back hot journal files in the seldom-used
+     <a href="../../vfs.html#standard_unix_vfses">unix-dotfile VFS</a>.
+<li> FTS5 tables can now be dropped even if they use a non-standard tokenizer that
+     has not been registered.
+<li> Fix the <a href="../lang_aggfunc.html#group_concat">group_concat() aggregate function</a> so that it returns an empty string,
+     not a NULL, if it receives a single input value which is an empty string.
+<li> Enhance the <a href="../series.html">generate_series()</a> table-valued function so that it is able to
+     recognize and use constraints on its output value.
+<li> Preupdate hooks now recognize when a column added by ALTER TABLE ADD COLUMN
+     has a non-null default value.
+<li> Performance optimizations:
+     <ol type="a">
+     <li> Improved reuse of subqueries associated with the <a href="../lang_expr.html#in_op">IN operator</a>, especially when
+          the IN operator has been duplicated due to <a href="../optoverview.html#pushdown">predicate push-down</a>.
+     <li> Use a Bloom filter on subqueries on the right-hand side of the
+          <a href="../lang_expr.html#in_op">IN operator</a>, in cases where that seems likely to improve performance.
+     <li> Ensure that queries like "<tt>SELECT func(a) FROM tab GROUP BY 1</tt>" only
+          invoke the func() function once per row.
+     <li> No attempt is made to create <a href="../optoverview.html#autoindex">automatic indexes</a> on a column that is known
+          to be non-selective because of its use in other indexes that have been analyzed.
+     <li> Adjustments to the query planner so that it produces better plans for
+          star queries with a large number of dimension tables.
+     <li> Add the "order-by-subquery" optimization, that seeks to disable sort operations
+          in outer queries if the desired order is obtained naturally due to ORDER BY
+          clauses in subqueries.
+     <li> The "indexed-subtype-expr" optimization strives to use expressions that
+          are part of an index rather than recomputing the expression based on table values,
+          as long as the query planner can prove that the <a href="../c3ref/value_subtype.html">subtype</a>
+          of the expression will never be used.
+     <li> Miscellaneous coding tweaks for faster runtimes.
+     </ol>
+<li> Enhancements to SQLite-related command-line programs:
+     <ol type="a">
+     <li> Add the experimental <a href="../rsync.html">sqlite3_rsync</a> program.
+     <li> Add extension functions <a href="../lang_aggfunc.html#median">median()</a>, <a href="../lang_aggfunc.html#percentile">percentile()</a>, <a href="../lang_aggfunc.html#percentile_cont">percentile_cont()</a>,
+          and <a href="../lang_aggfunc.html#percentile_disc">percentile_disc()</a> to the <a href="../cli.html">CLI</a>.
+     <li> Add the <a href="../cli.html#dotwww">.www dot-command</a> to the <a href="../cli.html">CLI</a>.
+     <li> The <a href="../sqlanalyze.html">sqlite3_analyzer</a> utility now provides a break-out of statistics
+          for WITHOUT ROWID tables.
+     <li> The <a href="../sqldiff.html">sqldiff</a> utility avoids creating an empty database if its second argument
+          does not exist.
+     </ol>
+<li> Enhance the <a href="../dbpage.html">sqlite_dbpage</a> table-valued function such that <a href="../lang_insert.html">INSERT</a> can be used
+     to increase or decrease the size of the database file.
+<li> SQLite no longer makes any use of the "long double" data type, as hardware support
+     for long double is becoming less common and long double creates challenges for
+     some compiler tool chains.  Instead, SQLite uses
+     <a href="https://csclub.uwaterloo.ca/~pbarfuss/dekker1971.pdf">Dekker's algorithm</a>
+     when extended precision is needed.
+<li> The <a href="../tclsqlite.html">TCL Interface</a> for SQLite supports TCL9.  Everything probably still works for
+     TCL 8.5 and later, though this is not guaranteed.  Users are encouraged to upgrade
+     to TCL9.
+<li> JavaScript/WASM:
+     <ol type="a">
+     <li> Fix a corruption-causing bug in the JavaScript "opfs" VFS.
+     <li> Correct "mode=ro" handling for the "opfs" VFS.
+     <li> Work around a couple of browser-specific OPFS quirks.
+     </ol>
+<li> FTS5 Changes:
+     <ol type="a">  
+     <li> Add the fts5_tokenizer_v2 API and the locale=1 option, for creating custom
+          locale-aware tokenizers and fts5 tables that may take advantage of them.
+     <li> Add the contentless_unindexed=1 option, for creating contentless fts5 tables
+          that store the values of any UNINDEXED columns persistently in the database.
+     <li> Allow an FTS5 table to be dropped even if it uses a custom tokenizer whose
+          implementation is not available.
+     </ol>
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2024-10-21 16:30:22 03a9703e27c44437c39363d0baf82db4ebc94538a0f28411c85dda156f82636e
+<li>SHA3-256 for sqlite3.c: bcec3a4fbc97e973547924677332996ef64e06a6d10d22e2c2344f447536cc29
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

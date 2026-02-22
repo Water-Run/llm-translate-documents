@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Base85() SQL Function</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='about.html'>About</a>
+<li class='desktoponly'><a href="docs.html">Documentation</a>
+<li class='desktoponly'><a href="download.html">Download</a>
+<li class='wideonly'><a href='copyright.html'>License</a>
+<li class='desktoponly'><a href="support.html">Support</a>
+<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>About</a>
+<li><a href='docs.html'>Documentation</a>
+<li><a href='download.html'>Download</a>
+<li><a href='support.html'>Support</a>
+<li><a href='prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+The Base85() SQL Function
+</div>
+</div>
+
+
+
+
+
+<h1 id="overview"><span>1. </span>Overview</h1>
+
+<p> The base85() function is an SQL function implemented as 
+a <a href="loadext.html">loadable extension</a> for SQLite.  The function converts a binary
+BLOB into an equivalent base-85 text encoding
+or converts that same base-85 text encoding back into a BLOB.
+
+</p><p> The base85() function is not a standard part of SQLite.
+It must be loaded as a separate extension.  The source code to
+base85() is in the 
+<a href="https://sqlite.org/src/file/ext/misc/base85.c">base85.c source file</a>
+in the <a href="https://sqlite.org/src/file/ext/misc">ext/misc/ folder</a> of the
+SQLite source tree.
+
+</p><p> The base85() function is not included in standard builds of
+the SQLite library, but it is loaded by default in the <a href="cli.html">CLI</a>.  This
+is typical of the <a href="cli.html">CLI</a> which loads various extensions above and beyond
+what are available in the standard SQLite library.
+
+</p><p>
+Like <a href="base64.html">base64()</a> representations, the base85() function can be used
+to format binary content through any
+sane ASCII channel unmolested. It also plays nicely in CSV or
+written as TCL brace-enclosed literals or SQL string literals.
+It is not suited for unmodified use in XML-like documents.
+
+
+</p><h1 id="encoding"><span>2. </span>Encoding</h1>
+
+<p>
+The encoding used resembles Ascii85, but was devised by the author
+(Larry Brasfield) before Mozilla, Adobe, ZMODEM or other Ascii85
+variant sources existed, in the 1984 timeframe on a VAX mainframe.
+Further, this is an independent implementation of a base85 system.
+Hence, the author has rightfully put this into the public domain.
+
+</p><p>
+Base85 numerals are taken from the set of 7-bit USASCII codes,
+excluding control characters and Space ! " ' ( ) { | } ~ Del
+in code order representing digit values 0 to 84 (base 10.)
+
+</p><p>
+Groups of 4 bytes, interpreted as big-endian 32-bit values,
+are represented as 5-digit base85 numbers with MS to LS digit
+order. Groups of 1-3 bytes are represented with 2-4 digits,
+still big-endian but 8-24 bit values. (Using big-endian yields
+the simplest transition to byte groups smaller than 4 bytes.
+These byte groups can also be considered base-256 numbers.)
+Groups of 0 bytes are represented with 0 digits and vice-versa.
+No pad characters are used; encoded base85 numeral sequence
+(aka "group") length maps 1-to-1 to the decoded binary length.
+
+</p><p>
+Any character not in the base85 numeral set delimits groups.
+When base85 is streamed or stored in containers of indefinite
+size, newline is used to separate it into sub-sequences of no
+more than 80 digits so that fgets() can be used to read it.
+
+</p><h1 id="features"><span>3. </span>Features</h1>
+
+<ol>
+<li><p>
+The base85() function always takes a single argument that must be TEXT
+(for base85-to-binary conversion) or a BLOB (for binary-to-base85 conversion).
+
+</p></li><li><p>
+If the argument to base85() is a BLOB, then the return value is TEXT
+according to the encoding described above.
+
+</p></li><li><p>
+If the argument to base85() is TEXT as described above then the return value is
+a BLOB that is the binary data corresponding to that base85 text.
+
+</p></li><li><p>
+An error is raised if the argument to base85() is something other than
+TEXT or BLOB.
+</p></li></ol>
+
+<h1 id="see_also"><span>4. </span>See Also</h1>
+
+<ul>
+<li><p>Build-in SQL function <a href="lang_corefunc.html#hex">hex()</a>.
+</p></li><li><p>Extension function <a href="base64.html">base64()</a>.
+</p></li></ul>
+<p align="center"><small><i>This page was last updated on 2025-07-12 15:11:36Z </small></i></p>
+

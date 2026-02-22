@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Syntax: pragma-stmt</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h1 align='center'>pragma-stmt</h1>
+<div class='imgcontainer'>
+<div style="max-width:824px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 824.352 99.576" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,17.28 20.88,21.6 20.88,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L26.64,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M47.52,32.4L104.371,32.4A15.12 15.12 0 0 0 119.491 17.28A15.12 15.12 0 0 0 104.371 2.16L47.52,2.16A15.12 15.12 0 0 0 32.4 17.28A15.12 15.12 0 0 0 47.52 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="75.9456" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">PRAGMA</text>
+<polygon points="155.491,17.28 143.971,21.6 143.971,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M119.491,17.28L149.731,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M170.611,32.4L266.976,32.4A15.12 15.12 0 0 0 282.096 17.28A15.12 15.12 0 0 0 266.976 2.16L170.611,2.16A15.12 15.12 0 0 0 155.491 17.28A15.12 15.12 0 0 0 170.611 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="218.794" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">schema-name</text>
+<polygon points="305.136,17.28 293.616,21.6 293.616,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M282.096,17.28L299.376,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M320.256,32.4A15.12 15.12 0 0 0 335.376 17.28A15.12 15.12 0 0 0 320.256 2.16A15.12 15.12 0 0 0 305.136 17.28A15.12 15.12 0 0 0 320.256 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="320.256" y="17.28" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">.</text>
+<polygon points="371.376,17.28 359.856,21.6 359.856,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M335.376,17.28L365.616,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M386.496,32.4L483.667,32.4A15.12 15.12 0 0 0 498.787 17.28A15.12 15.12 0 0 0 483.667 2.16L386.496,2.16A15.12 15.12 0 0 0 371.376 17.28A15.12 15.12 0 0 0 386.496 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="435.082" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">pragma-name</text>
+<polygon points="540.307,82.296 528.787,86.616 528.787,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M498.787,17.28 L 506.287,17.28 Q 513.787,17.28 513.787,32.28 L 513.787,67.296 Q 513.787,82.296 524.167,82.296 L 534.547,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M555.427,97.416A15.12 15.12 0 0 0 570.547 82.296A15.12 15.12 0 0 0 555.427 67.176A15.12 15.12 0 0 0 540.307 82.296A15.12 15.12 0 0 0 555.427 97.416Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="555.427" y="82.296" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">(</text>
+<polygon points="593.587,82.296 582.067,86.616 582.067,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M570.547,82.296L587.827,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M593.587,97.416L720.192,97.416L720.192,67.176L593.587,67.176Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="656.89" y="82.296" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">pragma-value</text>
+<polygon points="743.232,82.296 731.712,86.616 731.712,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M720.192,82.296L737.472,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M758.352,97.416A15.12 15.12 0 0 0 773.472 82.296A15.12 15.12 0 0 0 758.352 67.176A15.12 15.12 0 0 0 743.232 82.296A15.12 15.12 0 0 0 758.352 97.416Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="758.352" y="82.296" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">)</text>
+<polygon points="814.992,17.28 803.472,21.6 803.472,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M773.472,82.296 L 780.972,82.296 Q 788.472,82.296 788.472,67.296 L 788.472,32.28 Q 788.472,17.28 798.852,17.28 L 809.232,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="818.592" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="540.307,44.496 528.787,48.816 528.787,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M498.787,17.28 L 506.287,17.28 Q 513.787,17.28 513.787,30.888 Q 513.787,44.496 524.167,44.496 L 534.547,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M555.427,59.616A15.12 15.12 0 0 0 570.547 44.496L570.547,44.496A15.12 15.12 0 0 0 555.427 29.376A15.12 15.12 0 0 0 540.307 44.496L540.307,44.496A15.12 15.12 0 0 0 555.427 59.616Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="555.427" y="44.496" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">=</text>
+<polygon points="593.587,44.496 582.067,48.816 582.067,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M570.547,44.496L587.827,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M593.587,59.616L720.192,59.616L720.192,29.376L593.587,29.376Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="656.89" y="44.496" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">pragma-value</text>
+<polygon points="773.472,44.496 761.952,48.816 761.952,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M720.192,44.496L767.712,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M773.472,44.496 L 780.972,44.496 Q 788.472,44.496 788.472,36.996 L 788.472,29.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="656.89,17.28 645.37,21.6 645.37,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M498.787,17.28L651.13,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M656.89,17.28L803.472,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="218.794,44.496 207.274,48.816 207.274,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M119.491,17.28 L 126.991,17.28 Q 134.491,17.28 134.491,30.888 Q 134.491,44.496 149.491,44.496 L 198.034,44.496 L 213.034,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M218.794,44.496 L 335.376,44.496 Q 350.376,44.496 350.376,30.888 Q 350.376,17.28 357.876,17.28 L 365.376,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div><br>
+
+Used by:&nbsp;&nbsp; <a href='./sql-stmt.html'>sql-stmt</a><br></br>
+References:&nbsp;&nbsp; <a href='./pragma-value.html'>pragma-value</a><br></br>
+See also:&nbsp;&nbsp; <a href='../pragma.html'>pragma.html</a>
+</div>
+
+
+

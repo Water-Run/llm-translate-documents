@@ -1,0 +1,144 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Overload A Function For A Virtual Table</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly translation-note">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随意选择三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_overload_function -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>为虚拟表重载函数</h2>
+</div>
+<blockquote><pre>
+int sqlite3_overload_function(sqlite3*, const char *zFuncName, int nArg);
+</pre></blockquote>
+<p>
+虚拟表可以使用<a href="../vtab.html#xfindfunction">虚拟表模块</a>的<a href="../vtab.html#xfindfunction">xFindFunction</a>方法提供函数的替代实现。
+但这些函数必须存在全局版本才能被重载。</p>
+
+<p>此 API 确保具有特定名称和参数数量的函数存在全局版本。
+如果调用此 API 之前尚不存在这样的函数，则会创建一个新函数。新函数的实现总是导致抛出异常。
+因此该新函数本身无实际用途。它的唯一目的就是作为一个占位函数，以便被<a href="../vtab.html">虚拟表</a>重载。
+</p><p>另见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>以及
+  <a href="../c3ref/funclist.html">函数</a>的列表。</p>
+
+</body></html>

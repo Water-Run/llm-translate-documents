@@ -1,0 +1,189 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>将值绑定到预处理语句</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随便挑三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">采购</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>采购</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: {SQL parameter} {SQL parameters} {host parameter} {host parameter name} {host parameters} {parameter binding} sqlite3_bind_blob sqlite3_bind_blob64 sqlite3_bind_double sqlite3_bind_int sqlite3_bind_int64 sqlite3_bind_null sqlite3_bind_pointer sqlite3_bind_text sqlite3_bind_text16 sqlite3_bind_text64 sqlite3_bind_value sqlite3_bind_zeroblob sqlite3_bind_zeroblob64 -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>将值绑定到预处理语句</h2>
+</div>
+<blockquote><pre>
+int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void(*)(void*));
+int sqlite3_bind_blob64(sqlite3_stmt*, int, const void*, sqlite3_uint64,
+                        void(*)(void*));
+int sqlite3_bind_double(sqlite3_stmt*, int, double);
+int sqlite3_bind_int(sqlite3_stmt*, int, int);
+int sqlite3_bind_int64(sqlite3_stmt*, int, sqlite3_int64);
+int sqlite3_bind_null(sqlite3_stmt*, int);
+int sqlite3_bind_text(sqlite3_stmt*,int,const char*,int,void(*)(void*));
+int sqlite3_bind_text16(sqlite3_stmt*, int, const void*, int, void(*)(void*));
+int sqlite3_bind_text64(sqlite3_stmt*, int, const char*, sqlite3_uint64,
+                         void(*)(void*), unsigned char encoding);
+int sqlite3_bind_value(sqlite3_stmt*, int, const sqlite3_value*);
+int sqlite3_bind_pointer(sqlite3_stmt*, int, void*, const char*,void(*)(void*));
+int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);
+int sqlite3_bind_zeroblob64(sqlite3_stmt*, int, sqlite3_uint64);
+</pre></blockquote>
+<p>
+在传入 <a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a> 及其变体的 SQL 语句文本中，字面值可以被与下列模板之一相匹配的 <a href="../lang_expr.html#varparam">参数</a> 所替代：</p>
+
+<p><ul>
+<li>  ?
+<li>  ?NNN
+<li>  :VVV
+<li>  @VVV
+<li>  $VVV
+</ul></p>
+
+<p>在上述模板中，NNN 表示整数字面量，VVV 表示字母数字标识符。这些参数的值（也称为“主机参数名”或“SQL 参数”）可以使用此处定义的 sqlite3_bind_*() 例程来设置。</p>
+
+<p>sqlite3_bind_*() 例程的第一个参数始终是从 <a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a> 或其变体返回的 <a href="../c3ref/stmt.html">sqlite3_stmt</a> 对象的指针。</p>
+
+<p>第二个参数是要设置的 SQL 参数的索引。最左边的 SQL 参数索引为 1。使用同一个名称的 SQL 参数出现多次时，第二次及之后的出现具有与第一次相同的索引。命名参数的索引可以根据需要通过 <a href="../c3ref/bind_parameter_index.html">sqlite3_bind_parameter_index()</a> API 查找。“?NNN” 参数的索引就是 NNN 的值。NNN 的取值必须在 <a href="../c3ref/limit.html">sqlite3_limit()</a> 参数 <a href="../c3ref/c_limit_attached.html#sqlitelimitvariablenumber">SQLITE_LIMIT_VARIABLE_NUMBER</a>（默认值：32766）范围内。</p>
+
+<p>第三个参数是要绑定到参数的值。如果 sqlite3_bind_text()、sqlite3_bind_text16() 或 sqlite3_bind_blob() 的第三个参数为 NULL 指针，则第四个参数会被忽略，最终效果与 sqlite3_bind_null() 相同。如果 sqlite3_bind_text() 的第三个参数不是 NULL，那么它应当指向格式良好的 UTF8 文本。如果 sqlite3_bind_text16() 的第三个参数不是 NULL，那么它应当指向格式良好的 UTF16 文本。如果 sqlite3_bind_text64() 的第三个参数不是 NULL，那么它应当指向格式良好的 Unicode 字符串，该字符串在第六个参数为 SQLITE_UTF8 时为 UTF8，否则为 UTF16。</p>
+
+<p><a name="byteorderdeterminationrules"></a>
+UTF16 输入文本的字节顺序由第一个字符中的字节顺序标记（BOM，U+FEFF）决定，该标记会被移除；如果没有 BOM，则 sqlite3_bind_text16() 使用宿主机器的本地字节顺序，而 sqlite3_bind_text64() 使用第六个参数指定的字节顺序。如果 UTF16 输入文本包含无效的 Unicode 字符，SQLite 可能会将这些无效字符替换为 Unicode 替代字符 U+FFFD。</p>
+
+<p>在拥有第四个参数的那些例程中，其值是参数中的字节数。明确地说：该值是值中的 <u>字节</u> 数，而不是字符数。如果 sqlite3_bind_text() 或 sqlite3_bind_text16() 的第四个参数为负，则字符串长度是到第一个零终止符之前的字节数。如果 sqlite3_bind_blob() 的第四个参数为负，则行为未定义。如果 sqlite3_bind_text()、sqlite3_bind_text16() 或 sqlite3_bind_text64() 提供了非负的第四个参数，则该参数必须是假定字符串以 NUL 终止时 NUL 终止符将出现的字节偏移。如果在小于第四个参数值的字节偏移处出现任何 NUL 字符，则结果字符串值将包含嵌入的 NUL。涉及含嵌入 NUL 的字符串的表达式的结果未定义。</p>
+
+<p>第五个参数用于 BLOB 和字符串绑定接口，控制或指示第三个参数所引用对象的生命周期。存在三种选项：(1) 可以传入一个析构函数，用来在 SQLite 使用完 BLOB 或字符串之后释放它。即使绑定 API 调用失败，也会调用该析构函数，除非第三个参数是 NULL 指针或者第四个参数为负。(2) 可以传入特殊常量 <a href="../c3ref/c_static.html">SQLITE_STATIC</a>，表示应用程序继续负责释放该对象。在这种情况下，对象及其指针在预处理语句最终确定或同一 SQL 参数绑定到其他内容（以先发生者为准）之前必须保持有效。(3) 可以传入常量 <a href="../c3ref/c_static.html">SQLITE_TRANSIENT</a>，表示在 sqlite3_bind_*() 返回之前对象会被复制。在那之前，对象及其指针必须保持有效。SQLite 会管理其私有副本的生命周期。</p>
+
+<p>sqlite3_bind_text64() 的第六个参数必须是 <a href="../c3ref/c_any.html">SQLITE_UTF8</a>、<a href="../c3ref/c_any.html">SQLITE_UTF16</a>、<a href="../c3ref/c_any.html">SQLITE_UTF16BE</a> 或 <a href="../c3ref/c_any.html">SQLITE_UTF16LE</a> 之一，用来指定第三个参数中文本的编码。如果 sqlite3_bind_text64() 的第六个参数不是上述允许值之一，或者文本编码与第六个参数指定的编码不同，则行为未定义。</p>
+
+<p>sqlite3_bind_zeroblob() 例程绑定一个长度为 N 的全零 BLOB。在处理期间，zeroblob 占用固定量的内存（只需保存其大小的一个整数）。Zeroblob 用作稍后通过 <a href="../c3ref/blob_open.html">增量 BLOB I/O</a> 例程写入内容的 BLOB 的占位符。zeroblob 的负值会产生零长度 BLOB。</p>
+
+<p>sqlite3_bind_pointer(S,I,P,T,D) 例程使得 <a href="../c3ref/stmt.html">预处理语句</a> S 中的第 I 个参数具有 NULL 的 SQL 值，但同时与类型为 T 的指针 P 相关联。D 要么是 NULL 指针，要么是 P 的析构函数指针。当 SQLite 使用完 P 时，它将以单个参数 P 调用析构函数 D，即使 sqlite3_bind_pointer() 调用失败。由于历史设计上的怪癖，当 D 是 SQLITE_TRANSIENT 时结果未定义。T 参数应当是静态字符串，最好是字符串字面量。sqlite3_bind_pointer() 例程是 SQLite 3.20.0 新增的 <a href="../bindptr.html">指针传递接口</a> 的一部分。</p>
+
+<p>如果 sqlite3_bind_*() 例程中的任何一个在传入 NULL 指针作为 <a href="../c3ref/stmt.html">预处理语句</a>，或者在 <a href="../c3ref/reset.html">sqlite3_reset()</a> 之后又更近一次调用了 <a href="../c3ref/step.html">sqlite3_step()</a> 的预处理语句上调用，那么该调用会返回 <a href="../rescode.html#misuse">SQLITE_MISUSE</a>。如果向某个已经最终确定的 <a href="../c3ref/stmt.html">预处理语句</a> 传递 sqlite3_bind_*() 例程，结果未定义且很可能有害。</p>
+
+<p>绑定不会被 <a href="../c3ref/reset.html">sqlite3_reset()</a> 例程清除。未绑定的参数会被解释为 NULL。</p>
+
+<p>sqlite3_bind_* 例程在成功时返回 <a href="../rescode.html#ok">SQLITE_OK</a>，如果出错则返回 <a href="../rescode.html">错误代码</a>。如果字符串或 BLOB 的大小超过 <a href="../c3ref/limit.html">sqlite3_limit</a>(<a href="../c3ref/c_limit_attached.html#sqlitelimitlength">SQLITE_LIMIT_LENGTH</a>) 或 <a href="../limits.html#max_length">SQLITE_MAX_LENGTH</a> 等限制，可能返回 <a href="../rescode.html#toobig">SQLITE_TOOBIG</a>。如果参数索引超出范围，则返回 <a href="../rescode.html#range">SQLITE_RANGE</a>。如果 malloc() 失败，则返回 <a href="../rescode.html#nomem">SQLITE_NOMEM</a>。</p>
+
+<p>另请参阅：<a href="../c3ref/bind_parameter_count.html">sqlite3_bind_parameter_count()</a>、<a href="../c3ref/bind_parameter_name.html">sqlite3_bind_parameter_name()</a> 以及 <a href="../c3ref/bind_parameter_index.html">sqlite3_bind_parameter_index()</a>。
+</p><p>另请参阅以下列表：
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 以及
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+

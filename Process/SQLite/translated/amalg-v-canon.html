@@ -1,0 +1,344 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>合并版本与典型源码</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+合并版本与典型源码
+</div>
+</div>
+
+
+
+
+<h1 id="which_code_base_should_i_use_to_build_sqlite_"><span>1. </span>我应该使用哪个代码库来构建 SQLite？</h1>
+
+<p>
+SQLite 是用 C 编写的。要编译 SQLite，需要使用 C 编译器将 C 语言源代码转换为二进制机器代码。
+
+</p><p>
+但事情并不完全如此简单。SQLite 项目在“典型源码”和“合并版本”之间做了区分。以下是 SQLite 开发者对这些术语的解释：
+
+<a name="canon"></a>
+
+</p><h2 id="canonical_sources_vs_amalgamation"><span>1.1. </span>典型源码 与 合并版本</h2>
+
+<ul>
+<li><p><b>典型源码</b> 或 <b>典型源码 &rarr;</b>
+典型源码是 SQLite 的原始文本。
+这些是由 SQLite 开发者录入并维护的源代码文件，并保存在源代码管理系统中。如果您从 Fossil 仓库
+(<a href="https://sqlite.org/src">https://sqlite.org/src</a>) 或 GitHub 镜像
+(<a href="https://github.com/sqlite/sqlite">https://github.com/sqlite/sqlite</a>) 拉取 SQLite 源代码副本，就能获取
+典型源码。
+
+</p></li><li><p><b>合并版本 &rarr;</b>
+作为 SQLite 构建流程的一部分，典型源码文件会被转换并串联在一起，形成几个大的
+C 语言代码文件：
+</p><ul>
+<li> sqlite3.c
+</li><li> sqlite3.h
+</li><li> shell.c
+</li></ul>
+<p>这些“<a href="amalgamation.html">合并版本</a>”源文件也是 C 代码。将多个较小的代码文件合并成几个大型 C 文件
+可让 SQLite 更容易编译，并帮助 C 编译器优化代码，从而提高运行速度。
+</p></li></ul>
+
+<p>
+如果您希望自己编译 SQLite 并在自己的项目中使用，应该从典型源码还是合并版本开始？
+
+</p><h1 id="background"><span>2. </span>背景</h1>
+
+<p>
+下图展示了完整的 SQLite 构建过程：
+</p>
+
+<center><div style="max-width:857px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 857.479 705.305" data-pikchr-date="20250319161943">
+<path d="M17.9827,237.413L89.9827,237.413L89.9827,151.013L68.3827,129.413L17.9827,129.413Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,129.413L68.3827,151.013L89.9827,151.013"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="251.586" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="265.759" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="279.933" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M17.9827,402.106L89.9827,402.106L89.9827,315.706L68.3827,294.106L17.9827,294.106Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,294.106L68.3827,315.706L89.9827,315.706"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M17.9827,538.452L89.9827,538.452L89.9827,452.052L68.3827,430.452L17.9827,430.452Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,430.452L68.3827,452.052L89.9827,452.052"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="552.626" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="566.799" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="580.972" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M17.9827,703.145L89.9827,703.145L89.9827,616.745L68.3827,595.145L17.9827,595.145Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,595.145L68.3827,616.745L89.9827,616.745"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M146.676,402.106L203.369,402.106L203.369,129.413L146.676,129.413Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="175.022" y="255.679" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 175.022,265.759)" dominant-baseline="central">预处理程序</text>
+<text x="175.022" y="275.839" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 175.022,265.759)" dominant-baseline="central">和程序</text>
+<polygon points="146.676,183.413 135.156,187.733 135.156,179.093" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,183.413L140.916,183.413"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="146.676,348.106 135.156,352.426 135.156,343.786" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,348.106L140.916,348.106"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M260.061,237.413L332.061,237.413L332.061,151.013L310.461,129.413L260.061,129.413Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M310.461,129.413L310.461,151.013L332.061,151.013"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="296.061" cy="251.586" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="296.061" cy="265.759" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="296.061" cy="279.933" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M260.061,402.106L332.061,402.106L332.061,315.706L310.461,294.106L260.061,294.106Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M310.461,294.106L310.461,315.706L332.061,315.706"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="260.061,183.413 248.541,187.733 248.541,179.093" style="fill:rgb(0,0,0)"/>
+<path d="M203.369,183.413L254.301,183.413"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="260.061,348.106 248.541,352.426 248.541,343.786" style="fill:rgb(0,0,0)"/>
+<path d="M203.369,348.106L254.301,348.106"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M417.101,617.085L473.794,617.085L473.794,215.473L417.101,215.473Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="445.447" y="416.279" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 445.447,416.279)" dominant-baseline="central">合并脚本</text>
+<polygon points="417.101,295.795 406.705,289.216 413.594,284.002" style="fill:rgb(0,0,0)"/>
+<path d="M332.061,183.413L413.625,291.202"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="417.101,376.118 404.808,376.617 407.511,368.41" style="fill:rgb(0,0,0)"/>
+<path d="M332.061,348.106L411.63,374.316"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="417.101,456.44 405.991,461.727 405.254,453.119" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,484.452L411.362,456.932"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="417.101,536.763 407.609,544.591 404.802,536.42" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,649.145L411.653,538.634"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M530.487,470.279L602.487,470.279L602.487,383.879L580.887,362.279L530.487,362.279Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M580.887,362.279L580.887,383.879L602.487,383.879"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="416.279" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 566.487,416.279)" dominant-baseline="central">sqlite3.h</text>
+<path d="M530.487,333.933L602.487,333.933L602.487,247.533L580.887,225.933L530.487,225.933Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M580.887,225.933L580.887,247.533L602.487,247.533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="279.933" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 566.487,279.933)" dominant-baseline="central">sqlite3.c</text>
+<path d="M530.487,606.626L602.487,606.626L602.487,520.226L580.887,498.626L530.487,498.626Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M580.887,498.626L580.887,520.226L602.487,520.226"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="552.626" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 566.487,552.626)" dominant-baseline="central">shell.c</text>
+<polygon points="530.487,279.933 518.967,284.253 518.967,275.613" style="fill:rgb(0,0,0)"/>
+<path d="M473.794,279.933L524.727,279.933"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="530.487,416.279 518.967,420.599 518.967,411.959" style="fill:rgb(0,0,0)"/>
+<path d="M473.794,416.279L524.727,416.279"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="530.487,552.626 518.967,556.946 518.967,548.306" style="fill:rgb(0,0,0)"/>
+<path d="M473.794,552.626L524.727,552.626"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M659.18,552.626L715.872,552.626L715.872,279.933L659.18,279.933Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="687.526" y="416.279" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 687.526,416.279)" dominant-baseline="central">C 编译器</text>
+<polygon points="659.18,348.106 648.492,342.011 655.135,336.486" style="fill:rgb(0,0,0)"/>
+<path d="M602.487,279.933L655.497,343.677"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="659.18,416.279 647.66,420.599 647.66,411.959" style="fill:rgb(0,0,0)"/>
+<path d="M602.487,416.279L653.42,416.279"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="659.18,484.452 655.135,496.072 648.492,490.548" style="fill:rgb(0,0,0)"/>
+<path d="M602.487,552.626L655.497,488.881"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M772.565,402.106L844.565,402.106L844.565,315.706L822.965,294.106L772.565,294.106Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M822.965,294.106L822.965,315.706L844.565,315.706"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="808.565" y="348.106" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 808.565,348.106)" dominant-baseline="central">libsqlite3.dll</text>
+<path d="M772.565,538.452L844.565,538.452L844.565,452.052L822.965,430.452L772.565,430.452Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M822.965,430.452L822.965,452.052L844.565,452.052"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="808.565" y="484.452" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 808.565,484.452)" dominant-baseline="central">sqlite3.exe</text>
+<polygon points="772.565,348.106 761.045,352.426 761.045,343.786" style="fill:rgb(0,0,0)"/>
+<path d="M715.872,348.106L766.805,348.106"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="772.565,484.452 761.045,488.772 761.045,480.132" style="fill:rgb(0,0,0)"/>
+<path d="M715.872,484.452L766.805,484.452"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="53.9827" y="17.28" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">典型</text>
+<text x="53.9827" y="37.44" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">源码</text>
+<text x="53.9827" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">文件</text>
+<polygon points="53.9827,101.066 49.6627,89.5465 58.3027,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M53.9827,72.72L53.9827,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="296.061" y="17.28" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">中间</text>
+<text x="296.061" y="37.44" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">源码</text>
+<text x="296.061" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">文件</text>
+<polygon points="296.061,101.066 291.741,89.5465 300.381,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M296.061,72.72L296.061,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">合并版本</text>
+<polygon points="566.487,101.066 562.167,89.5465 570.807,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M566.487,72.72L566.487,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="808.565" y="37.44" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">构建</text>
+<text x="808.565" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">产物</text>
+<polygon points="808.565,101.066 804.245,89.5465 812.885,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M808.565,72.72L808.565,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div></center>
+
+<p>
+完整的构建过程从图中左侧的典型源码文件开始。根据 SQLite 版本的不同，典型源码文件数量在 100 到 200 个之间。
+其中一些典型源码文件会被预处理程序转换，以生成“中间源码文件”。Lemon 解析器生成器程序就是一个预处理器示例。典型源码文件之一是
+<a href="https://sqlite.org/src/file/src/parse.y">parse.y</a>，它是 SQLite 所支持 SQL 语法的 LALR(1) 文法。Lemon 将该文法转换为 C 代码，
+实现一个<a href="https://en.wikipedia.org/wiki/Pushdown_automaton">下推自动机</a>，用于将 SQL 文本解析为
+<a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">抽象语法树</a>。
+SQLite 中还有许多其他程序和脚本，将开发者编辑的代码转换为 C 编译器可以理解的形式。并非所有典型源码文件都会经过预处理，但相当一部分会。
+
+</p><p>
+预处理完成后，会有一些脚本将大量中间源码文件以及仍剩下的典型源码文件汇总并串联起来，生成“<a href="amalgamation.html">合并版本</a>”。当我们提到“合并版本”时，通常指的是包含 SQLite 大部分源码的 "sqlite3.c" 文件。但对应的头文件 "sqlite3.h" 也是由其他文件构建而成。SQLite 的<a href="cli.html">命令行工具</a>的源码也是包含在 "shell.c" 中的合并版本。
+
+</p><p>
+合并版本文件随后可以由任意普通 C 编译器处理，生成图中右侧所示的最终构建产物。（图中展示的构建产物文件名为 Windows 系统下的名称。请根据实际系统替换为相应名称。）
+
+</p><h1 id="how_to_compile_from_canonical_sources"><span>3. </span>如何从典型源码编译</h1>
+
+<p>
+要从典型源码编译 SQLite，您需要下载典型源码树的 tar 包或 ZIP 压缩包，解压后在 unix 上运行
+"<tt>./configure && make</tt>"，在 Windows 上运行
+"<tt>nmake /f Makefile.msc</tt>"。
+更多详细信息如下：
+
+</p><p>
+</p><ul>
+<li><a href="https://sqlite.org/src/file/doc/compile-for-unix.md">如何在 Unix 上编译</a>
+</li><li><a href="https://sqlite.org/src/file/doc/compile-for-windows.md">如何在 Windows 上编译</a>
+</li></ul>
+
+<h1 id="how_to_compile_from_the_amalgamation"><span>4. </span>如何从合并版本编译</h1>
+
+<p>
+随着每个 SQLite 版本发布，开发者会提供预构建的合并版本源文件副本，可在
+<a href="https://sqlite.org/download.html">下载页面</a>获取。查找名为
+"<tt>sqlite-amalgamation-</tt><i>NNNNNNN</i><tt>.zip</tt>" 和
+"<tt>sqlite-autoconf-</tt><i>NNNNNNN</i><tt>.tar.gz</tt>" 的文件。第一个只包含合并版本源文件，第二个则额外包含
+"configure" 脚本和 Makefile。
+
+</p><h1 id="advantages_of_building_from_the_amalgamation"><span>5. </span>从合并版本构建的优势</h1>
+
+<ol>
+<li><p><b>更少的文件需要处理</b>
+</p><p>您可以将所需的合并版本文件嵌入自己的源代码树，并使用自己的 Makefile 对其编译。并不一定需要单独的 "configure" 脚本或 Makefile。
+只需将 "sqlite3.c" 和 "sqlite3.h" 文件添加到您的源码树中，它们就会永久存在，无需新增依赖项。需要升级时只需下载最新版本并替换源代码树中的文件即可。
+
+</p></li><li><p><b>下载量更小</b>
+</p><p>合并版本压缩包的体积不到完整 SQLite 源代码树的四分之一，因此下载更省流量。
+
+</p></li><li><p><b>无论如何最终都会使用合并版本</b>
+</p><p>如果您从典型源码构建，Makefile 会先构建合并版本，然后再将合并版本编译为二进制机器码。为何不直接跳过第一步，直接编译合并版本呢？
+
+</p></li><li><p><b>您使用的合并版本已由 SQLite 开发者测试并审核</b>
+</p><p>如果您直接下载预编译的合并版本文件，就可以确信这些源文件已经通过 SQLite 开发者的<a href="testing.html">严格测试流程</a>。
+无需担心在将典型源码编译为合并版本时自己意外破坏了某些东西。
+</p></li></ol>
+
+<h1 id="advantages_of_building_from_canonical_sources"><span>6. </span>从典型源码构建的优势</h1>
+
+<ol>
+<li><p><b>获得更多编译时选项</b>
+</p><p>SQLite 支持<a href="compile.html">众多编译时选项</a>，其中一些适用于合并版本，而另一些则不适用。根据您希望使用的编译时选项，可能需要从典型源码构建。
+
+</p></li><li><p><b>访问历史版本和未发布版本</b>
+</p><p>合并版本源码通常仅对最新版 SQLite 可用。如果您想获取历史版本，或想尝试包含新功能的未发布主干版本，或者希望通过参与预发布测试回馈社区，那么必须从典型源码编译。
+
+</p></li><li><p><b>更容易自定义代码</b>
+</p><p>如果您正在对 SQLite 进行自己定制的增强或修改，建议使用典型源码。合并版本旨在对 C 编译器友好，而非人类程序员。理论上您可以直接修改合并版本源码，但使用典型源码会让整个过程更轻松。
+</p></li></ol>
+
+<h1 id="summary_which_should_you_choose"><span>7. </span>总结：您应该选择哪个</h1>
+
+<p>
+是从合并版本还是从典型源码构建 SQLite，取决于您的具体情况。请回顾上述段落中对两种方法的优劣分析，然后自行决定。
+</p><p align="center"><small><i>本页最后更新于 2025-07-12 15:11:36Z </small></i></p>
+

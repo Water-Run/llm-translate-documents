@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Amalgamation Versus Canonical Sources</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='about.html'>About</a>
+<li class='desktoponly'><a href="docs.html">Documentation</a>
+<li class='desktoponly'><a href="download.html">Download</a>
+<li class='wideonly'><a href='copyright.html'>License</a>
+<li class='desktoponly'><a href="support.html">Support</a>
+<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>About</a>
+<li><a href='docs.html'>Documentation</a>
+<li><a href='download.html'>Download</a>
+<li><a href='support.html'>Support</a>
+<li><a href='prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+The Amalgamation Versus Canonical Sources
+</div>
+</div>
+
+
+
+
+<h1 id="which_code_base_should_i_use_to_build_sqlite_"><span>1. </span>Which Code Base Should I Use To Build SQLite?</h1>
+
+<p>
+SQLite is written in C.  To compile SQLite, you use a C-compiler to
+convert the C-language source code into binary machine code.
+
+</p><p>
+Except it is not quite that simple.  The SQLite project makes a
+distinction between "canonical source code" and the "amalgamation".
+Here is what the SQLite developers mean by those terms:
+
+<a name="canon"></a>
+
+</p><h2 id="canonical_sources_vs_amalgamation"><span>1.1. </span>Canonical Sources vs. Amalgamation</h2>
+
+<ul>
+<li><p><b>Canonical Source Code</b> or <b>Canonical Sources &rarr;</b>
+The canonical source code is the urtext for SQLite.
+These are the source code files that are typed in and
+maintained by the SQLite developers and that are stored under
+the source code management system.  If you
+pull a copy of the SQLite source code from its Fossil repository
+(<a href="https://sqlite.org/src">https://sqlite.org/src</a>) or from the GitHub mirror
+(<a href="https://github.com/sqlite/sqlite">https://github.com/sqlite/sqlite</a>), you get the canonical
+source code.
+
+</p></li><li><p><b>Amalgamation &rarr;</b>
+As part of the build process for SQLite, the canonical source code
+files get transformed and concatenated together into a few big
+C-language code files:
+</p><ul>
+<li> sqlite3.c
+</li><li> sqlite3.h
+</li><li> shell.c
+</li></ul>
+<p>These "<a href="amalgamation.html">amalgamation</a>" source files are also C-code.  Combining
+lots of smaller code files together into a few big C-code files
+makes SQLite easier to compile.  And it helps the C-compiler optimize
+the code so that it runs faster.
+</p></li></ul>
+
+<p>
+If you want to compile SQLite yourself, for use in your own projects,
+should you start with the canonical source code or with the amalgamation?
+
+</p><h1 id="background"><span>2. </span>Background</h1>
+
+<p>
+The following diagram illustrates the complete SQLite build process:
+</p>
+
+<center><div style="max-width:857px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 857.479 705.305" data-pikchr-date="20250319161943">
+<path d="M17.9827,237.413L89.9827,237.413L89.9827,151.013L68.3827,129.413L17.9827,129.413Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,129.413L68.3827,151.013L89.9827,151.013"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="251.586" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="265.759" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="279.933" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M17.9827,402.106L89.9827,402.106L89.9827,315.706L68.3827,294.106L17.9827,294.106Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,294.106L68.3827,315.706L89.9827,315.706"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M17.9827,538.452L89.9827,538.452L89.9827,452.052L68.3827,430.452L17.9827,430.452Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,430.452L68.3827,452.052L89.9827,452.052"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="552.626" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="566.799" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="53.9827" cy="580.972" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M17.9827,703.145L89.9827,703.145L89.9827,616.745L68.3827,595.145L17.9827,595.145Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M68.3827,595.145L68.3827,616.745L89.9827,616.745"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M146.676,402.106L203.369,402.106L203.369,129.413L146.676,129.413Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="175.022" y="255.679" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 175.022,265.759)" dominant-baseline="central">Preprocessor Scripts</text>
+<text x="175.022" y="275.839" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 175.022,265.759)" dominant-baseline="central">And Programs</text>
+<polygon points="146.676,183.413 135.156,187.733 135.156,179.093" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,183.413L140.916,183.413"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="146.676,348.106 135.156,352.426 135.156,343.786" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,348.106L140.916,348.106"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M260.061,237.413L332.061,237.413L332.061,151.013L310.461,129.413L260.061,129.413Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M310.461,129.413L310.461,151.013L332.061,151.013"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="296.061" cy="251.586" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="296.061" cy="265.759" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="296.061" cy="279.933" r="2.16" style="fill:rgb(0,0,0);stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M260.061,402.106L332.061,402.106L332.061,315.706L310.461,294.106L260.061,294.106Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M310.461,294.106L310.461,315.706L332.061,315.706"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="260.061,183.413 248.541,187.733 248.541,179.093" style="fill:rgb(0,0,0)"/>
+<path d="M203.369,183.413L254.301,183.413"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="260.061,348.106 248.541,352.426 248.541,343.786" style="fill:rgb(0,0,0)"/>
+<path d="M203.369,348.106L254.301,348.106"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M417.101,617.085L473.794,617.085L473.794,215.473L417.101,215.473Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="445.447" y="416.279" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 445.447,416.279)" dominant-baseline="central">Amalgamator Scripts</text>
+<polygon points="417.101,295.795 406.705,289.216 413.594,284.002" style="fill:rgb(0,0,0)"/>
+<path d="M332.061,183.413L413.625,291.202"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="417.101,376.118 404.808,376.617 407.511,368.41" style="fill:rgb(0,0,0)"/>
+<path d="M332.061,348.106L411.63,374.316"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="417.101,456.44 405.991,461.727 405.254,453.119" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,484.452L411.362,456.932"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="417.101,536.763 407.609,544.591 404.802,536.42" style="fill:rgb(0,0,0)"/>
+<path d="M89.9827,649.145L411.653,538.634"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M530.487,470.279L602.487,470.279L602.487,383.879L580.887,362.279L530.487,362.279Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M580.887,362.279L580.887,383.879L602.487,383.879"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="416.279" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 566.487,416.279)" dominant-baseline="central">sqlite3.h</text>
+<path d="M530.487,333.933L602.487,333.933L602.487,247.533L580.887,225.933L530.487,225.933Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M580.887,225.933L580.887,247.533L602.487,247.533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="279.933" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 566.487,279.933)" dominant-baseline="central">sqlite3.c</text>
+<path d="M530.487,606.626L602.487,606.626L602.487,520.226L580.887,498.626L530.487,498.626Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M580.887,498.626L580.887,520.226L602.487,520.226"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="552.626" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 566.487,552.626)" dominant-baseline="central">shell.c</text>
+<polygon points="530.487,279.933 518.967,284.253 518.967,275.613" style="fill:rgb(0,0,0)"/>
+<path d="M473.794,279.933L524.727,279.933"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="530.487,416.279 518.967,420.599 518.967,411.959" style="fill:rgb(0,0,0)"/>
+<path d="M473.794,416.279L524.727,416.279"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="530.487,552.626 518.967,556.946 518.967,548.306" style="fill:rgb(0,0,0)"/>
+<path d="M473.794,552.626L524.727,552.626"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M659.18,552.626L715.872,552.626L715.872,279.933L659.18,279.933Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="687.526" y="416.279" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 687.526,416.279)" dominant-baseline="central">C Compiler</text>
+<polygon points="659.18,348.106 648.492,342.011 655.135,336.486" style="fill:rgb(0,0,0)"/>
+<path d="M602.487,279.933L655.497,343.677"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="659.18,416.279 647.66,420.599 647.66,411.959" style="fill:rgb(0,0,0)"/>
+<path d="M602.487,416.279L653.42,416.279"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="659.18,484.452 655.135,496.072 648.492,490.548" style="fill:rgb(0,0,0)"/>
+<path d="M602.487,552.626L655.497,488.881"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M772.565,402.106L844.565,402.106L844.565,315.706L822.965,294.106L772.565,294.106Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M822.965,294.106L822.965,315.706L844.565,315.706"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="808.565" y="348.106" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 808.565,348.106)" dominant-baseline="central">libsqlite3.dll</text>
+<path d="M772.565,538.452L844.565,538.452L844.565,452.052L822.965,430.452L772.565,430.452Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M822.965,430.452L822.965,452.052L844.565,452.052"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="808.565" y="484.452" text-anchor="middle" fill="rgb(0,0,0)" transform="rotate(-90 808.565,484.452)" dominant-baseline="central">sqlite3.exe</text>
+<polygon points="772.565,348.106 761.045,352.426 761.045,343.786" style="fill:rgb(0,0,0)"/>
+<path d="M715.872,348.106L766.805,348.106"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="772.565,484.452 761.045,488.772 761.045,480.132" style="fill:rgb(0,0,0)"/>
+<path d="M715.872,484.452L766.805,484.452"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="53.9827" y="17.28" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Canonical</text>
+<text x="53.9827" y="37.44" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Source</text>
+<text x="53.9827" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Files</text>
+<polygon points="53.9827,101.066 49.6627,89.5465 58.3027,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M53.9827,72.72L53.9827,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="296.061" y="17.28" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Intermediate</text>
+<text x="296.061" y="37.44" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Source</text>
+<text x="296.061" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Files</text>
+<polygon points="296.061,101.066 291.741,89.5465 300.381,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M296.061,72.72L296.061,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="566.487" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Amalgamation</text>
+<polygon points="566.487,101.066 562.167,89.5465 570.807,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M566.487,72.72L566.487,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="808.565" y="37.44" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Build</text>
+<text x="808.565" y="57.6" text-anchor="middle" font-style="italic" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">Products</text>
+<polygon points="808.565,101.066 804.245,89.5465 812.885,89.5465" style="fill:rgb(0,0,0)"/>
+<path d="M808.565,72.72L808.565,95.3065"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div></center>
+
+<p>
+The complete build process starts with the canonical source code files
+on the left side of the diagram.  There are between 100 and 200 separate
+canonical source files (depending on the SQLite version).  Some of those
+canonical source files get transformed by preprocessor programs to generate
+"intermediate source files".  One example of a preprocessor is the
+<a href="lemon.html">Lemon</a> parser generator program.  One of the canonical source code files is
+<a href="https://sqlite.org/src/file/src/parse.y">parse.y</a> which is an LALR(1) grammar
+for the SQL dialect understood by SQLite.  Lemon converts that grammar
+into C-code that implements a
+<a href="https://en.wikipedia.org/wiki/Pushdown_automaton">pushdown automaton</a> that
+will parse SQL text into an
+<a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree</a>.
+There are many other examples of programs and scripts in SQLite that
+transform the code that the SQLite developers edit into code that can be
+understood by C compilers.  Not all canonical source code files are
+preprocessed, but a fair number of them are.
+
+</p><p>
+After preprocessing, there are some scripts that gather together the many
+intermediate source files and the remaining canonical source files and
+concatenates them together to generate the "<a href="amalgamation.html">amalgamation</a>".  Often when
+we say "the amalgamation" we mean just the file "sqlite3.c" which contains
+the bulk of the SQLite source code.  But the corresponding header file
+"sqlite3.h" is also constructed from other files.  And the source code
+to the SQLite <a href="cli.html">command-line shell</a> is an amalgamation contained
+in "shell.c".
+
+</p><p>
+The amalgamation files can then be processed by any ordinary C compiler
+to render the final build products, shown on the right side of the
+diagram.  (The diagram shows build product filenames as they might
+appear on Windows. Substitute whatever alternative names
+are appropriate for your system.)
+
+</p><h1 id="how_to_compile_from_canonical_sources"><span>3. </span>How To Compile From Canonical Sources</h1>
+
+<p>
+To compile SQLite from canonical sources, you
+download a tarball or ZIP archive of the canonical source tree, unpack
+that archive, then run either
+"<tt>./configure && make</tt>" on unix or
+"<tt>nmake /f Makefile.msc</tt>" on Windows.
+More details available at the following:
+
+</p><p>
+</p><ul>
+<li><a href="https://sqlite.org/src/file/doc/compile-for-unix.md">How To Compile On Unix</a>
+</li><li><a href="https://sqlite.org/src/file/doc/compile-for-windows.md">How To Compile On Windows</a>
+</li></ul>
+
+<h1 id="how_to_compile_from_the_amalgamation"><span>4. </span>How To Compile From The Amalgamation</h1>
+
+<p>
+With each release of SQLite, the developers make available pre-built copies of
+the SQLite amalgamation files that you can get from the
+<a href="https://sqlite.org/download.html">Download Page</a>.  Look for files named
+"<tt>sqlite-amalgamation-</tt><i>NNNNNNN</i><tt>.zip</tt>" and
+"<tt>sqlite-autoconf-</tt><i>NNNNNNN</i><tt>.tar.gz</tt>".  The first is
+just the amalgamation source files.  The second also includes a
+"configure" script and Makefile.
+
+</p><h1 id="advantages_of_building_from_the_amalgamation"><span>5. </span>Advantages Of Building From The Amalgamation</h1>
+
+<ol>
+<li><p><b>Fewer Files To Worry With</b>
+</p><p>You can embed the amalgamation files you need in
+your own source tree, and compile them using your own
+Makefile.  You don't really need a separate "configure"
+script or Makefile.  Add the "sqlite3.c" and "sqlite3.h"
+files into your own source tree, and then they will always
+be there without creating a new dependency.  When you want
+to upgrade, just download the latest version and replace
+the ones in your own source tree.
+
+</p></li><li><p><b>Less To Download</b>
+</p><p>The amalgamation archives are less than 1/4th the size
+of the complete SQLite source tree.  So there is less to
+download.
+
+</p></li><li><p><b>You Will End Up Using The Amalgamation Regardless</b>
+</p><p>If you build from canonical sources, the Makefile first
+builds the amalgamation and then compiles the amalgamation into
+binary machine code.  Why not just skip that first step
+and go right to compiling the amalgamation directly?
+
+</p></li><li><p><b>You Know That The Amalgamation You Are Using
+          Has Been Testing And Vetted By The SQLite Developers</b>
+</p><p>If you pull down the pre-build amalgamation files, you can
+have confidence that those exact source files have been
+run through the SQLite developers <a href="testing.html">rigorous testing process</a>.
+You don't have to worry that you somehow broke something as you
+were compiling the canonical sources into the amalgamation.
+</p></li></ol>
+
+<h1 id="advantages_of_building_from_canonical_sources"><span>6. </span>Advantages Of Building From Canonical Sources</h1>
+
+<ol>
+<li><p><b>Access To More Compile-Time Options</b>
+</p><p>SQLite supports <a href="compile.html">many, many compile-time options</a>,
+some of which work with the amalgamation, but some of which do not.  Depending
+on what compile-time options you want to use, you may need to build from
+canonical sources.
+
+</p></li><li><p><b>Access To Historical And Unreleased Versions Of SQLite</b>
+</p><p>The amalgamation source code is normally only available for the
+latest released version of SQLite.  If you want an historical version
+of SQLite, or if you want to try out the latest unreleased trunk version
+of SQLite because it has some new feature that you like or because you
+just want to contribute back by helping with pre-release testing, then
+you must compile from canonical source.
+
+</p></li><li><p><b>Easier To Customize The Code</b>
+</p><p>If you are making your own custom enhancements or modifications
+to SQLite, then you should probably work with the canonical
+sources.  The amalgamation is designed to be friendly to
+C-compilers, not human programmers.  You can, in theory, make
+custom modifications directly to the amalgamation source code,
+but you will have an easier time of it if you use the
+canonical source files.
+</p></li></ol>
+
+<h1 id="summary_which_should_you_choose"><span>7. </span>Summary:  Which Should You Choose</h1>
+
+<p>
+The decision of whether to build SQLite from the amalgamation
+or from canonical sources depends on your specific circumstances.
+Review the advantages and disadvantages to each approach outlined
+in the paragraphs above and decide for yourself.
+</p><p align="center"><small><i>This page was last updated on 2025-07-12 15:11:36Z </small></i></p>
+

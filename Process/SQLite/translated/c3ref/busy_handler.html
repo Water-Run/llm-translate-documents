@@ -1,0 +1,151 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>注册回调以处理 SQLITE_BUSY 错误</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: {busy handler} {busy-handler callback} sqlite3_busy_handler -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>注册回调以处理 SQLITE_BUSY 错误</h2>
+</div>
+<blockquote><pre>
+int sqlite3_busy_handler(sqlite3*,int(*)(void*,int),void*);
+</pre></blockquote>
+<p>
+sqlite3_busy_handler(D,X,P) 例程设置回调函数 X，当另一个线程或进程锁定与<a href="../c3ref/sqlite3.html">数据库连接</a> D 关联的数据库表并尝试访问该表时，可能会使用参数 P 调用该函数。sqlite3_busy_handler() 接口用于实现<a href="../c3ref/busy_timeout.html">sqlite3_busy_timeout()</a>和<a href="../pragma.html#pragma_busy_timeout">PRAGMA busy_timeout</a>。</p>
+
+<p>如果 busy 回调为 NULL，则在遇到锁时立即返回<a href="../rescode.html#busy">SQLITE_BUSY</a>。如果 busy 回调不为 NULL，则可能会以两个参数调用回调函数。</p>
+
+<p>busy 处理程序的第一个参数是 sqlite3_busy_handler() 的第三个参数（void* 指针）的副本。busy 处理程序回调的第二个参数是同一锁定事件之前已调用 busy 处理程序的次数。如果 busy 回调返回 0，则不会再尝试访问数据库，并向应用程序返回<a href="../rescode.html#busy">SQLITE_BUSY</a>。如果回调返回非零，则会再次尝试访问数据库并重复该循环。</p>
+
+<p>存在 busy 处理程序并不能保证在存在锁争用时会调用它。如果 SQLite 确定调用 busy 处理程序可能导致死锁，它将继续返回<a href="../rescode.html#busy">SQLITE_BUSY</a>给应用程序，而不是调用 busy 处理程序。考虑这样一种场景：一个进程持有一个想提升为保留锁的读锁，而第二个进程持有一个想提升为独占锁的保留锁。第一个进程因为被第二个进程阻塞而无法继续，而第二个进程因为被第一个进程阻塞也无法继续。如果两个进程都调用 busy 处理程序，则都无法取得进展。因此，SQLite 会对第一个进程返回<a href="../rescode.html#busy">SQLITE_BUSY</a>，希望这能促使第一个进程释放其读锁，从而允许第二个进程继续执行。</p>
+
+<p>默认的 busy 回调为 NULL。</p>
+
+<p>每个<a href="../c3ref/sqlite3.html">数据库连接</a>只能定义一个 busy 处理程序。设置新的 busy 处理程序会清除之前设置的处理程序。请注意，调用<a href="../c3ref/busy_timeout.html">sqlite3_busy_timeout()</a>或评估<a href="../pragma.html#pragma_busy_timeout">PRAGMA busy_timeout=N</a>会更改 busy 处理程序，从而清除之前设置的 busy 处理程序。</p>
+
+<p>busy 回调不应执行任何修改调用 busy 处理程序的数据库连接的操作。换句话说，busy 处理程序不是可重入的。任何此类操作都会导致未定义行为。</p>
+
+<p>busy 处理程序不得关闭调用它的数据库连接或<a href="../c3ref/stmt.html">预准备语句</a>。</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+

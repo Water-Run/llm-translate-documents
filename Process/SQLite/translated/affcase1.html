@@ -1,0 +1,602 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>如果OpenDocument使用SQLite会怎样？</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+
+
+
+<h1 align="center">
+如果OpenDocument使用SQLite会怎样？</h1>
+
+<h2>介绍</h2>
+
+<p>设想一下
+<a href="http://en.wikipedia.org/wiki/OpenDocument">OpenDocument</a> 文件格式，
+具体来说是基于 OpenDocument 的“ODP”演示文稿格式，
+如果是围绕 SQLite 构建的会怎样。其好处包括：
+<ul>
+<li>文档体积更小
+<li>文件/保存更快
+<li>启动速度更快
+<li>占用更少内存
+<li>支持文档版本控制
+<li>更好的用户体验
+</ul>
+
+<p>
+需要注意的是，这只是一个思维实验。
+我们并不是在建议必须改变 OpenDocument。
+这篇文章也不是对当前 OpenDocument 设计的批评。
+本文的目的只是提出一些思路，以便改进未来的文件格式设计。
+
+<h2>关于 OpenDocument 及 OpenDocument 演示文稿</h2>
+
+<p>
+OpenDocument 文件格式被用于办公应用程序：
+文字处理、电子表格和演示文稿。它最初是为 OpenOffice 套件设计的，
+之后被整合进了其他桌面应用套件中。OpenOffice 应用曾被
+分叉和重命名过几次。本文作者使用 OpenDocument 的主要用途是
+在 macOS 上使用
+<a href="https://www.neooffice.org/neojava/en/index.php">NeoOffice</a>，
+或在 Linux 和 Windows 上使用
+<a href="http://www.libreoffice.org/">LibreOffice</a> 来制作幻灯片演示文稿。
+
+<p>
+一个 OpenDocument 演示文稿或“ODP”文件是一个
+<a href="http://en.wikipedia.org/wiki/Zip_%28file_format%29">ZIP 归档</a>，
+其中包含描述演示文稿幻灯片的 XML 文件和各种独立图像文件，
+这些图像被包含为演示内容的一部分。
+（OpenDocument 的文字处理和电子表格文件结构类似，
+但本文不再赘述。）读者可以通过使用 “zip -l” 命令轻松查看 ODP 文件的内容。
+例如，下面是 2014 年
+<a href="http://southeastlinuxfest.org/">南方东南 Linux 节</a>
+会议中关于 SQLite 的 49 张幻灯片演示文稿
+执行 “zip -l” 后的输出：
+
+<blockquote><pre>
+Archive:  self2014.odp
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+       47  2014-06-21 12:34   mimetype
+        0  2014-06-21 12:34   Configurations2/statusbar/
+        0  2014-06-21 12:34   Configurations2/accelerator/current.xml
+        0  2014-06-21 12:34   Configurations2/floater/
+        0  2014-06-21 12:34   Configurations2/popupmenu/
+        0  2014-06-21 12:34   Configurations2/progressbar/
+        0  2014-06-21 12:34   Configurations2/menubar/
+        0  2014-06-21 12:34   Configurations2/toolbar/
+        0  2014-06-21 12:34   Configurations2/images/Bitmaps/
+    54702  2014-06-21 12:34   Pictures/10000000000001F40000018C595A5A3D.png
+    46269  2014-06-21 12:34   Pictures/100000000000012C000000A8ED96BFD9.png
+<i>... 省略其他 58 张图片...</i>
+    13013  2014-06-21 12:34   Pictures/10000000000000EE0000004765E03BA8.png
+  1005059  2014-06-21 12:34   Pictures/10000000000004760000034223EACEFD.png
+   211831  2014-06-21 12:34   content.xml
+    46169  2014-06-21 12:34   styles.xml
+     1001  2014-06-21 12:34   meta.xml
+     9291  2014-06-21 12:34   Thumbnails/thumbnail.png
+    38705  2014-06-21 12:34   Thumbnails/thumbnail.pdf
+     9664  2014-06-21 12:34   settings.xml
+     9704  2014-06-21 12:34   META-INF/manifest.xml
+---------                     -------
+ 10961006                     78 files
+</pre></blockquote>
+
+<p>
+这个 ODP ZIP 归档包含四个不同的 XML 文件：
+content.xml、styles.xml、meta.xml 和 settings.xml。这四个文件
+定义了幻灯片的布局、文本内容和样式。
+这个演示文稿包含 62 张图像，从全屏图片到小图标不等，
+每张图片都作为单独的文件存储在 Pictures 文件夹中。
+“mimetype” 文件只包含一句话：
+
+<blockquote><pre>
+application/vnd.oasis.opendocument.presentation
+</pre></blockquote>
+
+<p>其他文件和文件夹的用途目前
+作者尚未完全了解，但也不难推测。
+
+<h2>OpenDocument 演示文稿格式的局限性</h2>
+
+<p>
+使用 ZIP 归档去封装 XML 文件及资源是一种优雅的应用程序文件格式方案。
+它明显优于自定义的二进制文件格式。
+但如果把容器换成 SQLite 数据库，而不用 ZIP 的话，会更优雅。
+
+<p>ZIP 归档本质上是一个键/值数据库，它针对“写一次/读多次”的场景进行了优化，
+并且适用于相对较少的独立键（从几百到几千不等），每个键对应一个大的 BLOB 作为值。
+ZIP 归档可以被视为“文件堆”数据库。这种方式有效，
+但与 SQLite 数据库相比有以下缺点：
+
+<ol>
+<li><p><b>增量更新困难。</b>
+<p>
+在 ZIP 归档中更新单个条目是困难的。
+尤其是在计算机在更新过程中断电或崩溃的情况下，
+以不会破坏整个文档的方式更新单个条目就更难了。
+这并非不可能实现，但实现难度很大，以至于几乎没人这么做。
+通常用户每次选择“文件/保存”时，整个 ZIP 归档都会被重新写入。
+因此，“文件/保存”比应该的时间要长，尤其是在老旧硬件上。
+即使在新机器上也会让人烦恼：在一个 50 兆的演示文稿里改变一个字符，
+就要把 SSD 的 50 兆写入寿命消耗掉。
+
+<li><p><b>启动缓慢。</b>
+<p>
+延续“文件堆”理念，OpenDocument 将所有幻灯片内容存储在一个叫 “content.xml” 的大 XML 文件中。
+LibreOffice 会读取并解析整个文件才能显示第一页。
+LibreOffice 还似乎会把所有图像也加载进内存，
+因为用户执行“文件/保存”时它必须把这些图像都重新写出来，即使它们都没有变。
+最终导致启动缓慢。双击一个 OpenDocument 文件时，弹出的不是第一页，
+而是一个进度条。
+这造成了糟糕的用户体验。
+随着文档大小的增加，这种情况会变得越发烦人。
+
+<li><p><b>内存占用较高。</b>
+<p>
+因为 ZIP 归档适合存储大块内容，它鼓励一种将整个文档在启动时读入内存、
+然后在内存中编辑、最后在“文件/保存”期间整体写回磁盘的编程风格。
+OpenOffice 及其后续发展者都采用了这种模式。
+
+<p>
+有人可能会说：在如今多 GB 内存的桌面环境中，
+把整个文档读入内存是可以接受的。
+但这并不可接受。
+首先，所用内存远远超过磁盘上的（压缩后）文件大小。
+因此，一个 50MB 的演示文稿可能会占用 200MB 或更多 RAM。
+如果一次只编辑一个文档，这还不算什么。
+但当作者在准备演讲时，通常会同时打开 10 到 15 个不同的演示文稿
+（以便从过往演示中复制/粘贴幻灯片），
+那么就需要数 GB 的内存。
+加上打开一个或两个网页浏览器和其他桌面应用，磁盘开始剧烈运转，
+机器开始换页。
+即便只是操作一个文档，在装有 Ubuntu 的廉价 Chromebook 上也会出现问题。
+减少内存使用永远是好事。
+
+<li><p><b>崩溃恢复困难。</b>
+<p>
+OpenOffice 的后继版本比商业竞争对手更容易发生段错误。
+也许正因如此，这些 OpenOffice 分支会定期备份内存中的文档，
+以免用户在不可避免的应用崩溃时丢失所有未保存的编辑内容。
+这导致应用在备份过程中的几秒钟出现恼人的卡顿。
+崩溃重启后，用户会看到一个对话框，引导他们完成恢复过程。
+以这种方式管理崩溃恢复需要大量额外的应用逻辑，通常让用户感到烦恼。
+
+<li><p><b>内容难以访问。</b>
+<p>
+无法借助通用工具轻松查看、修改或提取 OpenDocument 演示文稿的内容。
+查看或编辑 OpenDocument 文档的唯一合理方法是使用专门设计来读写 OpenDocument 的应用程序（例如 LibreOffice 或其分支）。
+情况可以更糟。可以仅使用 “zip” 工具提取并查看演示中的单张图片。
+但要提取幻灯片中的文本就不现实。
+请记住，所有内容都存储在一个名为 “content.xml” 的文件中。
+这个文件是 XML，因此本质上是文本文件。
+但它并不是可以用普通文本编辑器处理的文本文件。
+以上示例中的 content.xml 仅由两行组成。第一行是：
+
+<blockquote><pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+</pre></blockquote>
+
+<p>文件的第二行包含 211792 个字符的难以理解的 XML。
+没错，全部在一行之内。
+这个文件对文本编辑器而言是一个极佳的压力测试。
+幸好它不是某种晦涩的二进制格式，但就可访问性而言，
+它几乎就像用克林贡语写的一样。
+</ol>
+
+<h2>第一项改进：用 SQLite 代替 ZIP</h2>
+
+<p>
+假设 OpenDocument 不再使用 ZIP 归档来存储文件，
+而是采用一个非常简单的 SQLite 数据库，其单表模式如下：
+
+<blockquote><pre>
+CREATE TABLE OpenDocTree(
+  filename TEXT PRIMARY KEY,  -- 文件名
+  filesize BIGINT,            -- 解压后的文件大小
+  content BLOB                -- 压缩的文件内容
+);
+</pre></blockquote>
+
+<p>
+在这个第一个实验中，文件格式的其它部分保持不变。
+OpenDocument 依旧是一个文件堆，只不过现在每个文件是一张 SQLite 数据库中的行，
+而不再是 ZIP 归档中的条目。
+这个简单的变化并未使用关系数据库的全部能力。
+即便如此，还是带来了一些改善。
+
+<a name="smaller"></a>
+
+<p>
+让人惊讶的是，用 SQLite 替代 ZIP 后，演示文稿文件反而更小。
+真的。一般人会认为关系数据库文件会比 ZIP 归档更大，
+但至少在 NeoOffice 的案例中事实并非如此。
+下列屏幕截屏显示了同一个 NeoOffice 演示文稿的大小，
+一是 NeoOffice 原始生成的 ZIP 归档格式（self2014.odp），
+另一是使用
+<a href="https://sqlite.org/sqlar/doc/trunk/README.md">SQLAR</a> 工具重新打包为 SQLite 数据库：
+
+<blockquote><pre>
+-rw-r--r--  1 drh  staff  10514994 Jun  8 14:32 self2014.odp
+-rw-r--r--  1 drh  staff  10464256 Jun  8 14:37 self2014.sqlar
+-rw-r--r--  1 drh  staff  10416644 Jun  8 14:40 zip.odp
+</pre></blockquote>
+
+<p>
+SQLite 数据库文件（“self2014.sqlar”）比等价的 ODP 文件大约小半个百分点！
+这是为什么呢？显然 NeoOffice 中的 ZIP 归档生成逻辑
+还没有达到最高效，因为当将相同的文件堆使用命令行的 “zip” 工具重新压缩时，
+得到的文件（“zip.odp”）更小，再小约半个百分点，如上方第三行所示。
+所以，一份写得很好的 ZIP 归档确实可能比等价的 SQLite 数据库稍小，
+正如人们所预料的那样。但差距非常小。
+关键结论是，SQLite 数据库与 ZIP 归档在体积上具有可比性。
+
+<p>
+另一项用 SQLite 替代 ZIP 的优势是：现在可以对文档进行增量更新，
+即使在更新过程中发生断电或崩溃，也不会破坏文档。
+（请记住，对
+<a href="atomiccommit.html">SQLite 数据库的写入是原子的</a>。）确实，
+所有内容仍然保存在单个大 XML 文件（“content.xml”）中，
+如果哪怕一个字符变化也必须完全重写该文件。
+但使用 SQLite 时，只有那个文件需要改变。
+其余 77 个文件则可以保持不变。
+它们不必全部重写，
+这反过来让“文件/保存”运行得更快，也减少了对 SSD 的写入磨损。
+
+<h2>第二项改进：将内容拆分为更小的单元</h2>
+
+<p>
+“文件堆”方式鼓励将内容存储为几个大块。
+在 ODP 的情况下，只有四个 XML 文件定义了整个演示文稿的布局。
+SQLite 数据库可以容纳少数大块内容，但它也擅长高效地以诸多更小的单元储存信息。
+
+<p>
+因此，与其将所有幻灯片内容都存储在一个超大的 XML 文件（“content.xml”）中，
+不如设立一个表格来分别存储每张幻灯片的内容。
+该表模式可能如下所示：
+
+<blockquote><pre>
+CREATE TABLE slide(
+  pageNumber INTEGER,   -- 幻灯片页码
+  slideContent TEXT     -- 以 XML 或 JSON 表示的幻灯片内容
+);
+CREATE INDEX slide_pgnum ON slide(pageNumber); -- 可选
+</pre></blockquote>
+
+<p>每张幻灯片的内容仍然可以以压缩的 XML 形式存储。
+但现在每一页都是独立存储。
+因此在打开新文档时，应用程序只需执行：
+
+<blockquote><pre>
+SELECT slideContent FROM slide WHERE pageNumber=1;
+</pre></blockquote>
+
+<p>
+此查询能快速、高效地返回第一页的内容，然后解析并展示给用户。
+只需读取并解析第一页，就能渲染首屏，
+这意味着可以更快地展示首屏，而且不再需要烦人的进度条。
+
+<p>如果应用程序想要把所有内容都保存在内存中，
+它可以在渲染第一页之后继续使用后台线程读取并解析其它页面。
+或者，鉴于从 SQLite 读取极为高效，应用甚至可以选择减小内存占用，
+每次只在内存中保留一张幻灯片。
+或者它可以同时保留当前页和下一页的内容，
+以便快速切换到下一页。
+
+<p>
+请注意，借助 SQLite 表将内容拆分为更小单元，给予了实现上的灵活性。
+应用可以选择在启动时将所有内容都读入内存。
+也可以只读入少数几页，其他的留在磁盘上。
+或者每次只读入当前页。
+不同版本的应用可以做出不同选择，而不需要修改文件格式。
+当所有内容都被打包在 ZIP 中的一个大 XML 文件时，这样的灵活性根本不可得。
+
+<p>
+将内容拆分为更小的片段还能加快“文件/保存”操作。
+与其在保存时把所有页的内容都重新写入，不如只写入那些实际上被修改的页。
+
+<p>
+将内容拆分为更小单元的一个小缺点是：
+压缩在较短文本上效果不如长文本好，因此文档总体大小可能略有增加。
+但由于文档空间大部分用于存储图像，文本内容压缩效率略微下降基本不会被察觉。
+而且这是为了提升用户体验而付出的一个小代价。
+
+<h2>第三项改进：版本控制</h2>
+
+<p>
+一旦接受了以单独幻灯片为单位存储内容的概念，
+就可以进一步支持演示文稿的版本控制了。考虑以下模式：
+
+<blockquote><pre>
+CREATE TABLE slide(
+  slideId INTEGER PRIMARY KEY,
+  derivedFrom INTEGER REFERENCES slide,
+  content TEXT     -- XML、JSON 等
+);
+CREATE TABLE version(
+  versionId INTEGER PRIMARY KEY,
+  priorVersion INTEGER REFERENCES version,
+  checkinTime DATETIME,   -- 保存的时间
+  comment TEXT,           -- 对该版本的描述
+  manifest TEXT           -- 一串表示 slideId 的列表
+);
+</pre></blockquote>
+
+<p>
+在这个模式中，每张幻灯片不再拥有决定其在演示中的顺序的页码，
+而是拥有一个独立于顺序的唯一整数标识符。
+演示文稿中的幻灯片顺序由保存在 VERSION 表的 MANIFEST 列中的 slideId 列表决定。
+由于 VERSION 表允许多个条目，因此可以在同一文档中存储多个演示文稿。
+
+<p>
+在启动时，应用程序首先决定要展示哪一个版本。
+由于 versionId 会随着时间自然递增，并且通常希望看到最新版本，
+一个合适的查询可能是：
+
+<blockquote><pre>
+SELECT manifest, versionId FROM version ORDER BY versionId DESC LIMIT 1;
+</pre></blockquote>
+
+<p>
+或者应用更愿意以最新的 checkinTime 为准：
+
+<blockquote><pre>
+SELECT manifest, versionId, max(checkinTime) FROM version;
+</pre></blockquote>
+
+<p>
+通过上述单个查询，应用得到表示演示文稿所有幻灯片的 slideId 列表。
+然后它就像以前一样查询第一页的内容，解析并展示出来。
+
+<p>（顺便说一句：上面使用 “max(checkinTime)” 的第二个查询确实可以在 SQLite 中运行，
+并且确实返回一个明确定义的答案。在许多其它 SQL 数据库引擎中，该查询要么返回未定义的结果要么报错，
+但在 SQLite 中，它像预期那样运行：返回拥有最大 checkinTime 的条目的 manifest 和 versionId。）
+
+<p>当用户执行“文件/保存”时，不再覆盖被修改的幻灯片。
+应用现在可以只为新添加或被修改的幻灯片在 SLIDE 表中新增条目。
+然后再在 VERSION 表中创建一条记录，包含更新后的 manifest。
+
+<p>
+上述 VERSION 表具有记录 check-in 评论（通常由用户提供）以及执行“文件/保存”时的日期和时间的列。
+它还记录父版本以保存修改历史。
+也许 manifest 可以存储为与父版本的差异，虽然 manifest 通常足够小，以至于存储差异可能得不偿失。
+SLIDE 表中还有 derivedFrom 列，如果认为以它的前一个版本为基础保存幻灯片内容是值得的优化，
+就可以用来做差分编码。
+
+<p>
+因此，通过这个简单的变化，ODP 文件现在不仅存储了演示文稿的最近一次编辑，
+还保留了所有历史编辑的记录。
+用户通常只需要查看最新版本，
+但如果需要，他们现在可以回溯去查看演示文稿的历史版本。
+
+<p>或者，多个演示文稿可以存储在同一个文档中。
+
+<p>
+有了这样的模式，应用就不再需要为未保存的更改定期备份到单独文件，
+以便在崩溃后避免丢失工作。
+取而代之的是，可以分配一个特殊的“待定”版本，
+将未保存的更改写入该版本中。
+因为只需写入发生变化的内容，而不是整个文档，
+保存待定更改只需写入几 KB 的内容而不是数 MB，
+耗时以毫秒计，而非数秒，因此可以频繁且静默地在后台完成。
+一旦崩溃发生，用户重启后，他们的几乎所有工作都得以保留。
+如果用户决定放弃未保存的更改，只需回到之前的版本即可。
+
+<p>
+这里还有很多细节需要补充。
+或许可以提供一个界面展示所有历史更改（也许配有图形），让用户选择他们想查看或编辑的版本。
+或许可以提供合并版本分叉的功能。
+或许应用应该提供清理旧版本的手段。
+关键是，使用 SQLite 数据库存储内容比使用 ZIP 归档要容易得多，从而增加了最终开发出这些功能的可能性。
+
+<h2>以此类推...</h2>
+
+<p>
+在前面几节中，我们已经看到，从实现为 ZIP 归档的键/值存储
+迁移到仅含三个表的简单 SQLite 数据库，能够为应用文件格式带来显著功能提升。
+我们可以继续通过新增表、添加性能优化的索引、
+为编程便利添加触发器和视图、
+以及添加约束来在面对编程错误时保持内容一致性，进一步增强模式。
+其它增强思路包括：
+<ul>
+<li>在数据库表中存储一个<a href="undoredo.html">自动撤销/重做栈</a>，让撤销操作可以回到早期编辑会话。
+<li>为幻灯片集或多个幻灯片集添加<a href="fts3.html#fts4">全文本搜索</a>功能。
+<li>将 “settings.xml” 文件拆分到一个更易被其它应用查看和编辑的 SQL 表中。
+<li>将每张幻灯片的“演讲者备注”拆分到单独表中，便于第三方应用或脚本访问。
+<li>将演示概念从简单的线性幻灯片序列扩展为可根据观众反应做出分支和绕行。
+</ul>
+
+<p>
+SQLite 数据库具备很强的能力，
+本文只触及了冰山一角。
+但希望这一小段快速浏览已经让部分读者相信：
+将 SQL 数据库用作应用程序文件格式值得再次考量。
+
+<p>
+部分读者可能由于先前接触过企业级 SQL 数据库及其警告和限制而抗拒使用 SQLite 作为应用文件格式。
+例如，许多企业级数据库引擎建议不要在数据库中存储大型字符串或 BLOB，
+而应该将它们作为独立文件并仅将文件名存储在数据库中。
+但 SQLite 并非如此。SQLite 数据库的任何列都可以存储最大约 1 GB 的字符串或 BLOB。
+对于大小不超过 100 KB 的字符串和 BLOB，
+<a href="intern-v-extern-blob.html">I/O 性能</a> 甚至优于使用独立文件。
+
+<p>
+另外一些读者可能不愿意把 SQLite 作为应用文件格式，
+因为他们从小就被灌输“所有 SQL 模式都必须遵循
+<a href="https://en.wikipedia.org/wiki/Third_normal_form">第三范式（3NF）</a>，
+只能存储字符串和整数等简单基本类型”的观念。
+确实理应理解关系理论，并努力掌握它。
+但如上所示，将复杂信息以 XML 或 JSON 的形式存储在数据库文本字段中，
+在很多情况下是完全可以接受的。
+做有效的事情，而不是仅仅遵循数据库教授说的那些条条框框。
+
+<h2>使用 SQLite 的好处回顾</h2>
+
+<p>
+总结来说，
+本文的论点是：将 SQLite 用作像 OpenDocument 这样的应用文件格式的容器，
+并在该容器中存储众多小对象，
+要远胜于使用只装有几个大对象的 ZIP 归档。
+归纳而言：
+
+<ol>
+<li><p>
+SQLite 数据库文件的体积与含有相同信息的 ZIP 归档大致相当，甚至在某些情况下更小。
+
+<li><p>
+SQLite 的<a href="atomiccommit.html">原子更新能力</a>允许将小的增量更改安全地写入文档，
+减少整体磁盘 I/O，提高“文件/保存”性能，从而改善用户体验。
+
+<li><p>
+通过让应用只读取初始画面所需的内容，启动时间得以缩短。
+这在很大程度上消除了打开新文档时显示进度条的必要性。
+文档立即弹出，大大改善用户体验。
+
+<li><p>
+应用的内存占用可以通过仅载入当前显示所需的内容并将大量内容留在磁盘上而显著减少。
+SQLite 的快速查询能力使其成为长期保持全部内容驻留内存之外的可行方案。
+应用减少内存使用后，整个计算机会变得更响应，进一步改善用户体验。
+
+<li><p>
+SQL 模式能够比像 ZIP 归档这样的键/值数据库更直接、更简洁地表示信息。
+这让文档内容对第三方应用或脚本更易于访问，并便于实现如内建文档版本控制、
+以及在崩溃恢复后递增保存未完成工作的高级功能。
+</ol>
+
+<p>
+这些只是将 SQLite 用作应用文件格式的部分好处——
+它们极有可能改善像 OpenOffice 这样的应用的用户体验。
+其他应用可能会从 SQLite 中以不同方式受益。
+更多想法可见
+<a href="appfileformat.html">应用文件格式</a> 文档。
+
+<p>
+最后，让我们再重申一遍：本文只是一个思维实验。
+OpenDocument 格式已经成熟且设计良好。
+没人真的认为 OpenDocument 应该放弃 ZIP 用 SQLite 作为其容器。
+本文也不是为了批评 OpenDocument 没用 SQLite 作为容器，因为 OpenDocument 早于 SQLite。
+相反，本文的目的在于以 OpenDocument 作为一个具体例子，
+展示 SQLite 如何能被用来为未来项目构建更好的应用文件格式。
+<p align="center"><small><i>本页最后更新于 2025-05-12 11:56:41Z </small></i></p>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>打开 BLOB 以进行增量 I/O</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_blob_open -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>打开 BLOB 以进行增量 I/O</h2>
+</div>
+<blockquote><pre>
+int sqlite3_blob_open(
+  sqlite3*,
+  const char *zDb,
+  const char *zTable,
+  const char *zColumn,
+  sqlite3_int64 iRow,
+  int flags,
+  sqlite3_blob **ppBlob
+);
+</pre></blockquote>
+<p>
+此接口打开位于数据库 zDb 中表 zTable 的第 iRow 行、zColumn 列的<a href="../c3ref/blob.html">BLOB 句柄</a>；换句话说，就是下面 SQL 所选择的同一个 BLOB：</p>
+
+<p><pre>
+SELECT zColumn FROM zDb.zTable WHERE <a href="../lang_createtable.html#rowid">rowid</a> = iRow;
+</pre></p>
+
+<p>参数 zDb 不是包含数据库的文件名，而是数据库的符号名称。对于附加数据库，此名称是 <a href="../lang_attach.html">ATTACH</a> 语句中 AS 关键字之后的名称。主数据库文件的名称为 "main"。对于 TEMP 表，数据库名称为 "temp"。</p>
+
+<p>如果 flags 参数非零，则以可读写方式打开 BLOB。若 flags 参数为零，则以只读方式打开 BLOB。</p>
+
+<p>成功时返回 <a href="../rescode.html#ok">SQLITE_OK</a>，并在 *ppBlob 中存储新的<a href="../c3ref/blob.html">BLOB 句柄</a>。否则返回<a href="../rescode.html">错误代码</a>，除非错误代码为 SQLITE_MISUSE，此时 *ppBlob 被设置为 NULL。这意味着，只要不滥用 API，在此函数返回后调用 <a href="../c3ref/blob_close.html">sqlite3_blob_close()</a> 释放 *ppBlob 总是安全的。</p>
+
+<p>如果下列任意一项为真，则该函数会以 SQLITE_ERROR 失败：
+<ul>
+<li> 数据库 zDb 不存在，
+<li> 表 zTable 在数据库 zDb 中不存在，
+<li> 表 zTable 是 WITHOUT ROWID 表，
+<li> 列 zColumn 不存在，
+<li> 表中不存在第 iRow 行，
+<li> 指定行 iRow 的列 zColumn 包含的值不是 TEXT 或 BLOB，
+<li> 列 zColumn 属于索引、PRIMARY KEY 或 UNIQUE 约束，且以读/写方式打开该 BLOB，
+<li> 启用了 <a href="../foreignkeys.html">外键约束</a>，列 zColumn 属于<a href="../foreignkeys.html#parentchild">子键定义</a>，且以读/写方式打开该 BLOB。
+</ul></p>
+
+<p>除非返回 SQLITE_MISUSE，否则此函数会设置<a href="../c3ref/sqlite3.html">数据库连接</a>的错误代码和消息，可通过<a href="../c3ref/errcode.html">sqlite3_errcode()</a>、<a href="../c3ref/errcode.html">sqlite3_errmsg()</a>及相关函数访问。</p>
+
+<p>通过 sqlite3_blob_open() 引用的 BLOB 可以使用<a href="../c3ref/blob_read.html">sqlite3_blob_read()</a> 接口读取，也可以通过<a href="../c3ref/blob_write.html">sqlite3_blob_write()</a> 修改。可以使用<a href="../c3ref/blob_reopen.html">sqlite3_blob_reopen()</a> 接口将<a href="../c3ref/blob.html">BLOB 句柄</a>移到同一张表的不同一行。然而，在<a href="../c3ref/blob.html">BLOB 句柄</a>打开之后，其列、表或数据库均不能改变。</p>
+
+<p>如果 BLOB 句柄指向的行被<a href="../lang_update.html">UPDATE</a>、<a href="../lang_delete.html">DELETE</a>，或由于<a href="../lang_conflict.html">ON CONFLICT</a> 的副作用而修改，则该 BLOB 句柄会被标记为“已过期”。只要该行的任一列被更改，即便不是 BLOB 句柄所在的列，也会发生这种情况。对已过期 BLOB 句柄调用<a href="../c3ref/blob_read.html">sqlite3_blob_read()</a>或<a href="../c3ref/blob_write.html">sqlite3_blob_write()</a>会返回<a href="../rescode.html#abort">SQLITE_ABORT</a>。在 BLOB 过期前写入的更改不会因过期而回滚。只要事务继续完成，这些更改最终会提交。</p>
+
+<p>使用<a href="../c3ref/blob_bytes.html">sqlite3_blob_bytes()</a> 接口确定已打开 BLOB 的大小。此接口无法更改 BLOB 的大小。使用<a href="../lang_update.html">UPDATE</a> SQL 命令更改 BLOB 的大小。</p>
+
+<p><a href="../c3ref/bind_blob.html">sqlite3_bind_zeroblob()</a> 与<a href="../c3ref/result_blob.html">sqlite3_result_zeroblob()</a> 接口以及内建的<a href="../lang_corefunc.html#zeroblob">zeroblob</a> SQL 函数可用于创建一个全零 BLOB，以便通过增量 BLOB 接口读取或写入。</p>
+
+<p>为避免资源泄漏，每个打开的<a href="../c3ref/blob.html">BLOB 句柄</a>最终都应通过调用<a href="../c3ref/blob_close.html">sqlite3_blob_close()</a>释放。</p>
+
+<p>另见：<a href="../c3ref/blob_close.html">sqlite3_blob_close()</a>、
+<a href="../c3ref/blob_reopen.html">sqlite3_blob_reopen()</a>、<a href="../c3ref/blob_read.html">sqlite3_blob_read()</a>、
+<a href="../c3ref/blob_bytes.html">sqlite3_blob_bytes()</a>、<a href="../c3ref/blob_write.html">sqlite3_blob_write()</a>。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>的列表，
+  <a href="../c3ref/constlist.html">常量</a>的列表，以及
+  <a href="../c3ref/funclist.html">函数</a>的列表。</p>
+

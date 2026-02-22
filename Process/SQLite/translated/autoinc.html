@@ -1,0 +1,244 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 自动递增</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.8rem; color:#555;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 自动递增
+</div>
+</div>
+
+
+
+
+<h1 id="summary"><span>1. </span>摘要</h1>
+
+<ol type="1">
+<li><p>
+  AUTOINCREMENT 关键字会带来额外的 CPU、内存、磁盘空间和磁盘 I/O 开销，
+  如果不是必须，应该避免使用。
+  通常情况下并不需要它。
+</p></li><li><p>
+  在 SQLite 中，类型为 INTEGER PRIMARY KEY 的列是 <a href="lang_createtable.html#rowid">ROWID</a> 的别名
+  （除了 <a href="withoutrowid.html">WITHOUT ROWID</a> 表之外），ROWID 始终是一个 64 位有符号整数。
+</p></li><li><p>
+  在执行 <a href="lang_insert.html">INSERT</a> 时，如果未为 ROWID 或 INTEGER PRIMARY KEY 列显式指定值，
+  那么它会自动填充一个未使用的整数，通常是当前正在使用的最大 ROWID 再加一。
+  不论是否使用 AUTOINCREMENT 关键字，这一行为都是如此。
+</p></li><li><p>
+  如果在 INTEGER PRIMARY KEY 之后使用 AUTOINCREMENT 关键字，
+  会改变自动 ROWID 赋值算法，从而在数据库的整个生命周期内防止 ROWID 被重用。
+  换句话说，AUTOINCREMENT 的目的就是防止以前删除的行的 ROWID 被重复使用。
+</p></li></ol>
+
+<h1 id="background"><span>2. </span>背景</h1>
+
+<p>
+在 SQLite 中，表行通常拥有一个 64 位有符号整数的 <a href="lang_createtable.html#rowid">ROWID</a>，
+在同一张表中各行之间唯一。
+(<a href="withoutrowid.html">WITHOUT ROWID</a> 表是例外。)
+</p>
+
+<p>
+可以使用特殊的列名 ROWID、_ROWID_ 或 OID 来访问 SQLite 表的 ROWID。
+除非你将普通表列声明为使用这些特殊名称之一，否则使用该名称将引用声明的列而不是内部 ROWID。
+</p>
+
+<p>
+如果一个表包含类型为 <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> 的列，
+那么该列会成为 ROWID 的别名。后续可以通过上面描述的三个名称中的任何一个，
+以及为该 <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> 列指定的名称来访问 ROWID。
+这些名称都是彼此的别名，在任何上下文中都同样有效。
+</p>
+
+<p>
+当向 SQLite 表插入新行时，可以在 INSERT 语句中指定 ROWID，也可以由数据库引擎自动分配。
+要手动指定 ROWID，只需将其包含在要插入的值列表中。例如：
+</p>
+
+<div class="codeblock"><pre>CREATE TABLE test1(a INT, b TEXT);
+INSERT INTO test1(rowid, a, b) VALUES(123, 5, 'hello');
+</pre></div>
+
+<p>
+如果插入时未指定 ROWID，或指定的 ROWID 值为 NULL，
+则会自动为其创建一个合适的 ROWID。
+常规算法是为新创建的行赋予一个比插入前表中最大 ROWID 更大的 ROWID。
+如果表最初为空，那么 ROWID 为 1。
+如果最大的 ROWID 等于可用的最大整数 (9223372036854775807)，则数据库
+引擎会随机选择正数候选 ROWID，直到找到一个尚未使用的值。
+如果经过合理次数的尝试后仍无法找到未使用的 ROWID，
+插入操作将因 <a href="rescode.html#full">SQLITE_FULL</a> 错误而失败。
+只要未显式插入负的 ROWID 值，自动生成的 ROWID 也始终大于零。
+</p>
+
+<p>
+上述常规 ROWID 选择算法会在你从不使用最大 ROWID 值且从不删除具有最大 ROWID 的表项时，
+生成单调递增的唯一 ROWID。
+如果你删除了某些行，或创建了具有最大可能 ROWID 的行，
+则在创建新行时可能会重用先前删除行的 ROWID，而新创建的 ROWID 也可能不再严格升序。
+</p>
+
+
+<h1 id="the_autoincrement_keyword"><span>3. </span>AUTOINCREMENT 关键字</h1>
+
+<p>
+如果列的类型为 INTEGER PRIMARY KEY AUTOINCREMENT，则采用略有不同的 ROWID 选择算法。
+为新行选择的 ROWID 至少比该表中曾经存在的最大 ROWID 大 1。
+如果该表以前从未包含任何数据，则使用 ROWID 为 1。
+如果之前已插入过最大的 ROWID，则不允许新的 INSERT，任何尝试插入新行的操作都将
+因 SQLITE_FULL 错误而失败。
+SQLite 只会考虑已提交事务中的 ROWID 值。回滚的 ROWID 值会被忽略，并可被重用。
+</p>
+
+<p>
+SQLite 使用名为 "<a href="fileformat2.html#seqtab">sqlite_sequence</a>" 的 <a href="fileformat2.html#intschema">内部表</a> 跟踪最大 ROWID。
+每当创建包含 AUTOINCREMENT 列的普通表时，若尚不存在 sqlite_sequence 表则会自动创建。
+第一次写入含 AUTOINCREMENT 列的表时，会在 sqlite_sequence 表中对应创建一条记录，
+并在后续任何增加最大 ROWID 的写入操作时更新这条记录。
+可以使用普通的 UPDATE、INSERT 和 DELETE 语句修改 sqlite_sequence 表的内容。
+但对该表进行修改可能会扰乱 AUTOINCREMENT 键的生成算法。
+在进行此类更改之前，请确保你清楚自己在做什么。
+sqlite_sequence 表不会跟踪与 UPDATE 语句相关的 ROWID 更改，而只记录 INSERT 语句。
+</p>
+
+<p>
+AUTOINCREMENT 关键字实现的行为与默认行为略有不同。
+使用 AUTOINCREMENT 时，自动选择的 ROWID 会保证在同一数据库的同一个表中从未被使用过，
+自动生成的 ROWID 也保证是单调递增的。
+在某些应用中，这些特性很重要。但如果你的应用不需要这些特性，
+应该保持默认行为，因为使用 AUTOINCREMENT 会在每次插入过程中增加额外工作，
+使 INSERT 的执行速度略有降低。
+</p>
+
+<p>请注意，“单调递增”并不意味着 ROWID 总是恰好增加 1。增加 1 是常见情况。
+但如果由于（例如）唯一性约束导致插入失败，则失败的插入尝试所使用的 ROWID 可能不会在后续插入中被重用，
+从而在 ROWID 序列中出现间隔。AUTOINCREMENT 保证自动选择的 ROWID 会递增，但不保证它们是连续的。</p>
+
+<p>由于 AUTOINCREMENT 关键字改变了 ROWID 选择算法的行为，因此 AUTOINCREMENT 不允许用于 <a href="withoutrowid.html">WITHOUT ROWID</a> 表，
+也不允许用于 INTEGER PRIMARY KEY 之外的任何表列。
+任何试图在 <a href="withoutrowid.html">WITHOUT ROWID</a> 表或非 INTEGER PRIMARY KEY 列上使用 AUTOINCREMENT 的行为都会导致错误。</p>
+<p align="center"><small><i>本页面最后更新于 2024-02-22 16:13:38Z </small></i></p>
+
+</body>
+</html>

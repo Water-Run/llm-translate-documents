@@ -11,3 +11,4 @@
 | [Nim基础](./Nim%20基础.html)                                              | [https://narimiran.github.io/nim-basics/](https://narimiran.github.io/nim-basics/)                           |
 | [MiniScript-快速参考](./MiniScript-快速参考.html)                         | [https://miniscript.org/files/MiniScript-QuickRef.pdf](https://miniscript.org/files/MiniScript-QuickRef.pdf) |
 | [MiniScript-手册](./MiniScript-手册.pdf)                                  | [https://miniscript.org/files/MiniScript-Manual.pdf](https://miniscript.org/files/MiniScript-Manual.pdf)     |
+| [sqlite-文档-3510200](./sqlite-文档-3510200.zip)                          | [https://sqlite.org/2026/sqlite-doc-3510200.zip](https://sqlite.org/2026/sqlite-doc-3510200.zip)             |

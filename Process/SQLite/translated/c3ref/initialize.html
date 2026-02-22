@@ -1,0 +1,158 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Initialize The SQLite Library</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。随意选择三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_initialize sqlite3_os_end sqlite3_os_init sqlite3_shutdown -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>初始化 SQLite 库</h2>
+</div>
+<blockquote><pre>
+int sqlite3_initialize(void);
+int sqlite3_shutdown(void);
+int sqlite3_os_init(void);
+int sqlite3_os_end(void);
+</pre></blockquote>
+<p>
+sqlite3_initialize() 例程负责初始化 SQLite 库。sqlite3_shutdown() 例程会释放 sqlite3_initialize() 分配的所有资源。这些例程旨在帮助嵌入式系统完成进程初始化和关闭。使用 SQLite 的工作站应用通常不需要调用这些例程。</p>
+
+<p>如果某次 sqlite3_initialize() 调用发生在进程生命周期内第一次调用 sqlite3_initialize() 之后，或者发生在 sqlite3_shutdown() 调用之后首次再调用 sqlite3_initialize()，则该次调用被视为“有效”调用。只有有效的 sqlite3_initialize() 调用才会进行初始化，其余调用都无害且不会产生任何操作。</p>
+
+<p>如果某次 sqlite3_shutdown() 调用发生在最后一次 sqlite3_initialize() 之后首次调用 sqlite3_shutdown()，则该次调用被视为“有效”调用。只有有效的 sqlite3_shutdown() 调用才会执行任何反初始化操作，其余合法调用都是无害的空操作。</p>
+
+<p>sqlite3_initialize() 接口是线程安全的，但 sqlite3_shutdown() 不是。sqlite3_shutdown() 接口只能由单个线程调用。在调用 sqlite3_shutdown() 之前，必须关闭所有打开的<a href="../c3ref/sqlite3.html">数据库连接</a>，并释放所有其他 SQLite 资源。</p>
+
+<p>sqlite3_initialize() 会在其他方面调用 sqlite3_os_init()。同样地，sqlite3_shutdown() 会调用 sqlite3_os_end()</p>
+
+<p>sqlite3_initialize() 例程在成功时返回 <a href="../rescode.html#ok">SQLITE_OK</a>。如果某种原因导致 sqlite3_initialize() 无法初始化库（例如无法分配所需资源如互斥锁），则会返回除 <a href="../rescode.html#ok">SQLITE_OK</a> 之外的其他<a href="../rescode.html">错误代码</a>。</p>
+
+<p>sqlite3_initialize() 例程由许多其他 SQLite 接口内部调用，因此应用程序通常不需要直接调用 sqlite3_initialize()。例如，<a href="../c3ref/open.html">sqlite3_open()</a> 调用 sqlite3_initialize()，因此在调用 <a href="../c3ref/open.html">sqlite3_open()</a> 时，如果 SQLite 尚未初始化，会自动进行初始化。但是，如果在编译时启用了 <a href="../compile.html#omit_autoinit">SQLITE_OMIT_AUTOINIT</a> 配置选项，那么对 sqlite3_initialize() 的自动调用将被省略，应用程序必须在使用任何其他 SQLite 接口之前直接调用 sqlite3_initialize()。为了最大限度地提高可移植性，建议应用程序总是在使用任何其他 SQLite 接口之前直接调用 sqlite3_initialize()。将来版本的 SQLite 可能会要求如此。换句话说，在编译时启用了 <a href="../compile.html#omit_autoinit">SQLITE_OMIT_AUTOINIT</a> 时所表现出的行为可能会在未来的某个版本中成为默认行为。</p>
+
+<p>sqlite3_os_init() 例程执行 SQLite 库的操作系统相关初始化。sqlite3_os_end() 例程撤销 sqlite3_os_init() 的效果。这些例程通常完成的任务包括分配或释放静态资源、初始化全局变量、设置默认的 <a href="../c3ref/vfs.html">sqlite3_vfs</a> 模块，或使用 <a href="../c3ref/config.html">sqlite3_config()</a> 设置默认配置。</p>
+
+<p>应用程序决不应直接调用 sqlite3_os_init() 或 sqlite3_os_end()。应用程序只应调用 sqlite3_initialize() 和 sqlite3_shutdown()。sqlite3_os_init() 接口会在 sqlite3_initialize() 中自动调用，sqlite3_os_end() 会在 sqlite3_shutdown() 中调用。在为 Unix、Windows 或 OS/2 编译 SQLite 时，sqlite3_os_init() 和 sqlite3_os_end() 的适当实现会内置于 SQLite 中。当<a href="../custombuild.html">为其他平台构建</a>（使用 <a href="../compile.html#os_other">SQLITE_OS_OTHER=1</a> 编译时选项）时，应用程序必须为 sqlite3_os_init() 和 sqlite3_os_end() 提供合适的实现。应用程序提供的 sqlite3_os_init() 或 sqlite3_os_end() 实现必须在成功时返回 <a href="../rescode.html#ok">SQLITE_OK</a>，在失败时返回其他<a href="../rescode.html">错误代码</a>。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。
+</p>
+

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.49.0 On 2025-02-06</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.49.0 On 2025-02-06</h2><p><ol class='lessindent'>
+<li> Enhancements to the <a href="../optoverview.html">query planner</a>:
+     <ol type="a">
+     <li> Improve the <a href="../optoverview.html#autoindex">query-time index</a> optimization so that it works on
+          <a href="../withoutrowid.html">WITHOUT ROWID</a> tables.
+     <li> Better query plans for large <a href="../queryplanner-ng.html#starq">star-query</a> joins.  This fixes
+          three different performance regressions that were reported on
+          the SQLite Forum.
+     <li> When two or more queries have the same estimated cost, use
+          the one with the fewer bytes per row.
+     </ol>
+<li> Enhance the <a href="../lang_corefunc.html#iif">iif() SQL function</a> so that it can accept any number of
+     arguments greater than or equal to two.
+<li> Enhance the <a href="../sessionintro.html">session extension</a> so that it works on databases that
+     make use of <a href="../gencol.html">generated columns</a>.
+<li> Omit the SQLITE_USE_STDIO_FOR_CONSOLE compile-time option which was
+     not implemented correctly and never worked right.  In its place add
+     the SQLITE_USE_W32_FOR_CONSOLE_IO compile-time option.  This option
+     applies to command-line tools like the <a href="../cli.html">CLI</a> only, not to the SQLite
+     core.  It causes Win32 APIs to be used for console I/O instead of
+     stdio.  This option affects Windows builds only.
+<li> Three new options to <a href="../c3ref/db_config.html">sqlite3_db_config()</a>.  All default to "on".
+     <ol type="a">
+     <li> <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableattachcreate">SQLITE_DBCONFIG_ENABLE_ATTACH_CREATE</a>
+     <li> <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableattachwrite">SQLITE_DBCONFIG_ENABLE_ATTACH_WRITE</a>
+     <li> <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenablecomments">SQLITE_DBCONFIG_ENABLE_COMMENTS</a>
+     </ol>
+<li> Replace <a href="https://en.wikipedia.org/wiki/GNU_Autotools">Autotools</a>
+     with <a href="https://msteveb.github.io/autosetup/">Autosetup</a> for the
+     configure script used in the <a href="../amalgamation.html#amalgtarball">precompiled amalgamation tarball</a>.
+     The configure script for the <a href="../amalg-v-canon.html#canon">canonical source code</a> was changed
+     to Autosetup in the previous (3.48.0) release.
+     Only the main SQLite configure script in the amalgamation tarball
+     is changed. The (deprecated) configuration script use by
+     <a href="https://www.tcl-lang.org/doc/tea/TEAOverview.html">TEA</a> subdirectory
+     of the amalgamation tarball still relies on Autotools.
+<li> Various minor patches and fixes for problems seen in the 3.48.0 release.
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2025-02-06 11:55:18 4a7dd425dc2a0e5082a9049c9b4a9d4f199a71583d014c24b4cfe276c5a77cde
+<li>SHA3-256 for sqlite3.c: 030c764eba64a3fa3bbf87447abd175bfef94851f970d62126a92877b30b611e
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

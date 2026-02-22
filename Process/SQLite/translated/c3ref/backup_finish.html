@@ -1,0 +1,269 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>在线备份 API。</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随意组合三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_backup_finish sqlite3_backup_init sqlite3_backup_pagecount sqlite3_backup_remaining sqlite3_backup_step -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>在线备份 API。</h2>
+</div>
+<blockquote><pre>
+sqlite3_backup *sqlite3_backup_init(
+  sqlite3 *pDest,                        /* Destination database handle */
+  const char *zDestName,                 /* Destination database name */
+  sqlite3 *pSource,                      /* Source database handle */
+  const char *zSourceName                /* Source database name */
+);
+int sqlite3_backup_step(sqlite3_backup *p, int nPage);
+int sqlite3_backup_finish(sqlite3_backup *p);
+int sqlite3_backup_remaining(sqlite3_backup *p);
+int sqlite3_backup_pagecount(sqlite3_backup *p);
+</pre></blockquote>
+<p>
+备份 API 将一个数据库的内容复制到另一个数据库。
+它对于创建数据库的备份或在内存数据库与持久文件之间复制都很有用。</p>
+
+<p>另请参阅：<a href="../backup.html">使用 SQLite 在线备份 API</a></p>
+
+<p>在备份操作期间，SQLite 会在目标数据库文件上保持一个写事务打开。
+源数据库只在被读取时加上读锁；
+在整个备份操作期间不会一直加锁。
+因此，可以在源数据库仍在使用的情况下执行备份，
+同时不会阻止其他数据库连接在备份进行时对源数据库进行读取或写入。</p>
+
+<p>要执行备份操作：
+<ol>
+<li><b>sqlite3_backup_init()</b> 仅调用一次以初始化备份，
+<li><b>sqlite3_backup_step()</b> 调用一次或多次以在两个数据库之间传输数据，然后最终
+<li><b>sqlite3_backup_finish()</b> 调用以释放与备份操作相关的所有资源。
+</ol>
+每个成功调用 sqlite3_backup_init() 后必须恰好调用一次 sqlite3_backup_finish()。</p>
+
+<p><a name="sqlite3backupinit"></a>
+ <b>sqlite3_backup_init()</b></p>
+
+<p>sqlite3_backup_init(D,N,S,M) 中的 D 和 N 参数分别指向与目标数据库关联的
+<a href="../c3ref/sqlite3.html">数据库连接</a>和数据库名称。
+数据库名称对于主数据库是 "main"，对于临时数据库是 "temp"，对于通过 <a href="../lang_attach.html">ATTACH</a> 语句附加的数据库则为 AS 关键字之后指定的名称。
+sqlite3_backup_init(D,N,S,M) 中传入的 S 和 M 参数分别标识源数据库的
+<a href="../c3ref/sqlite3.html">数据库连接</a>和数据库名称。
+源数据库与目标数据库的<a href="../c3ref/sqlite3.html">数据库连接</a>(参数 S 和 D)
+必须不同，否则 sqlite3_backup_init(D,N,S,M) 将返回错误。</p>
+
+<p>如果目标数据库上已经存在读或读写事务打开，则调用 sqlite3_backup_init() 将失败并返回 NULL。</p>
+
+<p>如果在 sqlite3_backup_init(D,N,S,M) 内发生错误，则返回 NULL，并在目标
+<a href="../c3ref/sqlite3.html">数据库连接</a> D 中存储错误代码和错误信息。
+可以使用 <a href="../c3ref/errcode.html">sqlite3_errcode()</a>、<a href="../c3ref/errcode.html">sqlite3_errmsg()</a> 和/或
+<a href="../c3ref/errcode.html">sqlite3_errmsg16()</a> 函数检索失败的 sqlite3_backup_init() 的错误代码和消息。
+sqlite3_backup_init() 成功调用后会返回指向
+<a href="../c3ref/backup.html">sqlite3_backup</a> 对象的指针。
+该 <a href="../c3ref/backup.html">sqlite3_backup</a> 对象可以与 sqlite3_backup_step() 和
+sqlite3_backup_finish() 函数一起使用以执行指定的备份操作。</p>
+
+<p><a name="sqlite3backupstep"></a>
+ <b>sqlite3_backup_step()</b></p>
+
+<p>函数 sqlite3_backup_step(B,N) 将最多复制 N 页源数据库与目标数据库之间的数据，
+B 是相应的 <a href="../c3ref/backup.html">sqlite3_backup</a> 对象。
+如果 N 为负数，则复制所有剩余的源页。
+如果 sqlite3_backup_step(B,N) 成功复制 N 页并且仍有页需要复制，则该函数返回 <a href="../rescode.html#ok">SQLITE_OK</a>。
+如果 sqlite3_backup_step(B,N) 成功完成从源到目标的所有页复制，则返回 <a href="../rescode.html#done">SQLITE_DONE</a>。
+如果在运行 sqlite3_backup_step(B,N) 时发生错误，则返回一个 <a href="../rescode.html">错误代码</a>。
+除了 <a href="../rescode.html#ok">SQLITE_OK</a> 与 <a href="../rescode.html#done">SQLITE_DONE</a>，调用 sqlite3_backup_step() 还可能返回 <a href="../rescode.html#readonly">SQLITE_READONLY</a>、
+<a href="../rescode.html#nomem">SQLITE_NOMEM</a>、<a href="../rescode.html#busy">SQLITE_BUSY</a>、<a href="../rescode.html#locked">SQLITE_LOCKED</a> 或
+<a href="../rescode.html#ioerr_access">SQLITE_IOERR_XXX</a> 扩展错误代码。</p>
+
+<p>sqlite3_backup_step() 可能返回 <a href="../rescode.html#readonly">SQLITE_READONLY</a>，如果：
+<ol>
+<li> 目标数据库以只读方式打开，或
+<li> 目标数据库使用预写日志（WAL）日志模式并且目标与源的页面大小不同，或
+<li> 目标数据库为内存数据库并且目标与源的页面大小不同。
+</ol></p>
+
+<p>如果 sqlite3_backup_step() 无法获取所需的文件系统锁，则会调用 <a href="../c3ref/busy_handler.html">忙处理程序函数</a>（如果指定了）。
+如果忙处理程序在锁可用之前返回非零值，则向调用方返回 <a href="../rescode.html#busy">SQLITE_BUSY</a>。
+在这种情况下，可以稍后重试 sqlite3_backup_step()。
+如果在调用 sqlite3_backup_step() 时源数据库连接用于写入源数据库，则立即返回 <a href="../rescode.html#locked">SQLITE_LOCKED</a>。
+同样，在这种情况下可以稍后重试 sqlite3_backup_step()。
+如果返回 <a href="../rescode.html#ioerr_access">SQLITE_IOERR_XXX</a>、<a href="../rescode.html#nomem">SQLITE_NOMEM</a> 或 <a href="../rescode.html#readonly">SQLITE_READONLY</a>，则无需重试 sqlite3_backup_step()。
+这些错误被视为致命错误。应用程序必须接受备份操作失败，并将备份操作句柄传递给 sqlite3_backup_finish() 以释放相关资源。</p>
+
+<p>第一次调用 sqlite3_backup_step() 会在目标文件上获取独占锁。该独占锁直到 sqlite3_backup_finish() 被调用或备份操作完成且 sqlite3_backup_step() 返回 <a href="../rescode.html#done">SQLITE_DONE</a> 才会释放。
+每次调用 sqlite3_backup_step() 时都会在源数据库上获取一个 <a href="../lockingv3.html#shared_lock">共享锁</a>，在 sqlite3_backup_step() 调用期间持续存在。
+由于源数据库在 sqlite3_backup_step() 调用之间不会保持锁，因此在备份过程中源数据库可能会被修改。
+如果源数据库由备份操作所使用以外的外部进程或其他数据库连接修改，则下一次调用 sqlite3_backup_step() 时将自动重新启动备份。
+如果源数据库通过与备份操作使用的相同数据库连接进行修改，则备份数据库会同时自动更新。</p>
+
+<p><a name="sqlite3backupfinish"></a>
+ <b>sqlite3_backup_finish()</b></p>
+
+<p>当 sqlite3_backup_step() 返回 <a href="../rescode.html#done">SQLITE_DONE</a>，或者应用程序希望放弃备份操作时，应用程序应通过 sqlite3_backup_finish() 销毁 <a href="../c3ref/backup.html">sqlite3_backup</a> 对象。
+sqlite3_backup_finish() 接口会释放与 <a href="../c3ref/backup.html">sqlite3_backup</a> 对象相关的所有资源。
+如果 sqlite3_backup_step() 尚未返回 <a href="../rescode.html#done">SQLITE_DONE</a>，则目标数据库上的任何活动写事务都会回滚。
+<a href="../c3ref/backup.html">sqlite3_backup</a> 对象在调用 sqlite3_backup_finish() 后变得无效，不能再使用。</p>
+
+<p>如果没有发生 sqlite3_backup_step() 错误，sqlite3_backup_finish() 返回 <a href="../rescode.html#ok">SQLITE_OK</a>，无论 sqlite3_backup_step() 是否完成。
+如果在相同的 <a href="../c3ref/backup.html">sqlite3_backup</a> 对象上的任何先前 sqlite3_backup_step() 调用期间发生了内存不足或 IO 错误，则 sqlite3_backup_finish() 返回相应的 <a href="../rescode.html">错误代码</a>。</p>
+
+<p>sqlite3_backup_step() 返回 <a href="../rescode.html#busy">SQLITE_BUSY</a> 或 <a href="../rescode.html#locked">SQLITE_LOCKED</a> 并非永久错误，也不影响 sqlite3_backup_finish() 的返回值。</p>
+
+<p><a name="sqlite3backupremaining"></a>
+ <a name="sqlite3backuppagecount"></a>
+
+<b>sqlite3_backup_remaining() 与 sqlite3_backup_pagecount()</b></p>
+
+<p>sqlite3_backup_remaining() 函数返回最近一次 sqlite3_backup_step() 完成时仍需备份的页面数。
+sqlite3_backup_pagecount() 函数返回最近一次 sqlite3_backup_step() 完成时源数据库的总页面数。
+这些函数返回的值仅在 sqlite3_backup_step() 调用期间更新。
+如果源数据库以某种方式被修改，导致源数据库大小或剩余页面数发生变化，则在下一次 sqlite3_backup_step() 之前，这些变化不会反映在 sqlite3_backup_pagecount() 与 sqlite3_backup_remaining() 的输出中。</p>
+
+<p><b>数据库句柄的并发使用</b></p>
+
+<p>在备份操作正在进行或初始化期间，应用程序可以使用源 <a href="../c3ref/sqlite3.html">数据库连接</a> 执行其他操作。
+如果 SQLite 被编译和配置为支持线程安全的数据库连接，那么源数据库连接可以在其他线程中并发使用。</p>
+
+<p>然而，应用程序必须保证在调用 sqlite3_backup_init() 之后直到相应的 sqlite3_backup_finish() 调用之前，
+不会将目标<a href="../c3ref/sqlite3.html">数据库连接</a> 传递给任何其他 API（包括其他线程）。
+SQLite 当前不会检查应用程序是否错误地访问目标数据库连接，因此不会报告错误代码，但这些操作可能会导致功能异常。
+在备份进行期间使用目标数据库连接可能还会引发互斥死锁。</p>
+
+<p>如果以<a href="../sharedcache.html">共享缓存模式</a>运行，应用程序必须保证目标数据库使用的共享缓存在备份运行期间不会被访问。
+实际上，这意味着应用程序必须保证备份所写入的磁盘文件不会被进程内的任何连接访问，而不仅仅是传递给 sqlite3_backup_init() 的特定连接。</p>
+
+<p><a href="../c3ref/backup.html">sqlite3_backup</a> 对象本身是部分线程安全的。多个线程可以安全地对 sqlite3_backup_step() 发起多个并发调用。
+然而，sqlite3_backup_remaining() 与 sqlite3_backup_pagecount() API 并不完全线程安全。
+如果它们与另一个线程同时调用 sqlite3_backup_step()，则可能返回无效值。</p>
+
+<p><b>备份 API 的替代方案</b></p>
+
+<p>安全创建 SQLite 数据库一致性备份的其他技术包括：</p>
+
+<p><ul>
+<li> <a href="../lang_vacuum.html#vacuuminto">VACUUM INTO</a> 命令。
+<li> <a href="../rsync.html">sqlite3_rsync</a> 工具程序。
+</ul>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表，以及
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+

@@ -1,0 +1,149 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>逐步从BLOB读取数据</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_blob_read -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>逐步从BLOB读取数据</h2>
+</div>
+<blockquote><pre>
+int sqlite3_blob_read(sqlite3_blob *, void *Z, int N, int iOffset);
+</pre></blockquote>
+<p>
+本函数用于将开放的 <a href="../c3ref/blob.html">BLOB 句柄</a> 中的数据读取到调用者提供的缓冲区。N 字节的数据从开放的 BLOB 中、从偏移量 iOffset 开始复制到缓冲区 Z 中。</p>
+
+<p>如果偏移量 iOffset 离 BLOB 末尾少于 N 字节，返回 <a href="../rescode.html#error">SQLITE_ERROR</a>，且不读取任何数据。如果 N 或 iOffset 小于零，返回 <a href="../rescode.html#error">SQLITE_ERROR</a>，且不读取任何数据。BLOB 的大小（因此 N+iOffset 的最大值）可通过 <a href="../c3ref/blob_bytes.html">sqlite3_blob_bytes()</a> 接口确定。</p>
+
+<p>尝试从已过期的 <a href="../c3ref/blob.html">BLOB 句柄</a> 读取数据会失败，并返回 <a href="../rescode.html#abort">SQLITE_ABORT</a> 错误码。</p>
+
+<p>成功时 sqlite3_blob_read() 返回 SQLITE_OK。否则，返回一个 <a href="../rescode.html">错误码</a> 或一个 <a href="../rescode.html#extrc">扩展错误码</a>。</p>
+
+<p>此例程仅适用于通过先前成功调用 <a href="../c3ref/blob_open.html">sqlite3_blob_open()</a> 创建、且尚未被 <a href="../c3ref/blob_close.html">sqlite3_blob_close()</a> 关闭的 <a href="../c3ref/blob.html">BLOB 句柄</a>。将任何其他指针传入此例程将导致未定义且可能不希望的行为。</p>
+
+<p>另请参见：<a href="../c3ref/blob_write.html">sqlite3_blob_write()</a>。</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表，以及
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+
+</body>
+</html>

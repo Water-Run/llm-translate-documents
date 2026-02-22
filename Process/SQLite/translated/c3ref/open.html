@@ -1,0 +1,326 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>打开新的数据库连接</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;margin-bottom:0.25rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随意选择其中三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_open sqlite3_open16 sqlite3_open_v2 -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>打开新的数据库连接</h2>
+</div>
+<blockquote><pre>
+int sqlite3_open(
+  const char *filename,   /* 数据库文件名 (UTF-8) */
+  sqlite3 **ppDb          /* 输出: SQLite db 句柄 */
+);
+int sqlite3_open16(
+  const void *filename,   /* 数据库文件名 (UTF-16) */
+  sqlite3 **ppDb          /* 输出: SQLite db 句柄 */
+);
+int sqlite3_open_v2(
+  const char *filename,   /* 数据库文件名 (UTF-8) */
+  sqlite3 **ppDb,         /* 输出: SQLite db 句柄 */
+  int flags,              /* 标志 */
+  const char *zVfs        /* 要使用的 VFS 模块名称 */
+);
+</pre></blockquote>
+<p>
+这些例程根据 filename 参数所指定打开 SQLite 数据库文件。对于 sqlite3_open() 和 sqlite3_open_v2()，
+filename 参数会以 UTF-8 解释；对于 sqlite3_open16()，filename 参数会以本机字节顺序下的 UTF-16 解释。
+通常会在 *ppDb 中返回一个 <a href="../c3ref/sqlite3.html">数据库连接</a> 句柄，即使出现错误也一样。
+唯一的例外是如果 SQLite 无法分配内存来保存 <a href="../c3ref/sqlite3.html">sqlite3</a> 对象，
+则会在 *ppDb 中写入 NULL，而不是指向 <a href="../c3ref/sqlite3.html">sqlite3</a> 对象的指针。
+如果数据库成功打开（或创建），则返回 <a href="../rescode.html#ok">SQLITE_OK</a>。否则将返回一个 <a href="../rescode.html">错误代码</a>。
+在任何 sqlite3_open() 例程失败后，可使用 <a href="../c3ref/errcode.html">sqlite3_errmsg()</a> 或 <a href="../c3ref/errcode.html">sqlite3_errmsg16()</a>
+例程获取英文错误描述。</p>
+
+<p>默认编码对于通过 sqlite3_open() 或 sqlite3_open_v2() 创建的数据库是 UTF-8。
+通过 sqlite3_open16() 创建的数据库的默认编码则是本机字节顺序下的 UTF-16。</p>
+
+<p>无论打开数据库时是否发生错误，都应在不再需要时通过
+<a href="../c3ref/close.html">sqlite3_close()</a> 释放与 <a href="../c3ref/sqlite3.html">数据库连接</a> 句柄关联的资源。</p>
+
+<p>sqlite3_open_v2() 接口的行为类似 sqlite3_open()，但它多接受两个参数，以便对新的数据库连接进行额外控制。
+sqlite3_open_v2() 的 flags 参数至少必须包含以下三种标志组合之一：</p>
+
+<p><dl>
+<dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_READONLY</a></dt>
+<dd>数据库以只读模式打开。如果数据库尚不存在，将返回错误。</dd></p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_READWRITE</a></dt>
+<dd>如果可能，数据库以读写方式打开；如果操作系统对文件施加写保护，
+则以只读方式打开。无论哪种情况，数据库必须已存在，否则返回错误。
+出于历史原因，如果以读写模式打开因操作系统权限问题而失败，会尝试以只读模式打开。
+可以使用 <a href="../c3ref/db_readonly.html">sqlite3_db_readonly()</a> 来确定数据库是否实际为读写。</dd></p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_READWRITE</a> | <a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_CREATE</a></dt>
+<dd>数据库以读写模式打开，如果尚不存在则创建。sqlite3_open() 和 sqlite3_open16() 总是使用这种行为。</dd>
+</dl></p>
+
+<p>除必需标志外，还支持以下可选标志：</p>
+
+<p><dl>
+<dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_URI</a></dt>
+<dd>如果设置此标志，则 filename 可以解释为 URI。</dd></p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_MEMORY</a></dt>
+<dd>数据库将作为内存数据库打开。为了缓存共享（如果启用了共享缓存模式），
+数据库以 "filename" 参数指定的名称命名，但在其他方面忽略 "filename"。</dd></p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOMUTEX</a></dt>
+<dd>新的数据库连接将使用 “多线程” <a href="../threadsafe.html">线程模式</a>。
+这意味着只要每个线程使用不同的 <a href="../c3ref/sqlite3.html">数据库连接</a>，就允许多个线程同时使用 SQLite。</p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_FULLMUTEX</a></dt>
+<dd>新的数据库连接将使用 “序列化” <a href="../threadsafe.html">线程模式</a>。
+这意味着多个线程可以安全地尝试同时使用同一个数据库连接。
+（互斥锁会阻止实际并发，但在此模式下尝试并发不会造成任何问题。）</p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_SHAREDCACHE</a></dt>
+<dd>以启用 <a href="../sharedcache.html">共享缓存</a> 的方式打开数据库，覆盖
+<a href="../c3ref/enable_shared_cache.html">sqlite3_enable_shared_cache()</a> 提供的默认共享缓存设置。
+<a href="../sharedcache.html#dontuse">不推荐使用共享缓存模式</a>，因此许多 SQLite 构建可能不提供共享缓存功能。
+在此类情况下，该选项将不生效。</p>
+
+<p><dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_PRIVATECACHE</a></dt>
+<dd>以禁用 <a href="../sharedcache.html">共享缓存</a> 的方式打开数据库，覆盖
+<a href="../c3ref/enable_shared_cache.html">sqlite3_enable_shared_cache()</a> 提供的默认共享缓存设置。</p>
+
+<p><a name="openexrescode"></a>
+ <dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_EXRESCODE</a></dt>
+<dd>数据库连接以 “扩展结果代码模式” 启动。
+换句话说，建立连接后立即将 <a href="../c3ref/extended_result_codes.html">sqlite3_extended_result_codes(db,1)</a> 应用于该连接。
+除设置扩展结果代码模式外，此标志还会导致 <a href="../c3ref/open.html">sqlite3_open_v2()</a> 返回扩展结果代码。</dd></p>
+
+<p><a name="opennofollow"></a>
+ <dt><a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOFOLLOW</a></dt>
+<dd>数据库文件名不得包含符号链接</dd>
+</dl></p>
+
+<p>如果 sqlite3_open_v2() 的第三个参数不是上述任一必需组合，并且没有与其他
+<a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_* 位</a> 组合，那么行为将是未定义的。
+历史版本的 SQLite 会悄无声息地忽略 flags 参数中多余的位，但这种行为可能不会在未来版本中继续，因此应用程序不应依赖它。
+尤其需要注意的是，SQLITE_OPEN_EXCLUSIVE 标志对于 sqlite3_open_v2() 是无效的。
+无论数据库是否已存在，SQLITE_OPEN_EXCLUSIVE 都不会导致打开失败。
+SQLITE_OPEN_EXCLUSIVE 标志仅供 <a href="../c3ref/vfs.html">VFS 接口</a> 使用，而不应由 sqlite3_open_v2() 使用。</p>
+
+<p>sqlite3_open_v2() 的第四个参数是定义新数据库连接应使用的操作系统接口的
+<a href="../c3ref/vfs.html">sqlite3_vfs</a> 对象的名称。如果第四个参数是 NULL 指针，则使用默认的 <a href="../c3ref/vfs.html">sqlite3_vfs</a> 对象。</p>
+
+<p>如果 filename 是 ":memory:"，则为连接创建一个私有的临时内存数据库。
+该内存数据库在数据库连接关闭时会消失。
+SQLite 的未来版本可能会使用以 ":" 字符开头的其他特殊文件名。
+建议当数据库文件名确实以 ":" 开头时，应该在文件名前加上 "./" 这样的路径以避免歧义。</p>
+
+<p>如果 filename 是空字符串，则会创建一个私有的临时磁盘数据库。
+该私有数据库会在数据库连接关闭后立即自动删除。</p>
+
+<p><a name="urifilenamesinsqlite3open"></a>
+ <h3>URI 文件名</h3></p>
+
+<p>如果启用了 <a href="../uri.html">URI 文件名</a> 解释，并且 filename 参数以 "file:" 开头，
+则该文件名会被解释为 URI。如果在 sqlite3_open_v2() 的第三个参数中设置了 <a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_URI</a> 标志，或者通过 <a href="../c3ref/config.html">sqlite3_config()</a> 方法使用 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfiguri">SQLITE_CONFIG_URI</a> 选项，或通过 <a href="../compile.html#use_uri">SQLITE_USE_URI</a> 编译时选项全局启用，
+则 URI 文件名解释被启用。默认情况下 URI 文件名解释关闭，但未来的 SQLite 版本可能会默认启用 URI 文件名解释。
+更多信息请参见 "<a href="../uri.html">URI 文件名</a>"。</p>
+
+<p>URI 文件名会根据 RFC 3986 进行解析。如果 URI 包含 authority（授权部分），那么它必须是空字符串或 "localhost"。
+如果 authority 既不是空字符串也不是 "localhost"，则会向调用者返回错误。URI 的片段组件（如果存在）会被忽略。</p>
+
+<p>SQLite 使用 URI 的路径组件作为包含数据库的磁盘文件的名称。
+如果路径以 '/' 字符开头，则将其解释为绝对路径。如果路径不以 '/' 开头（意味着 URI 中省略了 authority 部分），
+则将路径解释为相对路径。在 Windows 上，绝对路径的第一个组件是驱动器说明（例如 "C:"）。</p>
+
+<p><a name="coreuriqueryparameters"></a>
+
+URI 的查询组件可以包含由 SQLite 本身或 <a href="../vfs.html">自定义 VFS 实现</a> 解释的参数。
+SQLite 及其内置的 <a href="../vfs.html">VFS</a> 解释以下查询参数：</p>
+
+<p><ul>
+<li> <b>vfs</b>：可以使用 "vfs" 参数指定提供操作系统接口的 VFS 对象的名称，以访问磁盘上的数据库文件。如果此选项设置为空字符串，则使用默认的 VFS 对象。指定未知的 VFS 会产生错误。如果使用 sqlite3_open_v2() 且 URI 文件名中存在 vfs 选项，则该选项指定的 VFS 优先于传递给 sqlite3_open_v2() 第四个参数的值。</p>
+
+<p><li> <b>mode</b>：mode 参数可以设为 "ro"、“rw”、“rwc” 或 “memory”。尝试设置为其他任何值都会导致错误。
+如果指定为 "ro"，则数据库以只读方式打开，就像在 sqlite3_open_v2() 的第三个参数中设置了 <a href="../c3ref/c_open_autoproxy.html">SQLITE_OPEN_READONLY</a> 标志一样。
+如果 mode 选项设为 "rw"，则以读写（但不创建）方式打开数据库，就像设置了 SQLITE_OPEN_READWRITE（但未设置 SQLITE_OPEN_CREATE）。
+"rwc" 等同于同时设置 SQLITE_OPEN_READWRITE 和 SQLITE_OPEN_CREATE。如果 mode 选项设为 "memory"，则使用一个永不从磁盘读写的纯 <a href="../inmemorydb.html">内存数据库</a>。
+如果 mode 参数指定的限制低于 sqlite3_open_v2() 第三个参数中传递的标志所要求的限制，则会产生错误。</p>
+
+<p><li> <b>cache</b>：cache 参数可以设为 "shared" 或 "private"。
+将其设为 "shared" 等同于在传递给 sqlite3_open_v2() 的 flags 参数中设置 SQLITE_OPEN_SHAREDCACHE 位。
+将 cache 参数设为 "private" 等同于设置 SQLITE_OPEN_PRIVATECACHE 位。
+如果使用 sqlite3_open_v2() 且 URI 文件名中存在 "cache" 参数，则其值会覆盖通过设置 SQLITE_OPEN_PRIVATECACHE 或 SQLITE_OPEN_SHAREDCACHE 标志所请求的行为。</p>
+
+<p><li> <b>psow</b>：psow 参数指示数据库文件所在存储介质是否适用 <a href="../psow.html">安全覆盖</a> 属性。</p>
+
+<p><li> <b>nolock</b>：nolock 参数是一个布尔查询参数，如果设置，则在回滚日志模式中禁用文件锁定。
+这对于访问不支持锁定的文件系统上的数据库很有用。注意：如果两个或更多进程写入同一个数据库，并且其中任何一个进程使用 nolock=1，可能会导致数据库损坏。</p>
+
+<p><li> <b>immutable</b>：immutable 参数是一个布尔查询参数，用于指示数据库文件存储在只读介质上。
+当设置 immutable 时，SQLite 假设数据库文件无法更改，即使是特权更高的进程也无法更改，因此会以只读方式打开数据库，并禁用所有锁定和更改检测。
+注意：如果在实际会发生更改的数据库文件上设置 immutable 属性，可能会导致查询结果不正确或 <a href="../rescode.html#corrupt">SQLITE_CORRUPT</a> 错误。
+另请参见：<a href="../c3ref/c_iocap_atomic.html">SQLITE_IOCAP_IMMUTABLE</a>。</p>
+
+<p></ul></p>
+
+<p>在 URI 的查询组件中指定未知参数并不会导致错误。
+SQLite 的未来版本可能会识别额外的查询参数。更多信息请参见 "<a href="../uri.html#coreqp">对 SQLite 具有特殊含义的查询参数</a>"。</p>
+
+<p><a name="urifilenameexamples"></a>
+ <h3>URI 文件名示例</h3></p>
+
+<p><table border="1" align=center cellpadding=5>
+<tr><th> URI 文件名 <th> 结果
+<tr><td> file:data.db <td>
+在当前目录中打开文件 "data.db"。
+<tr><td> file:/home/fred/data.db<br>
+file:///home/fred/data.db <br>
+file://localhost/home/fred/data.db <br> <td>
+打开数据库文件 "/home/fred/data.db"。
+<tr><td> file://darkstar/home/fred/data.db <td>
+错误。"darkstar" 不是可识别的 authority。
+<tr><td style="white-space:nowrap">
+file:///C:/Documents%20and%20Settings/fred/Desktop/data.db
+<td> 仅限 Windows：打开位于 C: 驱动器上 fred 桌面上的文件 "data.db"。
+请注意，此示例中的 %20 转义并非绝对必要 —— 在 URI 文件名中可以直接使用空格字符。
+<tr><td> file:data.db?mode=ro&cache=private <td>
+在当前目录中以只读方式打开文件 "data.db"。无论默认是否启用共享缓存模式，都使用私有缓存。
+<tr><td> file:/home/fred/data.db?vfs=unix-dotfile <td>
+打开文件 "/home/fred/data.db"。使用特殊 VFS "unix-dotfile"，该 VFS 使用 dot-files 代替 POSIX 建议性锁。
+<tr><td> file:data.db?mode=readonly <td>
+错误。"readonly" 不是 mode 参数的有效选项。
+请改用 "ro"： "file:data.db?mode=ro"。
+</table></p>
+
+<p>URI 的路径和查询组件支持十六进制转义序列 (%HH)。十六进制转义序列由一个百分号 "%" 和紧随其后的两个十六进制数字组成，用以指定一个八位字节值。
+在解释 URI 文件名的路径或查询组件之前，会先对其进行 UTF-8 编码，并将所有十六进制转义序列替换为包含相应八位字节的单个字节。
+如果此过程生成了无效的 UTF-8 编码，则结果为未定义。</p>
+
+<p><b>给 Windows 用户的提示：</b> sqlite3_open() 和 sqlite3_open_v2() 的 filename 参数必须使用 UTF-8 编码，而不是当前定义的代码页。
+包含国际字符的文件名必须在传入 sqlite3_open() 或 sqlite3_open_v2() 之前转换为 UTF-8。</p>
+
+<p><b>给 Windows Runtime 用户的提示：</b> 必须在调用 sqlite3_open() 或 sqlite3_open_v2() 之前设置临时目录。
+否则，需要使用临时文件的各种功能可能会失败。</p>
+
+<p>另请参见：<a href="../c3ref/temp_directory.html">sqlite3_temp_directory</a>
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表，以及
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+

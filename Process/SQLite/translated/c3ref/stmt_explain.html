@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Change The EXPLAIN Setting For A Prepared Statement</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_stmt_explain -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
+<h2>Change The EXPLAIN Setting For A Prepared Statement</h2>
+</div>
+<blockquote><pre>
+int sqlite3_stmt_explain(sqlite3_stmt *pStmt, int eMode);
+</pre></blockquote>
+<p>
+The sqlite3_stmt_explain(S,E) interface changes the EXPLAIN
+setting for <a href="../c3ref/stmt.html">prepared statement</a> S.  If E is zero, then S becomes
+a normal prepared statement.  If E is 1, then S behaves as if
+its SQL text began with "<a href="../lang_explain.html">EXPLAIN</a>".  If E is 2, then S behaves as if
+its SQL text began with "<a href="../eqp.html">EXPLAIN QUERY PLAN</a>".</p>
+
+<p>Calling sqlite3_stmt_explain(S,E) might cause S to be reprepared.
+SQLite tries to avoid a reprepare, but a reprepare might be necessary
+on the first transition into EXPLAIN or EXPLAIN QUERY PLAN mode.</p>
+
+<p>Because of the potential need to reprepare, a call to
+sqlite3_stmt_explain(S,E) will fail with SQLITE_ERROR if S cannot be
+reprepared because it was created using <a href="../c3ref/prepare.html">sqlite3_prepare()</a> instead of
+the newer <a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a> or <a href="../c3ref/prepare.html">sqlite3_prepare_v3()</a> interfaces and
+hence has no saved SQL text with which to reprepare.</p>
+
+<p>Changing the explain setting for a prepared statement does not change
+the original SQL text for the statement.  Hence, if the SQL text originally
+began with EXPLAIN or EXPLAIN QUERY PLAN, but sqlite3_stmt_explain(S,0)
+is called to convert the statement into an ordinary statement, the EXPLAIN
+or EXPLAIN QUERY PLAN keywords will still appear in the sqlite3_sql(S)
+output, even though the statement now acts like a normal SQL statement.</p>
+
+<p>This routine returns SQLITE_OK if the explain mode is successfully
+changed, or an error code if the explain mode could not be changed.
+The explain mode cannot be changed while a statement is active.
+Hence, it is good practice to call <a href="../c3ref/reset.html">sqlite3_reset(S)</a>
+immediately prior to calling sqlite3_stmt_explain(S,E).
+</p><p>See also lists of
+  <a href="../c3ref/objlist.html">Objects</a>,
+  <a href="../c3ref/constlist.html">Constants</a>, and
+  <a href="../c3ref/funclist.html">Functions</a>.</p>
+

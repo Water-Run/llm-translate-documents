@@ -1,0 +1,164 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>创建和销毁 VFS 文件名</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly" style="text-align:right;font-size:0.85rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随意选择三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_create_filename sqlite3_free_filename -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>创建和销毁 VFS 文件名</h2>
+</div>
+<blockquote><pre>
+sqlite3_filename sqlite3_create_filename(
+  const char *zDatabase,
+  const char *zJournal,
+  const char *zWal,
+  int nParam,
+  const char **azParam
+);
+void sqlite3_free_filename(sqlite3_filename);
+</pre></blockquote>
+<p>
+这些接口供 <a href="../vfs.html#shim">VFS shim</a> 实现使用，在该上下文之外没有实际用途。</p>
+
+<p>sqlite3_create_filename(D,J,W,N,P) 会分配内存，用于保存数据库文件名 D 的一个版本，以及对应的日志文件 J、WAL 文件 W 和包含 N 个 URI 键/值对的数组 P。sqlite3_create_filename(D,J,W,N,P) 的返回值是一个数据库文件名的指针，可安全传递给如下例程：
+<ul>
+<li> <a href="../c3ref/uri_boolean.html">sqlite3_uri_parameter()</a>,
+<li> <a href="../c3ref/uri_boolean.html">sqlite3_uri_boolean()</a>,
+<li> <a href="../c3ref/uri_boolean.html">sqlite3_uri_int64()</a>,
+<li> <a href="../c3ref/uri_boolean.html">sqlite3_uri_key()</a>,
+<li> <a href="../c3ref/filename_database.html">sqlite3_filename_database()</a>,
+<li> <a href="../c3ref/filename_database.html">sqlite3_filename_journal()</a>, or
+<li> <a href="../c3ref/filename_database.html">sqlite3_filename_wal()</a>.
+</ul>
+如果发生内存分配错误，sqlite3_create_filename() 可能会返回 NULL 指针。从 sqlite3_create_filename(X) 获得的内存在之后必须通过对 sqlite3_free_filename(Y) 的对应调用释放。</p>
+
+<p>sqlite3_create_filename(D,J,W,N,P) 中的参数 P 应该是一个包含 2*N 个指向字符串的指针数组。该数组中的每对指针对应一个查询参数的键与值。如果 N 为零，则 P 参数可以为 NULL 指针。P 数组中的 2*N 个指针都不得为 NULL，键指针也不应为空字符串。sqlite3_create_filename(D,J,W,N,P) 中的 D、J 或 W 参数也都不得为 NULL 指针，但可以是空字符串。</p>
+
+<p>sqlite3_free_filename(Y) 例程释放先前由 sqlite3_create_filename() 获得的内存分配。若 Y 为 NULL 指针，调用 sqlite3_free_filename(Y) 是一个无害的空操作。</p>
+
+<p>如果传给 sqlite3_free_filename(Y) 的 Y 参数既不是 NULL 指针，也不是之前通过 sqlite3_create_filename() 获得的指针，那么可能会发生诸如堆损坏或段错误等严重问题。在调用 sqlite3_free_filename(Y) 后，不应再次使用 Y 的值。这意味着，如果某个 VFS 的 <a href="../c3ref/vfs.html#sqlite3vfsxopen">sqlite3_vfs.xOpen()</a> 方法使用 Y 被调用，那么在调用 sqlite3_free_filename(Y) 之前，也应当调用相应的 sqlite3_module.xClose() 方法。
+</p><p>另请参阅以下列表：
+  <a href="../c3ref/objlist.html">对象</a>,
+  <a href="../c3ref/constlist.html">常量</a>, and
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+
+</body></html>

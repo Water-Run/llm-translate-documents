@@ -1,0 +1,174 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>一步查询执行接口</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.85em; color:#444; padding-right:20px;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="执行">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_exec -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>一步查询执行接口</h2>
+</div>
+<blockquote><pre>
+int sqlite3_exec(
+  sqlite3*,                                  /* An open database */
+  const char *sql,                           /* SQL to be evaluated */
+  int (*callback)(void*,int,char**,char**),  /* Callback function */
+  void *,                                    /* 1st argument to callback */
+  char **errmsg                              /* Error msg written here */
+);
+</pre></blockquote>
+<p>
+sqlite3_exec() 接口是围绕
+<a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a>、<a href="../c3ref/step.html">sqlite3_step()</a> 和 <a href="../c3ref/finalize.html">sqlite3_finalize()</a>
+的便利包装，允许应用程序运行多个 SQL 语句而无需编写大量 C 代码。</p>
+
+<p>sqlite3_exec() 接口在作为第 1 个参数传入的<a href="../c3ref/sqlite3.html">数据库连接</a>的上下文中，
+执行传入其第 2 个参数的零个或多个 UTF-8 编码、以分号分隔的 SQL 语句。
+如果传递给 sqlite3_exec() 的第 3 个参数的回调函数不为 NULL，则对于从评估过的 SQL 语句中输出的每个结果行都会调用该函数。
+sqlite3_exec() 的第 4 个参数在每次回调调用时会传递给回调函数的第 1 个参数。
+如果传递给 sqlite3_exec() 的回调指针为 NULL，那么将不会调用任何回调函数，结果行也会被忽略。</p>
+
+<p>如果在评估传入 sqlite3_exec() 的 SQL 语句时发生错误，则当前语句的执行停止，后续语句会被跳过。
+如果传给 sqlite3_exec() 的第 5 个参数非 NULL，则任何错误信息都写入通过 <a href="../c3ref/free.html">sqlite3_malloc()</a> 获取的内存并通过第 5 个参数返回。
+为避免内存泄漏，应用程序在不再需要通过 sqlite3_exec() 的第 5 个参数返回的错误信息字符串之后，应调用 <a href="../c3ref/free.html">sqlite3_free()</a>。
+如果 sqlite3_exec() 的第 5 个参数非 NULL 且未发生错误，则 sqlite3_exec() 在返回之前会将第 5 个参数中的指针设置为 NULL。</p>
+
+<p>如果 sqlite3_exec() 的回调返回非零值，则 sqlite3_exec() 例程返回 SQLITE_ABORT，不再调用回调函数，也不再执行任何后续的 SQL 语句。</p>
+
+<p>sqlite3_exec() 回调函数的第 2 个参数是结果中的列数。sqlite3_exec() 回调的第 3 个参数是指向字符串的指针数组，就像来自 <a href="../c3ref/column_blob.html">sqlite3_column_text()</a> 一样，每个列对应一个字符串。
+如果结果行的某个元素为 NULL，则 sqlite3_exec() 回调对应的字符串指针为 NULL 指针。sqlite3_exec() 回调的第 4 个参数是指向字符串的指针数组，每个项代表通过 <a href="../c3ref/column_name.html">sqlite3_column_name()</a> 获取的相应结果列的名称。</p>
+
+<p>如果传给 sqlite3_exec() 的第 2 个参数是 NULL 指针、指向空字符串的指针，或仅包含空白和/或 SQL 注释的指针，则不会评估任何 SQL 语句，数据库也不会发生更改。</p>
+
+<p>限制：</p>
+
+<p><ul>
+<li> 应用程序必须确保传给 sqlite3_exec() 的第 1 个参数是有效且打开的<a href="../c3ref/sqlite3.html">数据库连接</a>。
+<li> 应用程序在 sqlite3_exec() 运行期间不得关闭传入 sqlite3_exec() 的第 1 个参数指定的<a href="../c3ref/sqlite3.html">数据库连接</a>。
+<li> 应用程序在 sqlite3_exec() 运行期间不得修改传入第 2 个参数的 SQL 语句文本。
+<li> 应用程序在返回后不得解引用传递给回调的第 3 和第 4 个参数所指向的数组或字符串指针。
+</ul>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+
+</body></html>

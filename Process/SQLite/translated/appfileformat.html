@@ -1,0 +1,310 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 作为应用程序文件格式</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">由WaterRun使用gpt-5.1-codex-mini翻译</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 作为应用程序文件格式
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#executive_summary">1. 执行摘要</a></div>
+<div class="fancy-toc1"><a href="#what_is_an_application_file_format_">2. 什么是应用程序文件格式？</a></div>
+<div class="fancy-toc1"><a href="#sqlite_as_the_application_file_format">3. SQLite 作为应用程序文件格式</a></div>
+<div class="fancy-toc1"><a href="#security_considerations">4. 安全性考虑</a></div>
+<div class="fancy-toc1"><a href="#conclusion">5. 结论</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="executive_summary"><span>1. </span>执行摘要</h1>
+
+<p>具有明确定义模式的 SQLite 数据库文件通常是一个出色的应用程序文件格式。以下是这其中的十二个理由：
+
+</p><ol>
+<li> 简化的应用程序开发
+</li><li> 单文件文档
+</li><li> 高级查询语言
+</li><li> 可访问内容
+</li><li> 跨平台
+</li><li> 原子事务
+</li><li> 增量且连续的更新
+</li><li> 易于扩展
+</li><li> 性能
+</li><li> 多个进程并发使用
+</li><li> 多种编程语言
+</li><li> 更好的应用程序
+</li></ol>
+
+<p>下面将更详细地描述每一点，先简要考虑一下“应用程序文件格式”的含义。另请参阅本白皮书的<a href="aff_short.html">简短版本</a>。
+
+</p><h1 id="what_is_an_application_file_format_"><span>2. </span>什么是应用程序文件格式？</h1>
+
+<p>
+“应用程序文件格式”是用于将应用程序状态持久化到磁盘或在程序之间交换信息的文件格式。如今有成千上万种应用程序文件格式在使用。以下只是几个示例：
+
+</p><ul>
+<li>DOC - Word Perfect 和 Microsoft Office 文档
+</li><li>DWG - AutoCAD 图纸
+</li><li>PDF - Adobe 的便携文档格式
+</li><li>XLS - Microsoft Excel 电子表格
+</li><li>GIT - Git 源代码仓库
+</li><li>EPUB - 非 Kindle 电子书使用的电子出版格式
+</li><li>ODT - OpenOffice 等使用的开放文档格式
+</li><li>PPT - Microsoft PowerPoint 演示文稿
+</li><li>ODP - OpenOffice 等使用的开放文档演示格式
+</li></ul>
+
+<p>我们区分“文件格式”和“应用程序格式”。文件格式用于存储单一对象。例如，GIF 或 JPEG 文件存储单张图像，XHTML 文件存储文本，因此它们是“文件格式”，而不是“应用程序格式”。EPUB 文件则存储文本和图像（以包含的 XHTML 和 GIF/JPEG 文件形式），因此被视为“应用程序格式”。本文讨论的是“应用程序格式”。
+
+</p><p>文件格式和应用程序格式之间的界限并不清晰。本文将 JPEG 称为文件格式，但对于图像编辑器而言，JPEG 可能被认为是应用程序格式。具体取决于上下文。就本文而言，我们认为文件格式存储单一对象，而应用程序格式存储多个不同对象及其相互关系。
+
+</p><p>大多数应用程序格式属于以下三类之一：
+
+</p><ol>
+<li><p><b>完全自定义格式。</b>
+自定义格式专为单个应用程序设计。DOC、DWG、PDF、XLS 和 PPT 是自定义格式的例子。自定义格式通常包含在一个单一文件中，以便于传输。它们通常是二进制格式，尽管 DWG 格式是一个显著的例外。自定义文件格式需要专门的应用程序代码来读写，并且通常无法通过常见工具（如 unix 命令行程序和文本编辑器）访问。换句话说，自定义格式通常是“不可理解的二进制块”。要访问自定义应用程序文件格式的内容，需要一个专门设计用于读取和/或写入该格式的工具。
+
+</p></li><li><p><b>文件堆格式（Pile-of-Files）。</b>
+有时应用程序状态以文件层级结构存储。Git 是这一现象的典型例子，尽管在一次性或定制应用中也经常出现。文件堆格式本质上将文件系统用作键/值数据库，将小块信息存储在单独文件中。这样做的好处是使内容对常见实用程序（如文本编辑器或“awk”或“grep”）更易访问。但即便文件堆格式中的许多文件易于阅读，通常还是存在一些具有自身自定义格式的文件（例如：Git 的“Packfiles”），因此它们是无法在没有专门工具的情况下读取或写入的“不可理解的二进制块”。将文件堆从一个位置或机器移动到另一个位置也比移动单个文件不方便。例如，很难将文件堆文档作为电子邮件附件发送。最后，文件堆格式破坏了“文档隐喻”：没有一个文件可以被用户指认为“文档”。
+
+</p></li><li><p><b>封装的文件堆格式。</b>
+一些应用将文件堆封装进某种单文件容器，通常是 ZIP 压缩包。EPUB、ODT 和 ODP 就采用了这种方式。EPUB 书籍实际上只是一个 ZIP 压缩包，里面包含用于章节文本的各种 XHTML 文件、用于图像的 GIF 和 JPEG，以及告诉电子书阅读器如何将所有 XML 和图像文件组合在一起的专用目录文件。OpenOffice 文档（ODT 和 ODP）也是 ZIP 压缩包，包含表示其内容的 XML 和图像，以及展示组件之间相互关系的“目录”文件。
+
+</p><p>封装文件堆格式介于完全自定义文件格式和纯文件堆格式之间的折衷方案。封装文件堆格式并不像自定义格式那样完全不可理解，因为可以使用任何常见的 ZIP 解压工具访问其组件部件，但其可访问性又不如纯文件堆格式，因为仍需 ZIP 解压程序，而且通常不能在不先解压的情况下使用“find”等命令行工具遍历文件层级。另一方面，封装文件堆格式通过将所有内容放入一个磁盘文件中保留了文档隐喻。由于内容被压缩，封装文件堆格式通常也更紧凑。
+
+</p><p>与自定义文件格式一样，并不像纯文件堆格式那样易于编辑，因为通常必须重写整个文件才能更改某个组件部分。
+</p></li></ol>
+
+<p>本文的目的是为第四类新的应用程序文件格式辩护：SQLite 数据库文件。
+
+</p><h1 id="sqlite_as_the_application_file_format"><span>3. </span>SQLite 作为应用程序文件格式</h1>
+
+<p>
+任何可以记录在文件堆中的应用程序状态也可以使用如下简单键/值模式记录在 SQLite 数据库中：
+
+</p><blockquote><pre>
+CREATE TABLE files(filename TEXT PRIMARY KEY, content BLOB);
+</pre></blockquote>
+
+<p>
+如果内容被压缩，那么这样的<a href="sqlar.html">SQLite 存档</a>数据库的<a href="affcase1.html#smaller">大小相同</a>（±1%），并且它具备在不重写整个文档的情况下更新单个“文件”的优势。
+
+</p><p>
+但 SQLite 数据库不仅限于像文件堆数据库那样的简单键/值结构。一个 SQLite 数据库可以有几十个、几百个甚至数千个不同的表，每个表又可以有几十个、几百个甚至数千个字段，每个字段具有不同的数据类型、约束和特定含义，所有内容彼此相互引用，适当地自动建立索引以实现快速检索，并全部高效紧凑地存储在单个磁盘文件中。而所有这些结构都通过 SQL 模式以简洁的方式为人所理解。
+
+</p><p>换句话说，SQLite 数据库可以完成文件堆或封装文件堆格式所能做到的一切，并有更多功能，表现也更清晰。SQLite 数据库比键/值文件系统或 ZIP 压缩包更通用。（详见<a href="affcase1.html">OpenOffice 案例研究</a>文章。）
+
+</p><p>理论上可以通过自定义文件格式来实现 SQLite 数据库的强大功能。但任何与关系数据库一样表达能力强的自定义格式很可能需要庞大的设计规范，以及几十万行甚至更多的代码来实现。最终产物也将是一个只能通过专门工具访问的“不可理解的二进制块”。
+
+</p><p>
+因此，与其他方法相比，使用 SQLite 数据库作为应用程序文件格式具有无可比拟的优势。以下列出并详细阐述其中的一些优势：
+</p>
+
+<ol>
+<li><p><b>简化的应用程序开发。</b>
+无需为读取或写入应用程序文件编写新代码。只需链接 SQLite 库，或将<a href="amalgamation.html">单个“sqlite3.c”源文件</a>与其他应用程序 C 代码一起编译，SQLite 即可处理所有应用程序文件的 I/O。这可以减少数千行的应用代码，从而相应节省开发和维护成本。
+
+</p><p>SQLite 是<a href="mostdeployed.html">全球使用最广泛</a>的软件库之一。每天都有数以十亿计的 SQLite 数据库文件在智能手机、小工具以及桌面应用中使用。SQLite 已经过<a href="testing.html">严格测试</a>并被证明可靠。它不是一个需要频繁调整或调试的组件，让开发者可以专注于应用逻辑。
+
+</p></li><li><p><b>单文件文档。</b>
+SQLite 数据库包含在单个文件中，便于复制、移动或附加，保留了“文档”隐喻。
+
+</p><p>SQLite 不对文件命名有任何要求，因此应用可以使用任意自定义文件后缀来帮助标识该文件“属于”某个应用。SQLite 数据库文件在其头部包含一个 4 字节的<a href="fileformat2.html#appid">应用程序 ID</a>，可以设置为应用定义的值，然后用于标识文档的“类型”，方便像<a href="http://linux.die.net/man/1/file">file(1)</a>这样的实用程序进一步增强文档隐喻。
+
+
+</p></li><li><p><b>高级查询语言。</b>
+SQLite 是一个完整的关系数据库引擎，这意味着应用可以通过高级查询来访问内容。应用开发人员无需花时间思考如何从文档中检索所需信息。开发人员可以编写 SQL 表达想要的数据，让数据库引擎来决定如何最有效地获取这些内容。这帮助开发人员“抬头”思考、专注于解决用户问题，避免“低头”处理底层文件格式细节。
+
+</p><p>文件堆格式可视为一个键/值数据库。键/值数据库总比没有数据库要好。但如果没有事务、索引、高级查询语言或适当的模式，使用键/值数据库远比关系数据库更困难，也更容易出错。
+
+</p></li><li><p><b>可访问内容。</b>
+SQLite 数据库文件中的信息可以通过常见的开源命令行工具访问——这些工具在 macOS 和 Linux 系统上默认安装，在 Windows 上作为独立的 EXE 文件也可免费获取。与自定义文件格式不同，读取或写入 SQLite 数据库内容无需应用特定程序。SQLite 数据库文件不是不可理解的二进制块。的确，文本编辑器、"grep" 或 "awk" 等命令行工具对 SQLite 数据库没有直接用途，但 SQL 查询语言是更强大、更方便的内容检查方式，因此无法使用 “grep” 和 “awk” 等工具并不算损失。
+
+</p><p>SQLite 是一个<a href="fileformat2.html">定义明确且文档完善</a>的文件格式，被数以百万计的应用广泛采用，并且自 2004 年以来一直保持向后兼容，未来几十年也承诺继续兼容。SQLite 数据库文件的寿命特别适合定制应用，因为它们使文档内容在原始应用消失很久之后仍然可访问。数据比代码活得更久。SQLite 数据库被<a href="locrsf.html">美国国会图书馆推荐</a>用于数字内容的长期保存。
+
+</p></li><li><p><b>跨平台。</b>
+SQLite 数据库文件可在 32 位和 64 位机器之间以及大端和小端架构之间、不同版本的 Windows 与类 Unix 操作系统之间移植。使用 SQLite 应用程序文件格式的应用可以存储二进制数值数据而无需担心整型或浮点数的字节顺序。文本内容可以以 UTF-8、UTF-16LE 或 UTF-16BE 的形式读写，SQLite 会自动在运行时进行必要的转换。
+
+</p></li><li><p><b>原子事务。</b>
+对 SQLite 数据库的写入是<a href="atomiccommit.html">原子的</a>。即使在系统崩溃或断电时，也要么完全发生，要么完全不发生。因此，仅仅因为在写入磁盘的瞬间发生断电，也不会有损坏文档的风险。
+
+</p><p>SQLite 是事务型的，意味着多个更改可以组合在一起，确保要么全部发生，要么全部不发生，并且在提交前发现问题时可以回滚。这允许应用逐步更改数据，然后在提交磁盘之前对结果数据执行各种合理性或一致性检查。<a href="http://www.fossil-scm.org/">Fossil</a> 分布式版本控制系统<a href="http://www.fossil-scm.org/fossil/doc/tip/www/selfcheck.wiki">正在使用这种技术</a>以在每次更改前验证仓库历史没有丢失。
+
+</p></li><li><p><b>增量且连续的更新。</b>
+向 SQLite 数据库文件写入时，只会将实际更改的文件部分写入磁盘。这使得写入速度更快，也减少了固态硬盘的磨损。这相对于自定义和封装文件堆格式是一个巨大优势，因为它们通常需要重写整个文档以更改一个字节。纯文件堆格式也能在一定程度上执行增量更新，尽管文件堆的写入粒度通常比 SQLite（单个页面）更大（即一个单一文件）。
+
+</p><p>SQLite 同样支持持续更新。不必将更改保存在内存中直到执行“文件/保存”操作，可以在更改发生时立即写回磁盘。这可以避免系统崩溃或断电时丢失工作。一个<a href="undoredo.html">自动撤销/重做堆栈</a>，由触发器管理，可以保存在磁盘数据库中，这意味着撤销/重做可以跨会话边界进行。
+
+</p></li><li><p><b>易于扩展。</b>
+随着应用的成长，可以通过向模式中添加新表或向现有表添加新列来扩展 SQLite 应用程序文件格式。添加列或表不会改变对先前查询的意义，因此只要注意保持旧列和表的含义不变，就可以维持向后兼容性。
+
+</p><p>当然，自定义或文件堆格式也可以扩展，但这通常更加困难。如果添加索引，就必须定位所有更改相关表的应用代码并进行修改以保持索引更新。如果添加列，就必须定位所有访问相关表的应用代码并修改它以考虑新列。
+
+</p></li><li><p><b>性能。</b>
+在许多情况下，SQLite 应用程序文件格式会比<a href="fasterthanfs.html">文件堆格式更快</a>或比自定义格式更快。除在原始读写速度上更快之外，由于应用不再需要读取并解析整个文档到内存中，它还能显著提升启动时间。应用可以仅查询初始界面所需的信息。随着应用推进，它只需加载绘制下一个界面所需的内容，并可以丢弃不再使用的旧界面信息。这有助于控制应用的内存占用。
+
+</p><p>文件堆格式也可以像 SQLite 一样进行增量读取。但许多开发者会惊讶地发现，SQLite 可以比文件系统以单独文件形式读取或写入小于约 100KB 的 BLOB 更快。（详见<a href="fasterthanfs.html">比文件系统快 35%</a>和<a href="intern-v-extern-blob.html">内部与外部 BLOB</a>了解更多信息。）尽管运行关系数据库引擎会带来开销，但不应该默认认为直接文件 I/O 比 SQLite 数据库 I/O 更快，因为往往并非如此。
+
+</p><p>无论哪种情况，如果 SQLite 应用中出现性能问题，这些问题通常可以通过在模式中添加一两个<a href="lang_createindex.html">CREATE INDEX</a>语句或运行一次<a href="lang_analyze.html">ANALYZE</a>来解决，而无需更改一行应用代码。但如果性能问题出现在自定义或文件堆格式中，修复通常需要对应用代码进行大量更改，以添加和维护新索引或使用不同算法提取信息。
+
+</p></li><li><p><b>多个进程并发使用。</b>
+SQLite 自动协调来自多个线程和/或进程对同一文档的并发访问。两个或多个应用可以同时连接并读取同一文档。写入会排队，但写操作通常只需毫秒，因此各应用轮流写入即可。SQLite 自动确保文档的底层格式不被破坏。与之相比，实现同样操作的自定义或文件堆格式则需要应用提供大量支持。而支持并发访问的应用逻辑是一类臭名昭著的容易出错之处。
+
+</p></li><li><p><b>多种编程语言。</b>
+虽然 SQLite 本身是用 ANSI-C 编写的，但几乎所有编程语言都提供接口：C++、C#、Objective-C、Java、Tcl、Perl、Python、Ruby、Erlang、JavaScript 等。因此开发者可以选择自己最熟悉、最适合项目需求的语言进行开发。
+
+</p><p>如果存在一组“自治”的不同程序，通常由不同团队以不同语言开发，SQLite 应用程序文件格式就是一个极好的选择。这在研究或实验室环境中很常见，一个团队负责数据采集，其他团队负责不同阶段的分析。只要所有程序都使用具有通用模式的 SQLite 数据库，它们就可以互通。
+
+</p></li><li><p><b>更好的应用程序。</b>
+如果应用程序文件格式是 SQLite 数据库，则该文件格式的完整文档就是数据库模式，只需额外几句话描述每个表和列的含义。另一方面，自定义文件格式的描述通常超过数百页。文件堆格式虽然比完全自定义格式更简单易述，但仍比 SQL 模式导出要复杂得多，因为必须描述每个文件的名称和格式。
+
+</p><p>这不是一个小问题。清晰、简洁且易于理解的文件格式是任何应用设计的重要组成部分。Fred Brooks 在他的畅销计算机科学经典著作<i>The Mythical Man-Month</i>中写道：
+</p><blockquote><i>表现形式是计算机编程的精髓。<br /="1">...<br /="1">
+把你的流程图给我看，把你的表格藏起来，那我就还会困惑。把你的表格拿出来，我通常就不再需要你的流程图；流程图显而易见。</i></blockquote>
+<p>Rob Pike 在他的<i>Rules of Programming</i>中这样表达相同理念：
+</p><blockquote>
+<i>数据占主导。如果你选择了正确的数据结构并组织得好，算法几乎总是显而易见的。数据结构，而不是算法，才是编程的核心。</i></blockquote>
+<p>Linus Torvalds 在 2006-06-27 的 Git 邮件列表上用不同措辞表达了几乎相同的观点：
+</p><blockquote>
+<i>糟糕的程序员关心代码。优秀的程序员关心数据结构及其相互关系。</i>
+</blockquote>
+
+<p>重点是：SQL 数据库模式几乎总能更好地定义和组织表、数据结构及其关系。而拥有清晰、简洁且定义明确的表现形式，几乎总会带来更高性能、更少问题，以及更易开发与维护的应用。
+</p></li></ol>
+
+<h1 id="security_considerations"><span>4. </span>安全性考虑</h1>
+
+<p>SQLite 对恶意构造的数据库文件和 SQL 输入具有较强的免疫力。攻击者无法通过损坏用作应用程序文件的 SQLite 数据库来引发内存错误。
+
+</p><p>聪明的攻击者可以诱使用户打开一个 SQLite 数据库格式的应用程序文件，从而对应用发起攻击。但只要采取一些简单的预防措施，就可以防止任何严重的渗透或破坏。如果你确实选择将 SQLite（或任何关系数据库）作为应用程序文件格式，请查阅<a href="security.html">防御黑暗艺术</a>文档，尤其要查看<a href="security.html#baddb">不受信任数据库文件</a>一节，以确保你已经采取了稳健的防御措施，并且没有意外打开任何安全漏洞。
+</p>
+
+<h1 id="conclusion"><span>5. </span>结论</h1>
+
+<p>
+SQLite 并非适用于每种场景的完美应用程序文件格式。但在许多情况下，SQLite 比自定义文件格式、文件堆格式或封装文件堆格式都要优秀得多。SQLite 是一个高级、稳定、可靠、跨平台、广泛部署、可扩展、高性能、可访问、可并发的文件格式。它值得你在下一次应用程序设计中将其作为标准文件格式进行考虑。
+</p><p align="center"><small><i>此页面最后更新于 2025-12-10 18:30:50Z </small></i></p>
+

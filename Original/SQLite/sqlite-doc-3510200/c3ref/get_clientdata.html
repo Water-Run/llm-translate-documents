@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Database Connection Client Data</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_get_clientdata sqlite3_set_clientdata -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
+<h2>Database Connection Client Data</h2>
+</div>
+<blockquote><pre>
+void *sqlite3_get_clientdata(sqlite3*,const char*);
+int sqlite3_set_clientdata(sqlite3*, const char*, void*, void(*)(void*));
+</pre></blockquote>
+<p>
+These functions are used to associate one or more named pointers
+with a <a href="../c3ref/sqlite3.html">database connection</a>.
+A call to sqlite3_set_clientdata(D,N,P,X) causes the pointer P
+to be attached to <a href="../c3ref/sqlite3.html">database connection</a> D using name N.  Subsequent
+calls to sqlite3_get_clientdata(D,N) will return a copy of pointer P
+or a NULL pointer if there were no prior calls to
+sqlite3_set_clientdata() with the same values of D and N.
+Names are compared using strcmp() and are thus case sensitive.
+It returns 0 on success and SQLITE_NOMEM on allocation failure.</p>
+
+<p>If P and X are both non-NULL, then the destructor X is invoked with
+argument P on the first of the following occurrences:
+<ul>
+<li> An out-of-memory error occurs during the call to
+sqlite3_set_clientdata() which attempts to register pointer P.
+<li> A subsequent call to sqlite3_set_clientdata(D,N,P,X) is made
+with the same D and N parameters.
+<li> The database connection closes.  SQLite does not make any guarantees
+about the order in which destructors are called, only that all
+destructors will be called exactly once at some point during the
+database connection closing process.
+</ul></p>
+
+<p>SQLite does not do anything with client data other than invoke
+destructors on the client data at the appropriate time.  The intended
+use for client data is to provide a mechanism for wrapper libraries
+to store additional information about an SQLite database connection.</p>
+
+<p>There is no limit (other than available memory) on the number of different
+client data pointers (with different names) that can be attached to a
+single database connection.  However, the implementation is optimized
+for the case of having only one or two different client data names.
+Applications and wrapper libraries are discouraged from using more than
+one client data name each.</p>
+
+<p>There is no way to enumerate the client data pointers
+associated with a database connection.  The N parameter can be thought
+of as a secret key such that only code that knows the secret key is able
+to access the associated data.</p>
+
+<p>Security Warning:  These interfaces should not be exposed in scripting
+languages or in other circumstances where it might be possible for an
+attacker to invoke them.  Any agent that can invoke these interfaces
+can probably also take control of the process.</p>
+
+<p>Database connection client data is only available for SQLite
+version 3.44.0 (2023-11-01) and later.</p>
+
+<p>See also: <a href="../c3ref/get_auxdata.html">sqlite3_set_auxdata()</a> and <a href="../c3ref/get_auxdata.html">sqlite3_get_auxdata()</a>.
+</p><p>See also lists of
+  <a href="../c3ref/objlist.html">Objects</a>,
+  <a href="../c3ref/constlist.html">Constants</a>, and
+  <a href="../c3ref/funclist.html">Functions</a>.</p>
+

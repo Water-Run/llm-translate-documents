@@ -1,0 +1,324 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>数据库连接配置选项</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。迅速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_DBCONFIG_DEFENSIVE SQLITE_DBCONFIG_DQS_DDL SQLITE_DBCONFIG_DQS_DML SQLITE_DBCONFIG_ENABLE_ATTACH_CREATE SQLITE_DBCONFIG_ENABLE_ATTACH_WRITE SQLITE_DBCONFIG_ENABLE_COMMENTS SQLITE_DBCONFIG_ENABLE_FKEY SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION SQLITE_DBCONFIG_ENABLE_QPSG SQLITE_DBCONFIG_ENABLE_TRIGGER SQLITE_DBCONFIG_ENABLE_VIEW SQLITE_DBCONFIG_LEGACY_ALTER_TABLE SQLITE_DBCONFIG_LEGACY_FILE_FORMAT SQLITE_DBCONFIG_LOOKASIDE SQLITE_DBCONFIG_MAINDBNAME SQLITE_DBCONFIG_MAX SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE SQLITE_DBCONFIG_RESET_DATABASE SQLITE_DBCONFIG_REVERSE_SCANORDER SQLITE_DBCONFIG_STMT_SCANSTATUS SQLITE_DBCONFIG_TRIGGER_EQP SQLITE_DBCONFIG_TRUSTED_SCHEMA SQLITE_DBCONFIG_WRITABLE_SCHEMA -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>数据库连接配置选项</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_DBCONFIG_MAINDBNAME            1000 /* const char* */
+#define SQLITE_DBCONFIG_LOOKASIDE             1001 /* void* int int */
+#define SQLITE_DBCONFIG_ENABLE_FKEY           1002 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_TRIGGER        1003 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER 1004 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION 1005 /* int int* */
+#define SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE      1006 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_QPSG           1007 /* int int* */
+#define SQLITE_DBCONFIG_TRIGGER_EQP           1008 /* int int* */
+#define SQLITE_DBCONFIG_RESET_DATABASE        1009 /* int int* */
+#define SQLITE_DBCONFIG_DEFENSIVE             1010 /* int int* */
+#define SQLITE_DBCONFIG_WRITABLE_SCHEMA       1011 /* int int* */
+#define SQLITE_DBCONFIG_LEGACY_ALTER_TABLE    1012 /* int int* */
+#define SQLITE_DBCONFIG_DQS_DML               1013 /* int int* */
+#define SQLITE_DBCONFIG_DQS_DDL               1014 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_VIEW           1015 /* int int* */
+#define SQLITE_DBCONFIG_LEGACY_FILE_FORMAT    1016 /* int int* */
+#define SQLITE_DBCONFIG_TRUSTED_SCHEMA        1017 /* int int* */
+#define SQLITE_DBCONFIG_STMT_SCANSTATUS       1018 /* int int* */
+#define SQLITE_DBCONFIG_REVERSE_SCANORDER     1019 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_ATTACH_CREATE  1020 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_ATTACH_WRITE   1021 /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_COMMENTS       1022 /* int int* */
+#define SQLITE_DBCONFIG_MAX                   1022 /* Largest DBCONFIG */
+</pre></blockquote>
+<p>
+这些常量是可以作为 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> 接口的第二个参数传入的可用整数配置选项。</p>
+
+<p><a href="../c3ref/db_config.html">sqlite3_db_config()</a> 接口是一个可变参数函数。它接受的参数数量可变，但始终至少两个。传入 sqlite3_db_config() 的参数数量取决于第二个参数所对应的常量。本页面将第二个参数之后的参数称为“参数”。因此，当本页提到“第 N 个参数”时，指的是“在配置选项之后的第 N 个参数”，或者“sqlite3_db_config() 的第 (N+2) 个参数”。</p>
+
+<p>今后 SQLite 版本可能会添加新的配置选项，也可能废弃现有选项。应用程序应检查 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> 的返回码，以确保调用成功。如果调用了已废弃或不支持的配置选项，<a href="../c3ref/db_config.html">sqlite3_db_config()</a> 接口将返回非零的<a href="../rescode.html">错误代码</a>。 </p>
+
+<p><dl>
+<a name="sqlitedbconfiglookaside"></a>
+
+<dt>SQLITE_DBCONFIG_LOOKASIDE</dt>
+<dd> SQLITE_DBCONFIG_LOOKASIDE 选项用于调整数据库连接内部的 <a href="../malloc.html#lookaside">lookaside 内存分配器</a> 的配置。该选项的参数并不遵循 <a href="../c3ref/c_dbconfig_defensive.html#dbconfigarguments">常规格式</a>。SQLITE_DBCONFIG_LOOKASIDE 接受三个参数而不是两个，因此使用该选项的 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> 调用总共需要五个参数。
+<ol>
+<li><p>第一个参数（“buf”）是用于 lookaside 内存的缓冲区指针。第一个参数可以为 NULL，此时 SQLite 会使用 <a href="../c3ref/free.html">sqlite3_malloc()</a> 自行分配 lookaside 缓冲区。
+<li><p>第二个参数（“sz”）是每个 lookaside 缓冲槽的大小。如果“sz”小于 8，则禁用 lookaside。该参数应是小于 65536 的 8 的倍数。如果“sz”不满足该限制，则会自动减小直到满足。
+<li><p>第三个参数（“cnt”）是槽的数量。如果“cnt”小于 1，则禁用 lookaside。必要时，“cnt”值会被减小，以确保“sz”与“cnt”的乘积不超过 2,147,418,112。通常会选择使“sz”与“cnt”的乘积小于 1,000,000。
+</ol>
+<p>如果“buf”参数不为 NULL，则它必须指向一个大小不少于“sz”与“cnt”乘积的缓冲区。该缓冲区必须按照 8 字节对齐。当数据库连接正在使用 lookaside 内存时（即 <a href="../c3ref/c_dbstatus_options.html#sqlitedbstatuslookasideused">SQLITE_DBSTATUS_LOOKASIDE_USED</a> 的返回值非零时），无法更改 lookaside 内存配置。任何在 lookaside 内存被使用时尝试更改配置的操作都会使配置保持不变，并返回 <a href="../rescode.html#busy">SQLITE_BUSY</a>。如果“buf”为 NULL，且尝试根据“sz”和“cnt”分配内存失败，那么 lookaside 会静默地被禁用。
+<p>
+<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfiglookaside">SQLITE_CONFIG_LOOKASIDE</a> 配置选项可用于在初始化时设置默认的 lookaside 配置。<a href="../compile.html#default_lookaside">-DSQLITE_DEFAULT_LOOKASIDE</a> 选项可用于在编译时设置默认的 lookaside 配置。典型的 lookaside 参数是“sz”为 1200、“cnt”为 40 到 100。
+</dd></p>
+
+<p><a name="sqlitedbconfigenablefkey"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_FKEY</dt>
+<dd> 此选项用于启用或禁用<a href="../foreignkeys.html">外键约束</a>的执行。这与 <a href="../pragma.html#pragma_foreign_keys">PRAGMA foreign_keys</a> 语句控制的设置相同。第一个参数为整数：0 表示禁用外键约束，正值表示启用外键约束，负值表示保持外键约束设置不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示此次调用后外键约束是否被禁用或启用。第二个参数可以为 NULL，此时外键约束的状态不会被报告。</dd></p>
+
+<p><a name="sqlitedbconfigenabletrigger"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_TRIGGER</dt>
+<dd> 此选项用于启用或禁用<a href="../lang_createtrigger.html">触发器</a>。必须传入两个附加参数。第一个参数为整数：0 表示禁用触发器，正值表示启用触发器，负值表示保持设置不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示此次调用后触发器是否被禁用或启用。第二个参数可以为 NULL，此时触发器的设置不会被报告。</p>
+
+<p><p>最初该选项会禁用所有触发器。然而，自 SQLite 3.35.0 以来，即使该选项关闭，TEMP 触发器仍然允许。因此换句话说，该选项现在仅禁用主数据库模式或通过 <a href="../lang_attach.html">ATTACH</a> 附加的数据库模式中的触发器。 </dd></p>
+
+<p><a name="sqlitedbconfigenableview"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_VIEW</dt>
+<dd> 此选项用于启用或禁用<a href="../lang_createview.html">视图</a>。必须传入两个附加参数。第一个参数为整数：0 表示禁用视图，正值表示启用视图，负值表示保持设置不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示此次调用后视图是否被禁用或启用。第二个参数可以为 NULL，此时视图的设置不会被报告。</p>
+
+<p><p>最初该选项会禁用所有视图。然而，自 SQLite 3.35.0 以来，即使该选项关闭，TEMP 视图仍然允许。因此换句话说，该选项现在仅禁用主数据库模式或通过 ATTACH 附加的数据库模式中的视图。 </dd></p>
+
+<p><a name="sqlitedbconfigenablefts3tokenizer"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER</dt>
+<dd> 此选项用于启用或禁用在不使用绑定参数的情况下调用<a href="../fts3.html#f3tknzr">fts3_tokenizer()</a>函数（该函数属于 <a href="../fts3.html">FTS3</a> 全文搜索扩展）。默认情况下禁用此用法。必须传入两个附加参数。第一个参数为整数：传入 0 时禁止在无绑定参数的情况下使用 fts3_tokenizer()；传入正值时启用此用法；传入负值时保持该设置不变（可用于查询当前设置）。第二个参数是指向整数的指针，用于写入 0 或 1，指示该设置的当前值（若设置被修改，则写入修改后的值）。第二个参数可以为 NULL，此时设置值不会被报告。更多详情请参阅 <a href="../fts3.html">FTS3</a> 文档。</dd></p>
+
+<p><a name="sqlitedbconfigenableloadextension"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION</dt>
+<dd> 此选项用于独立于 SQL 函数 <a href="../lang_corefunc.html#load_extension">load_extension()</a> 启用或禁用 C 接口<a href="../c3ref/load_extension.html">sqlite3_load_extension()</a>。<a href="../c3ref/enable_load_extension.html">sqlite3_enable_load_extension()</a> API 会同时启用或禁用 C API 与 SQL 函数。必须传入两个附加参数。当该接口的第一个参数为 1 时，只启用 C API，而 SQL 函数保持禁用；如果第一个参数为 0，则 C API 与 SQL 函数都禁用；如果第一个参数为 -1，则两者状态均保持不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示 <a href="../c3ref/load_extension.html">sqlite3_load_extension()</a> 接口在调用后是否被禁用或启用。第二个参数可以为 NULL，此时不会报告新设置。</dd></p>
+
+<p><a name="sqlitedbconfigmaindbname"></a>
+ <dt>SQLITE_DBCONFIG_MAINDBNAME</dt>
+<dd> 此选项用于更改“main”数据库模式的名称。此选项不遵循 <a href="../c3ref/c_dbconfig_defensive.html#dbconfigarguments">通常的 SQLITE_DBCONFIG 参数格式</a>。它只需一个额外参数，因此 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> 调用总共传入三个参数。额外参数必须是指向常量 UTF8 字符串的指针，该字符串将替代“main”成为新的模式名称。SQLite 不会拷贝新的主模式名称字符串，因此应用程序必须确保传入 SQLITE_DBCONFIG_MAINDBNAME 的参数在数据库连接关闭之前保持不变。</dd></p>
+
+<p><a name="sqlitedbconfignockptonclose"></a>
+
+<dt>SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE</dt>
+<dd> 通常，当处于 <a href="../wal.html">WAL 模式</a> 的数据库被关闭或从句柄分离时，SQLite 会检查是否还有其他连接指向同一数据库；如果没有其他连接（即当前连接是最后一个打开的连接），则 SQLite 在关闭连接前执行一次 <a href="../wal.html#ckpt">checkpoint</a> 并删除 WAL 文件。SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE 选项可用于覆盖该行为。传入此选项的第一个参数（<a href="../c3ref/db_config.html">sqlite3_db_config()</a> 的第三个参数）为整数：正值表示禁用关闭时的 checkpoint，零（默认）表示启用，负值表示保持设置不变。第二个参数（第四个参数）是指向整数的指针，用于写入 0 或 1，指示关闭时 checkpoint 是否被禁用——若未禁用则写 0，若已禁用则写 1。</dd></p>
+
+<p><a name="sqlitedbconfigenableqpsg"></a>
+ <dt>SQLITE_DBCONFIG_ENABLE_QPSG</dt>
+<dd> SQLITE_DBCONFIG_ENABLE_QPSG 选项可激活或停用 <a href="../queryplanner-ng.html#qpstab">查询规划器稳定性保障（QPSG）</a>。当 QPSG 激活时，无论绑定参数的值如何，单条 SQL 查询语句都将始终使用相同的算法。QPSG 会禁用那些会查看绑定参数值的查询优化，因此某些查询可能会变慢。但 QPSG 的优势在于行为更可预测。在 QPSG 激活的情况下，SQLite 在实际应用中将始终使用与实验室测试时相同的查询计划。
+该设置的第一个参数为整数：0 表示禁用 QPSG，正值表示启用 QPSG，负值表示保持设置不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示此次调用后是否禁用或启用 QPSG。</dd></p>
+
+<p><a name="sqlitedbconfigtriggereqp"></a>
+ <dt>SQLITE_DBCONFIG_TRIGGER_EQP</dt>
+<dd> 默认情况下，EXPLAIN QUERY PLAN 命令不会输出触发器程序执行的任何操作。此选项用于设置或清除（默认）控制该行为的标志。传入的第一个参数为整数：正值表示启用触发器程序的输出，零表示禁用，负值表示保持设置不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示输出是否被禁用——若未禁用则写 0，若已禁用则写 1。</dd></p>
+
+<p><a name="sqlitedbconfigresetdatabase"></a>
+ <dt>SQLITE_DBCONFIG_RESET_DATABASE</dt>
+<dd> 设置 SQLITE_DBCONFIG_RESET_DATABASE 标志并随后执行 <a href="../lang_vacuum.html">VACUUM</a>，即可将数据库重置为空数据库，不包含模式也无内容。以下过程适用于严重损坏的数据库文件：
+<ol>
+<li> 若数据库连接是新打开的，请确保它已读取数据库模式：可通过准备并丢弃某个查询，或调用 sqlite3_table_column_metadata()（忽略任何错误）来完成。仅当应用希望在重置之后保持 WAL 模式（若重置前处于 WAL 模式）时才需要这一步。
+<li> sqlite3_db_config(db, SQLITE_DBCONFIG_RESET_DATABASE, 1, 0);
+<li> <a href="../c3ref/exec.html">sqlite3_exec</a>(db, "<a href="../lang_vacuum.html">VACUUM</a>", 0, 0, 0);
+<li> sqlite3_db_config(db, SQLITE_DBCONFIG_RESET_DATABASE, 0, 0);
+</ol>
+由于重置数据库具有破坏性且不可逆，该过程要求使用这一鲜为人知的 API 并分多步执行，以减少意外触发的风险。因为此功能必须能够重置损坏的数据库，而且关闭虚拟表可能需要访问损坏的数据存储，因此库必须放弃任何已安装的虚拟表，而无需调用它们的 xDestroy() 方法。</p>
+
+<p><a name="sqlitedbconfigdefensive"></a>
+ <dt>SQLITE_DBCONFIG_DEFENSIVE</dt>
+<dd> SQLITE_DBCONFIG_DEFENSIVE 选项用于激活或停用数据库连接的“防御”标志。当启用防御标志时，会禁用某些允许普通 SQL 故意破坏数据库文件的语言特性。被禁用的特性包括但不限于：
+<ul>
+<li> <a href="../pragma.html#pragma_writable_schema">PRAGMA writable_schema=ON</a> 语句。
+<li> <a href="../pragma.html#pragma_journal_mode">PRAGMA journal_mode=OFF</a> 语句。
+<li> <a href="../pragma.html#pragma_schema_version">PRAGMA schema_version=N</a> 语句。
+<li> 向 <a href="../dbpage.html">sqlite_dbpage</a> 虚拟表写入。
+<li> 直接写入 <a href="../vtab.html#xshadowname">shadow 表</a>。
+</ul>
+</dd></p>
+
+<p><a name="sqlitedbconfigwritableschema"></a>
+ <dt>SQLITE_DBCONFIG_WRITABLE_SCHEMA</dt>
+<dd> SQLITE_DBCONFIG_WRITABLE_SCHEMA 选项用于激活或停用“writable_schema”标志。这与设置 <a href="../pragma.html#pragma_writable_schema">PRAGMA writable_schema=ON</a> 或 <a href="../pragma.html#pragma_writable_schema">PRAGMA writable_schema=OFF</a> 的效果相同。该设置的第一个参数是整数：0 表示禁用 writable_schema，正值表示启用 writable_schema，负值表示保持设置不变。第二个参数是指向整数的指针，用于写入 0 或 1，指示此次调用后 writable_schema 是否被启用或禁用。</dd></p>
+
+<p><a name="sqlitedbconfiglegacyaltertable"></a>
+
+<dt>SQLITE_DBCONFIG_LEGACY_ALTER_TABLE</dt>
+<dd> SQLITE_DBCONFIG_LEGACY_ALTER_TABLE 选项用于激活或停用 <a href="../lang_altertable.html#altertabrename">ALTER TABLE RENAME</a> 命令在 <a href="../releaselog/3_24_0.html">版本 3.24.0</a>（2018-06-04）之前的旧行为。更多信息请参阅 <a href="../lang_altertable.html#altertabrename">ALTER TABLE RENAME 文档</a> 中的“兼容性说明”。该功能也可通过 <a href="../pragma.html#pragma_legacy_alter_table">PRAGMA legacy_alter_table</a> 语句开启或关闭。</dd></p>
+
+<p><a name="sqlitedbconfigdqsdml"></a>
+
+<dt>SQLITE_DBCONFIG_DQS_DML</dt>
+<dd> SQLITE_DBCONFIG_DQS_DML 选项用于激活或停用 DML 语句（DELETE、INSERT、SELECT 和 UPDATE）中的遗留 <a href="../quirks.html#dblquote">双引号字符串常量</a>“错误特性”。该设置的默认值由编译时选项 <a href="../compile.html#dqs">-DSQLITE_DQS</a> 决定。</dd></p>
+
+<p><a name="sqlitedbconfigdqsddl"></a>
+
+<dt>SQLITE_DBCONFIG_DQS_DDL</dt>
+<dd> SQLITE_DBCONFIG_DQS_DDL 选项用于激活或停用 DDL 语句（如 CREATE TABLE 和 CREATE INDEX）中的遗留 <a href="../quirks.html#dblquote">双引号字符串常量</a>“错误特性”。该设置的默认值由编译时选项 <a href="../compile.html#dqs">-DSQLITE_DQS</a> 决定。</dd></p>
+
+<p><a name="sqlitedbconfigtrustedschema"></a>
+
+<dt>SQLITE_DBCONFIG_TRUSTED_SCHEMA</dt>
+<dd> SQLITE_DBCONFIG_TRUSTED_SCHEMA 选项告诉 SQLite 假定数据库模式未被恶意内容污染。当该选项关闭时，SQLite 会采取额外的防御措施保护应用程序，包括：
+<ul>
+<li> 禁止在触发器、视图、CHECK 约束、DEFAULT 子句、表达式索引、部分索引或生成列中使用未被标记为 <a href="../c3ref/c_deterministic.html#sqliteinnocuous">SQLITE_INNOCUOUS</a> 的 SQL 函数。
+<li> 禁止在触发器或视图中使用未被标记为 <a href="../c3ref/c_vtab_constraint_support.html#sqlitevtabinnocuous">SQLITE_VTAB_INNOCUOUS</a> 的虚拟表。
+</ul>
+该设置默认打开以保持向后兼容，但建议所有应用在可能的情况下关闭。也可以通过 <a href="../pragma.html#pragma_trusted_schema">PRAGMA trusted_schema</a> 语句控制该设置。</dd></p>
+
+<p><a name="sqlitedbconfiglegacyfileformat"></a>
+
+<dt>SQLITE_DBCONFIG_LEGACY_FILE_FORMAT</dt>
+<dd> SQLITE_DBCONFIG_LEGACY_FILE_FORMAT 选项用于激活或停用旧文件格式标志。启用后，所有新创建的数据库文件的模式格式版本号（数据库头部偏移 44 处的 4 字节整数）为 1。这意味着生成的数据库文件可被任何 SQLite 版本一直读写到 3.0.0（2004-06-18）。若不启用该设置，新创建的数据库通常无法被 3.3.0（2006-01-11）之前的 SQLite 理解。写本文时，几乎不再需要生成与 3.0.0 兼容的新数据库文件，因此该设置的实际用途甚少，但仍保留以便 SQLite 可继续声称能够生成与版本 3.0.0 兼容的新数据库文件。
+<p>请注意，当启用 SQLITE_DBCONFIG_LEGACY_FILE_FORMAT 时，<a href="../lang_vacuum.html">VACUUM</a> 命令在处理带有生成列和降序索引的表时会因模糊错误而失败。由于 SQLite 3.3.0 及以前版本不支持生成列或降序索引，因此这不被视为漏洞。</dd></p>
+
+<p><a name="sqlitedbconfigstmtscanstatus"></a>
+
+<dt>SQLITE_DBCONFIG_STMT_SCANSTATUS</dt>
+<dd> SQLITE_DBCONFIG_STMT_SCANSTATUS 选项仅在 SQLITE_ENABLE_STMT_SCANSTATUS 构建中有用。在这种情况下，它用于设置或清除一个标志，以开启 sqlite3_stmt_scanstatus_v2() 统计信息的收集。要收集统计信息，需要在 SQL 语句准备和执行的过程中都在数据库句柄上设置该标志。默认情况下，该标志已设置（即统计信息收集启用）。
+<p>此选项有两个参数：一个整数和一个指向整数的指针。第一个参数为 1、0 或 -1，用于启用、禁用或保持 statement scanstatus 选项不变。如果第二个参数不为 NULL，则在处理第一个参数后，当前的 statement scanstatus 设置值会写入第二个参数指向的整数。</dd></p>
+
+<p><a name="sqlitedbconfigreversescanorder"></a>
+
+<dt>SQLITE_DBCONFIG_REVERSE_SCANORDER</dt>
+<dd> SQLITE_DBCONFIG_REVERSE_SCANORDER 选项更改表与索引的默认扫描顺序，使其从末尾开始向前扫描，而非从头部向后。设置此选项等同于执行 <a href="../pragma.html#pragma_reverse_unordered_selects">PRAGMA reverse_unordered_selects</a>。
+<p>此选项的两个参数为一个整数和一个指向整数的指针。第一个参数为 1、0 或 -1，分别表示启用、禁用或保持 reverse scan order 标志不变。如果第二个参数不为 NULL，则在处理第一个参数后会将标志是否设置的结果（0 或 1）写入第二个参数指向的整数。</dd></p>
+
+<p><a name="sqlitedbconfigenableattachcreate"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_ATTACH_CREATE</dt>
+<dd> 此选项用于启用或禁用 <a href="../lang_attach.html">ATTACH DATABASE</a> SQL 命令在指定的数据库不存在时自动创建新数据库文件的能力。默认情况下 ATTACH 能创建数据库。应用可通过此 DBCONFIG 选项禁用或重新启用 ATTACH 创建新数据库文件的能力。
+<p>该选项的两个参数为一个整数和一个指向整数的指针。第一个参数为 1、0 或 -1，分别表示启用、禁用或保持 attach-create 标志不变。如果第二个参数不为 NULL，则在处理第一个参数后会将 attach-create 标志是否设置的结果（0 或 1）写入第二个参数指向的整数。</dd></p>
+
+<p><a name="sqlitedbconfigenableattachwrite"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_ATTACH_WRITE</dt>
+<dd> 此选项用于启用或禁用 <a href="../lang_attach.html">ATTACH DATABASE</a> SQL 命令以写入方式打开数据库的能力。该能力默认启用。应用可通过此当前 DBCONFIG 选项禁用或重新启用该能力。当该能力被禁用时，<a href="../lang_attach.html">ATTACH</a> 命令仍然可用，但数据库将以只读方式打开。如果禁用此选项，则无论 <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableattachcreate">SQLITE_DBCONFIG_ENABLE_ATTACH_CREATE</a> 选项的值如何，ATTACH 创建新数据库的能力也会被禁用。
+<p>该选项的两个参数为一个整数和一个指向整数的指针。第一个参数为 1、0 或 -1，分别表示启用、禁用或保持 ATTACH 读写数据库能力的设置不变。如果第二个参数不为 NULL，则在处理第一个参数后会将是否启用 ATTACH 读写数据库能力的结果（0 或 1）写入第二个参数指向的整数。</dd></p>
+
+<p><a name="sqlitedbconfigenablecomments"></a>
+
+<dt>SQLITE_DBCONFIG_ENABLE_COMMENTS</dt>
+<dd> 此选项用于启用或禁用 SQL 文本中包含注释的能力。默认情况下注释是启用的。应用可使用此 DBCONFIG 选项禁用或重新启用 SQL 注释。
+<p>该选项的两个参数为一个整数和一个指向整数的指针。第一个参数为 1、0 或 -1，分别表示启用、禁用或保持 SQL 注释能力的设置不变。如果第二个参数不为 NULL，则在处理第一个参数后会将是否允许 SQL 注释的结果（0 或 1）写入第二个参数指向的整数。</dd></p>
+
+<p></dl></p>
+
+<p><a name="dbconfigarguments"></a>
+ <h3>SQLITE_DBCONFIG 选项的参数</h3></p>
+
+<p>大多数 SQLITE_DBCONFIG 选项接受两个参数，因此调用 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> 时总共传入四个参数。第一个参数（sqlite3_db_config() 的第三个参数）是整数。第二个参数是指向整数的指针。如果第一个参数为 1，则启用该选项；如果第一个参数为 0，则禁用；如果第一个参数为 -1，则保持该选项设置不变。第二个参数可以为 NULL。如果第二个参数不为 NULL，则会根据第一个参数处理后的结果（是禁用还是启用）向该指针写入 0 或 1。</p>
+
+<p>虽然大多数 SQLITE_DBCONFIG 选项都遵循上文描述的参数格式，但 <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigmaindbname">SQLITE_DBCONFIG_MAINDBNAME</a> 与 <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfiglookaside">SQLITE_DBCONFIG_LOOKASIDE</a> 选项有所不同。有关这些特殊选项的详细信息，请参阅其文档。</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 与
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+
+</body></html>

@@ -1,0 +1,193 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Memory Allocation Routines</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75rem;line-height:1.2;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_mem_methods -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>内存分配例程</h2>
+</div>
+<blockquote><pre>
+typedef struct sqlite3_mem_methods sqlite3_mem_methods;
+struct sqlite3_mem_methods {
+  void *(*xMalloc)(int);         /* 内存分配函数 */
+  void (*xFree)(void*);          /* 释放之前的分配 */
+  void *(*xRealloc)(void*,int);  /* 调整分配大小 */
+  int (*xSize)(void*);           /* 返回分配大小 */
+  int (*xRoundup)(int);          /* 将请求大小向上舍入到分配大小 */
+  int (*xInit)(void*);           /* 初始化内存分配器 */
+  void (*xShutdown)(void*);      /* 反初始化内存分配器 */
+  void *pAppData;                /* 作为 xInit() 和 xShutdown() 的参数 */
+};
+</pre></blockquote>
+<p>
+这个对象的一个实例定义了SQLite与底层内存分配例程之间的接口。</p>
+
+<p>这个对象在SQLite接口中只在一个地方使用。当配置选项是
+<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmalloc">SQLITE_CONFIG_MALLOC</a>或
+<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfiggetmalloc">SQLITE_CONFIG_GETMALLOC</a>时，
+指向该对象实例的指针作为
+<a href="../c3ref/config.html">sqlite3_config()</a>的参数。
+通过创建该对象的实例并在配置期间将其传递给
+<a href="../c3ref/config.html">sqlite3_config</a>(
+<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmalloc">SQLITE_CONFIG_MALLOC</a>)
+，一个般程序可以为SQLite所有动态内存需求指定一个替代的内存分配子系统。</p>
+
+<p>请注意，SQLite 带有几个
+<a href="../malloc.html#altalloc">内置内存分配器</a>，它们对于绝大多数应用程序已经完全足够，
+因此只有极少数具有特殊内存分配要求的应用程序才需要这个对象。
+这个对象也在SQLite的测试过程中使用，以指定一个模拟内存耗尽情况的替代内存分配器，
+从而验证SQLite能否从此类情况中优雅地恢复。</p>
+
+<p>xMalloc、xRealloc 和 xFree 方法必须像标准C库中的 malloc()、realloc() 和 free() 函数一样工作。
+SQLite 保证传递给 xRealloc 的第二个参数始终是之前调用 xRoundup 返回的值。</p>
+
+<p>xSize 应该返回先前通过 xMalloc 或 xRealloc 获取的内存分配的大小。已分配的大小总是至少与请求的大小一样大，但可能更大。</p>
+
+<p>xRoundup 方法返回在给定请求大小的条件下内存分配最终会被分配的大小。大多数内存分配器至少将内存分配向上调整到下一个8的倍数。有些分配器会向上调整到更大的倍数或2的幂。每个通过
+<a href="../c3ref/free.html">sqlite3_malloc()</a>或
+<a href="../c3ref/free.html">sqlite3_realloc()</a>发起的内存分配请求都会先调用 xRoundup。
+如果 xRoundup 返回0，则对应的内存分配会失败。</p>
+
+<p>xInit 方法负责初始化内存分配器。例如，它可能会分配所需的互斥体或初始化内部数据结构。
+xShutdown 方法由
+<a href="../c3ref/initialize.html">sqlite3_shutdown()</a>（间接）调用，应释放 xInit 获得的资源。
+pAppData 指针作为 xInit 和 xShutdown 的唯一参数。</p>
+
+<p>SQLite 在调用 xInit 方法时会持有
+<a href="../c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_MAIN</a> 互斥锁，因此 xInit 方法不必是线程安全的。
+xShutdown 方法仅由
+<a href="../c3ref/initialize.html">sqlite3_shutdown()</a>调用，因此也无需线程安全。
+对于其他方法，只要
+<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmemstatus">SQLITE_CONFIG_MEMSTATUS</a> 配置选项开启（默认开启），SQLite 就会持有
+<a href="../c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_MEM</a> 互斥锁，因此这些方法会被自动串行化。
+但如果禁用了
+<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmemstatus">SQLITE_CONFIG_MEMSTATUS</a>，
+那么其他方法就必须线程安全，或自行安排串行化。</p>
+
+<p>SQLite 不会在未调用 xShutdown() 的情况下多次调用 xInit()。</p>
+<p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+
+</body></html>

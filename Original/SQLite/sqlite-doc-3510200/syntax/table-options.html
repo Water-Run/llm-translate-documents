@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Syntax: table-options</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h1 align='center'>table-options</h1>
+<div class='imgcontainer'>
+<div style="max-width:324px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 324.036 98.31" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="36.03" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="77.94,17.28 66.42,21.6 66.42,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,36.03 L 40.44,36.03 Q 55.44,36.03 55.44,26.655 Q 55.44,17.28 63.81,17.28 L 72.18,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M93.06,32.4L161.892,32.4A15.12 15.12 0 0 0 177.012 17.28A15.12 15.12 0 0 0 161.892 2.16L93.06,2.16A15.12 15.12 0 0 0 77.94 17.28A15.12 15.12 0 0 0 93.06 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="127.476" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">WITHOUT</text>
+<polygon points="194.292,17.28 182.772,21.6 182.772,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M177.012,17.28L188.532,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M209.412,32.4L253.476,32.4A15.12 15.12 0 0 0 268.596 17.28A15.12 15.12 0 0 0 253.476 2.16L209.412,2.16A15.12 15.12 0 0 0 194.292 17.28A15.12 15.12 0 0 0 209.412 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="231.444" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">ROWID</text>
+<path d="M268.596,17.28 L 274.356,17.28 Q 280.116,17.28 280.116,26.655 Q 280.116,36.03 295.116,36.03 L 299.676,36.03 L 314.676,36.03"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="318.276" cy="36.03" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="77.94,54.78 66.42,59.1 66.42,50.46" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,36.03 L 40.44,36.03 Q 55.44,36.03 55.44,45.405 Q 55.44,54.78 63.81,54.78 L 72.18,54.78"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M93.06,69.9L139.313,69.9A15.12 15.12 0 0 0 154.433 54.78A15.12 15.12 0 0 0 139.313 39.66L93.06,39.66A15.12 15.12 0 0 0 77.94 54.78A15.12 15.12 0 0 0 93.06 69.9Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="116.186" y="54.78" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">STRICT</text>
+<polygon points="314.676,36.03 303.156,40.35 303.156,31.71" style="fill:rgb(0,0,0)"/>
+<path d="M154.433,54.78 L 253.596,54.78 Q 268.596,54.78 274.356,54.78 Q 280.116,54.78 280.116,45.405 Q 280.116,36.03 294.516,36.03 L 308.916,36.03"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="194.292,81.03 205.812,76.71 205.812,85.35" style="fill:rgb(0,0,0)"/>
+<path d="M285.876,36.03 L 293.376,36.03 Q 300.876,36.03 300.876,51.03 L 300.876,66.03 Q 300.876,81.03 285.876,81.03 L 215.052,81.03 L 200.052,81.03"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M179.172,96.15A15.12 15.12 0 0 0 194.292 81.03A15.12 15.12 0 0 0 179.172 65.91A15.12 15.12 0 0 0 164.052 81.03A15.12 15.12 0 0 0 179.172 96.15Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="179.172" y="81.03" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="77.94,81.03 89.46,76.71 89.46,85.35" style="fill:rgb(0,0,0)"/>
+<path d="M164.052,81.03L83.7,81.03"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M77.94,81.03 L 31.86,81.03 Q 16.86,81.03 16.86,66.03 L 16.86,51.03 Q 16.86,36.03 28.11,36.03 L 39.36,36.03"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div><br>
+
+Used by:&nbsp;&nbsp; <a href='./create-table-stmt.html'>create-table-stmt</a><br></br>
+See also:&nbsp;&nbsp; <a href='../lang_createtable.html'>lang_createtable.html</a>
+</div>
+
+
+

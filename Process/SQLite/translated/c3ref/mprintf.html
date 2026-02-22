@@ -1,0 +1,162 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Formatted String Printing Functions</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly">由WaterRun使用gpt-5.1-codex-mini翻译</div>
+<div class="translation-credit mobileonly">由WaterRun使用gpt-5.1-codex-mini翻译</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_mprintf sqlite3_snprintf sqlite3_vmprintf sqlite3_vsnprintf -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>格式化字符串打印函数</h2>
+</div>
+<blockquote><pre>
+char *sqlite3_mprintf(const char*,...);
+char *sqlite3_vmprintf(const char*, va_list);
+char *sqlite3_snprintf(int,char*,const char*, ...);
+char *sqlite3_vsnprintf(int,char*,const char*, va_list);
+</pre></blockquote>
+<p>
+这些例程是标准 C 库中 "printf()" 系列函数的仿制品。
+这些例程理解标准库 printf() 中的大多数常见格式选项，
+以及一些额外的非标准格式（<a href="../printf.html#percentq">%q</a>、<a href="../printf.html#percentq">%Q</a>、<a href="../printf.html#percentw">%w</a> 和 <a href="../printf.html#percentz">%z</a>）。
+有关详情，请参阅<a href="../printf.html">内置 printf()</a> 文档。</p>
+
+<p>sqlite3_mprintf() 和 sqlite3_vmprintf() 例程将结果写入从 <a href="../c3ref/free.html">sqlite3_malloc64()</a> 获取的内存。
+这两个例程返回的字符串应由 <a href="../c3ref/free.html">sqlite3_free()</a> 释放。
+如果 <a href="../c3ref/free.html">sqlite3_malloc64()</a> 无法分配足够的内存来容纳结果字符串，则两者都返回 NULL 指针。</p>
+
+<p>sqlite3_snprintf() 例程类似于标准 C 库的 "snprintf()"。
+结果写入第二个参数提供的缓冲区，其大小由第一个参数给出。
+注意，前两个参数的顺序与 snprintf() 相反。
+这是一个历史遗留问题，无法在不破坏向后兼容性的前提下修复。
+还请注意 sqlite3_snprintf() 返回的是其缓冲区的指针，而不是实际写入缓冲区的字符数。
+我们承认写入的字符数会是更有用的返回值，但现在我们无法更改 sqlite3_snprintf() 的实现，否则会破坏兼容性。</p>
+
+<p>只要缓冲区大小大于零，sqlite3_snprintf() 就保证缓冲区始终以空字符结尾。
+第一个参数 “n” 是缓冲区的总大小，包括空终止符所占的空间。
+因此，能完全写入的最长字符串长度为 n-1 个字符。</p>
+
+<p>sqlite3_vsnprintf() 例程是 sqlite3_snprintf() 的可变参数版本。</p>
+
+<p>另请参见： <a href="../printf.html">内置 printf()</a>、<a href="../lang_corefunc.html#printf">printf() SQL 函数</a>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>，和
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+

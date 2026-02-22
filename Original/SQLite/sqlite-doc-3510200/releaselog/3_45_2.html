@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.45.2 On 2024-03-12</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.45.2 On 2024-03-12</h2><p><b>Prior changes from version 3.45.0 (2024-01-15):</b></p>
+<p><ol class='lessindent'>
+<li value='1'> Added the <a href="../c3ref/c_deterministic.html#sqliteresultsubtype">SQLITE_RESULT_SUBTYPE</a> property for
+     <a href="../appfunc.html">application-defined SQL functions</a>.  
+     All application defined SQL functions that invokes
+     <a href="../c3ref/result_subtype.html">sqlite3_result_subtype()</a> must be registered with this new property.
+     Failure to do so might cause the call to sqlite3_result_subtype() to
+     behave as a no-op.  Compile with <a href="../compile.html#strict_subtype">-DSQLITE_STRICT_SUBTYPE=1</a> to cause an
+     SQL error to be raised if a function that is not <a href="../c3ref/c_deterministic.html#sqliteresultsubtype">SQLITE_RESULT_SUBTYPE</a>
+     tries invokes <a href="../c3ref/result_subtype.html">sqlite3_result_subtype()</a>.  The use of <a href="../compile.html#strict_subtype">-DSQLITE_STRICT_SUBTYPE=1</a>
+     is a recommended compile-time option for every application that makes
+     use of subtypes.
+<li> Enhancements to the <a href="../json1.html">JSON SQL functions</a>:
+    <ol type="a">
+    <li> All JSON functions are rewritten to use a new internal parse tree
+         format called <a href="../json1.html#jsonbx">JSONB</a>.  The new parse-tree format is serializable 
+         and hence can be stored in the database to avoid unnecessary re-parsing
+         whenever the JSON value is used.
+    <li> New versions of JSON-generating functions generate binary JSONB instead
+         of JSON text.
+    <li> The <a href="../json1.html#jvalid">json_valid()</a> function adds an optional second argument that
+         specifies what it means for the first argument to be "well-formed".
+    </ol>
+<li> Add the <a href="../fts5.html#the_tokendata_option">FTS5 tokendata option</a> to the <a href="../fts5.html">FTS5</a> virtual table.
+<li> The <a href="../compile.html#direct_overflow_read">SQLITE_DIRECT_OVERFLOW_READ</a> optimization is now enabled by default.
+     Disable it at compile-time using -DSQLITE_DIRECT_OVERFLOW_READ=0.
+<li> Query planner improvements:
+     <ol type="a">
+     <li> Do not allow the transitive constraint optimization to trick the
+          query planner into using a range constraint when a better equality
+          constraint is available.
+          (<a href="https://sqlite.org/forum/forumpost/2568d1f6e6">Forum post 2568d1f6e6</a>.)
+     <li> The query planner now does a better job of disregarding
+          indexes that <a href="../lang_analyze.html">ANALYZE</a> identifies as low-quality.
+          (<a href="https://sqlite.org/forum/forumpost/6f0958b03b">Forum post 6f0958b03b</a>.)
+     </ol>
+<li> Increase the default value for <a href="../limits.html#max_page_count">SQLITE_MAX_PAGE_COUNT</a> from 1073741824 to
+     4294967294.
+<li> Enhancements to the <a href="../cli.html">CLI</a>:
+     <ol type="a">
+     <li> Improvements to the display of UTF-8 content on Windows
+     <li> Automatically detect playback of ".dump" scripts and make appropriate
+          changes to settings such as ".dbconfig defensive off" and
+          ".dbconfig dqs_dll on".
+     </ol>
+</ol>
+<p><b>Prior changes from version 3.45.1 (2024-01-30):</b></p>
+<p><ol class='lessindent'>
+<li value='8'> Restore the <a href="../json1.html#jblobbug">JSON BLOB input bug</a>, and promise to support the anomaly in
+     subsequent releases, for backward compatibility.
+<li> Fix the <a href="../pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> command so that it works on read-only
+     databases that contain FTS3 and FTS5 tables. This resolves an issue
+     introduced in <a href="../releaselog/3_44_0.html">version 3.44.0</a> but was undiscovered until after the 3.45.0 release.
+<li> Fix issues associated with processing corrupt <a href="../json1.html#jsonbx">JSONB</a> inputs:
+     <ol type="a">
+     <li> Prevent exponential runtime when converting a corrupt JSONB into text.
+     <li> Fix a possible read of one byte past the end of the JSONB blob when converting
+          a corrupt JSONB into text.
+     <li> Enhanced testing using <a href="../testing.html#dbsqlfuzz">jfuzz</a> to prevent any future JSONB problems such
+          as the above.
+     </ol>
+<li> Fix a long-standing bug in which a read of a few bytes past the end of a
+     memory-mapped segment might occur when accessing a craftily corrupted database
+     using <a href="../pragma.html#pragma_mmap_size">memory-mapped database</a>.
+<li> Fix a long-standing bug in which a NULL pointer dereference might occur in
+     the <a href="../opcode.html">bytecode engine</a> due to incorrect bytecode being generated for a class
+     of SQL statements that are deliberately designed to stress the query planner
+     but which are otherwise pointless.
+
+</ol>
+<p><b>Changes in this specific patch release, version 3.45.2 (2024-03-12):</b></p>
+<p><ol class='lessindent'>
+<li value='13'> Fix an error in <a href="../lang_upsert.html">UPSERT</a>, introduced by enhancement 3a in <a href="../releaselog/3_35_0.html">version 3.35.0</a>
+     (2021-03-12), that could cause an index to get out-of-sync with its table.
+     <a href="https://sqlite.org/forum/forumpost/919c6579c8">Forum thread 919c6579c8</a>.
+<li> Reduce the scope of the NOT NULL strength reduction optimization that was
+     added as item 8e in <a href="../releaselog/3_35_0.html">version 3.35.0</a> (2021-03-12).  The optimization
+     was being attempted in some contexts where it did not work, resulting in
+     incorrect query results.
+     <a href="https://sqlite.org/forum/forumpost/440f2a2f17">Forum thread 440f2a2f17</a>.
+<li> Other trifling corrections and compiler warning fixes that have come up
+     since the previous patch release.  See the
+     <a href="https://sqlite.org/src/timeline?from=version-3.45.1&to=version-3.45.2&to2=branch-3.45">timeline</a>
+     for details.
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: "2024-03-12 11:06:23 d8cd6d49b46a395b13955387d05e9e1a2a47e54fb99f3c9b59835bbefad6af77"
+<li>SHA3-256 for sqlite3.c: bd76ad2dc9cde151e469e86627a7e8753aa8ef1a6f657c5a80ba48324b53226b
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

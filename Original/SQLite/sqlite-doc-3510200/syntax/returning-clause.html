@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Syntax: returning-clause</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h1 align='center'>returning-clause</h1>
+<div class='imgcontainer'>
+<div style="max-width:628px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 628.709 140.4" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="47.52" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="27.36,47.52 15.84,51.84 15.84,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,47.52L21.6,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M42.48,62.64L132.854,62.64A15.12 15.12 0 0 0 147.974 47.52A15.12 15.12 0 0 0 132.854 32.4L42.48,32.4A15.12 15.12 0 0 0 27.36 47.52A15.12 15.12 0 0 0 42.48 62.64Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="87.6672" y="47.52" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">RETURNING</text>
+<polygon points="237.974,47.52 226.454,51.84 226.454,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M147.974,47.52L232.214,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M237.974,62.64L287.165,62.64L287.165,32.4L237.974,32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="262.57" y="47.52" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">expr</text>
+<polygon points="328.685,77.76 317.165,82.08 317.165,73.44" style="fill:rgb(0,0,0)"/>
+<path d="M287.165,47.52 L 294.665,47.52 Q 302.165,47.52 302.165,62.52 L 302.165,62.76 Q 302.165,77.76 312.545,77.76 L 322.925,77.76"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M343.805,92.88L347.779,92.88A15.12 15.12 0 0 0 362.899 77.76L362.899,77.76A15.12 15.12 0 0 0 347.779 62.64L343.805,62.64A15.12 15.12 0 0 0 328.685 77.76L328.685,77.76A15.12 15.12 0 0 0 343.805 92.88Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="345.792" y="77.76" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">AS</text>
+<polygon points="398.899,77.76 387.379,82.08 387.379,73.44" style="fill:rgb(0,0,0)"/>
+<path d="M362.899,77.76L393.139,77.76"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M414.019,92.88L501.629,92.88A15.12 15.12 0 0 0 516.749 77.76L516.749,77.76A15.12 15.12 0 0 0 501.629 62.64L414.019,62.64A15.12 15.12 0 0 0 398.899 77.76L398.899,77.76A15.12 15.12 0 0 0 414.019 92.88Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="457.824" y="77.76" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">column-alias</text>
+<polygon points="539.789,77.76 528.269,82.08 528.269,73.44" style="fill:rgb(0,0,0)"/>
+<path d="M516.749,77.76L534.029,77.76"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="581.309,47.52 569.789,51.84 569.789,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M539.789,77.76 L 547.289,77.76 Q 554.789,77.76 554.789,62.76 L 554.789,62.52 Q 554.789,47.52 565.169,47.52 L 575.549,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="619.349,47.52 607.829,51.84 607.829,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M581.309,47.52L613.589,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="622.949" cy="47.52" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="345.792,101.952 334.272,106.272 334.272,97.632" style="fill:rgb(0,0,0)"/>
+<path d="M302.165,62.64 L 302.165,86.952 Q 302.165,101.952 317.165,101.952 L 325.032,101.952 L 340.032,101.952"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M345.792,101.952 L 362.899,101.952 Q 377.899,101.952 377.899,89.856 Q 377.899,77.76 385.399,77.76 L 392.899,77.76"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="453.257,47.52 441.737,51.84 441.737,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M287.165,47.52L447.497,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M453.257,47.52L607.829,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M391.642,138.24A15.12 15.12 0 0 0 406.762 123.12A15.12 15.12 0 0 0 391.642 108A15.12 15.12 0 0 0 376.522 123.12A15.12 15.12 0 0 0 391.642 138.24Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="391.642" y="123.12" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="376.522,123.12 365.002,127.44 365.002,118.8" style="fill:rgb(0,0,0)"/>
+<path d="M147.974,47.52 L 196.454,47.52 Q 211.454,47.52 211.454,62.52 L 211.454,108.12 Q 211.454,123.12 226.454,123.12 L 355.762,123.12 L 370.762,123.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="539.789,123.12 528.269,127.44 528.269,118.8" style="fill:rgb(0,0,0)"/>
+<path d="M406.762,123.12L534.029,123.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M539.789,123.12 L 547.289,123.12 Q 554.789,123.12 554.789,108.12 L 554.789,77.64 L 554.789,62.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M391.642,32.4A15.12 15.12 0 0 0 406.762 17.28A15.12 15.12 0 0 0 391.642 2.16A15.12 15.12 0 0 0 376.522 17.28A15.12 15.12 0 0 0 391.642 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="391.642" y="17.28" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="406.762,17.28 418.282,12.96 418.282,21.6" style="fill:rgb(0,0,0)"/>
+<path d="M581.309,47.52 L 588.809,47.52 Q 596.309,47.52 596.309,32.52 L 596.309,32.28 Q 596.309,17.28 581.309,17.28 L 427.522,17.28 L 412.522,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="186.014,47.52 174.494,51.84 174.494,43.2" style="fill:rgb(0,0,0)"/>
+<path d="M376.522,17.28 L 174.494,17.28 Q 159.494,17.28 159.494,32.28 L 159.494,32.52 Q 159.494,47.52 169.874,47.52 L 180.254,47.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div><br>
+
+Used by:&nbsp;&nbsp; <a href='./delete-stmt.html'>delete-stmt</a>&nbsp;&nbsp; <a href='./delete-stmt-limited.html'>delete-stmt-limited</a>&nbsp;&nbsp; <a href='./insert-stmt.html'>insert-stmt</a>&nbsp;&nbsp; <a href='./update-stmt.html'>update-stmt</a>&nbsp;&nbsp; <a href='./update-stmt-limited.html'>update-stmt-limited</a><br></br>
+References:&nbsp;&nbsp; <a href='./expr.html'>expr</a><br></br>
+See also:&nbsp;&nbsp; <a href='../lang_createtrigger.html'>lang_createtrigger.html</a>&nbsp;&nbsp; <a href='../lang_delete.html'>lang_delete.html</a>&nbsp;&nbsp; <a href='../lang_insert.html'>lang_insert.html</a>&nbsp;&nbsp; <a href='../lang_returning.html'>lang_returning.html</a>&nbsp;&nbsp; <a href='../lang_update.html'>lang_update.html</a>
+</div>
+
+
+

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>CREATE VIRTUAL TABLE</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='about.html'>About</a>
+<li class='desktoponly'><a href="docs.html">Documentation</a>
+<li class='desktoponly'><a href="download.html">Download</a>
+<li class='wideonly'><a href='copyright.html'>License</a>
+<li class='desktoponly'><a href="support.html">Support</a>
+<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>About</a>
+<li><a href='docs.html'>Documentation</a>
+<li><a href='download.html'>Download</a>
+<li><a href='support.html'>Support</a>
+<li><a href='prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+CREATE VIRTUAL TABLE
+</div>
+</div>
+
+
+
+
+
+<p><b><a href="syntax/create-virtual-table-stmt.html">create-virtual-table-stmt:</a></b>
+<button id='xcb22bf27' onclick='hideorshow("xcb22bf27","xaec3630e")'>hide</button></p>
+ <div id='xaec3630e' class='imgcontainer'>
+ <div style="max-width:624px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 624.096 259.848" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,17.28 20.88,21.6 20.88,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L26.64,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M47.52,32.4L100.915,32.4A15.12 15.12 0 0 0 116.035 17.28A15.12 15.12 0 0 0 100.915 2.16L47.52,2.16A15.12 15.12 0 0 0 32.4 17.28A15.12 15.12 0 0 0 47.52 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="74.2176" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">CREATE</text>
+<polygon points="139.075,17.28 127.555,21.6 127.555,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M116.035,17.28L133.315,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M154.195,32.4L213.696,32.4A15.12 15.12 0 0 0 228.816 17.28A15.12 15.12 0 0 0 213.696 2.16L154.195,2.16A15.12 15.12 0 0 0 139.075 17.28A15.12 15.12 0 0 0 154.195 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="183.946" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">VIRTUAL</text>
+<polygon points="251.856,17.28 240.336,21.6 240.336,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M228.816,17.28L246.096,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M266.976,32.4L306.317,32.4A15.12 15.12 0 0 0 321.437 17.28A15.12 15.12 0 0 0 306.317 2.16L266.976,2.16A15.12 15.12 0 0 0 251.856 17.28A15.12 15.12 0 0 0 266.976 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="286.646" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">TABLE</text>
+<polygon points="357.437,17.28 345.917,21.6 345.917,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M321.437,17.28L351.677,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M372.557,32.4A15.12 15.12 0 0 0 387.677 17.28A15.12 15.12 0 0 0 372.557 2.16A15.12 15.12 0 0 0 357.437 17.28A15.12 15.12 0 0 0 372.557 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="372.557" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">IF</text>
+<polygon points="410.717,17.28 399.197,21.6 399.197,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M387.677,17.28L404.957,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M425.837,32.4L445.939,32.4A15.12 15.12 0 0 0 461.059 17.28A15.12 15.12 0 0 0 445.939 2.16L425.837,2.16A15.12 15.12 0 0 0 410.717 17.28A15.12 15.12 0 0 0 425.837 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="435.888" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">NOT</text>
+<polygon points="484.099,17.28 472.579,21.6 472.579,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M461.059,17.28L478.339,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M499.219,32.4L543.859,32.4A15.12 15.12 0 0 0 558.979 17.28A15.12 15.12 0 0 0 543.859 2.16L499.219,2.16A15.12 15.12 0 0 0 484.099 17.28A15.12 15.12 0 0 0 499.219 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="521.539" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">EXISTS</text>
+<path d="M47.52,108L143.885,108A15.12 15.12 0 0 0 159.005 92.88A15.12 15.12 0 0 0 143.885 77.76L47.52,77.76A15.12 15.12 0 0 0 32.4 92.88A15.12 15.12 0 0 0 47.52 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="95.7024" y="92.88" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">schema-name</text>
+<polygon points="182.045,92.88 170.525,97.2 170.525,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M159.005,92.88L176.285,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M197.165,108A15.12 15.12 0 0 0 212.285 92.88A15.12 15.12 0 0 0 197.165 77.76A15.12 15.12 0 0 0 182.045 92.88A15.12 15.12 0 0 0 197.165 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="197.165" y="92.88" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">.</text>
+<polygon points="248.285,92.88 236.765,97.2 236.765,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M212.285,92.88L242.525,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M263.405,108L338.573,108A15.12 15.12 0 0 0 353.693 92.88A15.12 15.12 0 0 0 338.573 77.76L263.405,77.76A15.12 15.12 0 0 0 248.285 92.88A15.12 15.12 0 0 0 263.405 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="300.989" y="92.88" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">table-name</text>
+<path d="M47.52,219.888L86.5152,219.888A15.12 15.12 0 0 0 101.635 204.768A15.12 15.12 0 0 0 86.5152 189.648L47.52,189.648A15.12 15.12 0 0 0 32.4 204.768A15.12 15.12 0 0 0 47.52 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="67.0176" y="204.768" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">USING</text>
+<polygon points="124.675,204.768 113.155,209.088 113.155,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M101.635,204.768L118.915,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M139.795,219.888L234.432,219.888A15.12 15.12 0 0 0 249.552 204.768A15.12 15.12 0 0 0 234.432 189.648L139.795,189.648A15.12 15.12 0 0 0 124.675 204.768A15.12 15.12 0 0 0 139.795 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="187.114" y="204.768" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">module-name</text>
+<polygon points="285.552,204.768 274.032,209.088 274.032,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M249.552,204.768L279.792,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M300.672,219.888A15.12 15.12 0 0 0 315.792 204.768A15.12 15.12 0 0 0 300.672 189.648A15.12 15.12 0 0 0 285.552 204.768A15.12 15.12 0 0 0 300.672 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="300.672" y="204.768" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">(</text>
+<polygon points="351.792,204.768 340.272,209.088 340.272,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M315.792,204.768L346.032,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M366.912,219.888L497.376,219.888A15.12 15.12 0 0 0 512.496 204.768A15.12 15.12 0 0 0 497.376 189.648L366.912,189.648A15.12 15.12 0 0 0 351.792 204.768A15.12 15.12 0 0 0 366.912 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="432.144" y="204.768" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">module-argument</text>
+<polygon points="548.496,204.768 536.976,209.088 536.976,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M512.496,204.768L542.736,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M563.616,219.888A15.12 15.12 0 0 0 578.736 204.768A15.12 15.12 0 0 0 563.616 189.648A15.12 15.12 0 0 0 548.496 204.768A15.12 15.12 0 0 0 563.616 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="563.616" y="204.768" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">)</text>
+<polygon points="614.736,204.768 603.216,209.088 603.216,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M578.736,204.768L608.976,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="618.336" cy="204.768" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M432.144,257.688A15.12 15.12 0 0 0 447.264 242.568A15.12 15.12 0 0 0 432.144 227.448A15.12 15.12 0 0 0 417.024 242.568A15.12 15.12 0 0 0 432.144 257.688Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="432.144" y="242.568" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="447.264,242.568 458.784,238.248 458.784,246.888" style="fill:rgb(0,0,0)"/>
+<path d="M512.496,204.768 L 519.996,204.768 Q 527.496,204.768 527.496,219.768 L 527.496,227.568 Q 527.496,242.568 512.496,242.568 L 468.024,242.568 L 453.024,242.568"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M417.024,242.568 L 343.752,242.568 Q 328.752,242.568 328.752,227.568 L 328.752,219.768 Q 328.752,204.768 336.252,204.768 L 343.752,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="432.144,180.576 420.624,184.896 420.624,176.256" style="fill:rgb(0,0,0)"/>
+<path d="M249.552,204.768 L 257.052,204.768 Q 264.552,204.768 264.552,192.672 Q 264.552,180.576 279.552,180.576 L 411.384,180.576 L 426.384,180.576"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M432.144,180.576 L 576.696,180.576 Q 591.696,180.576 591.696,192.672 Q 591.696,204.768 599.196,204.768 L 606.696,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="187.114,153.36 198.634,149.04 198.634,157.68" style="fill:rgb(0,0,0)"/>
+<path d="M353.693,92.88 L 361.193,92.88 Q 368.693,92.88 368.693,107.88 L 368.693,138.36 Q 368.693,153.36 353.693,153.36 L 207.874,153.36 L 192.874,153.36"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,204.768 20.88,209.088 20.88,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M187.114,153.36 L 20.76,153.36 Q 5.76,153.36 5.76,168.36 L 5.76,189.768 Q 5.76,204.768 16.2,204.768 L 26.64,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="429.979,62.64 441.499,58.32 441.499,66.96" style="fill:rgb(0,0,0)"/>
+<path d="M558.979,17.28 L 566.479,17.28 Q 573.979,17.28 573.979,32.28 L 573.979,47.64 Q 573.979,62.64 558.979,62.64 L 450.739,62.64 L 435.739,62.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,92.88 20.88,97.2 20.88,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M429.979,62.64 L 20.76,62.64 Q 5.76,62.64 5.76,77.64 L 5.76,77.88 Q 5.76,92.88 16.2,92.88 L 26.64,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="336.437,47.28 332.117,35.76 340.757,35.76" style="fill:rgb(0,0,0)"/>
+<path d="M321.437,17.28 L 328.937,17.28 Q 336.437,17.28 336.437,29.4 L 336.437,41.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M336.437,47.28 L 336.437,54.96 Q 336.437,62.64 328.937,62.64 L 321.437,62.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="95.7024,123.12 84.1824,127.44 84.1824,118.8" style="fill:rgb(0,0,0)"/>
+<path d="M5.76,77.76 L 5.76,108.12 Q 5.76,123.12 20.76,123.12 L 74.9424,123.12 L 89.9424,123.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M95.7024,123.12 L 210.245,123.12 Q 225.245,123.12 225.245,108.12 L 225.245,107.88 Q 225.245,92.88 231.005,92.88 L 236.765,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div>
+</div>
+
+
+<p>A <a href="vtab.html">virtual table</a> is an interface to an external storage or computation
+engine that appears to be a table but does not actually store information
+in the database file.</p>
+
+<p>In general, you can do anything with a <a href="vtab.html">virtual table</a> that can be done
+with an ordinary table, except that you cannot create indices or triggers on a
+virtual table.  Some virtual table implementations might impose additional
+restrictions.  For example, many virtual tables are read-only.</p>
+
+<p>The <span class='yyterm'>module-name</span> is the name of an object that implements
+the virtual table.  The <span class='yyterm'>module-name</span> must be registered with
+the SQLite database connection using
+<a href="c3ref/create_module.html">sqlite3_create_module()</a> or <a href="c3ref/create_module.html">sqlite3_create_module_v2()</a>
+prior to issuing the CREATE VIRTUAL TABLE statement.
+The module takes zero or more comma-separated arguments.
+The arguments can be just about any text as long as it has balanced
+parentheses.  The argument syntax is sufficiently general that the
+arguments can be made to appear as <a href="lang_createtable.html#tablecoldef">column definitions</a> in a traditional
+<a href="lang_createtable.html">CREATE TABLE</a> statement.  
+SQLite passes the module arguments directly
+to the <a href="vtab.html#xcreate">xCreate</a> and <a href="vtab.html#xconnect">xConnect</a> methods of the module implementation
+without any interpretation.  It is the responsibility
+of the module implementation to parse and interpret its own arguments.</p>
+
+<p>A virtual table is destroyed using the ordinary
+<a href="lang_droptable.html">DROP TABLE</a> statement.  There is no
+DROP VIRTUAL TABLE statement.</p>
+
+

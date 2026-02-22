@@ -1,0 +1,167 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Autovacuum Compaction Amount Callback</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_autovacuum_pages -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>自动清理压缩量回调</h2>
+</div>
+<blockquote><pre>
+int sqlite3_autovacuum_pages(
+  sqlite3 *db,
+  unsigned int(*)(void*,const char*,unsigned int,unsigned int,unsigned int),
+  void*,
+  void(*)(void*)
+);
+</pre></blockquote>
+<p>
+sqlite3_autovacuum_pages(D,C,P,X) 接口注册一个回调函数 C，该回调在每次数据库文件自动清理之前被调用。回调接收通用数据指针 (P) 的副本、正在自动清理的附加数据库的模式名、数据库文件的页数、空闲页数以及每页字节数。回调应该返回应该由自动清理移除的空闲页数。如果回调返回零，则不会发生自动清理；如果返回值大于或等于空闲页数，则会进行完全自动清理。
+</p>
+
+<p><p>如果有多个作为事务提交一部分而被修改的附加数据库文件，那么自动清理页回调会为每一个文件分别调用。</p>
+
+<p><p><b>回调不可重入。</b>回调函数不应尝试调用任何其他 SQLite 接口。如果强行调用，可能会发生严重问题，包括段错误和数据库文件损坏。回调函数应当是一个简单的函数，对其输入参数进行一些算术运算并返回结果。</p>
+
+<p>X 参数是 sqlite3_autovacuum_pages(D,C,P,X) 的一个可选析构函数，用于 P 参数。如果 X 不为 NULL，那么在数据库连接关闭或回调被其他 sqlite3_autovacuum_pages() 调用覆盖时，会调用 X(P)。</p>
+
+<p><p>每个数据库连接只有一个自动清理页回调。每次调用 sqlite3_autovacuum_pages() 接口都会覆盖之前该数据库连接的所有调用。如果 sqlite3_autovacuum_pages(D,C,P,X) 的回调参数 (C) 为 NULL 指针，则自动清理步骤回调被取消。sqlite3_autovacuum_pages() 的返回值通常为 SQLITE_OK，但在出错时可能返回其他错误码。当前实现只会返回 SQLITE_OK 或 SQLITE_MISUSE，但未来版本可能会添加其他返回码。</p>
+
+<p><p>如果未指定自动清理页回调（常见情况）或为回调提供了 NULL 指针，则默认行为为清理所有空闲页。换句话说，默认行为与以下回调函数相同：</p>
+
+<p><blockquote><pre>
+&nbsp;   unsigned int demonstration_autovac_pages_callback(
+&nbsp;     void *pClientData,
+&nbsp;     const char *zSchema,
+&nbsp;     unsigned int nDbPage,
+&nbsp;     unsigned int nFreePage,
+&nbsp;     unsigned int nBytePerPage
+&nbsp;   ){
+&nbsp;     return nFreePage;
+&nbsp;   }
+</pre></blockquote>
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>和
+  <a href="../c3ref/funclist.html">函数</a>列表。</p>
+
+</p></p></p></p></p></p></p>

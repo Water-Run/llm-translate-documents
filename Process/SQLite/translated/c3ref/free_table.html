@@ -1,0 +1,198 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Convenience Routines For Running Queries</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。随意选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_free_table sqlite3_get_table -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>执行查询的便捷例程</h2>
+</div>
+<blockquote><pre>
+int sqlite3_get_table(
+  sqlite3 *db,          /* An open database */
+  const char *zSql,     /* SQL to be evaluated */
+  char ***pazResult,    /* Results of the query */
+  int *pnRow,           /* Number of result rows written here */
+  int *pnColumn,        /* Number of result columns written here */
+  char **pzErrmsg       /* Error msg written here */
+);
+void sqlite3_free_table(char **result);
+</pre></blockquote>
+<p>
+这是为了向后兼容而保留的传统接口。不建议使用此接口。</p>
+
+<p>定义：一个 <b>结果表</b> 是由
+<a href="../c3ref/free_table.html">sqlite3_get_table()</a> 接口创建的内存数据结构。结果表记录了一个或多个查询的完整结果。</p>
+
+<p>该表在概念上有若干行和列。但这些数量并不是结果表本身的一部分。
+这些数量是单独获取的。令 N 为行数，M 为列数。</p>
+
+<p>结果表是一个指向以零终止的 UTF-8 字符串的指针数组。
+数组中共有 (N+1)*M 个元素。前 M 个指针指向包含列名的零终止字符串。
+其余条目全部指向查询结果。NULL 值对应 NULL 指针。其他所有值都以
+<a href="../c3ref/column_blob.html">sqlite3_column_text()</a> 返回的 UTF-8 零终止字符串形式存在。</p>
+
+<p>结果表可能由一个或多个内存分配组成。不能直接将结果表传递给
+<a href="../c3ref/free.html">sqlite3_free()</a>。结果表应使用
+<a href="../c3ref/free_table.html">sqlite3_free_table()</a> 释放。</p>
+
+<p>作为结果表格式的示例，假设查询结果如下所示：</p>
+
+<p><blockquote><pre>
+Name        | Age
+-----------------------
+Alice       | 43
+Bob         | 28
+Cindy       | 21
+</pre></blockquote></p>
+
+<p>有两列（M==2）和三行（N==3）。因此结果表有 8 个条目。假设结果表存储在名为 azResult 的数组中。
+那么 azResult 的内容为：</p>
+
+<p><blockquote><pre>
+azResult&#91;0] = "Name";
+azResult&#91;1] = "Age";
+azResult&#91;2] = "Alice";
+azResult&#91;3] = "43";
+azResult&#91;4] = "Bob";
+azResult&#91;5] = "28";
+azResult&#91;6] = "Cindy";
+azResult&#91;7] = "21";
+</pre></blockquote></p>
+
+<p>sqlite3_get_table() 函数在其第二个参数提供的以零终止的 UTF-8 字符串中执行一个或多个以分号分隔的 SQL 语句，并将结果表返回给第三个参数提供的指针。</p>
+
+<p>在应用程序使用完 sqlite3_get_table() 的结果之后，必须将结果表指针传递给 sqlite3_free_table() 以释放 malloc 分配的内存。
+由于 <a href="../c3ref/free.html">sqlite3_malloc()</a> 在 sqlite3_get_table() 内部的实现方式，调用方不得直接调用
+<a href="../c3ref/free.html">sqlite3_free()</a>。只有 <a href="../c3ref/free_table.html">sqlite3_free_table()</a> 能够正确且安全地释放内存。</p>
+
+<p>sqlite3_get_table() 接口是对
+<a href="../c3ref/exec.html">sqlite3_exec()</a> 的包装。sqlite3_get_table() 例程无法访问 SQLite 的任何内部数据结构。它只使用此处定义的公共接口。
+因此，包装层在内部 <a href="../c3ref/exec.html">sqlite3_exec()</a> 调用之外发生的错误不会反映在后续对
+<a href="../c3ref/errcode.html">sqlite3_errcode()</a> 或
+<a href="../c3ref/errcode.html">sqlite3_errmsg()</a> 的调用中。</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>预处理语句的状态参数</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly" style="text-align:right;font-size:0.75rem;padding-right:0.5rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: {SQLITE_STMTSTATUS counter} {SQLITE_STMTSTATUS counters} SQLITE_STMTSTATUS_AUTOINDEX SQLITE_STMTSTATUS_FILTER_HIT SQLITE_STMTSTATUS_FILTER_MISS SQLITE_STMTSTATUS_FULLSCAN_STEP SQLITE_STMTSTATUS_MEMUSED SQLITE_STMTSTATUS_REPREPARE SQLITE_STMTSTATUS_RUN SQLITE_STMTSTATUS_SORT SQLITE_STMTSTATUS_VM_STEP -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>预处理语句的状态参数</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_STMTSTATUS_FULLSCAN_STEP     1
+#define SQLITE_STMTSTATUS_SORT              2
+#define SQLITE_STMTSTATUS_AUTOINDEX         3
+#define SQLITE_STMTSTATUS_VM_STEP           4
+#define SQLITE_STMTSTATUS_REPREPARE         5
+#define SQLITE_STMTSTATUS_RUN               6
+#define SQLITE_STMTSTATUS_FILTER_MISS       7
+#define SQLITE_STMTSTATUS_FILTER_HIT        8
+#define SQLITE_STMTSTATUS_MEMUSED           99
+</pre></blockquote>
+<p>
+这些预处理宏定义了与 <a href="../c3ref/stmt_status.html">sqlite3_stmt_status()</a> 接口相关的计数器值的整数代码。
+各个计数器的含义如下：</p>
+
+<p><dl>
+<a name="sqlitestmtstatusfullscanstep"></a>
+ <dt>SQLITE_STMTSTATUS_FULLSCAN_STEP</dt>
+<dd>这是 SQLite 在全表扫描过程中向前移动到表中的次数。该计数器的较大值可能表明通过谨慎使用索引可以提升性能。</dd></p>
+
+<p><a name="sqlitestmtstatussort"></a>
+ <dt>SQLITE_STMTSTATUS_SORT</dt>
+<dd>这是已发生的排序操作次数。该计数器非零可能意味着通过仔细使用索引可改善性能。</dd></p>
+
+<p><a name="sqlitestmtstatusautoindex"></a>
+ <dt>SQLITE_STMTSTATUS_AUTOINDEX</dt>
+<dd>这是为加速连接而自动创建的临时索引中插入的行数。该计数器非零可能表明可通过添加永久索引来优化性能，而永久索引无需每次执行语句时重新初始化。</dd></p>
+
+<p><a name="sqlitestmtstatusvmstep"></a>
+ <dt>SQLITE_STMTSTATUS_VM_STEP</dt>
+<dd>这是预处理语句执行的虚拟机操作次数（如果该次数小于或等于 2147483647）。虚拟机操作次数可作为预处理语句所做总工作的代理。如果虚拟机操作次数超过 2147483647，则该语句状态码返回的值未定义。</dd></p>
+
+<p><a name="sqlitestmtstatusreprepare"></a>
+ <dt>SQLITE_STMTSTATUS_REPREPARE</dt>
+<dd>这是由于模式更改或可能影响查询计划的绑定参数更改而自动重新生成预处理语句的次数。</dd></p>
+
+<p><a name="sqlitestmtstatusrun"></a>
+ <dt>SQLITE_STMTSTATUS_RUN</dt>
+<dd>这是预处理语句运行的次数。对于该计数器而言，一次“运行”指一个或多个对 <a href="../c3ref/step.html">sqlite3_step()</a> 的调用，后接 <a href="../c3ref/reset.html">sqlite3_reset()</a> 的一次调用。计数器在每个周期的第一次 <a href="../c3ref/step.html">sqlite3_step()</a> 调用时递增。</dd></p>
+
+<p><a name="sqlitestmtstatusfiltermiss"></a>
+
+<a name="sqlitestmtstatusfilterhit"></a>
+
+<dt>SQLITE_STMTSTATUS_FILTER_HIT<br>
+SQLITE_STMTSTATUS_FILTER_MISS</dt>
+<dd>SQLITE_STMTSTATUS_FILTER_HIT 是因布隆过滤器返回未找到而跳过连接步骤的次数。相应的 SQLITE_STMTSTATUS_FILTER_MISS 是布隆过滤器返回找到结果，从而必须照常处理该连接步骤的次数。</dd></p>
+
+<p><a name="sqlitestmtstatusmemused"></a>
+ <dt>SQLITE_STMTSTATUS_MEMUSED</dt>
+<dd>这是用于存储预处理语句的堆内存的大致字节数。该值实际上不是计数器，因此当操作码为 SQLITE_STMTSTATUS_MEMUSED 时，sqlite3_stmt_status() 的 resetFlg 参数将被忽略。
+</dd>
+</dl>
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+

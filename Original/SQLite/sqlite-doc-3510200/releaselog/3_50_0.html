@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.50.0 On 2025-05-29</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.50.0 On 2025-05-29</h2><p><ol class='lessindent'>
+<li>Add the <a href="../c3ref/setlk_timeout.html">sqlite3_setlk_timeout()</a> interface which sets a separate timeout,
+    distinct from the <a href="../c3ref/busy_timeout.html">sqlite3_busy_timeout()</a>, for blocking locks on builds
+    that support blocking locks.
+<li>The <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenablecomments">SQLITE_DBCONFIG_ENABLE_COMMENTS</a> constraint (added in the
+    <a href="../releaselog/3_49_0.html">previous release</a>) is relaxed slightly so that comments are
+    always allowed when reading the schema out of a pre-existing <a href="../schematab.html">sqlite_schema</a>
+    table.  Comments are only blocked in new SQL.
+<li>New SQL functions:
+    <ol type="a">
+    <li> <a href="../lang_corefunc.html#unistr">unistr()</a>
+    <li> <a href="../lang_corefunc.html#unistr_quote">unistr_quote()</a>
+    </ol>
+<li>For the <a href="../printf.html#percentq">%Q and %q conversions</a> in the <a href="../printf.html">built-in printf()</a> (which covers
+    the <a href="../c3ref/mprintf.html">sqlite3_mprintf()</a> API and the <a href="../lang_corefunc.html#format">format() SQL function</a> and similar)
+    the <a href="../printf.html#alt1">alternate-form-1 flag</a> ("#") causes <a href="../cli.html#ctrlchr">control characters</a>
+    to be converted into backslash-escapes suitable for <a href="../lang_corefunc.html#unistr">unistr()</a>.
+<li>CLI enhancements:
+    <ol type="a">
+    <li> Avoids direct output of most <a href="../cli.html#ctrlchr">control characters</a>.
+    <li> The output of the <a href="../cli.html#dump">.dump command</a> makes use of the new <a href="../lang_corefunc.html#unistr">unistr()</a>
+         SQL function to encode special characters, unless the --escape mode
+         is set to off.
+    <li> Better formatting of complex partial indexes in the output
+         from the <a href="../cli.html#dschema">".schema --indent" command</a>.
+    </ol>
+<li>Enhancements to <a href="../rsync.html">sqlite3_rsync</a>:
+    <ol type="a">
+    <li> The requirement that the database be in WAL mode has been removed.
+    <li> The sync protocol is enhanced to use less network bandwidth when both
+         sides start out being very similar to one another.
+    <li> The sqlite3_rsync program now works on Macs without having to specify
+         the full pathname of the sqlite3_rsync executable on the remote side
+         as long as you install the sqlite3_rsync executable in
+         one of these directories:  $HOME/bin:/usr/local/bin:/opt/homebrew/bin
+    </ol>
+<li>Changes to JSON functions:
+    <ol type="a">
+    <li> Bug fix: Enforce the JSON5 restriction that the
+         "&#92;0" escape must not be followed by a digit.
+    <li> Bug fix: When the LABEL argument to <a href="../json1.html#jgroupobject">json_group_object(LABEL,VALUE)</a>
+         is NULL, that element of the resulting object is omitted.
+    <li> Optimization:
+         If the <a href="../json1.html#jsetb">jsonb_set()</a> or <a href="../json1.html#jreplb">jsonb_replace()</a> functions make a change in the
+         interior of a large <a href="../json1.html#jsonbx">JSONB</a> object, they strive to keep the size of the
+         JSONB object unchanged and to modify as few bytes as possible on the interior
+         of the object.  This helps reduce I/O as it allows SQLite to write only
+         the page that contains the changed bytes and not all the surrounding pages.
+    </ol>
+<li>Improved support for building on Cygwin and MinGW and similar, as well
+    as Termux.
+<li>Typo fixes in the documentation and in the source code comments.
+<li>Miscellaneous performance improvements.
+<li> JavaScript/WASM:
+     <ol type="a">
+     <li> Fix a long-standing filename digest calculation bug in the OPFS
+          SAHPool VFS. Databases created in that VFS by 3.50.0+ cannot
+          be read by older versions of the VFS, but 3.50.0 can
+          backwards-compatibly work with existing databases created
+          by older versions.</li>
+     </ol>
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2025-05-29 14:26:00 dfc790f998f450d9c35e3ba1c8c89c17466cb559f87b0239e4aab9d34e28f742
+<li>SHA3-256 for sqlite3.c: b8a2bcdd2ec60f87c3bbe7a2c25eb65e476e40fe80cd066ab8aa98e5d516c1e4
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

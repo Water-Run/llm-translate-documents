@@ -1,0 +1,192 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Status Parameters</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly" style="text-align:right;font-size:0.9em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+精简。快速。可靠。<br>任意选择其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_STATUS_MALLOC_COUNT SQLITE_STATUS_MALLOC_SIZE SQLITE_STATUS_MEMORY_USED SQLITE_STATUS_PAGECACHE_OVERFLOW SQLITE_STATUS_PAGECACHE_SIZE SQLITE_STATUS_PAGECACHE_USED SQLITE_STATUS_PARSER_STACK SQLITE_STATUS_SCRATCH_OVERFLOW SQLITE_STATUS_SCRATCH_SIZE SQLITE_STATUS_SCRATCH_USED {status parameters} -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
+<h2>Status Parameters</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_STATUS_MEMORY_USED          0
+#define SQLITE_STATUS_PAGECACHE_USED       1
+#define SQLITE_STATUS_PAGECACHE_OVERFLOW   2
+#define SQLITE_STATUS_SCRATCH_USED         3  /* NOT USED */
+#define SQLITE_STATUS_SCRATCH_OVERFLOW     4  /* NOT USED */
+#define SQLITE_STATUS_MALLOC_SIZE          5
+#define SQLITE_STATUS_PARSER_STACK         6
+#define SQLITE_STATUS_PAGECACHE_SIZE       7
+#define SQLITE_STATUS_SCRATCH_SIZE         8  /* NOT USED */
+#define SQLITE_STATUS_MALLOC_COUNT         9
+</pre></blockquote>
+<p>
+这些整数常量指定了可以通过 <a href="../c3ref/status.html">sqlite3_status()</a> 返回的各种运行时状态参数。</p>
+
+<p><dl>
+<a name="sqlitestatusmemoryused"></a>
+ <dt>SQLITE_STATUS_MEMORY_USED</dt>
+<dd>此参数是通过 <a href="../c3ref/free.html">sqlite3_malloc()</a> 直接或间接分配的当前内存总量。此数值包括应用对 <a href="../c3ref/free.html">sqlite3_malloc()</a> 的调用以及 SQLite 库的内部内存使用。由 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a> 控制的辅助页缓存内存不包含在此参数内。返回值为 <a href="../c3ref/mem_methods.html">sqlite3_mem_methods</a> 中 xSize 方法报告的分配大小之和。</dd></p>
+
+<p><a name="sqlitestatusmallocsize"></a>
+ <dt>SQLITE_STATUS_MALLOC_SIZE</dt>
+<dd>此参数记录交给 <a href="../c3ref/free.html">sqlite3_malloc()</a> 或 <a href="../c3ref/free.html">sqlite3_realloc()</a>（或其内部等价方法）的最大内存分配请求。只有 <a href="../c3ref/status.html">sqlite3_status()</a> 的 *pHighwater 参数返回的值才有意义。写入 *pCurrent 参数的值未定义。</dd></p>
+
+<p><a name="sqlitestatusmalloccount"></a>
+ <dt>SQLITE_STATUS_MALLOC_COUNT</dt>
+<dd>此参数记录当前已分配的独立内存块数量。</dd></p>
+
+<p><a name="sqlitestatuspagecacheused"></a>
+ <dt>SQLITE_STATUS_PAGECACHE_USED</dt>
+<dd>此参数返回通过 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a> 配置的 <a href="../malloc.html#pagecache">pagecache 内存分配器</a> 中已使用的页面数。返回值以页面为单位，而非字节。</dd></p>
+
+<p><a name="sqlitestatuspagecacheoverflow"></a>
+
+<dt>SQLITE_STATUS_PAGECACHE_OVERFLOW</dt>
+<dd>此参数返回由于 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a> 缓冲区无法满足而被迫溢出到 <a href="../c3ref/free.html">sqlite3_malloc()</a> 的页缓存分配字节数。返回值包括因分配大小超过 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a> 的 "sz" 参数而溢出的分配，以及因页缓存空间耗尽而溢出的分配。</dd></p>
+
+<p><a name="sqlitestatuspagecachesize"></a>
+ <dt>SQLITE_STATUS_PAGECACHE_SIZE</dt>
+<dd>此参数记录交给 <a href="../malloc.html#pagecache">pagecache 内存分配器</a> 的最大内存分配请求。只有 <a href="../c3ref/status.html">sqlite3_status()</a> 的 *pHighwater 参数返回的值才有意义。写入 *pCurrent 参数的值未定义。</dd></p>
+
+<p><a name="sqlitestatusscratchused"></a>
+ <dt>SQLITE_STATUS_SCRATCH_USED</dt>
+<dd>不再使用。</dd></p>
+
+<p><a name="sqlitestatusscratchoverflow"></a>
+ <dt>SQLITE_STATUS_SCRATCH_OVERFLOW</dt>
+<dd>不再使用。</dd></p>
+
+<p><a name="sqlitestatusscratchsize"></a>
+ <dt>SQLITE_STATUS_SCRATCH_SIZE</dt>
+<dd>不再使用。</dd></p>
+
+<p><a name="sqlitestatusparserstack"></a>
+ <dt>SQLITE_STATUS_PARSER_STACK</dt>
+<dd>*pHighwater 参数记录解析器栈的最大深度。*pCurrent 的值未定义。只有在 SQLite 使用 <a href="../compile.html#yytrackmaxstackdepth">YYTRACKMAXSTACKDEPTH</a> 编译时，*pHighwater 的值才有意义。</dd>
+</dl></p>
+
+<p>可能会不时添加新的状态参数。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+

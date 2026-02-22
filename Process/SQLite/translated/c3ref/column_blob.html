@@ -1,0 +1,246 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Result Values From A Query</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: {column access functions} sqlite3_column_blob sqlite3_column_bytes sqlite3_column_bytes16 sqlite3_column_double sqlite3_column_int sqlite3_column_int64 sqlite3_column_text sqlite3_column_text16 sqlite3_column_type sqlite3_column_value -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>查询的结果值</h2>
+</div>
+<blockquote><pre>
+const void *sqlite3_column_blob(sqlite3_stmt*, int iCol);
+double sqlite3_column_double(sqlite3_stmt*, int iCol);
+int sqlite3_column_int(sqlite3_stmt*, int iCol);
+sqlite3_int64 sqlite3_column_int64(sqlite3_stmt*, int iCol);
+const unsigned char *sqlite3_column_text(sqlite3_stmt*, int iCol);
+const void *sqlite3_column_text16(sqlite3_stmt*, int iCol);
+sqlite3_value *sqlite3_column_value(sqlite3_stmt*, int iCol);
+int sqlite3_column_bytes(sqlite3_stmt*, int iCol);
+int sqlite3_column_bytes16(sqlite3_stmt*, int iCol);
+int sqlite3_column_type(sqlite3_stmt*, int iCol);
+</pre></blockquote>
+<p>
+<b>摘要：</b>
+<blockquote><table border=0 cellpadding=0 cellspacing=0>
+<tr><td><b>sqlite3_column_blob</b><td>&rarr;<td>BLOB 结果
+<tr><td><b>sqlite3_column_double</b><td>&rarr;<td>REAL 结果
+<tr><td><b>sqlite3_column_int</b><td>&rarr;<td>32 位 INTEGER 结果
+<tr><td><b>sqlite3_column_int64</b><td>&rarr;<td>64 位 INTEGER 结果
+<tr><td><b>sqlite3_column_text</b><td>&rarr;<td>UTF-8 TEXT 结果
+<tr><td><b>sqlite3_column_text16</b><td>&rarr;<td>UTF-16 TEXT 结果
+<tr><td><b>sqlite3_column_value</b><td>&rarr;<td>结果作为一个
+<a href="../c3ref/value.html">未经保护的 sqlite3_value</a> 对象。
+<tr><td>&nbsp;<td>&nbsp;<td>&nbsp;
+<tr><td><b>sqlite3_column_bytes</b><td>&rarr;<td>BLOB 或 UTF-8 TEXT 结果的字节大小
+<tr><td><b>sqlite3_column_bytes16&nbsp;&nbsp;</b>
+<td>&rarr;&nbsp;&nbsp;<td>UTF-16 TEXT 的字节大小
+<tr><td><b>sqlite3_column_type</b><td>&rarr;<td>结果的默认数据类型
+</table></blockquote></p>
+
+<p><b>详情：</b></p>
+
+<p>这些例程返回有关当前查询结果行的单个列的信息。在每种情况下，第一个参数都是正在评估的<a href="../c3ref/stmt.html">准备语句</a>的指针（即从<a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a>或其变体返回的<a href="../c3ref/stmt.html">sqlite3_stmt*</a>），第二个参数是应返回信息的列索引。结果集最左边的列索引为 0。可以使用<a href="../c3ref/column_count.html">sqlite3_column_count()</a>来确定结果中的列数。</p>
+
+<p>如果 SQL 语句当前未指向有效行，或列索引超出范围，则结果未定义。只有在最近一次调用<a href="../c3ref/step.html">sqlite3_step()</a>返回<a href="../rescode.html#row">SQLITE_ROW</a>并且随后没有调用<a href="../c3ref/reset.html">sqlite3_reset()</a>或<a href="../c3ref/finalize.html">sqlite3_finalize()</a>时，才可以调用这些例程。如果在调用<a href="../c3ref/reset.html">sqlite3_reset()</a>或<a href="../c3ref/finalize.html">sqlite3_finalize()</a>之后，或在<a href="../c3ref/step.html">sqlite3_step()</a>返回非<a href="../rescode.html#row">SQLITE_ROW</a>的值之后再调用这些例程，则结果未定义。如果在这些例程正在等待期间从不同线程调用<a href="../c3ref/step.html">sqlite3_step()</a>或<a href="../c3ref/reset.html">sqlite3_reset()</a>或<a href="../c3ref/finalize.html">sqlite3_finalize()</a>，结果也未定义。</p>
+
+<p>前六个接口（_blob、_double、_int、_int64、_text 以及 _text16）分别以特定数据格式返回结果列的值。如果结果列最初不在所请求的格式（例如，查询返回整数但使用 sqlite3_column_text() 提取值），则会自动执行类型转换。</p>
+
+<p>sqlite3_column_type() 例程返回结果列初始数据类型的<a href="../c3ref/c_blob.html">数据类型代码</a>。返回值是<a href="../c3ref/c_blob.html">SQLITE_INTEGER</a>、<a href="../c3ref/c_blob.html">SQLITE_FLOAT</a>、<a href="../c3ref/c_blob.html">SQLITE_TEXT</a>、<a href="../c3ref/c_blob.html">SQLITE_BLOB</a>或<a href="../c3ref/c_blob.html">SQLITE_NULL</a>之一。sqlite3_column_type() 的返回值可用于决定应使用哪一个前六个接口来提取列值。只有在相关值未发生自动类型转换的情况下，sqlite3_column_type() 返回值才有意义。类型转换之后调用 sqlite3_column_type() 的结果是未定义的，但不会导致错误。SQLite 的未来版本可能会在类型转换后更改 sqlite3_column_type() 的行为。</p>
+
+<p>如果结果是 BLOB 或 TEXT 字符串，则可以使用 sqlite3_column_bytes() 或 sqlite3_column_bytes16() 接口来确定该 BLOB 或字符串的大小。</p>
+
+<p>如果结果是 BLOB 或 UTF-8 字符串，则 sqlite3_column_bytes() 返回该 BLOB 或字符串的字节数。如果结果是 UTF-16 字符串，则 sqlite3_column_bytes() 会将该字符串转换为 UTF-8，然后返回字节数。如果结果是数值，则 sqlite3_column_bytes() 使用<a href="../c3ref/mprintf.html">sqlite3_snprintf()</a>将该值转换为 UTF-8 字符串，并返回该字符串的字节数。如果结果为 NULL，则 sqlite3_column_bytes() 返回 0。</p>
+
+<p>如果结果是 BLOB 或 UTF-16 字符串，则 sqlite3_column_bytes16() 返回该 BLOB 或字符串的字节数。如果结果是 UTF-8 字符串，则 sqlite3_column_bytes16() 会将字符串转换为 UTF-16，然后返回字节数。如果结果是数值，则 sqlite3_column_bytes16() 使用<a href="../c3ref/mprintf.html">sqlite3_snprintf()</a>将该值转换为 UTF-16 字符串，并返回该字符串的字节数。如果结果为 NULL，则 sqlite3_column_bytes16() 返回 0。</p>
+
+<p><a href="../c3ref/column_blob.html">sqlite3_column_bytes()</a>和<a href="../c3ref/column_blob.html">sqlite3_column_bytes16()</a>返回的值不包括字符串末尾的零终止符。明确地说：这两个函数返回的是字符串中的字节数，而不是字符数。</p>
+
+<p>sqlite3_column_text() 和 sqlite3_column_text16() 返回的字符串（即使是空字符串）始终以零终止。对于零长度 BLOB，sqlite3_column_blob() 的返回值是 NULL 指针。</p>
+
+<p>sqlite3_column_text16() 返回的字符串始终采用与平台本地字节序相同的字节顺序，无论为数据库设置的文本编码为何。</p>
+
+<p><b>警告：</b>由<a href="../c3ref/column_blob.html">sqlite3_column_value()</a>返回的对象是一个<a href="../c3ref/value.html">未经保护的 sqlite3_value</a>对象。在多线程环境中，未经保护的 sqlite3_value 对象仅可在与<a href="../c3ref/bind_blob.html">sqlite3_bind_value()</a>和<a href="../c3ref/result_blob.html">sqlite3_result_value()</a>配合时安全使用。如果将<a href="../c3ref/column_blob.html">sqlite3_column_value()</a>返回的<a href="../c3ref/value.html">未经保护的 sqlite3_value</a>对象用于其他用途，包括调用<a href="../c3ref/value_blob.html">sqlite3_value_int()</a>、<a href="../c3ref/value_blob.html">sqlite3_value_text()</a>或<a href="../c3ref/value_blob.html">sqlite3_value_bytes()</a>等例程，其行为就不是线程安全的。因此，sqlite3_column_value() 接口通常只在<a href="../appfunc.html">应用定义的 SQL 函数</a>或<a href="../vtab.html">虚拟表</a>的实现中使用，而不是在顶层应用代码中。</p>
+
+<p>这些例程可能会尝试转换结果的数据类型。例如，如果内部表示是 FLOAT 但请求的是文本结果，则内部会使用<a href="../c3ref/mprintf.html">sqlite3_snprintf()</a>自动执行转换。下表详细说明了所应用的转换：</p>
+
+<p><blockquote>
+<table border="1">
+<tr><th> 内部<br>类型 <th> 请求<br>类型 <th>  转换</p>
+
+<p><tr><td>  NULL    <td> INTEGER   <td> 结果为 0
+<tr><td>  NULL    <td>  FLOAT    <td> 结果为 0.0
+<tr><td>  NULL    <td>   TEXT    <td> 结果为 NULL 指针
+<tr><td>  NULL    <td>   BLOB    <td> 结果为 NULL 指针
+<tr><td> INTEGER  <td>  FLOAT    <td> 从整数转换为浮点
+<tr><td> INTEGER  <td>   TEXT    <td> 整数的 ASCII 表示
+<tr><td> INTEGER  <td>   BLOB    <td> 与 INTEGER->TEXT 相同
+<tr><td>  FLOAT   <td> INTEGER   <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 INTEGER
+<tr><td>  FLOAT   <td>   TEXT    <td> 浮点的 ASCII 表示
+<tr><td>  FLOAT   <td>   BLOB    <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 BLOB
+<tr><td>  TEXT    <td> INTEGER   <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 INTEGER
+<tr><td>  TEXT    <td>  FLOAT    <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 REAL
+<tr><td>  TEXT    <td>   BLOB    <td> 无变化
+<tr><td>  BLOB    <td> INTEGER   <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 INTEGER
+<tr><td>  BLOB    <td>  FLOAT    <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 REAL
+<tr><td>  BLOB    <td>   TEXT    <td> <a href="../lang_expr.html#castexpr">CAST</a> 为 TEXT，确保零终止符
+</table>
+</blockquote></p>
+
+<p>请注意，当发生类型转换时，先前调用 sqlite3_column_blob()、sqlite3_column_text() 和/或 sqlite3_column_text16() 返回的指针可能会失效。类型转换和指针失效可能发生在以下情况下：</p>
+
+<p><ul>
+<li> 初始内容是 BLOB，并调用了 sqlite3_column_text() 或 sqlite3_column_text16()。可能需要向字符串添加零终止符。</li>
+<li> 初始内容是 UTF-8 文本，并调用了 sqlite3_column_bytes16() 或 sqlite3_column_text16()。内容必须转换为 UTF-16。</li>
+<li> 初始内容是 UTF-16 文本，并调用了 sqlite3_column_bytes() 或 sqlite3_column_text()。内容必须转换为 UTF-8。</li>
+</ul></p>
+
+<p>UTF-16be 与 UTF-16le 之间的转换总是在原地执行，并且不会使先前的指针失效，尽管指针所引用的缓冲区内容当然会被修改。其他类型的转换在可能的情况下也是原地进行，但有些情况下不能完成，这时先前的指针就会失效。</p>
+
+<p>最安全的做法是以以下方式之一调用这些例程：</p>
+
+<p><ul>
+<li>先调用 sqlite3_column_text()，然后调用 sqlite3_column_bytes()</li>
+<li>先调用 sqlite3_column_blob()，然后调用 sqlite3_column_bytes()</li>
+<li>先调用 sqlite3_column_text16()，然后调用 sqlite3_column_bytes16()</li>
+</ul></p>
+
+<p>换句话说，你应该先调用 sqlite3_column_text()、sqlite3_column_blob() 或 sqlite3_column_text16() 将结果强制转换为所需格式，然后调用 sqlite3_column_bytes() 或 sqlite3_column_bytes16() 来查找结果大小。不要将 sqlite3_column_text() 或 sqlite3_column_blob() 与 sqlite3_column_bytes16() 混用，也不要将 sqlite3_column_text16() 与 sqlite3_column_bytes() 混用。</p>
+
+<p>返回的指针在发生上述类型转换之前，或在调用<a href="../c3ref/step.html">sqlite3_step()</a>、<a href="../c3ref/reset.html">sqlite3_reset()</a>或<a href="../c3ref/finalize.html">sqlite3_finalize()</a>之前都是有效的。用于存储字符串和 BLOB 的内存空间会被自动释放。不要将从<a href="../c3ref/column_blob.html">sqlite3_column_blob()</a>、<a href="../c3ref/column_blob.html">sqlite3_column_text()</a>等获取的指针传递给<a href="../c3ref/free.html">sqlite3_free()</a>。</p>
+
+<p>只要输入参数正确，这些例程仅在格式转换期间发生内存耗尽错误时才会失败。只有以下接口子集可能发生内存耗尽错误：</p>
+
+<p><ul>
+<li> sqlite3_column_blob()
+<li> sqlite3_column_text()
+<li> sqlite3_column_text16()
+<li> sqlite3_column_bytes()
+<li> sqlite3_column_bytes16()
+</ul></p>
+
+<p>如果发生内存耗尽错误，则这些例程的返回值与对应列包含 SQL NULL 值时相同。可以在获取可疑返回值后且在对同一个<a href="../c3ref/sqlite3.html">数据库连接</a>调用其他 SQLite 接口之前，立即调用<a href="../c3ref/errcode.html">sqlite3_errcode()</a>来区分有效的 SQL NULL 返回值与内存耗尽错误。</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+
+</body>
+</html>

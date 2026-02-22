@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.48.0 On 2025-01-14</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.48.0 On 2025-01-14</h2><p><ol class='lessindent'>
+<li> Refactor the "configure" script used to help build SQLite from <a href="../amalg-v-canon.html#canon">canonical sources</a>,
+     to fix bugs, improve performance, and make the code more maintainable.
+     <ul type="disc">
+     <li> This does not affect the "configure" script in the sqlite3-autoconf-NNNNNNN.tar.gz
+          "amalgamation tarball", only the <a href="../amalg-v-canon.html#canon">canonical sources</a>.  The build system for
+          the amalgamation tarball is unchanged.  If you are using the amalgamation tarball,
+          nothing about this change log entry applies to you.
+     <li> The key innovation here is that
+          <a href="https://msteveb.github.io/autosetup/">Autosetup</a> is now used instead of
+          <a href="https://www.gnu.org/software/autoconf/">GNU Autoconf</a>.  That seems like a big change,
+          but it is really just an implementation detail.  The ./configure
+          script is coded very differently, but should work the same as before.
+     <li> One advantage of the new configure is that you no longer need
+          to install <a href="https://en.wikipedia.org/wiki/Tcl">TCL</a> in order to build most
+          SQLite targets.  TCL is still required to run tests or to build accessory
+          programs (like <a href="../sqlanalyze.html">sqlite3_analyzer</a>) that use TCL, but it is not required for
+          most common targets.  Hence, as of this release, the only build dependencies
+          are a C compiler and "make" or "nmake".
+     </ul>
+<li> Improved <a href="../eqp.html">EXPLAIN QUERY PLAN</a> output for <a href="../queryplanner.html#covidx">covering indexes</a>.
+<li> Allow a two-argument version of the <a href="../lang_corefunc.html#iif">iif() SQL function</a>.  Also allow
+     <a href="../lang_corefunc.html#iif">if()</a> as an alternative spelling for <a href="../lang_corefunc.html#iif">iif()</a>.
+<li> Add the ".dbtotxt" command to the <a href="../cli.html">CLI</a>.
+<li> Add the <a href="../c3ref/c_iocap_atomic.html">SQLITE_IOCAP_SUBPAGE_READ</a> property to the xDeviceCharacteristics
+     method of the <a href="../c3ref/io_methods.html">sqlite3_io_methods</a> object.
+<li> Add the <a href="../c3ref/c_prepare_dont_log.html#sqlitepreparedontlog">SQLITE_PREPARE_DONT_LOG</a> option to <a href="../c3ref/prepare.html">sqlite3_prepare_v3()</a> that
+     prevents warning messages being sent to the <a href="../errlog.html">error log</a> if the SQL is
+     ill-formed.  This allows sqlite3_prepare_v3() to be used to do test compiles
+     of SQL to check for validity without polluting the error log with false
+     messages.
+<li> Increase the minimum allowed value of <a href="../c3ref/c_limit_attached.html#sqlitelimitlength">SQLITE_LIMIT_LENGTH</a> from 1 to 30.
+<li> Added the <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlnullio">SQLITE_FCNTL_NULL_IO</a> file control.
+<li> Extend the FTS5 auxiliary API xInstToken() to work with prefix queries
+     via the <a href="../fts5.html#the_insttoken_configuration_option">insttoken</a> configuration option and the
+     <a href="../fts5.html#the_fts5_insttoken_function">fts5_insttoken()</a> SQL function.
+<li> Increase the <a href="../limits.html#max_function_arg">maximum number of arguments to an SQL function</a>
+     from 127 to 1000.
+<li> Remove vestigial traces of SQLITE_USER_AUTHENTICATION.
+<li> Various obscure bug fixes.
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2025-01-14 11:05:00 d2fe6b05f38d9d7cd78c5d252e99ac59f1aea071d669830c1ffe4e8966e84010
+<li>SHA3-256 for sqlite3.c: 522bd9492526147d12fc8521028eb960557353d8f08c2035f15ac737d4b91e21
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

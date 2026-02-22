@@ -1,0 +1,162 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>计算修改的行数</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任意选择其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_changes sqlite3_changes64 -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>计算修改的行数</h2>
+</div>
+<blockquote><pre>
+int sqlite3_changes(sqlite3*);
+sqlite3_int64 sqlite3_changes64(sqlite3*);
+</pre></blockquote>
+<p>
+这些函数返回最近完成的 INSERT、UPDATE 或 DELETE 语句在指定数据库连接上修改、插入或删除的行数。两个函数在返回值类型上不同，如果最近的 INSERT、UPDATE 或 DELETE 修改的行数超过 int 类型支持的最大值，则 sqlite3_changes() 的返回值未定义。执行其他类型的 SQL 语句不会改变这些函数的返回值。对于此接口，CREATE TABLE AS SELECT 语句不视为 INSERT、UPDATE 或 DELETE，因此该语句添加到新表中的行不计入。</p>
+
+<p>只有由 INSERT、UPDATE 或 DELETE 语句直接执行的更改才被考虑——由<a href="../lang_createtrigger.html">触发器</a>、<a href="../foreignkeys.html#fk_actions">外键操作</a>或<a href="../lang_replace.html">REPLACE</a>约束解析引起的辅助更改不计入。</p>
+
+<p>被<a href="../lang_createtrigger.html#instead_of_trigger">INSTEAD OF 触发器</a>拦截的视图更改不计入。在视图上运行 INSERT、UPDATE 或 DELETE 语句后立即调用 sqlite3_changes() 返回的值始终为零。仅对真实表所做的更改才会计入。</p>
+
+<p>如果在触发器程序运行时执行 sqlite3_changes() 函数，情况会更复杂。这可能发生在程序使用<a href="../lang_corefunc.html#changes">changes()</a> SQL 函数，或其他回调函数直接调用 sqlite3_changes() 时。主要情况如下：</p>
+
+<p><ul>
+<li> 在进入触发器程序之前，会保存 sqlite3_changes() 函数返回的值。触发器程序完成后，原始值会恢复。</p>
+
+<p><li> 在触发器程序内部，每个 INSERT、UPDATE 和 DELETE 语句在完成时会照常设置 sqlite3_changes() 返回的值。当然，该值不会包含子触发器执行的任何更改，因为 sqlite3_changes() 的值会在每个子触发器运行后被保存和恢复。</ul></p>
+
+<p>这意味着如果在触发器内部的第一个 INSERT、UPDATE 或 DELETE 语句中使用 changes() SQL 函数（或类似函数），它会返回调用语句开始执行时设置的值。如果在同一触发器程序中的第二个或随后的此类语句中使用，它返回的值反映的是前一个 INSERT、UPDATE 或 DELETE 语句所修改的行数。</p>
+
+<p>如果在 sqlite3_changes() 运行期间有其他线程在同一数据库连接上进行更改，那么返回值将不可预测且没有意义。</p>
+
+<p>另请参阅：
+<ul>
+<li> <a href="../c3ref/total_changes.html">sqlite3_total_changes()</a> 接口
+<li> <a href="../pragma.html#pragma_count_changes">count_changes pragma</a>
+<li> <a href="../lang_corefunc.html#changes">changes()</a> SQL 函数
+<li> <a href="../pragma.html#pragma_data_version">data_version pragma</a>
+</ul>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+

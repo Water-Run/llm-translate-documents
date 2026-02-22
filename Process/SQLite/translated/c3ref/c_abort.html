@@ -1,0 +1,174 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>结果代码</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_ABORT SQLITE_AUTH SQLITE_BUSY SQLITE_CANTOPEN SQLITE_CONSTRAINT SQLITE_CORRUPT SQLITE_DONE SQLITE_EMPTY SQLITE_ERROR SQLITE_FORMAT SQLITE_FULL SQLITE_INTERNAL SQLITE_INTERRUPT SQLITE_IOERR SQLITE_LOCKED SQLITE_MISMATCH SQLITE_MISUSE SQLITE_NOLFS SQLITE_NOMEM SQLITE_NOTADB SQLITE_NOTFOUND SQLITE_NOTICE SQLITE_OK SQLITE_PERM SQLITE_PROTOCOL SQLITE_RANGE SQLITE_READONLY SQLITE_ROW SQLITE_SCHEMA SQLITE_TOOBIG SQLITE_WARNING {result code definitions} -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>结果代码</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_OK           0   /* 成功结果 */
+/* 错误代码开始 */
+#define SQLITE_ERROR        1   /* 通用错误 */
+#define SQLITE_INTERNAL     2   /* SQLite 内部逻辑错误 */
+#define SQLITE_PERM         3   /* 访问权限被拒绝 */
+#define SQLITE_ABORT        4   /* 回调例程请求中止 */
+#define SQLITE_BUSY         5   /* 数据库文件被锁定 */
+#define SQLITE_LOCKED       6   /* 数据库中的某个表被锁定 */
+#define SQLITE_NOMEM        7   /* malloc() 失败 */
+#define SQLITE_READONLY     8   /* 尝试写入只读数据库 */
+#define SQLITE_INTERRUPT    9   /* 操作被 sqlite3_interrupt() 终止 */
+#define SQLITE_IOERR       10   /* 发生某种磁盘 I/O 错误 */
+#define SQLITE_CORRUPT     11   /* 数据库磁盘映像格式错误 */
+#define SQLITE_NOTFOUND    12   /* 在 sqlite3_file_control() 中遇到未知操作码 */
+#define SQLITE_FULL        13   /* 插入失败，数据库已满 */
+#define SQLITE_CANTOPEN    14   /* 无法打开数据库文件 */
+#define SQLITE_PROTOCOL    15   /* 数据库锁协议错误 */
+#define SQLITE_EMPTY       16   /* 仅供内部使用 */
+#define SQLITE_SCHEMA      17   /* 数据库模式已更改 */
+#define SQLITE_TOOBIG      18   /* 字符串或 BLOB 超出大小限制 */
+#define SQLITE_CONSTRAINT  19   /* 由于约束违反而中止 */
+#define SQLITE_MISMATCH    20   /* 数据类型不匹配 */
+#define SQLITE_MISUSE      21   /* 库使用不当 */
+#define SQLITE_NOLFS       22   /* 使用了主机不支持的操作系统功能 */
+#define SQLITE_AUTH        23   /* 授权被拒绝 */
+#define SQLITE_FORMAT      24   /* 未使用 */
+#define SQLITE_RANGE       25   /* sqlite3_bind 的第二个参数超出范围 */
+#define SQLITE_NOTADB      26   /* 打开的文件不是数据库文件 */
+#define SQLITE_NOTICE      27   /* 来自 sqlite3_log() 的通知 */
+#define SQLITE_WARNING     28   /* 来自 sqlite3_log() 的警告 */
+#define SQLITE_ROW         100  /* sqlite3_step() 有另一行准备就绪 */
+#define SQLITE_DONE        101  /* sqlite3_step() 已完成执行 */
+/* 错误代码结束 */
+</pre></blockquote>
+<p>
+许多 SQLite 函数返回上述集合中的整数结果代码，以指示成功或失败。</p>
+
+<p>SQLite 的未来版本可能会添加新的错误代码。</p>
+
+<p>另请参阅：<a href="../c3ref/c_abort_rollback.html">扩展结果代码定义</a>
+</p><p>另请参阅以下列表：
+  <a href="../c3ref/objlist.html">对象</a>，
+  <a href="../c3ref/constlist.html">常量</a>，和
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+

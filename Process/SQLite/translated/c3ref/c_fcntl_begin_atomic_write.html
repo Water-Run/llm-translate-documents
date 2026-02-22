@@ -1,0 +1,339 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>标准文件控制操作码</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.85em;color:#666;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选五项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_FCNTL_BEGIN_ATOMIC_WRITE SQLITE_FCNTL_BLOCK_ON_CONNECT SQLITE_FCNTL_BUSYHANDLER SQLITE_FCNTL_CHUNK_SIZE SQLITE_FCNTL_CKPT_DONE SQLITE_FCNTL_CKPT_START SQLITE_FCNTL_CKSM_FILE SQLITE_FCNTL_COMMIT_ATOMIC_WRITE SQLITE_FCNTL_COMMIT_PHASETWO SQLITE_FCNTL_DATA_VERSION SQLITE_FCNTL_EXTERNAL_READER SQLITE_FCNTL_FILESTAT SQLITE_FCNTL_FILE_POINTER SQLITE_FCNTL_GET_LOCKPROXYFILE SQLITE_FCNTL_HAS_MOVED SQLITE_FCNTL_JOURNAL_POINTER SQLITE_FCNTL_LAST_ERRNO SQLITE_FCNTL_LOCKSTATE SQLITE_FCNTL_LOCK_TIMEOUT SQLITE_FCNTL_MMAP_SIZE SQLITE_FCNTL_NULL_IO SQLITE_FCNTL_OVERWRITE SQLITE_FCNTL_PDB SQLITE_FCNTL_PERSIST_WAL SQLITE_FCNTL_POWERSAFE_OVERWRITE SQLITE_FCNTL_PRAGMA SQLITE_FCNTL_RBU SQLITE_FCNTL_RESERVE_BYTES SQLITE_FCNTL_RESET_CACHE SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE SQLITE_FCNTL_SET_LOCKPROXYFILE SQLITE_FCNTL_SIZE_HINT SQLITE_FCNTL_SIZE_LIMIT SQLITE_FCNTL_SYNC SQLITE_FCNTL_SYNC_OMITTED SQLITE_FCNTL_TEMPFILENAME SQLITE_FCNTL_TRACE SQLITE_FCNTL_VFSNAME SQLITE_FCNTL_VFS_POINTER SQLITE_FCNTL_WAL_BLOCK SQLITE_FCNTL_WIN32_AV_RETRY SQLITE_FCNTL_WIN32_GET_HANDLE SQLITE_FCNTL_WIN32_SET_HANDLE SQLITE_FCNTL_ZIPVFS {file control opcode} {file control opcodes} -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>标准文件控制操作码</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_FCNTL_LOCKSTATE               1
+#define SQLITE_FCNTL_GET_LOCKPROXYFILE       2
+#define SQLITE_FCNTL_SET_LOCKPROXYFILE       3
+#define SQLITE_FCNTL_LAST_ERRNO              4
+#define SQLITE_FCNTL_SIZE_HINT               5
+#define SQLITE_FCNTL_CHUNK_SIZE              6
+#define SQLITE_FCNTL_FILE_POINTER            7
+#define SQLITE_FCNTL_SYNC_OMITTED            8
+#define SQLITE_FCNTL_WIN32_AV_RETRY          9
+#define SQLITE_FCNTL_PERSIST_WAL            10
+#define SQLITE_FCNTL_OVERWRITE              11
+#define SQLITE_FCNTL_VFSNAME                12
+#define SQLITE_FCNTL_POWERSAFE_OVERWRITE    13
+#define SQLITE_FCNTL_PRAGMA                 14
+#define SQLITE_FCNTL_BUSYHANDLER            15
+#define SQLITE_FCNTL_TEMPFILENAME           16
+#define SQLITE_FCNTL_MMAP_SIZE              18
+#define SQLITE_FCNTL_TRACE                  19
+#define SQLITE_FCNTL_HAS_MOVED              20
+#define SQLITE_FCNTL_SYNC                   21
+#define SQLITE_FCNTL_COMMIT_PHASETWO        22
+#define SQLITE_FCNTL_WIN32_SET_HANDLE       23
+#define SQLITE_FCNTL_WAL_BLOCK              24
+#define SQLITE_FCNTL_ZIPVFS                 25
+#define SQLITE_FCNTL_RBU                    26
+#define SQLITE_FCNTL_VFS_POINTER            27
+#define SQLITE_FCNTL_JOURNAL_POINTER        28
+#define SQLITE_FCNTL_WIN32_GET_HANDLE       29
+#define SQLITE_FCNTL_PDB                    30
+#define SQLITE_FCNTL_BEGIN_ATOMIC_WRITE     31
+#define SQLITE_FCNTL_COMMIT_ATOMIC_WRITE    32
+#define SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE  33
+#define SQLITE_FCNTL_LOCK_TIMEOUT           34
+#define SQLITE_FCNTL_DATA_VERSION           35
+#define SQLITE_FCNTL_SIZE_LIMIT             36
+#define SQLITE_FCNTL_CKPT_DONE              37
+#define SQLITE_FCNTL_RESERVE_BYTES          38
+#define SQLITE_FCNTL_CKPT_START             39
+#define SQLITE_FCNTL_EXTERNAL_READER        40
+#define SQLITE_FCNTL_CKSM_FILE              41
+#define SQLITE_FCNTL_RESET_CACHE            42
+#define SQLITE_FCNTL_NULL_IO                43
+#define SQLITE_FCNTL_BLOCK_ON_CONNECT       44
+#define SQLITE_FCNTL_FILESTAT               45
+</pre></blockquote>
+<p>
+这些整数常量是 <a href="../c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xFileControl 方法以及 <a href="../c3ref/file_control.html">sqlite3_file_control()</a> 接口的操作码。</p>
+
+<p><ul>
+<li><a name="sqlitefcntllockstate"></a>
+
+SQLITE_FCNTL_LOCKSTATE 操作码用于调试。此操作码使 xFileControl 方法将锁的当前状态（即 <a href="../c3ref/c_lock_exclusive.html">SQLITE_LOCK_NONE</a>、<a href="../c3ref/c_lock_exclusive.html">SQLITE_LOCK_SHARED</a>、<a href="../c3ref/c_lock_exclusive.html">SQLITE_LOCK_RESERVED</a>、<a href="../c3ref/c_lock_exclusive.html">SQLITE_LOCK_PENDING</a> 或 <a href="../c3ref/c_lock_exclusive.html">SQLITE_LOCK_EXCLUSIVE</a> 之一）写入 pArg 参数所指向的整数中。只有在 SQLite 以 <a href="../compile.html#debug">SQLITE_DEBUG</a> 编译时此能力才可用。</p>
+
+<p><li><a name="sqlitefcntlsizehint"></a>
+
+SQLITE_FCNTL_SIZE_HINT 操作码由 SQLite 用来向 VFS 层提供当前事务期间数据库文件可能扩展到的大小提示。该提示不一定精确，但通常比较接近。底层 VFS 可以根据该提示选择预分配数据库文件空间，以使对数据库文件的写入更快。</p>
+
+<p><li><a name="sqlitefcntlsizelimit"></a>
+
+在实现了 <a href="../c3ref/deserialize.html">sqlite3_deserialize()</a> 的内存 VFS 中，SQLITE_FCNTL_SIZE_LIMIT 操作码用来设置内存数据库大小的上限。参数是指向 <a href="../c3ref/int64.html">sqlite3_int64</a> 的指针。如果该指针所指的整数为负，则该指针会被写入当前限制；否则，限制设置为该整数值与当前数据库大小中的较大者，并且该指针会被设置为新的限制。</p>
+
+<p><li><a name="sqlitefcntlchunksize"></a>
+
+SQLITE_FCNTL_CHUNK_SIZE 操作码用于请求 VFS 以用户指定的块大小扩展或截断数据库文件。传给 <a href="../c3ref/file_control.html">sqlite3_file_control()</a> 的第四个参数应指向一个整数（类型 int），该整数包含要为指定数据库使用的新块大小。在较大的块（例如每次 1MB）中分配数据库文件空间可以减少文件系统碎片并在某些系统上提升性能。</p>
+
+<p><li><a name="sqlitefcntlfilepointer"></a>
+
+SQLITE_FCNTL_FILE_POINTER 操作码用于获取与特定数据库连接关联的 <a href="../c3ref/file.html">sqlite3_file</a> 对象的指针。另见 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntljournalpointer">SQLITE_FCNTL_JOURNAL_POINTER</a>。</p>
+
+<p><li><a name="sqlitefcntljournalpointer"></a>
+
+SQLITE_FCNTL_JOURNAL_POINTER 操作码用于获取与特定数据库连接关联的日志文件（无论是 <a href="../lockingv3.html#rollback">回滚日志</a> 还是 <a href="../wal.html">预写日志</a>）对应的 <a href="../c3ref/file.html">sqlite3_file</a> 对象的指针。另见 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlfilepointer">SQLITE_FCNTL_FILE_POINTER</a>。</p>
+
+<p><li><a name="sqlitefcntlsyncomitted"></a>
+
+SQLITE_FCNTL_SYNC_OMITTED 文件控制不再使用。</p>
+
+<p><li><a name="sqlitefcntlsync"></a>
+
+SQLITE_FCNTL_SYNC 操作码由 SQLite 内部生成，并在对数据库文件描述符调用 xSync 方法之前立即发送给 VFS。或者，如果由于用户已将 SQLite 配置为 <a href="../pragma.html#pragma_synchronous">PRAGMA synchronous=OFF</a> 而未调用 xSync 方法，则此操作码用于代替 xSync 方法。在多数情况下，传递给此文件控制的指针参数为 NULL。然而，如果数据库文件作为多数据库提交的一部分正在同步，该参数会指向一个以 NUL 结尾的字符串，包含事务超级日志的文件名。不需要此信号的 VFS 应默默忽略该操作码。应用程序不应使用此操作码调用 <a href="../c3ref/file_control.html">sqlite3_file_control()</a>，因为这可能干扰需要该操作码的专用 VFS 的正常运行。</p>
+
+<p><li><a name="sqlitefcntlcommitphasetwo"></a>
+
+SQLITE_FCNTL_COMMIT_PHASETWO 操作码由 SQLite 内部生成，并在事务提交完成后但数据库尚未解锁之前发送给 VFS。不需要此信号的 VFS 应该默默忽略该操作码。应用程序不应使用此操作码调用 <a href="../c3ref/file_control.html">sqlite3_file_control()</a>，因为这可能干扰需要该操作码的专用 VFS 的运行。</p>
+
+<p><li><a name="sqlitefcntlwin32avretry"></a>
+
+SQLITE_FCNTL_WIN32_AV_RETRY 操作码用于配置 Windows <a href="../vfs.html">VFS</a> 的某些磁盘 I/O 操作的自动重试次数和间隔，以在存在杀毒程序时提高鲁棒性。默认情况下，Windows VFS 会对文件读取、写入和删除操作重试最多 10 次，首次重试前延迟 25 毫秒，之后每次重试额外增加 25 毫秒的延迟。此操作码允许调整这两个值（10 次重试和 25 毫秒延迟）。这些值会为同一进程中所有数据库连接更改。参数是指向两个整数数组的指针，第一个整数是新的重试次数，第二个整数是延迟。如果某个整数为负，则不会改变该设置，而是将该整数位置写入之前的设置，便于查询当前重试设置。zDbName 参数被忽略。</p>
+
+<p><li><a name="sqlitefcntlpersistwal"></a>
+
+SQLITE_FCNTL_PERSIST_WAL 操作码用于设置或查询持久化 <a href="../wal.html">预写日志</a> 设置。默认情况下，辅助预写日志（<a href="../wal.html#walfile">WAL 文件</a>）和用于事务控制的共享内存文件在最后一个连接关闭时会自动删除。启用持久 WAL 模式会使这些文件在关闭后仍保留。持久化文件对于希望读取数据库但所在目录没有写权限的其他进程很有用，因为 WAL 和共享内存文件必须存在才能读取数据库。调用此操作码时传递给 <a href="../c3ref/file_control.html">sqlite3_file_control()</a> 的第四个参数应为指向整数的指针，该整数为 0 表示禁用持久 WAL 模式，1 表示启用。如果该整数为 -1，则其值会被覆盖为当前 WAL 持久化设置。</p>
+
+<p><li><a name="sqlitefcntlpowersafeoverwrite"></a>
+
+SQLITE_FCNTL_POWERSAFE_OVERWRITE 操作码用于设置或查询持久化的“powersafe-overwrite”或“PSOW”设置。PSOW 设置决定 xDeviceCharacteristics 方法的 <a href="../c3ref/c_iocap_atomic.html">SQLITE_IOCAP_POWERSAFE_OVERWRITE</a> 位。调用此操作码时传递给 <a href="../c3ref/file_control.html">sqlite3_file_control()</a> 的第四个参数应为指向整数的指针，该整数为 0 表示禁用零损坏模式，1 表示启用零损坏模式。如果该整数为 -1，则会被新值覆盖为当前零损坏模式设置。</p>
+
+<p><li><a name="sqlitefcntloverwrite"></a>
+
+SQLITE_FCNTL_OVERWRITE 操作码在打开写事务后由 SQLite 调用，以表明除非因某种原因回滚，否则当前事务会覆盖整个数据库文件。VACUUM 操作使用此功能。</p>
+
+<p><li><a name="sqlitefcntlvfsname"></a>
+
+SQLITE_FCNTL_VFSNAME 操作码可用于获取 VFS 栈中所有 <a href="../vfs.html">VFS</a> 的名称。所有 VFS 包装层和最底层 VFS 的名称都会写入由 <a href="../c3ref/free.html">sqlite3_malloc()</a> 分配的内存，并存储在 <a href="../c3ref/file_control.html">sqlite3_file_control()</a> 第四个参数所指向的 char* 变量中。调用方负责在使用完后释放该内存。与所有文件控制操作一样，不能保证此操作码一定生效。调用方应该在该 char* 变量中初始化为 NULL，以防该文件控制未实现。此文件控制仅用于诊断用途。</p>
+
+<p><li><a name="sqlitefcntlvfspointer"></a>
+
+SQLITE_FCNTL_VFS_POINTER 操作码用于查找当前正在使用的最顶层 <a href="../vfs.html">VFS</a> 的指针。sqlite3_file_control(db,SQLITE_FCNTL_VFS_POINTER,X) 中的参数 X 必须为 "<a href="../c3ref/vfs.html">sqlite3_vfs</a> **" 类型。此操作码会将 *X 设置为指向最顶层 VFS 的指针。当堆栈中存在多个 VFS 包装层时，该操作码只能找到最上面的包装层。</p>
+
+<p><li><a name="sqlitefcntlpragma"></a>
+
+在解析 <a href="../pragma.html#syntax">PRAGMA</a> 语句时，会向对应 PRAGMA 所引用的数据库文件的打开 <a href="../c3ref/file.html">sqlite3_file</a> 对象发送 SQLITE_FCNTL_PRAGMA 文件控制。此文件控制的参数是字符串指针数组（char**），其中数组的第二个元素是 PRAGMA 名称，第三个元素是 PRAGMA 的参数，若无参数则为 NULL。SQLITE_FCNTL_PRAGMA 文件控制的处理程序可以选择让 char** 参数的第一个元素指向由 <a href="../c3ref/mprintf.html">sqlite3_mprintf()</a> 或等效方法获取的字符串，该字符串将成为 PRAGMA 的结果，若 PRAGMA 失败则作为错误消息。如果 SQLITE_FCNTL_PRAGMA 文件控制返回 <a href="../rescode.html#notfound">SQLITE_NOTFOUND</a>，则继续正常的 PRAGMA 处理。如果返回 <a href="../rescode.html#ok">SQLITE_OK</a>，解析器认为 VFS 已自行处理 PRAGMA，并在结果字符串为 NULL 时生成一个空操作预处理语句，在结果字符串非 NULL 时返回该字符串的副本。如果 SQLITE_FCNTL_PRAGMA 文件控制返回除 <a href="../rescode.html#ok">SQLITE_OK</a> 或 <a href="../rescode.html#notfound">SQLITE_NOTFOUND</a> 之外的任意代码，则表示 VFS 在处理 PRAGMA 时遇到错误，PRAGMA 的编译将失败并报错。SQLITE_FCNTL_PRAGMA 文件控制在 PRAGMA 语句分析的开始阶段触发，因此可以覆盖内建 <a href="../pragma.html#syntax">PRAGMA</a> 语句。</p>
+
+<p><li><a name="sqlitefcntlbusyhandler"></a>
+
+SQLITE_FCNTL_BUSYHANDLER 文件控制可能在数据库文件句柄打开后不久由 SQLite 调用，以便让自定义 VFS 访问连接的 busy-handler 回调。参数类型为 (void**)，是包含两个 (void *) 值的数组。第一个 (void *) 实际上指向一个类型为 (int (*)(void *)) 的函数。要调用连接的 busy-handler，应使用数组中的第二个 (void *) 作为唯一参数调用该函数。如果返回非零，则应该重试操作；如果返回零，则自定义 VFS 应放弃当前操作。</p>
+
+<p><li><a name="sqlitefcntltempfilename"></a>
+
+应用程序可以调用 SQLITE_FCNTL_TEMPFILENAME 文件控制，要求 SQLite 使用与为 TEMP 表及其他内部用途生成临时文件名相同的算法生成临时文件名。参数应该是一个 char**，该字符串会写入由 <a href="../c3ref/free.html">sqlite3_malloc()</a> 获取的内存中。调用方应当调用 <a href="../c3ref/free.html">sqlite3_free()</a> 释放结果以避免内存泄漏。</p>
+
+<p><li><a name="sqlitefcntlmmapsize"></a>
+
+SQLITE_FCNTL_MMAP_SIZE 文件控制用于查询或设置用于内存映射 I/O 的最大字节数。参数是指向 sqlite3_int64 的指针，表示要映射的建议最大字节数。该指针会被覆盖为旧值。如果最初指向的值为负数，则不会更改限制，因此可以传入负值以查询当前限制。此文件控制由 <a href="../pragma.html#pragma_mmap_size">PRAGMA mmap_size</a> 内部调用。</p>
+
+<p><li><a name="sqlitefcntltrace"></a>
+
+SQLITE_FCNTL_TRACE 文件控制会向 VFS 提供关于 SQLite 栈上层正在执行的操作的建议性信息。部分 VFS 活动跟踪 <a href="../vfs.html#shim">shim</a> 会使用此文件控制。参数为以 NUL 结尾的字符串。只有在启用了 <a href="../compile.html#use_fcntl_trace">SQLITE_USE_FCNTL_TRACE</a> 编译选项时，上层才能生成此文件控制。</p>
+
+<p><li><a name="sqlitefcntlhasmoved"></a>
+
+SQLITE_FCNTL_HAS_MOVED 文件控制将其参数解释为指向整数的指针，并根据文件自首次打开后是否被重命名、移动或删除，将布尔值写入该整数。</p>
+
+<p><li><a name="sqlitefcntlwin32gethandle"></a>
+
+SQLITE_FCNTL_WIN32_GET_HANDLE 操作码可用于获取与文件句柄关联的底层本机文件句柄。此文件控制将其参数解释为指向本机文件句柄的指针，并将结果写入其中。</p>
+
+<p><li><a name="sqlitefcntlwin32sethandle"></a>
+
+SQLITE_FCNTL_WIN32_SET_HANDLE 操作码用于调试。此操作码使 xFileControl 方法与 pArg 参数指向的文件句柄交换。该功能用于测试，仅在定义 SQLITE_TEST 时需要支持。</p>
+
+<p><li><a name="sqlitefcntlnullio"></a>
+
+SQLITE_FCNTL_NULL_IO 操作码将 <a href="../c3ref/file.html">sqlite3_file</a> 对象的底层文件描述符或文件句柄设置为不再读取或写入数据库文件。</p>
+
+<p><li><a name="sqlitefcntlwalblock"></a>
+
+SQLITE_FCNTL_WAL_BLOCK 是一个信号，通知 VFS 层如果下一次 WAL 锁不可立即获得，则可能需要阻塞。WAL 子系统在少见情况下发出此信号以解决优先级反转问题。应用程序不应使用该文件控制。</p>
+
+<p><li><a name="sqlitefcntlzipvfs"></a>
+
+SQLITE_FCNTL_ZIPVFS 操作码仅由 zipvfs 实现。所有其他 VFS 应对该操作码返回 SQLITE_NOTFOUND。</p>
+
+<p><li><a name="sqlitefcntlrbu"></a>
+
+SQLITE_FCNTL_RBU 操作码仅由 RBU 扩展所使用的特殊 VFS 实现。所有其他 VFS 应对该操作码返回 SQLITE_NOTFOUND。</p>
+
+<p><li><a name="sqlitefcntlbeginatomicwrite"></a>
+
+如果 SQLITE_FCNTL_BEGIN_ATOMIC_WRITE 操作码返回 SQLITE_OK，则文件描述符进入“批量写入模式”，意味着所有后续写操作将在下一个 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlcommitatomicwrite">SQLITE_FCNTL_COMMIT_ATOMIC_WRITE</a> 中延迟并以原子方式完成。不支持批量原子写入的系统会返回 SQLITE_NOTFOUND。在成功调用 SQLITE_FCNTL_BEGIN_ATOMIC_WRITE 之后、调用 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlcommitatomicwrite">SQLITE_FCNTL_COMMIT_ATOMIC_WRITE</a> 或 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlrollbackatomicwrite">SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE</a> 之前，SQLite 不会在同一个 <a href="../c3ref/file.html">sqlite3_file</a> 文件描述符上调用除 xWrite 方法和带有 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlsizehint">SQLITE_FCNTL_SIZE_HINT</a> 的 xFileControl 方法以外的任何 VFS 接口。</p>
+
+<p><li><a name="sqlitefcntlcommitatomicwrite"></a>
+
+SQLITE_FCNTL_COMMIT_ATOMIC_WRITE 操作码会原子性地执行自上一次成功调用 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlbeginatomicwrite">SQLITE_FCNTL_BEGIN_ATOMIC_WRITE</a> 以来的所有写操作。只有当所有写入成功并已提交到持久存储时，此文件控制才返回 <a href="../rescode.html#ok">SQLITE_OK</a>。无论成功与否，该文件控制都会使文件描述符退出批量写入模式，从而使所有后续写操作独立进行。SQLite 从不会在未成功调用 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlbeginatomicwrite">SQLITE_FCNTL_BEGIN_ATOMIC_WRITE</a> 的情况下调用 SQLITE_FCNTL_COMMIT_ATOMIC_WRITE。</p>
+
+<p><li><a name="sqlitefcntlrollbackatomicwrite"></a>
+
+SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE 操作码会将自上一次成功调用 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlbeginatomicwrite">SQLITE_FCNTL_BEGIN_ATOMIC_WRITE</a> 以来的所有写操作回滚。该文件控制会使文件描述符退出批量写入模式，从而使所有后续写操作独立进行。SQLite 从不会在未成功调用 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlbeginatomicwrite">SQLITE_FCNTL_BEGIN_ATOMIC_WRITE</a> 的情况下调用 SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE。</p>
+
+<p><li><a name="sqlitefcntllocktimeout"></a>
+
+SQLITE_FCNTL_LOCK_TIMEOUT 操作码用于配置 VFS，在尝试通过 VFS 的 xLock 或 xShmLock 方法获取文件锁时，最多阻塞 M 毫秒才会失败。参数是指向 32 位有符号整数的指针，该整数包含要设置的 M 值。返回前，该整数会被覆盖为先前的 M 值。</p>
+
+<p><li><a name="sqlitefcntlblockonconnect"></a>
+
+SQLITE_FCNTL_BLOCK_ON_CONNECT 操作码用于配置 VFS 在连接到 wal 模式数据库时获取 SHARED 锁时阻塞。这用于实现与 SQLITE_SETLK_BLOCK_ON_CONNECT 相关的功能。</p>
+
+<p><li><a name="sqlitefcntldataversion"></a>
+
+SQLITE_FCNTL_DATA_VERSION 操作码用于检测数据库文件的更改。参数是指向 32 位无符号整数的指针。该指针会写入与该数据库文件对应的 pager 的“数据版本”。每当该数据库文件发生任何更改，不论是由同一数据库连接发出的 SQL 语句还是其他数据库连接（可能在其他进程中）提交的事务，该“数据版本”都会变化。<a href="../c3ref/total_changes.html">sqlite3_total_changes()</a> 接口可用于判断该连接上的任何数据库是否发生变化，但该接口会响应 TEMP 与 MAIN 的更改，并且无法检测仅针对 MAIN 的更改。此外，<a href="../c3ref/total_changes.html">sqlite3_total_changes()</a> 仅响应内部更改，忽略其他数据库连接所做的更改。<a href="../pragma.html#pragma_data_version">PRAGMA data_version</a> 命令提供了检测其他数据库连接所做更改的机制，但会忽略调用它的数据库连接自身所做的更改。该文件控制是唯一能够检测与特定附加数据库相关的、来自内部或外部的更改的机制。</p>
+
+<p><li><a name="sqlitefcntlckptstart"></a>
+
+SQLITE_FCNTL_CKPT_START 操作码在 wal 模式下的检查点内部调用，在客户端开始将页面从 wal 文件复制到数据库文件之前触发。</p>
+
+<p><li><a name="sqlitefcntlckptdone"></a>
+
+SQLITE_FCNTL_CKPT_DONE 操作码在 wal 模式下的检查点内部调用，在客户端完成将页面从 wal 文件复制到数据库文件之后，但在更新 *-shm 文件以记录页面已完成检查点之前触发。</p>
+
+<p><li><a name="sqlitefcntlexternalreader"></a>
+
+实验性 SQLITE_FCNTL_EXTERNAL_READER 操作码用于检测另一个进程中是否有数据库客户端在 wal 模式下打开该数据库的事务。仅在 Unix 上可用。传入的 (void*) 参数应指向一个 (int) 类型的值。如果数据库是 wal 模式并且至少存在一个其他进程的客户端当前在该数据库上打开 SQL 事务，则整数被设置为 1。如果数据库不是 wal 模式，或在任何其他进程中不存在这样的连接，则设置为 0。此操作码无法检测当前进程内部客户端打开的事务，只能检测其他进程中的事务。</p>
+
+<p><li><a name="sqlitefcntlcksmfile"></a>
+
+SQLITE_FCNTL_CKSM_FILE 操作码仅供 <a href="../cksumvfs.html">checksum VFS shim</a> 内部使用。</p>
+
+<p><li><a name="sqlitefcntlresetcache"></a>
+
+如果当前数据库上没有打开的事务，并且数据库不是临时数据库，则 SQLITE_FCNTL_RESET_CACHE 文件控制会清除内存页面缓存的内容。如果存在打开的事务，或者该 db 是临时数据库，则该操作码为无操作，而非错误。</p>
+
+<p><li><a name="sqlitefcntlfilestat"></a>
+
+SQLITE_FCNTL_FILESTAT 操作码返回有关用于访问给定模式的数据库和日志文件的 <a href="../c3ref/file.html">sqlite3_file</a> 对象的底层诊断信息。传给 <a href="../c3ref/file_control.html">sqlite3_file_control()</a> 的第四个参数应为已初始化的 <a href="../c3ref/str.html">sqlite3_str</a> 指针。描述 sqlite3_file 对象各个方面的 JSON 文本会附加到 sqlite3_str。除非编译时选项启用，否则 SQLITE_FCNTL_FILESTAT 操作码通常为无操作。</ul>
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 以及
+  <a href="../c3ref/funclist.html">函数</a> 的列表。
+</p>
+

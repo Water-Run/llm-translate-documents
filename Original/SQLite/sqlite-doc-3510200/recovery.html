@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>Recovering Data From A Corrupt SQLite Database</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='about.html'>About</a>
+<li class='desktoponly'><a href="docs.html">Documentation</a>
+<li class='desktoponly'><a href="download.html">Download</a>
+<li class='wideonly'><a href='copyright.html'>License</a>
+<li class='desktoponly'><a href="support.html">Support</a>
+<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>About</a>
+<li><a href='docs.html'>Documentation</a>
+<li><a href='download.html'>Download</a>
+<li><a href='support.html'>Support</a>
+<li><a href='prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+Recovering Data From A Corrupt SQLite Database
+</div>
+<details class="fancy_toc">
+<summary>Table Of Contents</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#recovering_some_data_from_a_corrupt_sqlite_database">1. Recovering (Some) Data From A Corrupt SQLite Database</a></div>
+<div class="fancy-toc2"><a href="#limitations">1.1. Limitations</a></div>
+<div class="fancy-toc1"><a href="#recovery_using_the_recover_command_in_the_cli">2. Recovery Using The ".recover" Command In The CLI</a></div>
+<div class="fancy-toc1"><a href="#building_the_recovery_api_into_an_application">3. Building The Recovery API Into An Application</a></div>
+<div class="fancy-toc2"><a href="#source_code_files">3.1. Source Code Files</a></div>
+<div class="fancy-toc2"><a href="#how_to_implement_recovery">3.2. How To Implement Recovery</a></div>
+<div class="fancy-toc2"><a href="#example_implementations">3.3. Example Implementations</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+<h1 id="recovering_some_data_from_a_corrupt_sqlite_database"><span>1. </span>Recovering (Some) Data From A Corrupt SQLite Database</h1>
+
+<p>
+SQLite databases are remarkably robust.  Application faults and
+power failures typically leave the content of the database intact.
+However, it is possible to <a href="howtocorrupt.html">corrupt an SQLite database</a>.
+For example, hardware malfunctions can damage the database file, or a
+rogue process can open the database and overwrite parts of it.
+
+</p><p>
+Given a corrupt database file, it is sometimes desirable to try to
+salvage as much data from the file as possible.  The recovery API
+is designed to facilitate this.
+
+</p><h2 id="limitations"><span>1.1. </span>Limitations</h2>
+
+<p>
+It is sometimes possible to perfectly restore a database that has
+gone corrupt, but that is the exception.  Usually
+the recovered database will be defective in a number of ways:
+
+</p><ul>
+<li><p>
+Some content might be permanently deleted and unrecoverable.
+This can happen, for example, if a rogue process overwrites part
+of the database file.
+
+</p></li><li><p>
+Previously deleted content might reappear.  Normally when SQLite
+does a DELETE operation, it does not actually overwrite the old content
+but instead remembers that space is available for reuse during the next
+INSERT.  If such deleted content is still in the file when a recovery
+is attempted, it might be extracted and "resurrected".
+
+</p></li><li><p>
+Recovered content might be altered.
+For example, the value stored in a particular row
+might change from 48 to 49.  Or it might change from an integer into
+a string or blob.  A value that was NULL might become an integer.
+A string value might become a BLOB.  And so forth.
+
+</p></li><li><p>
+Constraints may not be valid after recovery.  CHECK constraints, 
+FOREIGN KEY constraints, UNIQUE constraints, type constraints on
+<a href="stricttables.html">STRICT tables</a> - any of these might be violated in the recovered
+database.
+
+</p></li><li><p>
+Content might be moved from one table into another.
+</p></li></ul>
+
+<p>
+The recovery API does as good of a job as it can at restoring a database,
+but the results will always be suspect.  Sometimes (for example if the
+corruption is restricted to indexes) the recovery will perfectly restore
+the database content.  However in other cases, the recovery will be imperfect.
+The impact of this imperfection depends on the application.  A database that
+holds a list of bookmarks is still a list of bookmarks after recovery.
+A few bookmarks might be missing or added or altered after recovery, but
+the list is "fuzzy" and imperfect to begin with so adding a bit more
+uncertainty will not be fatal to the application.  But if an accounting
+database goes corrupt and is subsequently recovered, the books might be
+out of balance.
+
+</p><p>
+It is best to think of the recovery API as a salvage undertaking.
+Recovery will extract as much usable data as it can from the wreck
+of the old database, but some parts may be damaged beyond repair and
+some rework and testing should be performed prior to returning the
+recovered database to service.
+
+</p><h1 id="recovery_using_the_recover_command_in_the_cli"><span>2. </span>Recovery Using The ".recover" Command In The CLI</h1>
+
+<p>
+The easiest way to manually recover a corrupt database is using
+the <a href="cli.html">Command Line Interface</a> or "CLI" for SQLite.  The CLI is a program
+named "sqlite3".  Use it to recover a corrupt database file using
+a command similar to the following:
+
+</p><div class="codeblock"><pre>sqlite3 corrupt.db .recover &gt;data.sql
+</pre></div>
+
+<p>
+This will generate SQL text in the file named "data.sql" that can be used
+to reconstruct the original database:
+
+</p><div class="codeblock"><pre>sqlite3 recovered.db &lt;data.sql
+</pre></div>
+
+<p>
+The ".recover" option is actually a command that is issued to the
+CLI.  That command can accept arguments.  For example, by running:
+
+</p><div class="codeblock"><pre>sqlite3 corruptdb ".recover --ignore-freelist" &gt;data.sql
+</pre></div>
+
+<p>
+Notice that the ".recover" command and its arguments must be contained
+in quotes.  The following options are supported:
+
+</p><p>
+</p><blockquote>
+<dt>--ignore-freelist</dt>
+<dd><p>
+Ignore pages of the database that appear to be part of the
+freelist.  Normally the freelist is scanned, and if it contains
+pages that look like they have content, that content is output.
+But if the page really is on the freelist, that can mean that
+previously deleted information is reintroduced into the database.
+</p></dd>
+
+<dt>--lost-and-found <i>TABLE</i></dt>
+<dd><p>
+If content is found during recovery that cannot be associated
+with a particular table, it is put into the "lost_and_found"
+table.  Use this option to change the name of the
+"lost_and_found" table to "TABLE".
+</p></dd>
+
+<dt>--no-rowids</dt>
+<dd><p>
+If this option is provided, then rowid values that are not also
+INTEGER PRIMARY KEY values are not extracted from the
+corrupt database.
+</p></dd>
+
+</blockquote>
+
+<h1 id="building_the_recovery_api_into_an_application"><span>3. </span>Building The Recovery API Into An Application</h1>
+
+<h2 id="source_code_files"><span>3.1. </span>Source Code Files</h2>
+
+<p>If you want to build the recovery API into your application, you will
+need to add some source files to your build, above and beyond the usual
+"sqlite3.c" and "sqlite3.h" source files.  You will need:
+
+</p><p>
+</p><blockquote>
+<table border="0" cellpadding="20">
+<tr>
+<td>
+<a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.c">sqlite3recover.c</a>
+</td><td>
+This is the main source file that implements the recovery API.
+</td>
+</tr>
+
+<tr>
+<td>
+<a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.h">sqlite3recover.h</a>
+</td><td>
+This is the header file that goes with sqlite3recover.h.
+</td>
+</tr>
+
+<tr>
+<td>
+<a href="https://sqlite.org/src/file/ext/recover/dbdata.c">dbdata.c</a>
+</td><td>
+This file implements two virtual tables name "sqlite_dbdata" and
+"sqlite_dbptr" that are required by sqlite3recover.c.
+</td>
+</tr>
+</table>
+</blockquote>
+
+<p>
+The two C source files above need to be linked into your application in the
+same way as "sqlite3.c" is linked in.  And the header file needs to be
+accessible to the compiler when the C files are being compiled.
+
+</p><p>
+Additionally, the application, or more specifically the sqlite3.c linked
+into the application, must be compiled with the following option:
+</p><pre>
+        -DSQLITE_ENABLE_DBPAGE_VTAB
+</pre>
+
+<h2 id="how_to_implement_recovery"><span>3.2. </span>How To Implement Recovery</h2>
+
+<p>These are the basic steps needed to recover content from a corrupt
+database:
+
+</p><ol>
+<li><p>
+Creates an sqlite3_recover handle by calling either
+sqlite3_recover_init() or sqlite3_recover_init_sql().
+Use sqlite3_recover_init() to store the recovered content
+in a separate database and use sqlite3_recover_init_sql()
+to generate SQL text that will reconstruct the database.
+
+</p></li><li><p>
+Make zero or more calls to sqlite3_recover_config() to set
+options on the new sqlite3_recovery handle.
+
+</p></li><li><p>
+Invoke sqlite3_recover_step() repeatedly
+until it returns something other than SQLITE_OK. If it
+returns SQLITE_DONE, then the recovery operation completed without 
+error. If it returns some other non-SQLITE_OK value, then an error 
+has occurred.  The sqlite3_recover_run() interface is also
+available as a convenience wrapper that simply invokes
+sqlite3_recover_step() repeatedly until it returns something other
+than SQLITE_DONE.
+
+</p></li><li><p>
+Retrieves any error code and English language error message using the
+sqlite3_recover_errcode() and sqlite3_recover_errmsg() interfaces,
+respectively.
+
+</p></li><li><p>
+Invoke sqlite3_recover_finish() to destroy the sqlite3_recover object.
+</p></li></ol>
+
+<p>
+Details of the interface are described in comments in the
+<a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.h">sqlite3_recover.h header file</a>.
+
+</p><h2 id="example_implementations"><span>3.3. </span>Example Implementations</h2>
+
+
+<p>
+Examples of how the recovery extension is used by SQLite itself
+can be seen at the following links:
+
+</p><ul>
+<li><p><a href="https://sqlite.org/src/info/30475c820dc5ab8a8?ln=999,1026">https://sqlite.org/src/info/30475c820dc5ab8a8?ln=999,1026</a>
+</p><p>
+An example of the recovery extension found in the 
+"fuzzcheck" testing utility in the SQLite tree.
+
+</p></li><li><p><a href="https://sqlite.org/src/info/84bb08d8762920285f08f1c0?ln=7299,7361">https://sqlite.org/src/info/84bb08d8762920285f08f1c0?ln=7299,7361</a>
+</p><p>
+The code that implements the ".recover" command in the <a href="cli.html">CLI</a>.
+</p></li></ul>
+<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+

@@ -1,0 +1,432 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>配置选项</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随意选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_CONFIG_COVERING_INDEX_SCAN SQLITE_CONFIG_GETMALLOC SQLITE_CONFIG_GETMUTEX SQLITE_CONFIG_GETPCACHE SQLITE_CONFIG_GETPCACHE2 SQLITE_CONFIG_HEAP SQLITE_CONFIG_LOG SQLITE_CONFIG_LOOKASIDE SQLITE_CONFIG_MALLOC SQLITE_CONFIG_MEMDB_MAXSIZE SQLITE_CONFIG_MEMSTATUS SQLITE_CONFIG_MMAP_SIZE SQLITE_CONFIG_MULTITHREAD SQLITE_CONFIG_MUTEX SQLITE_CONFIG_PAGECACHE SQLITE_CONFIG_PCACHE SQLITE_CONFIG_PCACHE2 SQLITE_CONFIG_PCACHE_HDRSZ SQLITE_CONFIG_PMASZ SQLITE_CONFIG_ROWID_IN_VIEW SQLITE_CONFIG_SCRATCH SQLITE_CONFIG_SERIALIZED SQLITE_CONFIG_SINGLETHREAD SQLITE_CONFIG_SMALL_MALLOC SQLITE_CONFIG_SORTERREF_SIZE SQLITE_CONFIG_SQLLOG SQLITE_CONFIG_STMTJRNL_SPILL SQLITE_CONFIG_URI SQLITE_CONFIG_WIN32_HEAPSIZE {configuration option} -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>配置选项</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_CONFIG_SINGLETHREAD         1  /* nil */
+#define SQLITE_CONFIG_MULTITHREAD          2  /* nil */
+#define SQLITE_CONFIG_SERIALIZED           3  /* nil */
+#define SQLITE_CONFIG_MALLOC               4  /* sqlite3_mem_methods* */
+#define SQLITE_CONFIG_GETMALLOC            5  /* sqlite3_mem_methods* */
+#define SQLITE_CONFIG_SCRATCH              6  /* No longer used */
+#define SQLITE_CONFIG_PAGECACHE            7  /* void*, int sz, int N */
+#define SQLITE_CONFIG_HEAP                 8  /* void*, int nByte, int min */
+#define SQLITE_CONFIG_MEMSTATUS            9  /* boolean */
+#define SQLITE_CONFIG_MUTEX               10  /* sqlite3_mutex_methods* */
+#define SQLITE_CONFIG_GETMUTEX            11  /* sqlite3_mutex_methods* */
+/* previously SQLITE_CONFIG_CHUNKALLOC    12 which is now unused. */
+#define SQLITE_CONFIG_LOOKASIDE           13  /* int int */
+#define SQLITE_CONFIG_PCACHE              14  /* no-op */
+#define SQLITE_CONFIG_GETPCACHE           15  /* no-op */
+#define SQLITE_CONFIG_LOG                 16  /* xFunc, void* */
+#define SQLITE_CONFIG_URI                 17  /* int */
+#define SQLITE_CONFIG_PCACHE2             18  /* sqlite3_pcache_methods2* */
+#define SQLITE_CONFIG_GETPCACHE2          19  /* sqlite3_pcache_methods2* */
+#define SQLITE_CONFIG_COVERING_INDEX_SCAN 20  /* int */
+#define SQLITE_CONFIG_SQLLOG              21  /* xSqllog, void* */
+#define SQLITE_CONFIG_MMAP_SIZE           22  /* sqlite3_int64, sqlite3_int64 */
+#define SQLITE_CONFIG_WIN32_HEAPSIZE      23  /* int nByte */
+#define SQLITE_CONFIG_PCACHE_HDRSZ        24  /* int *psz */
+#define SQLITE_CONFIG_PMASZ               25  /* unsigned int szPma */
+#define SQLITE_CONFIG_STMTJRNL_SPILL      26  /* int nByte */
+#define SQLITE_CONFIG_SMALL_MALLOC        27  /* boolean */
+#define SQLITE_CONFIG_SORTERREF_SIZE      28  /* int nByte */
+#define SQLITE_CONFIG_MEMDB_MAXSIZE       29  /* sqlite3_int64 */
+#define SQLITE_CONFIG_ROWID_IN_VIEW       30  /* int* */
+</pre></blockquote>
+<p>
+这些常量是可以作为<a href="../c3ref/config.html">sqlite3_config()</a>接口第一个参数传入的整数配置选项。</p>
+
+<p>大多数sqlite3_config()的配置选项
+只有在调用<a href="../c3ref/initialize.html">sqlite3_initialize()</a>之前或在
+<a href="../c3ref/initialize.html">sqlite3_shutdown()</a>之后才有效。对此规则的少数例外被称为
+“任意时刻配置选项”。
+如果在调用<a href="../c3ref/initialize.html">sqlite3_initialize()</a>与
+<a href="../c3ref/initialize.html">sqlite3_shutdown()</a>之间调用<a href="../c3ref/config.html">sqlite3_config()</a>并且第一个参数不是
+任意时刻配置选项，则此调用无效并返回SQLITE_MISUSE。</p>
+
+<p>任意时刻配置选项集合可能会在SQLite的不同发布版本之间发生变化（通过添加或删除）。
+截至SQLite 3.42.0版本，完整的任意时刻配置选项集合为：
+<ul>
+<li> SQLITE_CONFIG_LOG
+<li> SQLITE_CONFIG_PCACHE_HDRSZ
+</ul></p>
+
+<p>将来版本可能会添加新的配置选项。
+现有配置选项可能会被弃用。应用程序应检查<a href="../c3ref/config.html">sqlite3_config()</a>的返回码以确保调用成功。
+如果调用了已停止或不受支持的配置选项，<a href="../c3ref/config.html">sqlite3_config()</a>接口将返回非零<a href="../rescode.html">错误代码</a>。</p>
+
+<p><dl>
+<a name="sqliteconfigsinglethread"></a>
+ <dt>SQLITE_CONFIG_SINGLETHREAD</dt>
+<dd>此选项无参数。它将<a href="../threadsafe.html">线程模式</a>设置为单线程。
+换句话说，它禁用所有互斥锁，使SQLite只能被单个线程使用。
+如果SQLite是在启用了<a href="../compile.html#threadsafe">SQLITE_THREADSAFE=0</a>编译选项的情况下构建的，
+则无法将<a href="../threadsafe.html">线程模式</a>从默认的单线程更改，因此如果使用SQLITE_CONFIG_SINGLETHREAD配置选项调用<a href="../c3ref/config.html">sqlite3_config()</a>，
+将返回<a href="../rescode.html#error">SQLITE_ERROR</a>。</dd></p>
+
+<p><a name="sqliteconfigmultithread"></a>
+ <dt>SQLITE_CONFIG_MULTITHREAD</dt>
+<dd>此选项无参数。它将<a href="../threadsafe.html">线程模式</a>设置为多线程。
+也就是说，它禁用对<a href="../c3ref/sqlite3.html">数据库连接</a>和<a href="../c3ref/stmt.html">准备语句</a>对象的互斥；
+应用程序负责串行化对数据库连接和准备语句的访问。但其他互斥仍然启用，
+因此只要没有两个线程尝试同时使用同一个数据库连接，SQLite在多线程环境下仍然安全。
+如果SQLite是在启用了<a href="../compile.html#threadsafe">SQLITE_THREADSAFE=0</a>选项下编译的，
+则无法设置多线程<a href="../threadsafe.html">线程模式</a>，并且使用SQLITE_CONFIG_MULTITHREAD配置选项调用<a href="../c3ref/config.html">sqlite3_config()</a>会返回<a href="../rescode.html#error">SQLITE_ERROR</a>。</dd></p>
+
+<p><a name="sqliteconfigserialized"></a>
+ <dt>SQLITE_CONFIG_SERIALIZED</dt>
+<dd>此选项无参数。它将<a href="../threadsafe.html">线程模式</a>设置为序列化。
+换句话说，此选项启用所有互斥锁，包括对<a href="../c3ref/sqlite3.html">数据库连接</a>和<a href="../c3ref/stmt.html">准备语句</a>对象的递归互斥锁。
+在这种模式下（当SQLite以<a href="../compile.html#threadsafe">SQLITE_THREADSAFE=1</a>编译时的默认值），
+SQLite库自身会序列化对数据库连接和准备语句的访问，因此应用程序可以在不同线程同时使用同一个数据库连接或准备语句。
+如果SQLite是以<a href="../compile.html#threadsafe">SQLITE_THREADSAFE=0</a>编译的，则无法设置序列化线程模式，
+并且使用SQLITE_CONFIG_SERIALIZED配置选项调用<a href="../c3ref/config.html">sqlite3_config()</a>会返回<a href="../rescode.html#error">SQLITE_ERROR</a>。</dd></p>
+
+<p><a name="sqliteconfigmalloc"></a>
+ <dt>SQLITE_CONFIG_MALLOC</dt>
+<dd>SQLITE_CONFIG_MALLOC选项接受一个参数，该参数是指向<a href="../c3ref/mem_methods.html">sqlite3_mem_methods</a>结构的指针。
+该参数指定要替代内置SQLite内存分配例程的低级内存分配函数。
+在<a href="../c3ref/config.html">sqlite3_config()</a>调用返回之前，SQLite会复制一份该<a href="../c3ref/mem_methods.html">sqlite3_mem_methods</a>结构的内容。</dd></p>
+
+<p><a name="sqliteconfiggetmalloc"></a>
+ <dt>SQLITE_CONFIG_GETMALLOC</dt>
+<dd>SQLITE_CONFIG_GETMALLOC选项接受一个参数，该参数是指向<a href="../c3ref/mem_methods.html">sqlite3_mem_methods</a>结构的指针。
+该结构会被填入当前定义的内存分配例程。
+该选项可以用于用一个模拟内存分配失败或跟踪内存使用的包装器来重载默认内存分配例程。</dd></p>
+
+<p><a name="sqliteconfigsmallmalloc"></a>
+ <dt>SQLITE_CONFIG_SMALL_MALLOC</dt>
+<dd>SQLITE_CONFIG_SMALL_MALLOC选项接受一个类型为int的参数，将其视为布尔值；
+若为真，则提示SQLite尽可能避免大容量内存分配。
+SQLite如果能够进行大内存分配，会运行得更快，
+但某些应用可能愿意以更慢的速度换取避免大分配所带来的内存碎片保证。
+该提示通常为关闭状态。</dd></p>
+
+<p><a name="sqliteconfigmemstatus"></a>
+ <dt>SQLITE_CONFIG_MEMSTATUS</dt>
+<dd>SQLITE_CONFIG_MEMSTATUS选项接受一个类型为int的参数，将其视为布尔值，用以启用或禁用内存分配统计的收集。
+禁用统计后，下列SQLite接口将不可用：
+<ul>
+<li> <a href="../c3ref/hard_heap_limit64.html">sqlite3_hard_heap_limit64()</a>
+<li> <a href="../c3ref/memory_highwater.html">sqlite3_memory_used()</a>
+<li> <a href="../c3ref/memory_highwater.html">sqlite3_memory_highwater()</a>
+<li> <a href="../c3ref/hard_heap_limit64.html">sqlite3_soft_heap_limit64()</a>
+<li> <a href="../c3ref/status.html">sqlite3_status64()</a>
+</ul>
+除非通过启用<a href="../compile.html#default_memstatus">SQLITE_DEFAULT_MEMSTATUS</a>=0编译，
+否则默认情况下内存分配统计处于启用状态。</dd></p>
+
+<p><a name="sqliteconfigscratch"></a>
+ <dt>SQLITE_CONFIG_SCRATCH</dt>
+<dd>SQLITE_CONFIG_SCRATCH选项不再使用。</dd></p>
+
+<p><a name="sqliteconfigpagecache"></a>
+ <dt>SQLITE_CONFIG_PAGECACHE</dt>
+<dd>SQLITE_CONFIG_PAGECACHE选项指定一个内存池，
+供SQLite在默认页缓存实现中用于数据库页缓存。
+如果使用<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpcache2">SQLITE_CONFIG_PCACHE2</a>加载了自定义页缓存实现，则此配置项为无操作。
+SQLITE_CONFIG_PAGECACHE接受三个参数：指向8字节对齐内存的指针(pMem)，每个页缓存行的大小(sz)以及缓存行数量(N)。
+sz应为最大数据库页大小（介于512到65536之间的2的幂）加上每个页头需要的额外字节。
+页头所需的额外字节可以通过<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpcachehdrsz">SQLITE_CONFIG_PCACHE_HDRSZ</a>确定。
+sz参数大于必要值除了浪费内存外不会有其他影响。
+pMem必须为NULL或至少sz*N字节的8字节对齐内存块，否则后续行为未定义。
+当pMem非NULL时，SQLite会尽量使用提供的内存来满足页缓存需求；若页缓存行大于sz或pMem缓存耗尽，则退回到<a href="../c3ref/free.html">sqlite3_malloc()</a>。
+如果pMem为NULL且N非零，则每个数据库连接会从<a href="../c3ref/free.html">sqlite3_malloc()</a>进行一次初始批量分配，
+如果N为正则为N个缓存行所需的内存，如果N为负则分配-1024*N字节。
+若后续需要超过初始分配的页缓存内存，则SQLite会为每个额外缓存行分别调用<a href="../c3ref/free.html">sqlite3_malloc()</a>。</dd></p>
+
+<p><a name="sqliteconfigheap"></a>
+ <dt>SQLITE_CONFIG_HEAP</dt>
+<dd>SQLITE_CONFIG_HEAP选项指定一个静态内存缓冲区，
+SQLite将其用于除<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a>之外的所有动态内存分配。
+若要使用该选项，SQLite必须在编译时启用了<a href="../compile.html#enable_memsys3">SQLITE_ENABLE_MEMSYS3</a>或<a href="../compile.html#enable_memsys5">SQLITE_ENABLE_MEMSYS5</a>之一；
+否则调用将返回<a href="../rescode.html#error">SQLITE_ERROR</a>。
+SQLITE_CONFIG_HEAP接受三个参数：8字节对齐的内存指针、缓冲区的字节数和最小分配大小。
+如果内存指针为NULL，则SQLite恢复使用默认内存分配器（系统malloc实现），撤销之前对<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmalloc">SQLITE_CONFIG_MALLOC</a>的调用。
+如果指针非NULL，则替代的内存分配器将负责SQLite的所有内存分配。
+内存指针必须对齐到8字节边界，否则后续行为未定义。
+最小分配大小上限为2**12，合理值为2**5到2**8。</dd></p>
+
+<p><a name="sqliteconfigmutex"></a>
+ <dt>SQLITE_CONFIG_MUTEX</dt>
+<dd>SQLITE_CONFIG_MUTEX选项接受一个参数，即指向<a href="../c3ref/mutex_methods.html">sqlite3_mutex_methods</a>结构的指针。
+该参数指定替代内置SQLite互斥例程的低级互斥函数。
+在<a href="../c3ref/config.html">sqlite3_config()</a>返回前，SQLite会复制一份该结构的内容。
+如果SQLite以<a href="../compile.html#threadsafe">SQLITE_THREADSAFE=0</a>编译，则互斥子系统会被完全移除，
+此时使用SQLITE_CONFIG_MUTEX配置选项调用<a href="../c3ref/config.html">sqlite3_config()</a>会返回<a href="../rescode.html#error">SQLITE_ERROR</a>。</dd></p>
+
+<p><a name="sqliteconfiggetmutex"></a>
+ <dt>SQLITE_CONFIG_GETMUTEX</dt>
+<dd>SQLITE_CONFIG_GETMUTEX选项接受一个参数，即指向<a href="../c3ref/mutex_methods.html">sqlite3_mutex_methods</a>结构的指针。
+该结构会被填入当前定义的互斥函数。
+此选项可用于用一个用于性能分析或测试的包装器重载默认互斥分配函数。
+如果SQLite以<a href="../compile.html#threadsafe">SQLITE_THREADSAFE=0</a>编译，则互斥子系统被移除，
+此时使用SQLITE_CONFIG_GETMUTEX配置选项调用<a href="../c3ref/config.html">sqlite3_config()</a>会返回<a href="../rescode.html#error">SQLITE_ERROR</a>。</dd></p>
+
+<p><a name="sqliteconfiglookaside"></a>
+ <dt>SQLITE_CONFIG_LOOKASIDE</dt>
+<dd>SQLITE_CONFIG_LOOKASIDE选项接受两个参数，用于确定每个<a href="../c3ref/sqlite3.html">数据库连接</a>的<a href="../malloc.html#lookaside">临时内存</a>的默认大小。
+第一个参数是每个临时缓冲槽的大小（“sz”），第二个参数是为每个数据库连接分配的槽数（“cnt”）。
+SQLITE_CONFIG_LOOKASIDE设置的是默认临时内存大小。
+可以通过<a href="../c3ref/db_config.html">sqlite3_db_config()</a>的<a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfiglookaside">SQLITE_DBCONFIG_LOOKASIDE</a>选项为单独连接更改临时内存配置。
+也可以在编译时通过<a href="../compile.html#default_lookaside">-DSQLITE_DEFAULT_LOOKASIDE</a>更改默认值。</dd></p>
+
+<p><a name="sqliteconfigpcache2"></a>
+ <dt>SQLITE_CONFIG_PCACHE2</dt>
+<dd>SQLITE_CONFIG_PCACHE2选项接受一个参数，该参数是指向<a href="../c3ref/pcache_methods2.html">sqlite3_pcache_methods2</a>对象的指针。
+该对象指定自定义页缓存实现的接口。
+SQLite会复制一份该<a href="../c3ref/pcache_methods2.html">sqlite3_pcache_methods2</a>对象。</dd></p>
+
+<p><a name="sqliteconfiggetpcache2"></a>
+ <dt>SQLITE_CONFIG_GETPCACHE2</dt>
+<dd>SQLITE_CONFIG_GETPCACHE2选项接受一个参数，该参数是指向<a href="../c3ref/pcache_methods2.html">sqlite3_pcache_methods2</a>对象的指针。
+SQLite会将当前的页缓存实现拷贝到该对象中。</dd></p>
+
+<p><a name="sqliteconfiglog"></a>
+ <dt>SQLITE_CONFIG_LOG</dt>
+<dd>SQLITE_CONFIG_LOG选项用于配置SQLite的全局<a href="../errlog.html">错误日志</a>。
+该选项接受两个参数：一个类型为void(*)(void*,int,const char*)的函数指针，以及一个void指针。
+如果函数指针非空，<a href="../c3ref/log.html">sqlite3_log()</a>在处理每次日志事件时都会调用它；
+如果函数指针为空，则<a href="../c3ref/log.html">sqlite3_log()</a>成为无操作。
+第二个参数的void指针会在调用应用定义的日志函数时作为该函数的第一个参数传入。
+日志函数的第二个参数是对应<a href="../c3ref/log.html">sqlite3_log()</a>调用的第一个参数的副本，表示<a href="../rescode.html">结果码</a>或<a href="../rescode.html#extrc">扩展结果码</a>。
+第三个参数则是经过<a href="../c3ref/mprintf.html">sqlite3_snprintf()</a>格式化后的日志消息。
+SQLite的日志接口不可重入；应用提供的日志函数不得调用任何SQLite接口。
+在多线程应用中，该日志函数必须是线程安全的。</dd></p>
+
+<p><a name="sqliteconfiguri"></a>
+ <dt>SQLITE_CONFIG_URI</dt>
+<dd>SQLITE_CONFIG_URI选项接受一个类型为int的参数。
+如果非零，则全局启用URI处理；如果为零，则全局禁用URI处理。
+当全局启用时，无论<a href="../c3ref/constants.html">SQLITE_OPEN_URI</a>标志是否设置，通过<a href="../c3ref/open.html">sqlite3_open()</a>、<a href="../c3ref/open.html">sqlite3_open_v2()</a>、
+<a href="../c3ref/open.html">sqlite3_open16()</a>或在<a href="../lang_attach.html">ATTACH</a>命令中指定的所有文件名都将按URI解析。
+当全局禁用时，仅当打开数据库连接时设置了SQLITE_OPEN_URI标志，文件名才会被视为URI。
+默认情况下，URI处理全局禁用。可以通过定义<a href="../compile.html#use_uri">SQLITE_USE_URI</a>符号来改变默认设置。</dd></p>
+
+<p><a name="sqliteconfigcoveringindexscan"></a>
+ <dt>SQLITE_CONFIG_COVERING_INDEX_SCAN</dt>
+<dd>SQLITE_CONFIG_COVERING_INDEX_SCAN选项接受一个整数参数，将其视为布尔值，用于在查询优化器中启用或禁用在全表扫描中使用覆盖索引。
+默认设置由<a href="../compile.html#allow_covering_index_scan">SQLITE_ALLOW_COVERING_INDEX_SCAN</a>编译选项决定，如果省略该编译选项，则默认为“启用”。
+之所以允许禁用覆盖索引，是因为某些错误编写的旧应用在启用该优化时可能会出错。
+提供禁用优化的能力可以使旧的有缺陷的应用代码在较新的SQLite版本中无需修改即可继续运行。</dd></p>
+
+<p><a name="sqliteconfigpcache"></a>
+ <a name="sqliteconfiggetpcache"></a>
+
+<dt>SQLITE_CONFIG_PCACHE 和 SQLITE_CONFIG_GETPCACHE</dt>
+<dd>这些选项已过时，不应被新代码使用。
+它们保留以兼容历史版本，但现在已无操作。</dd></p>
+
+<p><a name="sqliteconfigsqllog"></a>
+
+<dt>SQLITE_CONFIG_SQLLOG</dt>
+<dd>只有在SQLite以<a href="../compile.html#enable_sqllog">SQLITE_ENABLE_SQLLOG</a>预处理宏编译时，该选项才可用。
+第一个参数应为类型为void(*)(void*,sqlite3*,const char*, int)的函数指针；
+第二个参数应为(void*)类型。
+库将在三个不同情形下调用回调函数，通过第四个参数的值来区分。
+若第四个参数为0，则第二个参数指向的数据库连接刚刚打开，第三个参数指向主数据库文件名的缓冲区。
+若第四个参数为1，则第三个参数指向的SQL语句刚刚执行。
+若第四个参数为2，则第二个参数所指的连接正在关闭，此时第三个参数为NULL。
+可以在SQLite源码树的“test_sqllog.c”示例中看到该配置选项的用法。</dd></p>
+
+<p><a name="sqliteconfigmmapsize"></a>
+
+<dt>SQLITE_CONFIG_MMAP_SIZE</dt>
+<dd>SQLITE_CONFIG_MMAP_SIZE接受两个64位整数（sqlite3_int64）值，
+分别表示默认的mmap大小限制（<a href="../pragma.html#pragma_mmap_size">PRAGMA mmap_size</a>的默认设置）和允许的最大mmap大小限制。
+每个数据库连接都可以通过<a href="../pragma.html#pragma_mmap_size">PRAGMA mmap_size</a>命令或<a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlmmapsize">SQLITE_FCNTL_MMAP_SIZE</a>文件控制来覆盖默认设置。
+允许的最大mmap大小会在必要时被静默截断，以确保不超过由<a href="../compile.html#max_mmap_size">SQLITE_MAX_MMAP_SIZE</a>编译选项设置的编译时最大值。
+如果任一参数为负值，则该参数会被改为其编译时默认值。</dd></p>
+
+<p><a name="sqliteconfigwin32heapsize"></a>
+
+<dt>SQLITE_CONFIG_WIN32_HEAPSIZE</dt>
+<dd>仅在SQLite以Windows平台并定义了<a href="../compile.html#win32_malloc">SQLITE_WIN32_MALLOC</a>宏编译时，该选项才可用。
+SQLITE_CONFIG_WIN32_HEAPSIZE接受一个32位无符号整数，指定创建的堆的最大尺寸。</dd></p>
+
+<p><a name="sqliteconfigpcachehdrsz"></a>
+
+<dt>SQLITE_CONFIG_PCACHE_HDRSZ</dt>
+<dd>SQLITE_CONFIG_PCACHE_HDRSZ选项接受一个参数，该参数是指向整数的指针，并将每页缓存所需的额外字节数写入该整数。
+页面缓存由<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpagecache">SQLITE_CONFIG_PAGECACHE</a>管理。
+所需的额外空间大小可能会根据编译器、目标平台和SQLite版本而变化。</dd></p>
+
+<p><a name="sqliteconfigpmasz"></a>
+
+<dt>SQLITE_CONFIG_PMASZ</dt>
+<dd>SQLITE_CONFIG_PMASZ选项接受一个无符号整数参数，设置多线程排序器的“最小PMA大小”。
+默认最小PMA大小由<a href="../compile.html#sorter_pmasz">SQLITE_SORTER_PMASZ</a>编译选项设定。
+当启用多线程排序（通过<a href="../pragma.html#pragma_threads">PRAGMA threads</a>命令）且待排序内容超过页面大小乘以<a href="../pragma.html#pragma_cache_size">PRAGMA cache_size</a>设置和该值的较小者时，会启动新线程来协助排序。</dd></p>
+
+<p><a name="sqliteconfigstmtjrnlspill"></a>
+
+<dt>SQLITE_CONFIG_STMTJRNL_SPILL</dt>
+<dd>SQLITE_CONFIG_STMTJRNL_SPILL选项接受一个参数，该参数作为<a href="../tempfiles.html#stmtjrnl">语句日志</a>溢写到磁盘的阈值。
+<a href="../tempfiles.html#stmtjrnl">语句日志</a>会在其大小（字节数）超过该阈值后写入磁盘；
+如果阈值为-1，则语句日志始终保持在内存中。
+由于许多语句日志从未变得很大，将阈值设置为诸如64KiB的值可以显著减少支持语句回滚所需的I/O量。
+该设置的默认值由<a href="../compile.html#stmtjrnl_spill">SQLITE_STMTJRNL_SPILL</a>编译选项控制。</dd></p>
+
+<p><a name="sqliteconfigsorterrefsize"></a>
+
+<dt>SQLITE_CONFIG_SORTERREF_SIZE</dt>
+<dd>SQLITE_CONFIG_SORTERREF_SIZE选项接受一个(int)类型的参数，表示新的排序引用大小阈值。
+通常，当SQLite使用外部排序根据ORDER BY子句排序记录时，记录中会包含调用者需要的所有字段。
+但是，如果SQLite根据表列的声明类型判断其值可能非常大（大于配置的排序引用阈值），则会在每个排序记录中存储一个引用，并在按排序顺序返回记录时从数据库加载所需列值。
+该选项的默认值是从不使用此优化。指定负值将恢复默认行为。
+该选项仅在SQLite以<a href="../compile.html#enable_sorter_references">SQLITE_ENABLE_SORTER_REFERENCES</a>编译时可用。</dd></p>
+
+<p><a name="sqliteconfigmemdbmaxsize"></a>
+
+<dt>SQLITE_CONFIG_MEMDB_MAXSIZE</dt>
+<dd>SQLITE_CONFIG_MEMDB_MAXSIZE选项接受一个<a href="../c3ref/int64.html">sqlite3_int64</a>参数，
+表示使用<a href="../c3ref/deserialize.html">sqlite3_deserialize()</a>创建的内存数据库的默认最大尺寸。
+可以通过<a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlsizelimit">SQLITE_FCNTL_SIZE_LIMIT</a>文件控制为单个数据库调节该默认最大值。
+如果从未使用该配置设置，则默认最大值由<a href="../compile.html#memdb_default_maxsize">SQLITE_MEMDB_DEFAULT_MAXSIZE</a>编译选项决定。
+如果该编译选项未设置，则默认最大值为1073741824。</dd></p>
+
+<p><a name="sqliteconfigrowidinview"></a>
+
+<dt>SQLITE_CONFIG_ROWID_IN_VIEW</dt>
+<dd>SQLITE_CONFIG_ROWID_IN_VIEW选项用于启用或禁用VIEW拥有ROWID的能力。
+只有在SQLite以-DSQLITE_ALLOW_ROWID_IN_VIEW编译时才可启用该能力，
+此时默认开启。该配置选项可以查询当前设置或将其切换为关闭或开启。
+参数是指向整数的指针。
+如果该整数初始值为1，则启用VIEW拥有ROWID的能力。
+如果初始值为0，则禁用该能力。
+其他初始值不会改变设置。
+更改后（如有）会向该整数写入1或0，表示该能力当前为开启或关闭。
+如果SQLite未以-DSQLITE_ALLOW_ROWID_IN_VIEW（通常且推荐的情况）编译，则无论初始值如何，该整数都始终被填入0。</dd></p>
+</dl>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>列表、
+  <a href="../c3ref/constlist.html">常量</a>列表以及
+  <a href="../c3ref/funclist.html">函数</a>列表。</p>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 作为文件格式的优势</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+
+<h1 align="center">
+SQLite 作为应用程序文件格式
+</h1>
+
+<p><i>（注：当前页面简要总结了 SQLite 作为应用程序文件格式的优势。该主题在<a href="appfileformat.html">单独的技术说明</a>中有更详细的讨论。）</i></p>
+
+<p>
+SQLite 一直被成功用作桌面应用程序的磁盘文件格式，例如版本控制系统、金融分析工具、媒体目录与编辑套件、CAD 套件、记录管理程序等。传统的“文件/打开”操作通过 sqlite3_open() 附加到数据库文件。随着应用内容的更新，更新操作会自动发生，因此“文件/保存”菜单选项变得多余。“文件/另存为”菜单选项可以使用<a href="backup.html">备份 API</a>实现。
+</p>
+
+<p>
+将 SQLite 用作应用程序文件格式具有许多优势，包括：
+</p>
+
+<ol type="1">
+<li><b>更好的性能</b>
+<ul>
+<li>从 SQLite 数据库读取和写入通常比从磁盘读取和写入单个文件更快。参见<a href="fasterthanfs.html">比文件系统快 35%</a>和<a href="intern-v-extern-blob.html">内部与外部 BLOB</a>。</li>
+<li>应用只需加载所需的数据，而不是读取整个文件并在内存中保持完整的解析内容。</li>
+<li>小的修改仅覆盖文件中发生更改的部分，从而减少写入时间并降低对 SSD 的磨损。</li>
+</ul>
+<li><b>降低应用程序成本和复杂性</b>
+<ul>
+<li>无需编写和调试应用程序文件 I/O 代码。</li>
+<li>内容可以通过简洁的 SQL 查询访问和更新，而不是冗长且易出错的过程式例程。</li>
+<li>文件格式可以通过在未来版本中添加新表和/或列来扩展，同时保持向后兼容性。</li>
+<li>应用程序可以利用<a href="fts3.html">全文搜索</a>和<a href="rtree.html">RTREE</a>索引，并使用触发器实现<a href="undoredo.html">自动撤销/重做栈</a>。</li>
+<li>即便在开发周期的后期，性能问题也经常可以通过<a href="lang_createindex.html">CREATE INDEX</a>等方式解决，避免昂贵的重设计、重写和重测工作。</li>
+</ul>
+<li><b>可移植性</b>
+<ul>
+<li>应用程序文件可以在所有操作系统、32 位与 64 位以及大端与小端架构之间移植。</li>
+<li>有可能由不同编程语言编写的一组程序可以访问同一个应用程序文件而没有兼容性问题。</li>
+<li>多个进程可以附加到同一个应用程序文件，并能够并发读写而互不干扰。</li>
+<li>本可能以“文件堆”形式存储的多样内容被封装到一个单一的磁盘文件中，便于通过 scp/ftp、USB 盘或电子邮件附件等方式传输。</li>
+</ul>
+<li><b>可靠性</b>
+<ul>
+<li>内容可以持续地进行原子更新，因此在停电或崩溃时几乎不会丢失工作。</li>
+<li>在 SQLite 中出现 bug 的概率远低于自定义文件 I/O 代码。</li>
+<li>SQL 查询远比等价的过程式代码短，而每行代码出现 bug 的概率大致相同，这意味着总体 bug 更少。</li>
+</ul>
+<li><b>可访问性</b>
+<ul>
+<li>可以使用各种第三方工具查看 SQLite 数据库内容。</li>
+<li>存储在 SQLite 数据库中的内容更有可能在几十年后被恢复，即使原始应用程序的所有痕迹都已消失。数据寿命长于代码。</li>
+<li>美国国会图书馆<a href="locrsf.html">推荐使用 SQLite 数据库文件</a>作为长期保存数字内容的存储格式。</li>
+</ul>
+</ol>
+
+<p>
+SQLite 允许数据库文件使用任何所需的文件扩展名，因此应用可以按需为自身选择自定义扩展名。可以使用<a href="pragma.html#pragma_application_id">application_id pragma</a>在数据库文件中设置“应用程序 ID”整数，让像<a href="http://www.darwinsys.com/file/">file(1)</a>这样的工具判断该文件是与您的应用程序相关，而不仅仅是通用的 SQL 数据库。</p>
+<p align="center"><small><i>此页面最近更新于 2025-05-31 13:08:22Z </i></small></p>
+
+</body></html>

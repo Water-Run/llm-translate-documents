@@ -1,0 +1,488 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 从 3.4.2 版本到 3.5.0 版本的变更</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>授权</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<h1>从 SQLite 3.4.2 升级到 3.5.0</h1><p>
+  SQLite 3.5.0 版本（2007-09-04）引入了一个新的操作系统接口层，与之前所有 SQLite 版本都不兼容。此外，某些既有接口已经被泛化，可以跨进程中的所有数据库连接（而不仅仅是某个线程中的全部连接）工作。本文旨在详细描述 3.5.0 的变更，从而让使用旧版本 SQLite 的用户判断升级到新版本需要花费多少精力（如果需要的话）。
+</p>
+<h2>1.0 变更概览</h2><p>
+  这里提供 SQLite 3.5.0 版本变更的快速列举。后续各节将更详细地描述这些变化。
+</p>
+<p>
+  <ol>
+  <li>操作系统接口层已被彻底重写：
+  <ol type="a">
+  <li>未公开的 <b>sqlite3_os_switch()</b> 接口已经被移除。</li>
+  <li><b>SQLITE_ENABLE_REDEF_IO</b> 编译时标志不再起作用。I/O 过程现在始终可重新定义。</li>
+  <li>定义了三个用于指定 I/O 过程的新对象：<a href="c3ref/vfs.html">sqlite3_vfs</a>、<a href="c3ref/file.html">sqlite3_file</a> 以及 <a href="c3ref/io_methods.html">sqlite3_io_methods</a>。</li>
+  <li>使用三个新接口来创建替代的操作系统接口：<a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a>、<a href="c3ref/vfs_find.html">sqlite3_vfs_unregister()</a> 和 <a href="c3ref/vfs_find.html">sqlite3_vfs_find()</a>。</li>
+  <li>新增了一个接口，用以在创建新的数据库连接时提供额外控制：<a href="c3ref/open.html">sqlite3_open_v2()</a>。旧的接口 <a href="c3ref/open.html">sqlite3_open()</a> 和 <a href="c3ref/open.html">sqlite3_open16()</a> 仍然完全受支持。</li>
+  </ol></li>
+  <li>在 3.3.0 版本引入的可选共享缓存与内存管理功能现在可以跨同一进程中的多个线程使用。此前这些扩展仅适用于在单个线程中运行的数据库连接。
+   <ol type="a">
+   <li><a href="c3ref/enable_shared_cache.html">sqlite3_enable_shared_cache()</a> 接口现在适用于进程中的所有线程，而不只是调用它的那个线程。</li>
+   <li><a href="c3ref/soft_heap_limit.html">sqlite3_soft_heap_limit()</a> 接口现在适用于进程中的所有线程，而不只是调用它的那个线程。</li>
+   <li><a href="c3ref/release_memory.html">sqlite3_release_memory()</a> 接口现在会尝试减少所有线程中所有数据库连接的内存使用，而不仅仅是调用接口所在线程的连接。</li>
+   <li><a href="c3ref/aggregate_count.html">sqlite3_thread_cleanup()</a> 接口现在已经变为无操作。</li>
+   </ol></li>
+  <li>允许多个线程同时使用同一个数据库连接的限制已经取消，现在多个线程可以安全地同时使用同一连接。</li>
+  <li>新增了一个编译期选项，允许应用定义替代的 malloc()/free() 实现，而无需修改任何 SQLite 核心代码。</li>
+  <li>新增了一个编译期选项，允许应用定义替代的互斥锁实现，而无需修改任何 SQLite 核心代码。</li>
+  </ol>
+</p>
+<p>
+  在这些变化中，只有 1a 和 2a 到 2c 在任何正式意义上属于不兼容变更。但此前对 SQLite 源码做过自定义修改的用户（例如为嵌入式硬件添加自定义操作系统层）可能会发现这些变更影响更大。另一方面，这些变化的一个重要目标是让在不同操作系统上定制 SQLite 更加容易。
+</p>
+<h2>2.0 操作系统接口层</h2><p>
+  如果您的系统为 SQLite 定义了自定义操作系统接口，或者正在使用未公开的 <b>sqlite3_os_switch()</b> 接口，那么您需要进行修改才能升级到 SQLite 3.5.0。乍看之下，这似乎非常麻烦。但深入观察后，您可能会发现新的 SQLite 接口让您的修改更少，更易理解与维护。您的修改现在很可能也能无缝配合 SQLite 混合体。您不再需要更改 SQLite 核心源代码。所有修改都可以通过应用代码实现，并可以链接到标准的、未经修改的 SQLite 混合体。此外，先前未公开的操作系统接口层现在已成为 SQLite 的正式支持接口，因此您可以相信这只是一次性的变更，并且新的后端在未来版本中仍然可用。
+</p>
+<h3>2.1 虚拟文件系统对象</h3><p>
+  SQLite 的新操作系统接口围绕一个名为 <a href="c3ref/vfs.html">sqlite3_vfs</a> 的对象构建。 “vfs” 代表 “虚拟文件系统”。sqlite3_vfs 对象基本上是一个结构体，包含指向实现 SQLite 所需基本磁盘 I/O 操作的函数的指针。在本文中，我们通常将 sqlite3_vfs 对象称为 “VFS”。
+</p>
+<p>
+  SQLite 能够同时使用多个 VFS。每个独立的数据库连接仅与一个 VFS 关联。但如果您有多个数据库连接，每个连接可以关联不同的 VFS。
+</p>
+<p>
+  总是存在一个默认的 VFS。旧的接口 <a href="c3ref/open.html">sqlite3_open()</a> 和 <a href="c3ref/open.html">sqlite3_open16()</a> 总是使用默认 VFS。用于创建数据库连接的新接口 <a href="c3ref/open.html">sqlite3_open_v2()</a> 允许您按名称指定想要使用的 VFS。
+</p>
+<h4>2.1.1 注册新的 VFS 对象</h4><p>
+  针对 Unix 或 Windows 的标准 SQLite 构建会带有一个名为 “unix” 或 “win32” 的单一 VFS，视具体情况而定。这个 VFS 同时也是默认 VFS。因此，如果您正在使用传统的打开函数，一切将继续像以前一样工作。变化在于，应用现在可以灵活地添加新的 VFS 模块，从而实现定制的操作系统层。可以使用 <a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a> API 告诉 SQLite 一或多个应用定义的 VFS 模块：
+</p>
+<blockquote><pre>
+int sqlite3_vfs_register(sqlite3_vfs*, int makeDflt);
+</pre></blockquote><p>
+  应用可以在任何时候调用 sqlite3_vfs_register()，尽管显然 VFS 必须在使用前注册。第一个参数是应用准备好的自定义 VFS 对象的指针。将第二个参数设为 true 可以使新 VFS 成为默认 VFS，从而让旧的 <a href="c3ref/open.html">sqlite3_open()</a> 和 <a href="c3ref/open.html">sqlite3_open16()</a> 接口使用它。如果新 VFS 不是默认 VFS，那么您很可能需要使用新的 <a href="c3ref/open.html">sqlite3_open_v2()</a> 接口来使用它。但请注意，如果新 VFS 是 SQLite 已知的唯一 VFS（如果在编译时移除了默认 VFS，或者通过 <a href="c3ref/vfs_find.html">sqlite3_vfs_unregister()</a> 删除了预编译的默认 VFS），那么新 VFS 会自动成为默认 VFS，而不管传给 <a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a> 的 makeDflt 参数为何值。
+</p>
+<p>
+  标准构建包含默认的 “unix” 或 “win32” VFS。但如果使用 -DOS_OTHER=1 编译选项，则 SQLite 会在没有默认 VFS 的情况下构建。在这种情况下，应用必须在调用 <a href="c3ref/open.html">sqlite3_open()</a> 之前至少注册一个 VFS。这正是嵌入式应用应该采用的方法。与其像以前的 SQLite 版本那样修改源代码以插入替代的操作系统层，不如编译一个未经修改的 SQLite 源文件（最好是混合体），并使用 -DOS_OTHER=1 选项，然后在创建任何数据库连接前调用 <a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a> 来定义底层文件系统的接口。
+</p>
+<h4>2.1.2 对 VFS 对象的额外控制</h4><p>
+  <a href="c3ref/vfs_find.html">sqlite3_vfs_unregister()</a> API 用于从系统中移除现有的 VFS。
+</p>
+<blockquote><pre>
+int sqlite3_vfs_unregister(sqlite3_vfs*);
+</pre></blockquote><p>
+  <a href="c3ref/vfs_find.html">sqlite3_vfs_find()</a> API 用于按名称查找特定 VFS。其原型如下：
+</p>
+<blockquote><pre>
+sqlite3_vfs *sqlite3_vfs_find(const char *zVfsName);
+</pre></blockquote><p>
+  参数是所需 VFS 的符号名称。如果参数为 NULL，函数将返回默认 VFS。该函数返回实现该 VFS 的 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的指针；如果没有找到匹配的对象，则返回 NULL。
+</p>
+<h4>2.1.3 修改已有 VFS</h4><p>
+  一旦 VFS 被注册，就不应再修改它。如果需要改变行为，应该注册一个新的 VFS。应用可以使用 <a href="c3ref/vfs_find.html">sqlite3_vfs_find()</a> 定位旧的 VFS，然后将其复制到一个新的 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象中，对新的 VFS 做出想要的修改，再注销旧的 VFS，然后注册新的替代品。现有的数据库连接即使在旧 VFS 注销后仍会继续使用它，而新的数据库连接则会使用新 VFS。
+</p>
+<h4>2.1.4 VFS 对象</h4><p>
+  VFS 对象是以下结构体的一个实例：
+</p>
+<blockquote><pre>
+typedef struct sqlite3_vfs sqlite3_vfs;
+struct sqlite3_vfs {
+  int iVersion;            /* Structure version number */
+  int szOsFile;            /* Size of subclassed sqlite3_file */
+  int mxPathname;          /* Maximum file pathname length */
+  sqlite3_vfs *pNext;      /* Next registered VFS */
+  const char *zName;       /* Name of this virtual file system */
+  void *pAppData;          /* Pointer to application-specific data */
+  int (*xOpen)(sqlite3_vfs*, const char *zName, sqlite3_file*,
+               int flags, int *pOutFlags);
+  int (*xDelete)(sqlite3_vfs*, const char *zName, int syncDir);
+  int (*xAccess)(sqlite3_vfs*, const char *zName, int flags);
+  int (*xGetTempName)(sqlite3_vfs*, char *zOut);
+  int (*xFullPathname)(sqlite3_vfs*, const char *zName, char *zOut);
+  void *(*xDlOpen)(sqlite3_vfs*, const char *zFilename);
+  void (*xDlError)(sqlite3_vfs*, int nByte, char *zErrMsg);
+  void *(*xDlSym)(sqlite3_vfs*,void*, const char *zSymbol);
+  void (*xDlClose)(sqlite3_vfs*, void*);
+  int (*xRandomness)(sqlite3_vfs*, int nByte, char *zOut);
+  int (*xSleep)(sqlite3_vfs*, int microseconds);
+  int (*xCurrentTime)(sqlite3_vfs*, double*);
+  /* New fields may be appended in figure versions.  The iVersion
+  ** value will increment whenever this happens. */
+};
+</pre></blockquote><p>
+  要创建一个新的 VFS，应用需要用适当的值填充该结构体的实例，然后调用 <a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a>。
+</p>
+<p>
+  <a href="c3ref/vfs.html">sqlite3_vfs</a> 的 iVersion 字段在 SQLite 3.5.0 中应该为 1。如果在未来的 SQLite 版本中必须以某种方式修改 VFS 对象，这个数字可能会增加。我们希望这永远不会发生，但已经为可能发生的情况做好准备。
+</p>
+<p>
+  szOsFile 字段是定义打开文件的结构体（即 <a href="c3ref/file.html">sqlite3_file</a> 对象）的字节大小。该对象将在后文更详细地介绍。重点是每个 VFS 实现都可以定义自己的 <a href="c3ref/file.html">sqlite3_file</a> 对象，包含 VFS 实现需要存储的与打开文件相关的信息。然而，SQLite 需要知道对象的大小，以便预分配足够空间来存储它。
+</p>
+<p>
+  mxPathname 字段是该 VFS 可以使用的文件路径名的最大长度。SQLite 有时必须为这个长度预分配缓冲区，因此它应该保持在合理的最小值。一些文件系统允许非常长的路径名，但实际上路径名很少超过 100 字节左右。您不需要填写底层文件系统能支持的最长路径名，只需要填写您希望 SQLite 能够处理的最长路径名。在大多数情况下，几百字节是一个合适的值。
+</p>
+<p>
+  pNext 字段由 SQLite 内部使用。具体来说，SQLite 利用该字段构成已注册 VFS 的链表。
+</p>
+<p>
+  zName 字段是 VFS 的符号名称。当 <a href="c3ref/vfs_find.html">sqlite3_vfs_find()</a> 寻找 VFS 时，会将其与 zName 进行比较。
+</p>
+<p>
+  pAppData 指针不被 SQLite 核心使用。这个指针可以用来保存 VFS 可能需要携带的辅助信息。
+</p>
+<p>
+  <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的其余字段都是指向实现原始操作的函数的指针。我们称这些函数为 “方法”。第一个方法 xOpen 用于在底层存储介质上打开文件。结果是一个 <a href="c3ref/file.html">sqlite3_file</a> 对象。还有额外的方法，由 <a href="c3ref/file.html">sqlite3_file</a> 对象本身定义，负责读取、写入和关闭文件。附加方法将在下文详细介绍。文件名使用 UTF-8 编码。SQLite 将确保传给 xOpen() 的 zFilename 字符串是由 xFullPathname() 生成的完整路径，并且在 xClose() 调用之前该字符串始终有效且不变。因此，<a href="c3ref/file.html">sqlite3_file</a> 可以存储指向该文件名的指针，以便在需要时记住文件名。传给 xOpen() 的 flags 参数是 sqlite3_open_v2() 的 flags 参数的副本。如果使用 sqlite3_open() 或 sqlite3_open16()，那么 flags 为 <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_READWRITE</a> | <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_CREATE</a>。如果 xOpen() 以只读方式打开文件，则会将 *pOutFlags 设置为包含 <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_READONLY</a>。*pOutFlags 中的其他位也可能被设置。SQLite 还会根据打开的对象，在 xOpen() 调用中增加以下之一的标志：
+   <ul>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_MAIN_DB</a>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_MAIN_JOURNAL</a>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TEMP_DB</a>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TEMP_JOURNAL</a>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TRANSIENT_DB</a>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_SUBJOURNAL</a>
+   <li>  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_SUPER_JOURNAL</a>
+   </ul>
+   文件 I/O 实现可以利用对象类型标志来改变对文件的处理方式。例如，不关心崩溃恢复或回滚的应用可能会将日志文件的打开操作变为无操作。对该日志的写入也会变成无操作。任何尝试读取该日志的操作都会返回 <a href="rescode.html#ioerr">SQLITE_IOERR</a>。又或者实现可能识别出数据库文件将以页对齐的扇区进行随机顺序的读写，并为此调整其 I/O 子系统。
+   SQLite 也可能向 xOpen 方法中添加以下标志之一：
+   <ul>
+   <li> <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_DELETEONCLOSE</a>
+   <li> <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_EXCLUSIVE</a>
+   </ul>
+   <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_DELETEONCLOSE</a> 标志表示文件在关闭时应被删除。TEMP 数据库、日志以及子日志都会自动设置这个标志。<a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_EXCLUSIVE</a> 标志表示文件应以独占方式打开。除了主数据库文件外，所有文件都会设置这个标志。
+   第三个参数传入 xOpen 的 <a href="c3ref/file.html">sqlite3_file</a> 结构由调用者分配。xOpen 只需对其进行填充。调用者至少为 <a href="c3ref/file.html">sqlite3_file</a> 结构分配了 szOsFile 字节。
+</p>
+<p>
+  <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TEMP_DB</a> 和 <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TRANSIENT_DB</a> 数据库之间的区别在于：<a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TEMP_DB</a> 用于显式声明且命名的临时表（通过 CREATE TEMP TABLE 语法）或者用于通过空字符串作为文件名打开的临时数据库中的命名表。<a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_TRANSIENT_DB</a> 则保存 SQLite 为评估子查询或 ORDER BY 或 GROUP BY 子句而自动创建的数据库表。TEMP_DB 和 TRANSIENT_DB 数据库都是私有的，会自动删除。TEMP_DB 数据库的生命周期与数据库连接相同。TRANSIENT_DB 数据库只在单个 SQL 语句的执行过程中存在。
+</p>
+<p>
+  xDelete 方法用于删除文件。第二个参数提供要删除的文件名，文件名采用 UTF-8 编码。VFS 必须将文件名转换为底层操作系统所期望的字符表示。如果 syncDir 参数为 true，那么 xDelete 方法在返回前应等待包含该文件的目录内容已经同步到磁盘，以确保在电源故障发生后该文件不会“重新出现”。
+</p>
+<p>
+  xAccess 方法用于检查文件的访问权限。文件名为 UTF-8 编码。flags 参数为 <a href="c3ref/c_access_exists.html">SQLITE_ACCESS_EXISTS</a> 时检查文件是否存在，为 <a href="c3ref/c_access_exists.html">SQLITE_ACCESS_READWRITE</a> 时检查文件是否可读写，为 <a href="c3ref/c_access_exists.html">SQLITE_ACCESS_READ</a> 时检查文件是否至少可读。第二个参数指定“文件”的名称，该名称也可能是目录名称。
+</p>
+<p>
+  xGetTempName 方法用于计算 SQLite 可使用的临时文件名。生成的文件名应写入第二个参数提供的缓冲区。SQLite 会将该缓冲区的大小设置为至少 mxPathname 字节。生成的文件名应为 UTF-8 编码。为了避免安全问题，生成的临时文件名应包含足够的随机性，以防攻击者提前猜测出临时文件名。
+</p>
+<p>
+  xFullPathname 方法用于将相对路径名转换为完整路径名。生成的完整路径名写入第三个参数提供的缓冲区。SQLite 会将输出缓冲区大小设置为至少 mxPathname 字节。输入和输出名称都应采用 UTF-8 编码。
+</p>
+<p>
+  xDlOpen、xDlError、xDlSym 和 xDlClose 方法都用于在运行时访问共享库。这些方法可以省略（指针置为零），如果在编译时使用了 <a href="compile.html#omit_load_extension">SQLITE_OMIT_LOAD_EXTENSION</a> 或者从未调用 <a href="c3ref/enable_load_extension.html">sqlite3_enable_load_extension()</a> 接口以启用动态扩展加载。xDlOpen 方法打开共享库或 DLL，并返回一个句柄指针。如果打开失败，则返回 NULL。打开失败时，xDlError 方法可以用来获取文本错误消息。该消息写入第三个参数的 zErrMsg 缓冲区，缓冲区大小至少为 nByte 字节。xDlSym 返回共享库中某个符号的指针。该符号名称由第二个参数提供，采用 UTF-8 编码。如果未找到符号，则返回 NULL。xDlClose 例程关闭该共享库。
+</p>
+<p>
+  xRandomness 方法仅在初始化 SQLite 内部的伪随机数生成器（PRNG）时调用一次。只有默认 VFS 的 xRandomness 方法会被使用。其他 VFS 的 xRandomness 方法不会被 SQLite 访问。xRandomness 例程请求向 zOut 写入 nByte 字节的随机数，并返回实际获得的随机字节数。所获得的随机性质量决定了内置 SQLite 函数（如 random() 和 randomblob()）生成随机数的质量。SQLite 还用其 PRNG 来生成临时文件名。在某些平台（例如 Windows）上，SQLite 假设临时文件名是唯一的，并未实际检查冲突，因此即使从不使用 random() 和 randomblob() 函数，也仍然需要优质的随机数。
+</p>
+<p>
+  xSleep 方法用于将调用线程挂起至少给定的微秒数。这个方法用于实现 <a href="c3ref/sleep.html">sqlite3_sleep()</a> 和 <a href="c3ref/busy_timeout.html">sqlite3_busy_timeout()</a> API。在调用 <a href="c3ref/sleep.html">sqlite3_sleep()</a> 时，总是使用默认 VFS 的 xSleep 方法。如果底层系统不具备微秒级别的睡眠能力，那么应将睡眠时间向上取整。xSleep 返回取整后的时间值。
+</p>
+<p>
+  xCurrentTime 方法用于获取当前的日期和时间，并以双精度浮点数的形式写入第二个参数提供的指针。该时间采用协调世界时（UTC），并以分数朱利安日期数表示。
+</p>
+<h4>2.1.5 打开文件对象</h4><p>
+  打开一个文件后会得到一个 <a href="c3ref/file.html">sqlite3_file</a> 对象。<a href="c3ref/file.html">sqlite3_file</a> 对象是一个抽象基类，定义如下：
+</p>
+<blockquote><pre>
+typedef struct sqlite3_file sqlite3_file;
+struct sqlite3_file {
+  const struct sqlite3_io_methods *pMethods;
+};
+</pre></blockquote><p>
+  每个 VFS 实现都会通过在末尾添加附加字段来派生 <a href="c3ref/file.html">sqlite3_file</a>，以保存该 VFS 需要了解的与打开文件相关的信息。只要结构体的总大小不超过 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象中记录的 szOsFile 值，存储什么信息都无关紧要。
+</p>
+<p>
+  <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象是一个结构体，包含指向用于读写文件以及其他文件操作方法的指针。该对象定义如下：
+</p>
+<blockquote><pre>
+typedef struct sqlite3_io_methods sqlite3_io_methods;
+struct sqlite3_io_methods {
+  int iVersion;
+  int (*xClose)(sqlite3_file*);
+  int (*xRead)(sqlite3_file*, void*, int iAmt, sqlite3_int64 iOfst);
+  int (*xWrite)(sqlite3_file*, const void*, int iAmt, sqlite3_int64 iOfst);
+  int (*xTruncate)(sqlite3_file*, sqlite3_int64 size);
+  int (*xSync)(sqlite3_file*, int flags);
+  int (*xFileSize)(sqlite3_file*, sqlite3_int64 *pSize);
+  int (*xLock)(sqlite3_file*, int);
+  int (*xUnlock)(sqlite3_file*, int);
+  int (*xCheckReservedLock)(sqlite3_file*);
+  int (*xFileControl)(sqlite3_file*, int op, void *pArg);
+  int (*xSectorSize)(sqlite3_file*);
+  int (*xDeviceCharacteristics)(sqlite3_file*);
+  /* Additional methods may be added in future releases */
+};
+</pre></blockquote><p>
+  <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 的 iVersion 字段是为了应对未来扩展准备用的保障。在 SQLite 3.5 中，该值始终为 1。
+</p>
+<p>
+  xClose 方法用于关闭文件。<a href="c3ref/file.html">sqlite3_file</a> 结构的空间由调用者释放。但如果 <a href="c3ref/file.html">sqlite3_file</a> 中包含指向其他分配内存或资源的指针，这些分配应由 xClose 方法释放。
+</p>
+<p>
+  xRead 方法从偏移量 iOfst 开始读取 iAmt 字节的数据，并将数据存入第二个参数提供的缓冲区。读取成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；如果因到达文件末尾而无法读取完整字节，则返回 <a href="rescode.html#ioerr_short_read">SQLITE_IOERR_SHORT_READ</a>；其他错误返回 <a href="rescode.html#ioerr_read">SQLITE_IOERR_READ</a>。
+</p>
+<p>
+  xWrite 方法从第二个参数提供的数据中写入 iAmt 字节，写入位置从偏移量 iOfst 开始。如果写入前文件大小小于 iOfst，那么 xWrite 应确保文件先用零扩展到至少 iOfst 字节再执行写操作。xWrite 应在写入完成时使文件大小至少达到 iAmt+iOfst 字节。xWrite 在成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；如果因底层存储介质已满无法完成写入，则返回 <a href="rescode.html#full">SQLITE_FULL</a>；其他错误返回 <a href="rescode.html#ioerr_write">SQLITE_IOERR_WRITE</a>。
+</p>
+<p>
+  xTruncate 方法将文件截断为 nByte 字节。如果文件已经小于或等于 nByte 字节，则该方法无操作。xTruncate 成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；出错则返回 <a href="rescode.html#ioerr_truncate">SQLITE_IOERR_TRUNCATE</a>。
+</p>
+<p>
+  xSync 方法用于将先前写入的数据强制从操作系统缓存刷新到非易失性内存。第二个参数通常为 <a href="c3ref/c_sync_dataonly.html">SQLITE_SYNC_NORMAL</a>。如果第二个参数为 <a href="c3ref/c_sync_dataonly.html">SQLITE_SYNC_FULL</a>，则 xSync 应确保数据也已经通过磁盘控制器的缓存刷新。<a href="c3ref/c_sync_dataonly.html">SQLITE_SYNC_FULL</a> 参数相当于 Mac OS X 上的 F_FULLSYNC ioctl()。xSync 成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；出错时返回 <a href="rescode.html#ioerr_fsync">SQLITE_IOERR_FSYNC</a>。
+</p>
+<p>
+  xFileSize() 方法确定当前文件大小（单位为字节）并将该值写入 *pSize。成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；出错时返回 <a href="rescode.html#ioerr_fstat">SQLITE_IOERR_FSTAT</a>。
+</p>
+<p>
+  xLock 和 xUnlock 方法用于设置与释放文件锁。SQLite 支持五个级别的文件锁，顺序如下：
+  <ul>
+  <li> <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_NONE</a>
+  <li> <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_SHARED</a>
+  <li> <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_RESERVED</a>
+  <li> <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_PENDING</a>
+  <li> <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_EXCLUSIVE</a>
+  </ul>
+  底层实现只要满足本段的其他要求，就可以支持这些锁级别的某个子集。xLock 和 xUnlock 的第二个参数指定锁级别。xLock 方法会将锁级别提升到指定级别或更高；xUnlock 方法会将锁级别降低到不低于指定级别。<a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_NONE</a> 表示文件未上锁。<a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_SHARED</a> 表示拥有读取权限。同一时间多个数据库连接可以持有 <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_SHARED</a>。<a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_RESERVED</a> 类似于 <a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_SHARED</a>，也授予读取权限，但任意时刻只有一个连接可以持有保留锁。<a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_PENDING</a> 也允许读取。其他连接仍然可以读取该文件，但不允许从 NONE 级别升级到 SHARED。<a href="c3ref/c_lock_exclusive.html">SQLITE_LOCK_EXCLUSIVE</a> 表示可写权限。独占锁只能由一个连接持有，且在独占锁存在期间，其他连接不能持有任何非 NONE 的锁。xLock 成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；无法获取锁时返回 <a href="rescode.html#busy">SQLITE_BUSY</a>；发生其他错误时返回 <a href="rescode.html#ioerr_rdlock">SQLITE_IOERR_RDLOCK</a>。xUnlock 成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>；出错返回 <a href="rescode.html#ioerr_unlock">SQLITE_IOERR_UNLOCK</a>。
+</p>
+<p>
+  xCheckReservedLock() 方法用于检查是否存在其他连接或进程当前持有保留锁、挂起锁或独占锁。它会返回 true 或 false。
+</p>
+<p>
+  xFileControl() 方法是一个通用接口，允许自定义 VFS 实现通过（新的、实验性的）<a href="c3ref/file_control.html">sqlite3_file_control()</a> 接口直接控制打开的文件。第二个 “op” 参数是一个整数操作码。第三个参数是一个通用指针，通常指向可能包含参数的结构体或用于写入返回值的缓冲区。xFileControl() 的潜在用途包括启用带超时的阻塞锁、改变锁策略（例如使用点文件锁）、查询锁状态或清除陈旧锁。SQLite 核心为自身保留了小于 100 的操作码。可查阅一份 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntllockstate">小于 100 的操作码清单</a>。定义自定义 xFileControl 方法的应用应使用大于 100 的操作码以避免冲突。
+</p>
+<p>
+  xSectorSize 返回底层非易失性介质的 “扇区大小”。“扇区” 被定义为可以在不干扰相邻存储单元的前提下写入的最小存储单位。在磁盘驱动器上，“扇区大小”直到最近一直是 512 字节，尽管现在有提高到 4KiB 的趋势。SQLite 需要知道扇区大小，以便一次写入完整扇区，从而在写入过程中发生断电时避免破坏相邻的存储空间。
+</p>
+<p>
+  xDeviceCharacteristics 方法返回一个整数位向量，定义了底层存储介质的特殊属性，SQLite 可以利用这些属性来提升性能。允许的返回值是以下值的按位或：
+  <ul>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC512</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC1K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC2K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC4K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC8K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC16K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC32K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC64K</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_SAFE_APPEND</a>
+  <li> <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_SEQUENTIAL</a>
+  </ul>
+  <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC</a> 位表示对该设备的所有写入操作都是原子的：要么全部成功，要么全部失败。其他的 <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC<i>nnn</i></a> 值则表示对齐到指定大小块的写入是原子的。<a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_SAFE_APPEND</a> 表示在扩展文件时，先写入新数据然后再更新文件大小。因此如果发生断电，文件不会以不确定的状态被扩展。<a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_SEQUENTIAL</a> 位表示所有写入按发出的顺序执行，底层文件系统不会重新排序它们。
+</p>
+<h4>2.1.6 构造新 VFS 的清单</h4><p>
+  前面的段落包含大量信息。为简化构造新的 SQLite VFS 的任务，我们提供以下实现清单：
+</p>
+<p>
+  <ol>
+  <li> 定义一个合适的 <a href="c3ref/file.html">sqlite3_file</a> 对象的子类。</li>
+  <li> 实现 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象所需的方法。</li>
+  <li> 创建一个静态且常量的 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象，包含上一项中的方法指针。</li>
+  <li> 实现 xOpen 方法，用于打开文件并填充一个 <a href="c3ref/file.html">sqlite3_file</a> 对象，包括将 pMethods 指向上一项中的 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象。</li>
+  <li> 实现 <a href="c3ref/vfs.html">sqlite3_vfs</a> 所需的其他方法。</li>
+  <li> 定义一个静态（但非 const）的 <a href="c3ref/vfs.html">sqlite3_vfs</a> 结构体，包含指向 xOpen 及其他方法的指针，并为 iVersion、szOsFile、mxPathname、zName 与 pAppData 设置合适的值。</li>
+  <li> 实现一个过程，调用 <a href="c3ref/vfs_find.html">sqlite3_vfs_register()</a> 并传入上一步骤中的 <a href="c3ref/vfs.html">sqlite3_vfs</a> 结构体指针。这个过程很可能是实现 VFS 的源文件中唯一导出的符号。</li>
+  </ol>
+</p>
+<p>
+  在应用内部，请在初始化过程中、任何数据库连接打开之前调用上述最后一步中实现的过程。
+</p>
+<h2>3.0 内存分配子系统</h2><p>
+  从 3.5 版本开始，SQLite 所有的堆内存都通过 <a href="c3ref/free.html">sqlite3_malloc()</a>、<a href="c3ref/free.html">sqlite3_free()</a> 和 <a href="c3ref/free.html">sqlite3_realloc()</a> 这些例程获取。这些例程在旧版本中就已经存在，但此前 SQLite 曾绕开它们，使用自己的内存分配器。从 3.5.0 开始，这一切发生了变化。
+</p>
+<p>
+  SQLite 源树实际上包含多个版本的内存分配器。在 “mem1.c” 源文件中提供的默认高速版本用于大多数构建。但如果启用了 SQLITE_MEMDEBUG 标志，则改用 “mem2.c” 中的单独内存分配器。mem2.c 分配器实现了大量钩子，用于执行错误检查并模拟内存分配失败以便测试。这两个分配器都使用标准 C 库中的 malloc()/free() 实现。
+</p>
+<p>
+  应用无需使用这些标准内存分配器。如果 SQLite 是使用 <a href="compile.html#omitfeatures">SQLITE_OMIT_MEMORY_ALLOCATION</a> 编译的，则不会提供 <a href="c3ref/free.html">sqlite3_malloc()</a>、<a href="c3ref/free.html">sqlite3_realloc()</a> 和 <a href="c3ref/free.html">sqlite3_free()</a> 的实现。相反，链接 SQLite 的应用必须提供这些函数的实现。应用提供的内存分配器也不必使用标准 C 库中的 malloc()/free() 实现。嵌入式应用可以提供一个使用为 SQLite 独占预留的固定内存池的替代内存分配器。
+</p>
+<p>
+  实现自定义内存分配器的应用必须实现常规的三个分配函数：<a href="c3ref/free.html">sqlite3_malloc()</a>、<a href="c3ref/free.html">sqlite3_realloc()</a> 和 <a href="c3ref/free.html">sqlite3_free()</a>。它们还必须实现第四个函数：
+</p>
+<blockquote><pre>
+int sqlite3_memory_alarm(
+  void(*xCallback)(void *pArg, sqlite3_int64 used, int N),
+  void *pArg,
+  sqlite3_int64 iThreshold
+);
+</pre></blockquote><p>
+ <a href="c3ref/aggregate_count.html">sqlite3_memory_alarm</a> 例程用于在内存分配事件发生时注册回调。这个例程会注册或清除一个回调，该回调在已用内存超过 iThreshold 时触发。一次只能注册一个回调，每次调用 <a href="c3ref/aggregate_count.html">sqlite3_memory_alarm()</a> 都会覆盖上一次注册的回调。通过将 xCallback 设置为 NULL 指针可以禁用回调。
+</p>
+<p>
+ 回调的参数包括 pArg 值、当前已用内存大小以及触发回调的分配大小。回调通常会调用 <a href="c3ref/free.html">sqlite3_free()</a> 来释放内存空间。回调也可以调用 <a href="c3ref/free.html">sqlite3_malloc()</a> 或 <a href="c3ref/free.html">sqlite3_realloc()</a>，但如果这样做，则递归调用不会触发额外的回调。
+</p>
+<p>
+ <a href="c3ref/soft_heap_limit.html">sqlite3_soft_heap_limit()</a> 接口通过在软堆限制处注册内存警报并在警报回调中调用 <a href="c3ref/release_memory.html">sqlite3_release_memory()</a> 来工作。应用程序不应尝试直接使用 <a href="c3ref/aggregate_count.html">sqlite3_memory_alarm()</a> 接口，因为这样会干扰 <a href="c3ref/soft_heap_limit.html">sqlite3_soft_heap_limit()</a> 模块。这个接口仅在 SQLite 核心使用 <a href="compile.html#omitfeatures">SQLITE_OMIT_MEMORY_ALLOCATION</a> 编译时向应用暴露，以便应用提供自己的替代实现。
+</p>
+<p>
+  SQLite 内置的内存分配器还提供以下额外接口：
+</p>
+<blockquote><pre>
+sqlite3_int64 sqlite3_memory_used(void);
+sqlite3_int64 sqlite3_memory_highwater(int resetFlag);
+</pre></blockquote><p>
+  这些接口可供应用用来监控 SQLite 的内存使用情况。<a href="c3ref/memory_highwater.html">sqlite3_memory_used()</a> 返回当前正在使用的字节数，<a href="c3ref/memory_highwater.html">sqlite3_memory_highwater()</a> 返回瞬时最大内存使用。任一接口都不包含内存分配器自身的开销。这些例程仅供应用使用，SQLite 核心不会调用它们。因此如果应用提供了自己的内存分配子系统，也可以根据需要省略这两个接口。
+</p>
+<h2>4.0 互斥子系统</h2><p>
+  SQLite 一直具备线程安全性，即可以在不同线程中同时使用不同的 SQLite 数据库连接。唯一的限制是一个连接不能同时被两个线程使用。SQLite 3.5.0 放松了这个限制。
+</p>
+<p>
+  为了允许多个线程同时使用同一个数据库连接，SQLite 必须大量使用互斥锁。因此新增了一个互斥子系统。该子系统提供如下接口：
+</p>
+<blockquote><pre>
+sqlite3_mutex *sqlite3_mutex_alloc(int);
+void sqlite3_mutex_free(sqlite3_mutex*);
+void sqlite3_mutex_enter(sqlite3_mutex*);
+int sqlite3_mutex_try(sqlite3_mutex*);
+void sqlite3_mutex_leave(sqlite3_mutex*);
+</pre></blockquote><p>
+  虽然这些例程是为 SQLite 核心使用而存在，应用代码如果需要也可以自由使用它们。互斥锁是一个 <a href="c3ref/mutex.html">sqlite3_mutex</a> 对象。<a href="c3ref/mutex_alloc.html">sqlite3_mutex_alloc()</a> 例程分配一个新的互斥对象并返回指针。传给 <a href="c3ref/mutex_alloc.html">sqlite3_mutex_alloc()</a> 的参数应为 <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_FAST</a>（非递归）或 <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_RECURSIVE</a>（递归）。如果底层系统不提供非递归互斥锁，可以改用递归互斥锁。传给 <a href="c3ref/mutex_alloc.html">sqlite3_mutex_alloc()</a> 的参数也可以是几个静态互斥锁的常量：
+  <ul>
+  <li>  <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_MAIN</a>
+  <li>  <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_MEM</a>
+  <li>  <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_MEM2</a>
+  <li>  <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_PRNG</a>
+  <li>  <a href="c3ref/c_mutex_fast.html">SQLITE_MUTEX_STATIC_LRU</a>
+  </ul>
+  这些静态互斥锁由 SQLite 内部保留，不应由应用使用。它们都是非递归的。
+</p>
+<p>
+  <a href="c3ref/mutex_alloc.html">sqlite3_mutex_free()</a> 应用于非静态互斥锁的释放。如果将静态互斥锁传给该例程则行为未定义。
+</p>
+<p>
+  <a href="c3ref/mutex_alloc.html">sqlite3_mutex_enter()</a> 尝试进入互斥锁，如果已有线程进入则会阻塞。<a href="c3ref/mutex_alloc.html">sqlite3_mutex_try()</a> 尝试进入，如果成功则返回 <a href="rescode.html#ok">SQLITE_OK</a>，如果已有其他线程则返回 <a href="rescode.html#busy">SQLITE_BUSY</a>。<a href="c3ref/mutex_alloc.html">sqlite3_mutex_leave()</a> 用于离开互斥锁。互斥锁只有在进入与离开次数匹配时才真正释放。如果在当前线程未持有互斥锁的情况下调用 <a href="c3ref/mutex_alloc.html">sqlite3_mutex_leave()</a>，则行为未定义。对已释放互斥锁调用任何例程也会导致未定义行为。
+</p>
+<p>
+  SQLite 源码提供了适用于不同环境的多个互斥 API 实现。如果使用 SQLITE_THREADSAFE=0 进行编译，则提供一个快速但不执行实际互斥的空操作实现。该实现适合在单线程应用或仅在单线程中使用 SQLite 的应用中使用。其他真正的互斥实现基于底层操作系统提供。
+</p>
+<p>
+  嵌入式应用可能希望提供自己的互斥实现。如果使用 -DSQLITE_MUTEX_APPDEF=1 编译，那么 SQLite 核心不会提供互斥子系统，链接 SQLite 的应用必须提供与上述接口匹配的互斥子系统。
+</p>
+<h2>5.0 其他接口变更</h2><p>
+  SQLite 3.5.0 版本在某些 API 的行为上引入了技术上的不兼容。然而这些 API 很少被使用，即使被使用，也很难想象会因此出现问题。这些变更让这些接口更有用、更强大。
+</p>
+<p>
+  在 3.5.0 版本之前，<a href="c3ref/enable_shared_cache.html">sqlite3_enable_shared_cache()</a> API 会为调用它的单个线程内的所有连接启用或禁用共享缓存功能。使用共享缓存的数据库连接被限制在与其打开时相同的线程中。自 3.5.0 版本起，sqlite3_enable_shared_cache() 适用于进程中所有线程的所有数据库连接。现在运行在不同线程的数据库连接可以共享缓存，并且使用共享缓存的连接可以在线程之间迁移。
+</p>
+<p>
+  在 3.5.0 版本之前，<a href="c3ref/soft_heap_limit.html">sqlite3_soft_heap_limit()</a> 为单个线程内的所有数据库连接设置堆内存使用上限。每个线程可以有自己的堆限制。从 3.5.0 版本开始，整个进程只有一个堆限制。虽然表面上看更严格（一个限制对比多个），但实际上这正是大多数用户所需要的。
+</p>
+<p>
+  在 3.5.0 版本之前，<a href="c3ref/release_memory.html">sqlite3_release_memory()</a> 函数会尝试从与调用该函数的线程相同的线程中的所有数据库连接中回收内存。自 3.5.0 版本开始，sqlite3_release_memory() 会尝试从所有线程中的所有数据库连接中回收内存。
+</p>
+<h2>6.0 总结</h2><p>
+  从 SQLite 3.4.2 版本迁移到 3.5.0 是一个重大的变化。SQLite 核心的每一个源代码文件都必须经过修改，有些修改甚至非常广泛。这次变更还在 C 接口中引入了一些轻微的不兼容。但我们认为从 3.4.2 过渡到 3.5.0 的好处远远大于移植所带来的痛苦。新的 VFS 层现在定义清晰且稳定，应该能简化未来的定制。VFS 层，以及可分离的内存分配器与互斥子系统，使得标准的 SQLite 源代码混合体可以在嵌入式项目中无须更改地使用，大大简化了配置管理。而最终的系统对于高度多线程的设计也更加宽容。
+</p>
+
+<p align="center"><small><i>本页最后更新于 2025-07-12 15:11:36Z </small></i></p>
+
+</body></html>

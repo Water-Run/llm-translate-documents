@@ -1,0 +1,199 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>定义新的排序序列</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_create_collation sqlite3_create_collation16 sqlite3_create_collation_v2 -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>定义新的排序序列</h2>
+</div>
+<blockquote><pre>
+int sqlite3_create_collation(
+  sqlite3*,
+  const char *zName,
+  int eTextRep,
+  void *pArg,
+  int(*xCompare)(void*,int,const void*,int,const void*)
+);
+int sqlite3_create_collation_v2(
+  sqlite3*,
+  const char *zName,
+  int eTextRep,
+  void *pArg,
+  int(*xCompare)(void*,int,const void*,int,const void*),
+  void(*xDestroy)(void*)
+);
+int sqlite3_create_collation16(
+  sqlite3*,
+  const void *zName,
+  int eTextRep,
+  void *pArg,
+  int(*xCompare)(void*,int,const void*,int,const void*)
+);
+</pre></blockquote>
+<p>
+这些函数添加、删除或修改与第一个参数指定的<a href="../datatype3.html#collation">排序规则</a>相关联的<a href="../c3ref/sqlite3.html">数据库连接</a>。</p>
+
+<p>排序规则的名称对于 sqlite3_create_collation() 和 sqlite3_create_collation_v2() 是 UTF-8 字符串，对于 sqlite3_create_collation16() 是以本机字节顺序的 UTF-16 字符串。根据 <a href="../c3ref/stricmp.html">sqlite3_strnicmp()</a> 比较相等的排序规则名称视为相同名称。</p>
+
+<p>第三个参数 (eTextRep) 必须是以下常量之一：
+<ul>
+<li> <a href="../c3ref/c_any.html">SQLITE_UTF8</a>,
+<li> <a href="../c3ref/c_any.html">SQLITE_UTF16LE</a>,
+<li> <a href="../c3ref/c_any.html">SQLITE_UTF16BE</a>,
+<li> <a href="../c3ref/c_any.html">SQLITE_UTF16</a>, 或
+<li> <a href="../c3ref/c_any.html">SQLITE_UTF16_ALIGNED</a>.
+</ul>
+eTextRep 参数决定传递给排序函数回调 xCompare 的字符串的编码。
+<a href="../c3ref/c_any.html">SQLITE_UTF16</a> 和 <a href="../c3ref/c_any.html">SQLITE_UTF16_ALIGNED</a> 常量会强制字符串采用本机字节顺序的 UTF16 编码。
+<a href="../c3ref/c_any.html">SQLITE_UTF16_ALIGNED</a> 的值还会强制字符串以偶数字节地址开始。</p>
+
+<p>第四个参数 pArg 是一个应用程序数据指针，它作为第一个参数传递给排序函数回调。</p>
+
+<p>第五个参数 xCompare 是一个指向排序函数的指针。
+可以使用相同名称但不同 eTextRep 参数注册多个排序函数，SQLite 会使用需要最少数据转换的函数。
+如果 xCompare 参数为 NULL，则删除该排序函数。当所有具有相同名称的排序函数都被删除时，该排序规则便无法再使用。</p>
+
+<p>排序函数回调会在传入一份 pArg 应用程序数据指针副本以及两个使用 eTextRep 参数指定编码的字符串时被调用。传递给排序函数回调的两个整数参数分别表示两个字符串的字节长度。排序函数必须返回一个整数，该整数在第一个字符串小于、等于或大于第二个字符串时分别为负值、零或正值。对于相同的输入，排序函数必须始终返回相同的结果。如果使用不同 eTextRep 值注册了两个或更多排序函数到同一个排序规则名称，那么在使用等效字符串调用时，所有函数的返回结果必须等价。排序函数对于所有字符串 A、B、C 必须满足以下性质：</p>
+
+<p><ol>
+<li> 如果 A==B，则 B==A。
+<li> 如果 A==B 且 B==C，则 A==C。
+<li> 如果 A&lt;B，则 B&gt;A。
+<li> 如果 A&lt;B 且 B&lt;C，则 A&lt;C。
+</ol></p>
+
+<p>如果某个排序函数未能满足上述任何一项约束，且该排序函数被注册并使用，则 SQLite 的行为是未定义的。</p>
+
+<p>sqlite3_create_collation_v2() 的行为与 sqlite3_create_collation() 相同，唯一的区别是当排序函数被删除时会在 pArg 上调用 xDestroy 回调。
+当排序函数被后续的排序规则创建函数覆盖或当使用 <a href="../c3ref/close.html">sqlite3_close()</a> 关闭 <a href="../c3ref/sqlite3.html">数据库连接</a> 时，这些排序函数会被删除。</p>
+
+<p>如果 sqlite3_create_collation_v2() 函数失败，则不会调用 xDestroy 回调。调用 sqlite3_create_collation_v2() 并且传入非 NULL 的 xDestroy 参数的应用程序应检查返回码，并自行释放应用程序数据指针，而不是期望 SQLite 代劳。这与其他所有 SQLite 接口不同。这种不一致虽令人遗憾，但若改变将破坏向后兼容性。</p>
+
+<p>另请参阅：<a href="../c3ref/collation_needed.html">sqlite3_collation_needed()</a> 与 <a href="../c3ref/collation_needed.html">sqlite3_collation_needed16()</a>。</p>
+<p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表以及
+  <a href="../c3ref/funclist.html">函数</a> 列表。
+</p>
+
+</body></html>

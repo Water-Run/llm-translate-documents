@@ -1,0 +1,161 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>反序列化数据库</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translate-info" style="text-align:right; font-size:0.75em; margin-top:0.5rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新记录</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_deserialize -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>反序列化数据库</h2>
+</div>
+<blockquote><pre>
+int sqlite3_deserialize(
+  sqlite3 *db,            /* The database connection */
+  const char *zSchema,    /* Which DB to reopen with the deserialization */
+  unsigned char *pData,   /* The serialized database content */
+  sqlite3_int64 szDb,     /* Number of bytes in the deserialization */
+  sqlite3_int64 szBuf,    /* Total size of buffer pData[] */
+  unsigned mFlags         /* Zero or more SQLITE_DESERIALIZE_* flags */
+);
+</pre></blockquote>
+<p>
+sqlite3_deserialize(D,S,P,N,M,F) 接口使数据库连接 D 与数据库 S 断开，然后根据 P 中的序列化内容将 S 重新以内存数据库的方式打开。如果 S 是 NULL 指针，则使用主数据库。序列化的数据库 P 大小为 N 字节。M 是缓冲区 P 的大小，可能大于 N。如果 M 大于 N 且 F 中未设置 SQLITE_DESERIALIZE_READONLY 位，则只要总大小不超过 M 字节，SQLite 就可以向内存数据库添加内容。
+</p>
+
+<p>如果 F 中设置了 SQLITE_DESERIALIZE_FREEONCLOSE 位，则当数据库连接关闭时，SQLite 会在序列化缓冲区上调用 sqlite3_free()。如果设置了 SQLITE_DESERIALIZE_RESIZEABLE 位，则当数据库写入操作导致缓冲区大小超过 M 字节时，SQLite 会尝试使用 sqlite3_realloc64() 来增加缓冲区大小。
+</p>
+
+<p>应用程序在数据库连接 D 关闭之前不得修改缓冲区 P 或使其失效。</p>
+
+<p>如果数据库当前处于读取事务中或正在参与备份操作，则 sqlite3_deserialize() 接口会返回 SQLITE_BUSY 错误。</p>
+
+<p>无法将数据反序列化到 TEMP 数据库。如果 sqlite3_deserialize(D,S,P,N,M,F) 的 S 参数为 "temp"，则该函数返回 SQLITE_ERROR。</p>
+
+<p>反序列化后的数据库不应处于 <a href="../wal.html">WAL 模式</a>。如果数据库处于 WAL 模式，则任何尝试使用数据库文件的操作都会导致 <a href="../rescode.html#cantopen">SQLITE_CANTOPEN</a> 错误。应用程序可以在调用 sqlite3_deserialize(D,S,P,N,M,F) 之前，将输入数据库 P 的文件格式版本号（第 18 和 19 字节）设置为 0x01，以将数据库文件强制置于回滚模式，从而规避此限制。</p>
+
+<p>如果 sqlite3_deserialize(D,S,P,N,M,F) 因任何原因失败，并且参数 F 中设置了 SQLITE_DESERIALIZE_FREEONCLOSE 位，则在返回之前会对参数 P 调用 <a href="../c3ref/free.html">sqlite3_free()</a>。</p>
+
+<p>如果 SQLite 在编译时使用了 <a href="../compile.html#omit_deserialize">SQLITE_OMIT_DESERIALIZE</a> 选项，则省略此接口。</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。
+</p>
+

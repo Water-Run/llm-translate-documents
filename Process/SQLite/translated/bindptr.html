@@ -1,0 +1,472 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>Pointer Passing Interfaces</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+精巧。迅捷。可靠。<br>任意选择其中三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+指针传递接口
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. 概述</a></div>
+<div class="fancy-toc1"><a href="#a_brief_history_of_pointer_passing_in_sqlite">2. SQLite 中指针传递的简要历史</a></div>
+<div class="fancy-toc2"><a href="#upping_the_threat_level">2.1. 提高威胁等级</a></div>
+<div class="fancy-toc2"><a href="#preventing_forged_pointers">2.2. 防止伪造指针</a></div>
+<div class="fancy-toc2"><a href="#pointer_leaks">2.3. 指针泄露</a></div>
+<div class="fancy-toc1"><a href="#the_new_pointer_passing_interfaces">3. 新的指针传递接口</a></div>
+<div class="fancy-toc2"><a href="#pointer_types">3.1. 指针类型</a></div>
+<div class="fancy-toc3"><a href="#pointer_types_are_static_strings">3.1.1. 指针类型是静态字符串</a></div>
+<div class="fancy-toc2"><a href="#destructor_functions">3.2. 析构函数</a></div>
+<div class="fancy-toc1"><a href="#restrictions_on_the_use_of_pointer_values">4. 指针值使用限制</a></div>
+<div class="fancy-toc1"><a href="#summary">5. 总结</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="overview"><span>1. </span>概述</h1>
+
+<p>
+SQLite 3.20.0（2017-08-01）引入了三个新的“_pointer()”接口：
+</p><ul>
+<li> <a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>,
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>，以及
+</li><li> <a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>。
+</li></ul>
+
+<p>关于这些新接口的目的、引入原因以及它们所解决的问题，
+在<a href="support.html#mailinglists">邮件列表</a>上很快就出现了许多疑问和困惑。
+本文尝试回答这些问题并澄清这些困惑。
+
+</p><h1 id="a_brief_history_of_pointer_passing_in_sqlite"><span>2. </span>SQLite 中指针传递的简要历史</h1>
+
+<p>
+SQLite 扩展有时需要在各个子组件之间，或者在扩展与应用程序之间
+传递非 SQL 的值。举几个例子：
+
+</p><ul>
+<li><p>
+在<a href="fts3.html">FTS3</a>扩展中，执行全文搜索的
+<a href="fts3.html#full_text_index_queries">MATCH 运算符</a>需要将匹配条目的细节
+传递给<a href="fts3.html#snippet">snippet()</a>、<a href="fts3.html#offsets">offsets()</a>和
+<a href="fts3.html#matchinfo">matchinfo()</a>函数，以便它们能将匹配信息转换为有用的输出。
+
+</p></li><li><p>
+为了让应用程序
+<a href="fts5.html#extending_fts5">为 FTS5 添加扩展</a>，例如新的分词器，
+应用程序需要一个指向“fts5_api”对象的指针。
+
+</p></li><li><p>
+在<a href="carray.html">CARRAY 扩展</a>中，应用程序需要告诉扩展
+包含表值函数数据的 C 语言数组位于何处。
+</p></li></ul>
+
+<p>
+传统的做法是将 C 语言指针转换为 BLOB 或 64 位整数，然后通过
+像<a href="c3ref/bind_blob.html">sqlite3_bind_blob()</a>、
+<a href="c3ref/result_blob.html">sqlite3_result_blob()</a>、
+<a href="c3ref/value_blob.html">sqlite3_value_blob()</a>或其整数等价接口
+在 SQLite 中传递这个 BLOB 或整数。
+
+</p><h2 id="upping_the_threat_level"><span>2.1. </span>提高威胁等级</h2>
+
+<p>
+将指针当作整数或 BLOB 传递既简单又有效，在应用组件之间彼此信任的环境中颇为奏效。
+然而，将指针作为整数和 BLOB 传递会让恶意的 SQL 文本伪造无效指针，
+从而执行攻击。
+
+</p><p>
+例如，<a href="fts3.html#snippet">snippet()</a>函数的第一个参数应当是 FTS3 表中的一个特殊列，
+该列包含指向包含当前全文搜索匹配信息的 fts3cursor 对象的指针。
+这个指针以前是通过 BLOB 传递的。
+例如，如果 FTS3 表名为“t1”，且有一列名为“cx”，则可能编写如下语句：
+
+</p><div class="codeblock"><pre>SELECT snippet(t1) FROM t1 WHERE cx MATCH $pattern;
+</pre></div>
+
+<p>
+但如果黑客能够执行任意 SQL，他可能会运行如下略有不同的查询：
+
+</p><div class="codeblock"><pre>SELECT hex(t1) FROM t1 WHERE cx MATCH $pattern;
+</pre></div>
+
+<p>
+由于在旧版本的 SQLite 中，指针作为 BLOB 存储在 t1 表的 t1 列中，
+这样的查询会以十六进制形式显示该指针的值。攻击者随后可以修改该指针，
+试图让 snippet() 函数去修改应用其他地址空间中的内存，
+而不是原本应该操作的 fts3cursor 对象：
+
+</p><div class="codeblock"><pre>SELECT snippet(x'6092310100000000') FROM t1 WHERE cx MATCH $pattern;
+</pre></div>
+
+<p>
+历史上人们并未将此视为威胁。理由是，如果一个恶意代理能够向应用注入任意 SQL，
+那么他已经完全控制了应用，因此允许他伪造指针并不会赋予他新的能力。
+
+</p><p>
+在大多数情况下，潜在攻击者无法注入任意 SQL，因此多数 SQLite 用例免疫于上述攻击。
+不过仍有一些值得注意的例外。举例如下：
+
+</p><ul>
+<li><p>
+WebKit 中的<a href="https://en.wikipedia.org/wiki/Web_SQL_Database">WebSQL</a> 接口允许 Chrome 和 Safari 的任何网页在浏览器中运行任意 SQL。
+这些 SQL 本应在沙箱内运行，即便被利用也无法造成伤害，但事实证明那个沙箱并不如人们想象的安全。
+在 2017 年春，一组黑客通过一系列漏洞取得 iMac 的 root 权限，其中一个漏洞涉及破坏通过 WebSQL 接口在 Safari 中运行的 SQLite 数据库所传递给 snippet() FTS3 函数的 BLOB 指针。
+
+</p></li><li><p>
+据称，在 Android 上有许多服务会毫无审查地运行来自不可信应用的任意 SQL，而这些应用常来自网络的灰色角落。
+Android 服务本应更加谨慎地运行未经审核的 SQL。本文作者没有明确的反例，但听说过类似传言。
+即便所有 Android 服务都更加审慎并正确审核所运行的 SQL，要审计它们以确保安全也十分困难。
+因此注重安全的人士热衷于确保不能通过传递任意 SQL 来实现任何漏洞。
+
+</p></li><li><p>
+用于支持 SQLite 开发的版本控制系统 <a href="https://www.fossil-scm.org/">Fossil</a> 允许略有信任的用户输入任意 SQL 来生成故障单报告。
+这些 SQL 使用<a href="c3ref/set_authorizer.html">sqlite3_set_authorizer()</a> 接口进行清洗，尚未发现漏洞。
+但这依然是潜在敌对代理能够注入任意 SQL 的例子。
+</p></li></ul>
+
+<h2 id="preventing_forged_pointers"><span>2.2. </span>防止伪造指针</h2>
+
+<p>
+解决指针传递安全漏洞的第一步是防止指针值被伪造。
+可以通过发送方在每个指针上使用<a href="c3ref/result_subtype.html">sqlite3_result_subtype()</a>附加子类型，
+然后接收方使用<a href="c3ref/value_subtype.html">sqlite3_value_subtype()</a>验证子类型
+并拒绝子类型不正确的指针。因为无法通过纯 SQL 来附加子类型，因此这防止了通过 SQL 伪造指针。
+发送指针的唯一方式是使用 C 代码。如果攻击者能够设置子类型，他也可以在不借助 SQLite 的情况下伪造指针。
+
+</p><p>
+使用子类型识别有效指针阻止了 WebSQL 漏洞。
+但事实证明这仍然不是完整的解决方案。
+
+<a name="ptrleak"></a>
+
+</p><h2 id="pointer_leaks"><span>2.3. </span>指针泄露</h2>
+
+<p>
+指针上的子类型阻止了通过纯 SQL 伪造指针。
+但子类型并不能阻止攻击者读取指针的值。
+换言之，指针值上的子类型可以阻止如下 SQL 语句发起攻击：
+
+</p><div class="codeblock"><pre>SELECT snippet(x'6092310100000000') FROM t1 WHERE cx MATCH $pattern;
+</pre></div>
+
+<p>
+由于传入 snippet() 的 BLOB 参数没有正确的子类型，
+snippet 函数会忽略它，不会更改任何数据结构，并安全地返回 NULL。
+
+</p><p>
+但子类型并不能阻止通过如下 SQL 读取指针值：
+
+</p><div class="codeblock"><pre>SELECT hex(t1) FROM t1 WHERE cx MATCH $pattern;
+</pre></div>
+
+<p>
+你可能会问，这有什么危害？SQLite 开发者（包括本文作者）最初也这么想。
+但安全研究人员指出，一旦攻击者知道指针的值，他就能绕过地址空间随机化防护。
+这就是所谓的“指针泄露”。指针泄露本身不是漏洞，但它能帮助攻击者有效利用其他漏洞。
+</p>
+
+</p><h1 id="the_new_pointer_passing_interfaces"><span>3. </span>新的指针传递接口</h1>
+
+<p>
+为了让扩展组件之间能够安全地传递私有信息并避免指针泄露，
+需要新的接口：
+
+</p><ul>
+<li><b><a href="c3ref/bind_blob.html">sqlite3_bind_pointer</a>(S,I,P,T,D)</b> → 将类型为 T 的指针 P 绑定到预编译语句 S 的第 I 个参数。
+D 可选，用于在 P 被 SQLite 使用完毕后销毁 P。
+</li><li><b><a href="c3ref/result_blob.html">sqlite3_result_pointer</a>(C,P,T,D)</b> → 将类型为 T 的指针 P 作为函数 C 的参数返回。
+D 可选，用于在 P 被 SQLite 使用完毕后销毁 P。
+</li><li><b><a href="c3ref/value_blob.html">sqlite3_value_pointer</a>(V,T)</b> → 返回与值 V 关联的类型为 T 的指针，
+如果 V 没有关联指针，或关联指针的类型与 T 不匹配，则返回 NULL。
+</li></ul>
+
+<p>
+对于 SQL 来说，由<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>和
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>创建的值与 NULL 无异。
+尝试使用<a href="lang_corefunc.html#hex">hex()</a>函数读取指针值的 SQL 语句
+会得到 SQL NULL。唯一知道某个值是否有关联指针的方法是使用
+<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>接口并提供正确的类型字符串 T。
+
+</p><p>
+通过<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>读取到的指针值
+无法由纯 SQL 生成。因此，SQL 无法伪造指针。
+
+</p><p>
+通过<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>和
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>生成的指针值不能被纯 SQL 读取。
+因此，SQL 无法泄露指针的值。
+
+</p><p>
+这样一来，新的指针传递接口似乎解决了所有与 SQLite 中扩展之间传递指针值相关的安全问题。
+
+<a name="ptrtyp"></a>
+
+</p><h2 id="pointer_types"><span>3.1. </span>指针类型</h2>
+
+<p>
+在<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>、
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>和
+<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>的最后一个参数“指针类型”
+用于防止原本为某个扩展准备的指针被重定向到其他扩展。
+例如，如果不使用指针类型，在同时拥有<a href="fts3.html">FTS3</a>和
+<a href="carray.html">CARRAY 扩展</a>的系统中，攻击者仍可以通过如下 SQL 访问指针信息：
+
+</p><div class="codeblock"><pre>SELECT ca.value FROM t1, carray(t1,10) AS ca WHERE cx MATCH $pattern
+</pre></div>
+
+<p>
+上面的语句中，MATCH 运算符生成的 FTS3 光标指针被送入了 carray() 表值函数
+而不是预期的 snippet()。carray() 将该指针视为指向整数数组的指针，逐个返回数组元素，
+从而泄露了 FTS3 光标对象的内容。由于该对象包含指向其他对象的指针，
+上述语句会导致指针泄露。
+
+</p><p>
+不过，在有指针类型的情况下，上述语句无法执行。
+MATCH 运算符生成的指针类型为“fts3cursor”，而 carray() 函数期望接收类型为“carray”的指针。
+由于在<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>中指定的指针类型
+与在<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>中指定的类型不匹配，
+<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>在 carray() 中返回 NULL，
+从而向 CARRAY 扩展发出信号：它接收到的是一个无效指针。
+
+</p><h3 id="pointer_types_are_static_strings"><span>3.1.1. </span>指针类型是静态字符串</h3>
+
+<p>
+指针类型是静态字符串，理想情况下应该是直接写在 SQLite API 调用中的字符串字面量，
+而不是从其他函数传入的参数。曾考虑过使用整数值作为指针类型，但静态字符串提供了更大的命名空间，
+减少了不相关扩展之间意外的类型名称冲突的可能性。
+
+</p><p>
+所谓“静态字符串”，是指在程序生命周期内固定不变的以零结尾的字节数组。
+换句话说，指针类型字符串应当是一个字符串常量。
+相对地，“动态字符串”是指在堆上分配、需要释放的以零结尾字节数组。
+不要将动态字符串用作指针类型字符串。
+
+</p><p>
+多位评论者曾表达希望使用动态字符串作为指针类型，并让 SQLite 接管类型字符串的所有权，并在使用结束后自动释放。
+但这一设计由于以下原因被拒绝：
+
+</p><ol>
+<li><p>
+指针类型并不打算灵活且动态。它旨在成为设计时的常量。
+应用程序不应在运行时合成指针类型字符串。支持动态指针类型字符串会导致开发者滥用指针传递接口，在运行时合成指针类型字符串。
+要求指针类型字符串为静态的，有助于鼓励开发者在设计时选择固定的类型名称并将其编码为常量字符串。
+
+</p></li><li><p>
+在 SQLite 中，SQL 层的所有字符串值都是动态字符串。
+要求类型字符串为静态的，让创建能够合成任意类型指针的自定义 SQL 函数变得困难。
+我们并不希望用户创建这样的 SQL 函数，因为这些函数会破坏系统安全性。
+因此，要求使用静态字符串有助于保护指针传递接口免受设计不当的 SQL 函数干扰。
+静态字符串要求并非万能防御，因为资深程序员可以绕过它，而初学者可能会制造内存泄露。
+但通过明确指出指针类型字符串必须是静态的，我们希望鼓励那些原本可能使用动态字符串的开发者更加谨慎地思考问题，避免引入安全隐患。
+
+</p></li><li><p>
+如果让 SQLite 接管类型字符串的所有权，会给所有应用程序带来性能开销，即使这些应用不使用指针传递接口。
+SQLite 以 <a href="c3ref/value.html">sqlite3_value</a> 对象的形式传递值。该对象有析构函数，由于 sqlite3_value 对象几乎在所有地方都在使用，所以析构函数会被频繁调用。
+如果析构函数需要检查是否有指针类型字符串需要释放，就会在每次调用析构函数时增加几条 CPU 指令。
+这些附加的开销会累积起来。我们本来愿意为指针传递的便利承担这些额外周期，
+但指针传递并非常见的编程范式，因此仅为了少数使用指针传递的应用而在成千上万的不使用指针传递的应用上施加运行时开销并不明智。
+</p></li></ol>
+
+<p>
+如果你觉得应用程序中需要动态指针类型字符串，那很可能说明你在误用指针传递接口。
+你的用途可能不安全。
+请重新思考你的设计：是否确实需要通过 SQL 传递指针？
+或者能否通过除本文所述指针传递接口之外的其他机制来实现你的需求？
+
+</p><h2 id="destructor_functions"><span>3.2. </span>析构函数</h2>
+
+<p>
+<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>和
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>函数的最后一个参数指向一个
+用于在 SQLite 使用完 P 指针后释放它的过程。
+该指针可以为 NULL，此时不会调用任何析构函数。
+
+</p><p>
+当 D 参数非 NULL 时，意味着指针所有权已转移给 SQLite。
+当 SQLite 使用完指针后，它将负责释放与该指针关联的资源。
+如果 D 参数为 NULL，则指针所有权仍属于调用方，由调用方负责释放。
+
+</p><p>
+请注意，析构函数 D 是用于指针值 P 的，而不是类型字符串 T。
+类型字符串 T 应是具有无限生命周期的静态字符串。
+
+</p><p>
+如果通过向<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>或
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>提供非 NULL 的 D 参数将指针所有权传递给 SQLite，
+那么在对象被销毁之前，所有权就留在 SQLite 中。
+没有办法再次将所有权从 SQLite 转回应用程序。
+
+</p><h1 id="restrictions_on_the_use_of_pointer_values"><span>4. </span>指针值使用限制</h1>
+
+<p>
+通过<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>、
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>和
+<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>接口附加在 SQL NULL 上的指针是临时且短暂的。
+这些指针从未写入数据库。
+指针不会在排序过程中存活。正因如此，才没有
+sqlite3_column_pointer()接口，因为无法预测查询规划器是否会在返回查询结果前插入排序操作，
+因此无法确定由<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>或
+<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>插入查询的指针值是否能最终存活到结果集中。
+
+</p><p>
+指针值必须直接从生产者流向消费者，不经过中间的运算或函数。
+任何对指针值的转换都会摧毁该指针并将其转换为普通的 SQL NULL。
+
+</p><h1 id="summary"><span>5. </span>总结</h1>
+
+<p>本文的关键要点：
+
+</p><ol>
+<li><p>
+互联网正变得愈发敌对。如今，开发者应该假定攻击者总能找到方式在应用中执行任意 SQL。
+应用应设计为防止任意 SQL 的执行升级为更严重的漏洞。
+</p></li><li><p>
+少数 SQLite 扩展从传递指针中受益：
+</p><ul>
+<li><a href="fts3.html">FTS3</a> 的 MATCH 运算符将指针传递给 <a href="fts3.html#snippet">snippet()</a>、
+    <a href="fts3.html#offsets">offsets()</a> 和 <a href="fts3.html#matchinfo">matchinfo()</a>。
+</li><li><a href="carray.html">carray 表值函数</a> 需要接受来自应用程序的 C 语言值数组指针。
+</li><li><a href="https://sqlite.org/src/file/ext/misc/remember.c">remember() 扩展</a>
+    需要一个指向 C 语言整数变量的指针，用于记录它所传递的值。
+</li><li>应用程序需要获取“fts5_api”对象的指针，才能为<a href="fts5.html">FTS5</a>扩展添加扩展功能，例如自定义分词器。
+</li></ul>
+</li><li><p>
+绝不应通过将指针编码成整数或 BLOB 等其他 SQL 数据类型来交换指针。
+应使用为实现安全指针传递而设计的接口：
+<a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a>、<a href="c3ref/result_blob.html">sqlite3_result_pointer()</a> 和
+<a href="c3ref/value_blob.html">sqlite3_value_pointer()</a>。
+</p></li><li><p>
+指针传递是一项高级技术，应谨慎且少用。
+不应草率或粗心地使用指针传递。
+指针传递是一把锋利的工具，误用会留下深刻伤痕。
+</p></li><li><p>
+作为每个指针传递接口最后一个参数的“指针类型”字符串应是一个独特且特定于应用的字符串字面量，
+直接出现在 API 调用中。指针类型不应是由更高层函数传入的参数。
+</p></li></ol>
+<p align="center"><small><i>此页面最后更新于 2025-05-31 13:08:22Z </small></i></p>
+
+</body></html>

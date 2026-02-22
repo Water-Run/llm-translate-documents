@@ -1,0 +1,192 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>互斥锁</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_mutex_alloc sqlite3_mutex_enter sqlite3_mutex_free sqlite3_mutex_leave sqlite3_mutex_try -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>互斥锁</h2>
+</div>
+<blockquote><pre>
+sqlite3_mutex *sqlite3_mutex_alloc(int);
+void sqlite3_mutex_free(sqlite3_mutex*);
+void sqlite3_mutex_enter(sqlite3_mutex*);
+int sqlite3_mutex_try(sqlite3_mutex*);
+void sqlite3_mutex_leave(sqlite3_mutex*);
+</pre></blockquote>
+<p>
+SQLite 核心使用这些例程进行线程同步。虽然它们本意是供 SQLite 内部使用，但任何链接 SQLite 的代码都被允许使用这些例程中的任意一个。</p>
+
+<p>SQLite 源代码包含这些互斥锁例程的多种实现。在编译时会自动选择合适的实现。SQLite 核心提供以下实现：</p>
+
+<p><ul>
+<li>   SQLITE_MUTEX_PTHREADS
+<li>   SQLITE_MUTEX_W32
+<li>   SQLITE_MUTEX_NOOP
+</ul></p>
+
+<p>SQLITE_MUTEX_NOOP 实现是一组并不进行真正加锁的例程，适合在单线程应用中使用。SQLITE_MUTEX_PTHREADS 和 SQLITE_MUTEX_W32 实现分别适合在 Unix 和 Windows 上使用。</p>
+
+<p>如果 SQLite 在编译时定义了 SQLITE_MUTEX_APPDEF 预处理宏（使用 "-DSQLITE_MUTEX_APPDEF=1"），则库中不会包含任何互斥锁实现。在这种情况下，应用程序必须在调用 sqlite3_initialize() 或任何其他调用 sqlite3_initialize() 的公共 sqlite3_ 函数之前，使用 sqlite3_config() 函数的 <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigmutex">SQLITE_CONFIG_MUTEX</a> 选项提供自定义互斥锁实现。</p>
+
+<p>sqlite3_mutex_alloc() 例程分配一个新的互斥锁并返回指向它的指针。如果无法分配所请求的互斥锁，则 sqlite3_mutex_alloc() 返回 NULL。传递给 sqlite3_mutex_alloc() 的参数必须是以下整型常量之一：</p>
+
+<p><ul>
+<li>  SQLITE_MUTEX_FAST
+<li>  SQLITE_MUTEX_RECURSIVE
+<li>  SQLITE_MUTEX_STATIC_MAIN
+<li>  SQLITE_MUTEX_STATIC_MEM
+<li>  SQLITE_MUTEX_STATIC_OPEN
+<li>  SQLITE_MUTEX_STATIC_PRNG
+<li>  SQLITE_MUTEX_STATIC_LRU
+<li>  SQLITE_MUTEX_STATIC_PMEM
+<li>  SQLITE_MUTEX_STATIC_APP1
+<li>  SQLITE_MUTEX_STATIC_APP2
+<li>  SQLITE_MUTEX_STATIC_APP3
+<li>  SQLITE_MUTEX_STATIC_VFS1
+<li>  SQLITE_MUTEX_STATIC_VFS2
+<li>  SQLITE_MUTEX_STATIC_VFS3
+</ul></p>
+
+<p>前两个常量（SQLITE_MUTEX_FAST 和 SQLITE_MUTEX_RECURSIVE）会使 sqlite3_mutex_alloc() 创建一个新的互斥锁。使用 SQLITE_MUTEX_RECURSIVE 时，新互斥锁是可递归的，但使用 SQLITE_MUTEX_FAST 时则不一定如此。如果实现不愿意，也不需要在 SQLITE_MUTEX_RECURSIVE 和 SQLITE_MUTEX_FAST 之间作出区分。SQLite 仅在确实需要递归互斥锁的情况下请求它。如果主机平台上存在更快的非递归互斥锁实现，互斥锁子系统可能会在响应 SQLITE_MUTEX_FAST 时返回该互斥锁。</p>
+
+<p>sqlite3_mutex_alloc() 的其他允许参数（除 SQLITE_MUTEX_FAST 和 SQLITE_MUTEX_RECURSIVE 之外的任何值）都会返回指向静态预先存在的互斥锁的指针。当前版本的 SQLite 使用了九个静态互斥锁。将来的 SQLite 版本可能会添加额外的静态互斥锁。静态互斥锁仅供 SQLite 内部使用。使用 SQLite 互斥锁的应用程序应仅使用由 SQLITE_MUTEX_FAST 或 SQLITE_MUTEX_RECURSIVE 返回的动态互斥锁。</p>
+
+<p>请注意，如果使用了动态互斥锁参数（SQLITE_MUTEX_FAST 或 SQLITE_MUTEX_RECURSIVE），sqlite3_mutex_alloc() 将在每次调用时返回不同的互斥锁。对于静态互斥锁类型，只要参数相同，每次调用都会返回相同的互斥锁。</p>
+
+<p>sqlite3_mutex_free() 例程释放先前分配的动态互斥锁。尝试释放静态互斥锁会导致未定义行为。</p>
+
+<p>sqlite3_mutex_enter() 和 sqlite3_mutex_try() 例程尝试进入互斥锁。如果另一个线程已经拥有该互斥锁，sqlite3_mutex_enter() 会阻塞，而 sqlite3_mutex_try() 会返回 SQLITE_BUSY。sqlite3_mutex_try() 接口在成功进入时会返回 <a href="../rescode.html#ok">SQLITE_OK</a>。使用 SQLITE_MUTEX_RECURSIVE 创建的互斥锁可被同一线程多次进入。在这种情况下，在其他线程可以进入之前，必须退出等次数的互斥锁。如果同一线程尝试多次进入任何非 SQLITE_MUTEX_RECURSIVE 的互斥锁，其行为是未定义的。</p>
+
+<p>某些系统（例如 Windows 95）不支持 sqlite3_mutex_try() 实现的操作。在这些系统上，sqlite3_mutex_try() 将始终返回 SQLITE_BUSY。在大多数情况下，SQLite 核心仅将 sqlite3_mutex_try() 作为一种优化，因此这是可以接受的行为。例外情况是启用了 SQLITE_ENABLE_SETLK_TIMEOUT 构建选项的 Unix 构建。在那种情况下，需要一个可用的 sqlite3_mutex_try()。</p>
+
+<p>sqlite3_mutex_leave() 例程退出先前由同一线程进入的互斥锁。如果互斥锁当前未被调用线程进入或未被分配，其行为是未定义的。</p>
+
+<p>如果传递给 sqlite3_mutex_enter()、sqlite3_mutex_try()、sqlite3_mutex_leave() 或 sqlite3_mutex_free() 的参数是 NULL 指针，则这四个例程中的任意一个都表现为无操作。</p>
+
+<p>另请参阅：<a href="../c3ref/mutex_held.html">sqlite3_mutex_held()</a> 和 <a href="../c3ref/mutex_held.html">sqlite3_mutex_notheld()</a>。
+</p><p>另请参阅以下列表：
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+
+</body></html>

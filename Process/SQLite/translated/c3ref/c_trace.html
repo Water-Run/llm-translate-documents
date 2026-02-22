@@ -1,0 +1,163 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQL 跟踪事件代码</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_TRACE SQLITE_TRACE_CLOSE SQLITE_TRACE_PROFILE SQLITE_TRACE_ROW SQLITE_TRACE_STMT -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>SQL 跟踪事件代码</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_TRACE_STMT       0x01
+#define SQLITE_TRACE_PROFILE    0x02
+#define SQLITE_TRACE_ROW        0x04
+#define SQLITE_TRACE_CLOSE      0x08
+</pre></blockquote>
+<p>
+这些常量标识可以使用 <a href="../c3ref/trace_v2.html">sqlite3_trace_v2()</a> 跟踪逻辑监控的事件类别。<a href="../c3ref/trace_v2.html">sqlite3_trace_v2(D,M,X,P)</a> 的 M 参数是以下一个或多个常量经按位或组合的结果。跟踪回调的第一个参数是以下常量之一。</p>
+
+<p>将来的版本可能会添加新的跟踪常量。</p>
+
+<p>跟踪回调有四个参数：xCallback(T,C,P,X)。T 参数是上面的整数类型代码之一。C 参数是作为 <a href="../c3ref/trace_v2.html">sqlite3_trace_v2()</a> 第四个参数传入的上下文指针的副本。P 和 X 参数是指针，其含义取决于 T。</p>
+
+<p><dl>
+<a name="sqlitetracestmt"></a>
+ <dt>SQLITE_TRACE_STMT</dt>
+<dd>当准备好的语句第一次开始运行以及在其执行过程中的其他时间（例如每个触发器子程序开始时）会调用 SQLITE_TRACE_STMT 回调。P 参数指向该准备语句。X 参数指向一个字符串，其内容是准备语句的未展开 SQL 文本或表示触发器调用的 SQL 注释。当 X 以“--”开头时，回调可以使用 X 参数来获得与旧的 <a href="../c3ref/profile.html">sqlite3_trace()</a> 接口相同的文本，否则可以调用 <a href="../c3ref/expanded_sql.html">sqlite3_expanded_sql(P)</a>。</p>
+
+<p><a name="sqlitetraceprofile"></a>
+ <dt>SQLITE_TRACE_PROFILE</dt>
+<dd>SQLITE_TRACE_PROFILE 回调提供的内容与 <a href="../c3ref/profile.html">sqlite3_profile()</a> 回调相近。P 参数指向准备语句，X 参数指向一个 64 位整数，约表示该准备语句执行所花费的纳秒数。SQLITE_TRACE_PROFILE 回调在语句执行完成时被调用。</p>
+
+<p><a name="sqlitetracerow"></a>
+ <dt>SQLITE_TRACE_ROW</dt>
+<dd>每当准备语句产生一行结果时，都会调用 SQLITE_TRACE_ROW 回调。P 参数指向准备语句，X 参数未使用。</p>
+
+<p><a name="sqlitetraceclose"></a>
+ <dt>SQLITE_TRACE_CLOSE</dt>
+<dd>当数据库连接关闭时，会调用 SQLITE_TRACE_CLOSE 回调。P 参数指向 <a href="../c3ref/sqlite3.html">数据库连接</a> 对象，X 参数未使用。
+</dl>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
+

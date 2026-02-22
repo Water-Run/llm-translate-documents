@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Next-Generation Query Planner</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='about.html'>About</a>
+<li class='desktoponly'><a href="docs.html">Documentation</a>
+<li class='desktoponly'><a href="download.html">Download</a>
+<li class='wideonly'><a href='copyright.html'>License</a>
+<li class='desktoponly'><a href="support.html">Support</a>
+<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>About</a>
+<li><a href='docs.html'>Documentation</a>
+<li><a href='download.html'>Download</a>
+<li><a href='support.html'>Support</a>
+<li><a href='prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+The Next-Generation Query Planner
+</div>
+<details class="fancy_toc">
+<summary>Table Of Contents</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#_introduction">1.  Introduction</a></div>
+<div class="fancy-toc1"><a href="#_background">2.  Background</a></div>
+<div class="fancy-toc2"><a href="#_query_planning_in_sqlite">2.1.  Query Planning In SQLite</a></div>
+<div class="fancy-toc2"><a href="#_the_sqlite_query_planner_stability_guarantee">2.2.  The SQLite Query Planner Stability Guarantee</a></div>
+<div class="fancy-toc1"><a href="#_a_difficult_case">3.  A Difficult Case</a></div>
+<div class="fancy-toc2"><a href="#_query_details">3.1.  Query Details</a></div>
+<div class="fancy-toc2"><a href="#_complications">3.2.  Complications</a></div>
+<div class="fancy-toc2"><a href="#_finding_the_best_query_plan">3.3.  Finding The Best Query Plan</a></div>
+<div class="fancy-toc2"><a href="#_the_n_nearest_neighbors_or_n3_algorithm">3.4.  The N Nearest Neighbors or "N3" Algorithm</a></div>
+<div class="fancy-toc1"><a href="#the_star_query_heuristic">4. The Star-Query Heuristic</a></div>
+<div class="fancy-toc2"><a href="#background_what_is_a_star_query">4.1. Background: What Is A Star-Query</a></div>
+<div class="fancy-toc2"><a href="#query_planning_problems_with_high_dimensionality_star_queries">4.2. Query Planning Problems With High-Dimensionality Star-Queries</a></div>
+<div class="fancy-toc2"><a href="#a_large_test_case">4.3. A Large Test Case</a></div>
+<div class="fancy-toc2"><a href="#tweaks_to_n3_to_support_star_queries">4.4. Tweaks To N3 To Support Star Queries</a></div>
+<div class="fancy-toc1"><a href="#_hazards_of_upgrading_to_ngqp">5.  Hazards Of Upgrading To NGQP</a></div>
+<div class="fancy-toc2"><a href="#_case_study_upgrading_fossil_to_the_ngqp">5.1.  Case Study: Upgrading Fossil to the NGQP</a></div>
+<div class="fancy-toc2"><a href="#_fixing_the_problem">5.2.  Fixing The Problem</a></div>
+<div class="fancy-toc2"><a href="#update_2017_a_better_fix">5.3. Update 2017: A Better Fix</a></div>
+<div class="fancy-toc1"><a href="#_checklist_for_avoiding_or_fixing_query_planner_problems">6.  Checklist For Avoiding Or Fixing Query Planner Problems</a></div>
+<div class="fancy-toc1"><a href="#_summary">7.  Summary</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="_introduction"><span>1. </span> Introduction</h1>
+
+<p>
+The task of the "query planner" is to figure
+out the best algorithm or "query plan" to accomplish an SQL statement.
+Beginning with SQLite <a href="releaselog/3_8_0.html">version 3.8.0</a> (2013-08-26),
+the query planner component has been
+rewritten so that it runs faster and generates better plans.  The
+rewrite is called the "next generation query planner" or "NGQP".
+</p>
+
+<p>This article overviews the importance of query planning, describes some
+of the problems inherent to query planning, and outlines how the NGQP
+solves those problems.</p>
+
+<p>The NGQP is almost always better than the legacy query planner.
+However, there may exist legacy applications that unknowingly depend on
+undefined and/or suboptimal behavior in the legacy query planner, and
+upgrading to the NGQP on those legacy applications could cause performance
+regressions.  This risk is considered and a checklist is provided
+for reducing the risk and for fixing any issues that do arise.</p>
+
+<p>This document focuses on the NGQP.  For a more general overview of the
+SQLite query planner that encompasses the entire history of SQLite, see the
+"<a href="optoverview.html">The SQLite Query Optimizer Overview</a>" and
+"<a href="queryplanner.html">How Indexes Work</a>" documents.</p>
+
+<h1 id="_background"><span>2. </span> Background</h1>
+
+<p>For simple queries against a single table with few indexes, there is usually
+an obvious choice for the best algorithm.
+But for larger and more complex queries, such as
+multi-way joins with many indexes
+and subqueries, there can be hundreds, thousands, or millions
+of reasonable algorithms for computing the result.
+The job of the query planner is to choose the single "best" query plan from
+this multitude of possibilities.</p>
+
+<p>Query planners are what make SQL database engines so amazingly useful and powerful.
+(This is true of all SQL database engines, not just SQLite.)
+The query planner frees the programmer from the chore of selecting
+a particular query plan, and thereby allows the programmer to
+focus more mental energy on higher-level application issues and on
+providing more value to the end user.  For simple queries where the choice
+of query plan is obvious, this is convenient but not hugely important.
+But as applications and schemas and queries grow more complex, a
+clever query planner can greatly speed and simplify the work of application
+development.
+There is amazing power in being able to tell
+the database engine what content is desired, and then let the database
+engine figure out the best way to retrieve that content.</p>
+
+<p>Writing a good query planner is more art than science.
+The query planner must work with incomplete information.
+It cannot determine how long any particular plan will take
+without actually running that plan.  So when comparing two
+or more plans to figure out which is "best", the query planner has to make
+some guesses and assumptions and those guesses and assumptions will
+sometimes be wrong. A good query planner is one that will
+find the correct solution often enough that application
+programmers rarely need to get involved.</p>
+
+<h2 id="_query_planning_in_sqlite"><span>2.1. </span> Query Planning In SQLite</h2>
+
+<p>SQLite computes joins using nested loops,
+one loop for each table
+in the join.  (Additional loops might be inserted for IN
+and OR operators in the WHERE clause.  SQLite considers those too,
+but for simplicity we will ignore them in this essay.)
+One or more indexes might be used on each loop to speed the search,
+or a loop might be a "full table scan" that reads every row in the
+table.  Thus query planning decomposes into two subtasks:</p>
+<ol>
+<li> Picking the nested order of the various loops
+</li><li> Choosing good indexes for each loop
+</li></ol>
+<p>Picking the nesting order is generally the more challenging problem.
+Once the nesting order of the join is established, the choice of indexes
+for each loop is normally obvious.</p>
+
+<a name="qpstab"></a>
+
+<h2 id="_the_sqlite_query_planner_stability_guarantee"><span>2.2. </span> The SQLite Query Planner Stability Guarantee</h2>
+
+<p>When the Query Planner Stability Guarantee (QPSG) is enabled
+SQLite will always pick the same query plan for any
+given SQL statement as long as:
+
+</p><ol type="a">
+<li>the database schema does not change in significant ways such as
+    adding or dropping indexes,</li>
+<li>the ANALYZE command is not rerun, </li>
+<li>the same version of SQLite is used.</li>
+</ol>
+
+<p>The QPSG is disabled by default.  It can be enabled at compile-time
+using the <a href="compile.html#enable_qpsg">SQLITE_ENABLE_QPSG</a> compile-time option, or at run-time by
+invoking <a href="c3ref/db_config.html">sqlite3_db_config</a>(db,<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableqpsg">SQLITE_DBCONFIG_ENABLE_QPSG</a>,1,0).
+
+</p><p>The QPSG means that if all of your queries run efficiently
+during testing, and if your application does not change the schema,
+then SQLite will not suddenly decide to start using a different
+query plan, possibly causing a performance problem after your application
+is released to users.  If your application works in the lab, it
+will continue working the same way after deployment.</p>
+
+<p>Client/server SQL database engines do not normally
+make this guarantee.
+In client/server SQL database engines, the server keeps track of
+statistics on the sizes of tables and on the quality of indexes
+and the query planner uses those statistics to help select the best plans.
+As content is added, deleted, or changed in the database, the statistics
+will evolve and may cause the query planner to begin using a different
+query plan for some particular query.  Usually the new plan will be better
+for the evolving structure of the data.  But sometimes the new query plan will
+cause a performance reduction.  With a client/server database engine, there
+is typically a Database Administrator (DBA) on hand to deal with these
+rare problems as they come up.  But DBAs are not available to fix problems
+in an embedded database like SQLite, and hence SQLite is careful to
+ensure that plans do not change unexpectedly after deployment.</p>
+
+<p>It is important to note that changing versions of SQLite might cause
+changes in query plans.
+The same version of SQLite will
+always pick the same query plan, but if you relink your application to use
+a different version of SQLite, then query plans might change.  In rare
+cases, an SQLite version change might lead to a performance regression.
+This is one reason
+you should consider statically linking your applications against SQLite
+rather than use a system-wide SQLite shared library which might
+change without your knowledge or control.</p>
+
+<p>See also:
+</p><ul>
+<li> <a href="lang_analyze.html#req">Recommended usage patterns for ANALYZE</a>
+</li><li> <a href="pragma.html#pragma_optimize">PRAGMA optimize</a>
+</li></ul>
+
+<h1 id="_a_difficult_case"><span>3. </span> A Difficult Case</h1>
+
+<p>
+"TPC-H Q8" is a test query from the
+<a href="http://www.tpc.org/tpch/">Transaction Processing Performance
+Council</a>.  The query planners in SQLite versions 3.7.17 and earlier
+do not choose good plans for TPC-H Q8.  And it has been determined that
+no amount
+of tweaking of the legacy query planner will fix that.  In order to find
+a good solution to the TPC-H Q8 query, and to continue improving the
+quality of SQLite's query planner, it became necessary to redesign the
+query planner.  This section tries to explain why this redesign was
+necessary and how the NGQP is different and addresses the TPC-H Q8 problem.
+</p>
+
+<h2 id="_query_details"><span>3.1. </span> Query Details</h2>
+
+<p>
+TPC-H Q8 is an eight-way join.
+As observed above, the main task of the query planner is
+to figure out the best nesting order of the eight loops in order to minimize
+the work needed to complete the join.
+A simplified model of this problem for the case of TPC-H Q8 is shown
+by the following diagram:
+</p>
+
+<center>
+<div style="max-width:677px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 677.503 310.031" data-pikchr-date="20250319161943">
+<circle cx="132.37" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.37" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">S</text>
+<circle cx="234.274" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">L</text>
+<circle cx="336.178" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="336.178" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">O</text>
+<circle cx="438.082" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="438.082" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">C</text>
+<circle cx="539.985" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="539.985" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">N1</text>
+<circle cx="641.889" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="641.889" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">R</text>
+<circle cx="234.274" cy="205.968" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="205.968" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">P</text>
+<circle cx="30.4666" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="30.4666" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">N2</text>
+<polygon points="104.064,101.229 91.7604,101.223 94.7978,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M58.7732,101.229 L 70.0958,96.9771 Q 81.4185,92.7252 90.045,95.9647 L 98.6714,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="81.4185" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">6.00</text>
+<polygon points="58.7732,106.898 71.0766,106.904 68.0391,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M104.064,106.898 L 92.7411,111.15 Q 81.4185,115.402 72.792,112.163 L 64.1655,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="81.4185" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.08</text>
+<polygon points="205.968,101.229 193.664,101.223 196.702,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M160.677,101.229 L 172,96.9771 Q 183.322,92.7252 191.949,95.9647 L 200.575,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="183.322" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">9.17</text>
+<polygon points="160.677,106.898 172.98,106.904 169.943,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M205.968,106.898 L 194.645,111.15 Q 183.322,115.402 174.696,112.163 L 166.069,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="183.322" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.30</text>
+<polygon points="307.871,101.229 295.568,101.223 298.605,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M262.581,101.229 L 273.903,96.9771 Q 285.226,92.7252 293.852,95.9647 L 302.479,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="285.226" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.77</text>
+<polygon points="262.581,106.898 274.884,106.904 271.847,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M307.871,106.898 L 296.549,111.15 Q 285.226,115.402 276.6,112.163 L 267.973,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="285.226" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.03</text>
+<polygon points="409.775,101.229 397.472,101.223 400.509,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M364.484,101.229 L 375.807,96.9771 Q 387.13,92.7252 395.756,95.9647 L 404.383,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="387.13" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.64</text>
+<polygon points="364.484,106.898 376.788,106.904 373.75,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M409.775,106.898 L 398.452,111.15 Q 387.13,115.402 378.503,112.163 L 369.877,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="387.13" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">5.30</text>
+<polygon points="511.679,101.229 499.375,101.223 502.413,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M466.388,101.229 L 477.711,96.9771 Q 489.034,92.7252 497.66,95.9647 L 506.286,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="489.034" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.08</text>
+<polygon points="466.388,106.898 478.692,106.904 475.654,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M511.679,106.898 L 500.356,111.15 Q 489.034,115.402 480.407,112.163 L 471.781,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="489.034" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">6.40</text>
+<polygon points="613.583,101.229 601.279,101.223 604.317,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M568.292,101.229 L 579.615,96.9771 Q 590.937,92.7252 599.564,95.9647 L 608.19,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="590.937" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">1.79</text>
+<polygon points="568.292,106.898 580.595,106.904 577.558,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M613.583,106.898 L 602.26,111.15 Q 590.937,115.402 582.311,112.163 L 573.684,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="590.937" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">3.47</text>
+<polygon points="237.109,177.661 237.114,165.358 245.203,168.395" style="fill:rgb(0,0,0)"/>
+<path d="M237.109,132.37 L 241.361,143.693 Q 245.613,155.016 242.373,163.642 L 239.134,172.269"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="245.613" y="155.016" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.64</text>
+<polygon points="231.439,132.37 231.434,144.674 223.345,141.636" style="fill:rgb(0,0,0)"/>
+<path d="M231.439,177.661 L 227.188,166.338 Q 222.936,155.016 226.175,146.389 L 229.415,137.763"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="222.936" y="155.016" text-anchor="end" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">6.01</text>
+<circle cx="30.4666" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="30.4666" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="30.4666,75.7572 26.1466,64.2372 34.7866,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M30.4666,30.4666L30.4666,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="30.4666" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 5.52</text>
+<circle cx="132.37" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.37" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="132.37,75.7572 128.05,64.2372 136.69,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M132.37,30.4666L132.37,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.37" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 9.47</text>
+<circle cx="234.274" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="234.274,75.7572 229.954,64.2372 238.594,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M234.274,30.4666L234.274,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 16.40</text>
+<circle cx="336.178" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="336.178" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="336.178,75.7572 331.858,64.2372 340.498,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M336.178,30.4666L336.178,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="336.178" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 13.87</text>
+<circle cx="438.082" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="438.082" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="438.082,75.7572 433.762,64.2372 442.402,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M438.082,30.4666L438.082,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="438.082" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 12.56</text>
+<circle cx="539.985" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="539.985" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="539.985,75.7572 535.665,64.2372 544.305,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M539.985,30.4666L539.985,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="539.985" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 5.52</text>
+<circle cx="641.889" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="641.889" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="641.889,75.7572 637.569,64.2372 646.209,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M641.889,30.4666L641.889,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="641.889" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 3.56</text>
+<circle cx="234.274" cy="293.718" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="293.718" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="234.274,234.274 238.594,245.794 229.954,245.794" style="fill:rgb(0,0,0)"/>
+<path d="M234.274,279.565L234.274,240.034"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="256.919" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 7.71</text>
+</svg>
+</div>
+</center>
+
+<p>
+In the diagram, each of the 8 tables in the FROM clause of the query is
+identified by a large circle with the label of the FROM-clause term:
+N2, S, L, P, O, C, N1 and R.
+The arcs in the graph represent the estimated cost of computing each term
+assuming that the origin of the arc is in an outer loop.  For example, the
+cost of running the S loop as an inner loop to L is 2.30 whereas the
+cost of running the S loop as an outer loop to L is 9.17.</p>
+
+<p>The "cost" here is logarithmic.  With nested loops, the work
+is multiplied, not added.  But it is customary to think of graphs
+with additive weights and so the graph shows the logarithm of the
+various costs.  The graph shows a cost advantage of S being inside of
+L of about 6.87, but this translates into the query running about
+963 times faster when S loop is inside of the L loop rather than
+being outside of it.</p>
+
+<p>The arrows from the small circles labeled with "*" indicate the cost
+of running each loop with no dependencies.  The outermost loop must use this
+*-cost.  Inner loops have the option of using the *-cost or a cost assuming
+one of the other terms is in an outer loop, whichever gives the best
+result.  One can think of the *-costs as a short-hand notation indicating
+multiple arcs, one from each of the other nodes in the
+graph.  The graph is therefore "complete", meaning that there are arcs
+(some explicit and some implied) in both directions between every pair of
+nodes in the graph.</p>
+
+<p>The problem of finding the best query plan is equivalent to finding
+a minimum-cost path through the graph that visits each node
+exactly once.</p>
+
+<p>(Side note:  The cost estimates in the TPC-H Q8 graph above were computed
+by the query planner in SQLite 3.7.16 and converted using a natural logarithm.)
+</p>
+
+<h2 id="_complications"><span>3.2. </span> Complications</h2>
+
+<p>The presentation of the query planner problem above is a simplification.
+The costs are estimates.  We cannot
+know what the true cost of running a loop is until we actually run the loop.
+SQLite makes guesses for the cost of running a loop based on
+the availability of indexes and constraints found in the WHERE
+clause.  These guesses are usually pretty good, but they can sometimes be
+off.  Using the <a href="lang_analyze.html">ANALYZE</a> command to collect additional statistical
+information about the database can sometimes enable SQLite to make better
+guesses about the cost.</p>
+
+<p>The costs are comprised of multiple numbers, not a single number as
+shown in the graph.
+SQLite computes several different estimated costs for each loop that apply at
+different times.  For example, there is a "setup" cost that is incurred
+just once when the query starts.  The setup cost is the cost of computing
+a <a href="optoverview.html#autoindex">query-time index</a> for a table that does not already
+have an index.  Then there
+is the cost of running each step of the loop.  Finally, there is an estimate
+of the number of rows generated by the loop, which is information needed in
+estimating the costs of inner loops.  Sorting costs may come into play
+if the query has an ORDER BY clause.</p>
+
+<p>In a general query, dependencies need not be on a single loop, and hence
+the matrix of dependencies might not be representable as a graph.
+For example, one of the WHERE clause constraints might be
+S.a=L.b+P.c, implying that the S loop must be an inner loop of both
+L and P.  Such dependencies cannot be drawn as a graph
+since there is no way for an arc to originate at two or more nodes at
+once.</p>
+
+<p>If the query contains an ORDER BY clause or a GROUP BY clause or if
+the query uses the DISTINCT keyword then it is advantageous to select a
+path through the graph that causes rows to naturally appear in sorted order,
+so that no separate sorting step is required.  Automatic elimination of
+ORDER BY clauses
+can make a large performance difference, so this is another factor
+that needs to be considered in a complete implementation.</p>
+
+<p>In the TPC-H Q8 query, the setup costs are all negligible,
+all dependencies are between individual nodes, and there is no ORDER BY,
+GROUP BY, or DISTINCT clause. So for TPC-H Q8,
+the graph above is a reasonable representation of what needs to be computed.
+The general case involves a lot of extra complication, which for clarity
+is neglected in the remainder of this article.</p>
+
+<h2 id="_finding_the_best_query_plan"><span>3.3. </span> Finding The Best Query Plan</h2>
+
+<p>Prior to <a href="releaselog/3_8_0.html">version 3.8.0</a> (2013-08-26), SQLite always used
+the "Nearest Neighbor" or "NN" heuristic when searching for the best query plan.
+The NN heuristic makes a single traversal of the graph, always choosing
+the lowest-cost arc as the next step.
+The NN heuristic works surprisingly well in most cases.
+And NN is fast, so that SQLite is able to quickly find good plans
+for even large 64-way joins.  In contrast, other SQL database engines that
+do more extensive searching tend to bog down when the
+number of tables in a join goes above 10 or 15.</p>
+
+<p>Unfortunately, the query plan computed by NN for TPC-H Q8 is not optimal.
+The plan computed using NN is R-N1-N2-S-C-O-L-P with a cost of 36.92.
+The notation
+in the previous sentence means that the R table is run in the outer loop,
+N1 is in the next inner loop, N2 is in the third loop, and so forth down
+to P which is in the inner-most loop.  The shortest path through the
+graph (as found via exhaustive search) is  P-L-O-C-N1-R-S-N2
+with a cost of 27.38.  The difference might not seem like much, but
+remember that
+the costs are logarithmic, so the shortest path is nearly 750 times
+faster than that path found using the NN heuristic.</p>
+
+<p>One solution to this problem is to change SQLite to do an exhaustive
+search for the best path.  But an exhaustive search requires time
+proportional to
+K! (where K is the number of tables in the join) and so when you get
+beyond a 10-way join, the time
+to run <a href="c3ref/prepare.html">sqlite3_prepare()</a> becomes very large.</p>
+
+<a name="n3"></a>
+
+<h2 id="_the_n_nearest_neighbors_or_n3_algorithm"><span>3.4. </span> The N Nearest Neighbors or "N3" Algorithm</h2>
+
+<p>The NGQP uses a new algorithm for seeking the best path through the
+graph: "N Nearest Neighbors" (hereafter "N3").  With N3, instead of
+choosing just one nearest neighbor for each step, the algorithm keeps
+track of the N bests paths at each step for some small integer N.</p>
+
+<p>Suppose N=4.  Then for the TPC-H Q8 graph, the first step finds
+the four shortest paths to visit any single node in the graph:
+
+</p><blockquote>
+    R (cost: 3.56) <br>
+    N1 (cost: 5.52) <br>
+    N2 (cost: 5.52) <br>
+    P (cost: 7.71) <br>
+</blockquote>
+
+<p>The second step finds the four shortest paths to visit two nodes
+beginning with one of the four paths from the previous step.  In the
+case where two or more paths are equivalent (they have the same set of
+visited nodes, though possibly in a different order) only the
+first and lowest-cost path is retained.  We have:</p>
+
+<blockquote>
+    R-N1 (cost: 7.03) <br>
+    R-N2 (cost: 9.08) <br>
+    N2-N1 (cost: 11.04) <br>
+    R-P {cost: 11.27} <br>
+</blockquote>
+
+<p>The third step starts with the four shortest two-node paths and finds
+the four shortest three-node paths:</p>
+
+<blockquote>
+    R-N1-N2 (cost: 12.55) <br>
+    R-N1-C (cost: 13.43) <br>
+    R-N1-P (cost: 14.74) <br>
+    R-N2-S (cost: 15.08) <br>
+</blockquote>
+
+<p>And so forth.  There are 8 nodes in the TPC-H Q8 query,
+so this process repeats a total of 8
+times.  In the general case of a K-way join, the storage requirement
+is O(N) and the computation time is O(K*N), which is significantly faster
+than the O(2<small><sup>K</sup></small>) exact solution.</p>
+
+<p>But what value to choose for N?  One might try N=K.  This makes the
+algorithm O(K<small><sup>2</sup></small>)
+which is actually still quite efficient, since the
+maximum value of K is 64 and K rarely exceeds 10.
+But that is not enough for the TPC-H Q8
+problem.  With N=8 on TPC-H Q8 the N3 algorithm finds
+the solution R-N1-C-O-L-S-N2-P with a cost of 29.78.
+That is a big improvement over NN, but it is still
+not optimal.  N3 finds the optimal solution for TPC-H Q8
+when N is 10 or greater.</p>
+
+<p>The initial implementation of NGQP chooses N=1 for simple queries, N=5
+for two-way joins and N=10 for all joins with three or more tables.
+Later, the N value for joins with three or more tables was raised to 12
+or to 18 if the join is against a star-schema.  Further refinements
+are likely in the future.</p>
+
+<a name="starq"></a>
+
+<h1 id="the_star_query_heuristic"><span>4. </span>The Star-Query Heuristic</h1>
+
+<p>The <a href="queryplanner-ng.html#n3">N3 algorithm</a> works well for most queries.  But there are a
+few cases where it generates a bad plan.  Specifically, for some
+queries against a <a href="https://en.wikipedia.org/wiki/Star_schema">star-schema</a>
+where there is a large fact table and six or more small dimension
+tables and where there exist indexes going in both directions, the
+N3 algorithm misses the best query plan unless the N parameter is
+very large - exponential in the number of dimension tables.
+Call these kinds of queries "star-queries".
+More recent versions of SQLite (circa 2024 or 2025 and later) implement
+a heuristic to work around this, so that efficient query plans are
+chosen for star-queries, without requiring hints from the programmer.
+
+</p><h2 id="background_what_is_a_star_query"><span>4.1. </span>Background: What Is A Star-Query</h2>
+
+<p>A star-schema is a common relational database design in which
+there is a large "fact-table" surrounding by smaller "dimension-tables".
+The dimension-tables are typically keyed by integer ID values and
+hold a variety of other attributes that are accessed using that ID.
+The fact-table contains ID values referencing the various
+dimension tables.
+
+</p><p>For example, suppose you have dimension tables, all with integer
+ID values as their PRIMARY KEY, like this:
+
+</p><ul>
+<li> A PRODUCT table holds information about each product.
+</li><li> A SELLER table holds information about each sales staff member.
+</li><li> A CUSTOMER table holds information about each customer.
+</li><li> A CARRIER table holds information about each shipping provider.
+</li><li> A WAREHOUSE table holds information about all warehouses.
+</li></ul>
+
+<p>Each of the dimension tables is relatively small.  How many
+warehouses does your business operate?  Maybe PRODUCT
+and CUSTOMER are somewhat larger, but the number of entries might
+be still measured in thousands, not millions.
+
+</p><p>The dimension tables are bound together by a single SALES table
+that records each sale.  The SALES table contains things like:
+
+</p><ul>
+<li> The time and value of the sale.
+</li><li> The PRODUCT-id, SELLER-id, CUSTOMER-id, CARRIER-id, and
+     WAREHOUSE-id.
+</li></ul>
+
+<p>The SALES table is our fact-table.  The number of entries
+in SALES is orders of magnitude larger than any of the dimension
+tables.  And each SALES table row references a single entry in the
+various dimension tables.  A dimension table row might reference
+many thousands of SALES table rows, on the other hand.
+
+</p><p>This is a classic example of a star-schema.  Data representations
+like this come up all the time, and in diverse fields.  We call
+queries against this schema a "star-query".  For example, asking
+for a complete report of all sales between the hours of 12:00
+and 14:00 on 2024-01-04 would be a star-query.  The SALES table
+would be consulted to find all entries between the specified
+hours, then the various dimension tables would be consulted to
+look up information about each individual sale.
+
+</p><h2 id="query_planning_problems_with_high_dimensionality_star_queries"><span>4.2. </span>Query Planning Problems With High-Dimensionality Star-Queries</h2>
+
+<p>The <a href="queryplanner-ng.html#n3">N3 query planning algorithm</a> described above works fine
+and generates a optimal solution for star-queries with less than
+five or six dimension tables.  However, if the number of dimension
+tables grows larger, then depending on how indexes are defined and
+on the relative sizes of the fact and dimension tables, the N3
+algorithm will sometimes find a suboptimal plan.
+
+</p><p>That happens because N3 is still a greedy algorithm.
+Even though it is keeping track of up to N different solutions at
+each step, it only follows the N best solutions.  That leads to
+problems as follows:
+
+</p><p>The step of finding all relevant entries in the fact table can
+be slow, because the fact table is so big.  Finding relevant values
+of the fact table might be slower than doing a full table scan of
+the relatively small dimension tables.  The best plan is usually
+to spend time finding the relevant rows of the fact table first
+and then do primary-key lookups of corresponding dimension table
+rows. But because N3 is a greedy algorithm, it tends to accumulate
+a bunch of full-table scans of dimension tables in its N-best plan
+set early in the search.  If there enough dimension tables, they
+can fill up all N available slots and push out the best plan which
+starts with the more expensive search of the fact table.
+
+</p><p>N3 will still always find the best plan in the end, given a
+large enough value for N.  The trouble is that a sufficiently large
+N might be exponential in the number of dimension tables.  That
+means that overall query planning algorithm would require
+exponential time.  N3 works great with three or four dimension
+tables.  With a larger number of dimension tables, however, it
+starts to generate query plans that include full-table scans
+of the smaller dimension tables, which severely degrades
+performance.
+
+</p><h2 id="a_large_test_case"><span>4.3. </span>A Large Test Case</h2>
+
+<p>The <a href="https://sqlite.org/src/file/test/starschema1.test">test/starschema1.test</a>
+test script in the SQLite source tree shows a star-query with one
+fact table and 63 dimension tables.
+This test case is contrived, but it does demonstrate how the
+N3 algorithm can fail unless it is amended, as described in the
+next section.
+
+</p><h2 id="tweaks_to_n3_to_support_star_queries"><span>4.4. </span>Tweaks To N3 To Support Star Queries</h2>
+
+<p>To help the SQLite query planner come up with better query plans
+for star-queries, heuristics are used to adjust cost estimates for
+searching the various tables.
+
+</p><p>The current heuristic, as of version 3.49.0 (2025-02-06), is
+to artificially raise the estimated full-table scan cost for
+dimension tables so that the cost is slightly greater than the
+cost of finding the relevant rows of the fact table.  This prevents
+a bunch of pointless full-table scans of dimension tables from
+pushing the search of the fact table out of the
+set of N-best solutions early in the algorithm, so that doing
+the fact table search wins in the end.
+Only the full-table scan costs of dimension tables are modified.
+The estimated costs for all other access methods is unchanged, and
+no costs are changed for tables of the query that are not clearly
+dimension tables, or for which the evaluation order is already
+constrained by OUTER JOINs.  So the disruption to the algorithm
+is minimal, but sufficient to always find a good solution for
+star-queries even with a large number of dimensions.
+
+</p><p>A different heuristic was used in SQLite versions 3.47.0
+and 3.48.0.  The earlier heuristic was to lower the cost of all
+fact-table access methods so that they were able to out-compete
+full-table scans of the dimension tables, and thus avoid
+being eliminated from consideration early in the algorithm.
+However, this artificial lowering of the fact-table cost created
+other distortions that lead to performance regressions for
+other complex joins.
+
+<a name="hazards"></a>
+
+</p><h1 id="_hazards_of_upgrading_to_ngqp"><span>5. </span> Hazards Of Upgrading To NGQP</h1>
+
+<p><i>&rarr; <b>This section is obsolete and retained for
+historical reference only.</b> &larr;  This section was important
+when the NGQP was new.  But a decade has elapsed, the NGQP has been
+deployed successfully to billions of devices, and everyone has upgraded,
+and no performance regressions were ever reported back to the SQLite
+developers.  The upgrade hazard has vanished.
+<b>Skip ahead to the <a href="queryplanner-ng.html#howtofix">query planner checklist</a></b>.</i>
+
+</p><p>For most applications, upgrading from the legacy query planner to the NGQP
+requires little thought or effort.
+Simply replace the older SQLite version with the newer version of SQLite
+and recompile and the application will run faster.
+There are no API changes nor modifications
+to compilation procedures.</p>
+
+<p>But as with any query planner change, upgrading to the NGQP does carry
+a small risk of introducing performance regressions.  The problem here is
+not that the NGQP is incorrect or buggy or inferior to the legacy query
+planner.  Given reliable information about the selectivity of indexes,
+the NGQP should always pick a plan that is as good as before, or better.
+The problem is that some applications may be using low-quality and
+low-selectivity indexes without having run <a href="lang_analyze.html">ANALYZE</a>.  The older query
+planners look at many fewer possible implementations for each query and
+so they may have stumbled over a good plan by stupid luck.  The NGQP, on
+the other hand, looks at many more query plan possibilities, and it may
+choose a different query plan that
+works better in theory, assuming good indexes, but which gives a performance
+regression in practice, because of the shape of the data.</p>
+
+<p>Key points:</p>
+
+<ul>
+<li><p>The NGQP will always find an equal or better query plan, compared to
+    prior query planners, as long as it
+    has access to accurate <a href="lang_analyze.html">ANALYZE</a> data in the <a href="fileformat2.html#stat1tab">SQLITE_STAT1</a> file.</p>
+</li><li><p>The NGQP will always find a good query plan
+    as long as the schema does not contain indexes that have more than
+    about 10 or 20 rows with the same value in the left-most column of the
+    index.</p>
+</li></ul>
+
+<p>Not all applications meet these conditions.  Fortunately,
+the NGQP will still usually find good query plans, even without these conditions.
+However, cases do arise (rarely) where performance regressions can occur.</p>
+
+<a name="fossilcasestudy"></a>
+
+<h2 id="_case_study_upgrading_fossil_to_the_ngqp"><span>5.1. </span> Case Study: Upgrading Fossil to the NGQP</h2>
+
+<p>The <a href="http://www.fossil-scm.org/">Fossil DVCS</a> is the version
+control system used to track all of the SQLite source code.
+A Fossil repository is an SQLite database file.
+(Readers are invited to ponder this recursion as an independent exercise.)
+Fossil is both the version-control system for SQLite and a test
+platform for SQLite.  Whenever enhancements are made to SQLite,
+Fossil is one of the first applications to test and evaluate those
+enhancements.  So Fossil was an early adopter of the NGQP.</p>
+
+<p>Unfortunately, the NGQP caused a
+performance regression in Fossil.</p>
+
+<p>One of the many reports that Fossil makes available is a timeline of
+changes to a single branch showing all merges in and out of that branch.  See
+<a href="https://sqlite.org/src/timeline?nd&n=200&r=trunk">https://sqlite.org/src/timeline?nd&n=200&r=trunk</a>
+for a typical
+example of such a report.  Generating such a report normally takes just
+a few milliseconds.  But after upgrading to the NGQP we noticed that
+this one report was taking closer to 10 seconds for the trunk of the
+repository.</p>
+
+<p>The core query used to generate the branch timeline is shown below.
+(Readers are not expected to understand the details of this query.
+Commentary will follow.)</p>
+
+<blockquote><pre>
+SELECT
+     blob.rid AS blobRid,
+     uuid AS uuid,
+     datetime(event.mtime,'localtime') AS timestamp,
+     coalesce(ecomment, comment) AS comment,
+     coalesce(euser, user) AS user,
+     blob.rid IN leaf AS leaf,
+     bgcolor AS bgColor,
+     event.type AS eventType,
+     (SELECT group_concat(substr(tagname,5), ', ')
+        FROM tag, tagxref
+       WHERE tagname GLOB 'sym-*'
+         AND tag.tagid=tagxref.tagid
+         AND tagxref.rid=blob.rid
+         AND tagxref.tagtype>0) AS tags,
+     tagid AS tagid,
+     brief AS brief,
+     event.mtime AS mtime
+  FROM event CROSS JOIN blob
+ WHERE blob.rid=event.objid
+   AND (EXISTS(SELECT 1 FROM tagxref
+                WHERE tagid=11 AND tagtype>0 AND rid=blob.rid)
+        OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid
+                   WHERE tagid=11 AND tagtype>0 AND pid=blob.rid)
+        OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid
+                   WHERE tagid=11 AND tagtype>0 AND cid=blob.rid))
+ ORDER BY event.mtime DESC
+ LIMIT 200;
+</pre></blockquote>
+
+<p>This query is not
+especially complicated, but even so it replaces hundreds or
+perhaps thousands of lines of procedural code.
+The gist of the query is this:  Scan down the EVENT table looking
+for the most recent 200 check-ins that satisfy any one of three conditions:
+
+</p><p></p><ol>
+<li> The check-in has a "trunk" tag.
+</li><li> The check-in has a child that has a "trunk" tag.
+</li><li> The check-in has a parent that has a "trunk" tag.
+</li></ol>
+
+<p>
+The first condition causes all of the trunk check-ins to be displayed and
+the second and third cause check-ins that merge into or fork from
+the trunk to also be included.
+The three conditions are implemented by the three OR-connected
+EXISTS statements in the WHERE clause of the query.
+The slowdown that occurred with the NGQP was caused by the second and
+third conditions.  The problem is the same in each, so we will examine
+just the second one.
+The subquery of the second condition can be rewritten (with minor
+and immaterial simplifications) as follows:</p>
+
+<blockquote><pre>
+SELECT 1
+  FROM plink JOIN tagxref ON tagxref.rid=plink.cid
+ WHERE tagxref.tagid=$trunk
+   AND plink.pid=$ckid;
+</pre></blockquote>
+
+<p>The PLINK table holds parent-child relationships between
+check-ins.  The TAGXREF table maps tags into check-ins.
+For reference, the relevant portions of the schemas
+for these two tables is shown here:</p>
+
+<blockquote><pre>
+CREATE TABLE plink(
+  pid INTEGER REFERENCES blob,
+  cid INTEGER REFERENCES blob
+);
+CREATE UNIQUE INDEX plink_i1 ON plink(pid,cid);
+
+CREATE TABLE tagxref(
+  tagid INTEGER REFERENCES tag,
+  mtime TIMESTAMP,
+  rid INTEGER REFERENCE blob,
+  UNIQUE(rid, tagid)
+);
+CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
+</pre></blockquote>
+
+<p>There are only two reasonable ways to implement this query.
+(There are many other possible algorithms, but none of the
+others are contenders for being the "best" algorithm.)</p>
+
+<ol type="1">
+<li value="1"><p>
+Find all children of check-in $ckid and test each one to see if
+it has the $trunk tag.
+</p></li><li value="2"><p>
+Find all check-ins with the $trunk tag and test each one to see if
+it is a child of $ckid.
+</p></li></ol>
+
+<p>
+Intuitively, we humans understand that algorithm-1 is best.
+Each check-in is likely to have few children (one child is
+the most common case) and each child can be tested for the
+$trunk tag in logarithmic time.  Indeed, algorithm-1 is the
+faster choice in practice.  But the NGQP has no intuition.  The
+NGQP must use hard math, and algorithm-2 is slightly
+better mathematically.  This is because, in the absence of other information,
+the NGQP must assume that the indexes PLINK_I1 and TAGXREF_I1 are of
+equal quality and are equally selective.  Algorithm-2 uses one field
+of the TAGXREF_I1 index and both fields of the PLINK_I1 index whereas
+algorithm-1 only uses the first field of each index.  Since
+algorithm-2 uses more index material, the NGQP is correct
+to judge it to be the better algorithm.  The scores are close and
+algorithm-2 just barely squeaks ahead of algorithm-1.  But
+algorithm-2 really is the correct choice here.
+</p>
+
+<p>
+Unfortunately, algorithm-2 is slower than algorithm-1 in
+this application.
+</p>
+
+<p>
+The problem is that the indexes are not of equal quality.
+A check-in is likely to only have one child.  So the first
+field of PLINK_I1 will usually narrow down the search to just a single
+row.  But there are thousands and thousands of check-ins tagged with "trunk",
+so the first field of TAGXREF_I1 will be
+of little help in narrowing down the search.
+</p>
+
+<p>
+The NGQP has no way of knowing that TAGXREF_I1 is almost useless in this
+query, unless <a href="lang_analyze.html">ANALYZE</a> has been run on the database.  The <a href="lang_analyze.html">ANALYZE</a> command
+gathers statistics on the quality of the various indexes and stores those
+statistics in <a href="fileformat2.html#stat1tab">SQLITE_STAT1</a> table.
+Having access to this statistical information,
+the NGQP easily chooses algorithm-1 as the best algorithm, by a wide
+margin.</p>
+
+<p>Why didn't the legacy query planner choose algorithm-2?
+Easy: because the NN algorithm
+never even considered algorithm-2.  Graphs of the planning
+problem look like this:</p>
+
+<center>
+<div style="max-width:534px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 534.752 191.8" data-pikchr-date="20250319161943">
+<circle cx="61.5913" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="61.5913" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">P</text>
+<circle cx="163.495" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.495" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">T</text>
+<polygon points="135.188,101.229 122.885,101.223 125.923,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M89.8979,101.229 L 101.221,96.9771 Q 112.543,92.7252 121.17,95.9647 L 129.796,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="112.543" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.8</text>
+<polygon points="89.8979,106.898 102.201,106.904 99.1638,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M135.188,106.898 L 123.866,111.15 Q 112.543,115.402 103.917,112.163 L 95.2902,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="112.543" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.4</text>
+<circle cx="61.5913" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="61.5913" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="61.5913,75.7572 57.2713,64.2372 65.9113,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M61.5913,30.4666L61.5913,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="61.5913" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 4.9</text>
+<circle cx="163.495" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.495" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="163.495,75.7572 159.175,64.2372 167.815,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M163.495,30.4666L163.495,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.495" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 5.2</text>
+<text x="112.543" y="172" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="125%" dominant-baseline="central">without ANALYZE</text>
+<circle cx="389.948" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="389.948" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">P</text>
+<circle cx="491.852" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="491.852" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">T</text>
+<polygon points="463.545,101.229 451.242,101.223 454.279,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M418.254,101.229 L 429.577,96.9771 Q 440.9,92.7252 449.526,95.9647 L 458.153,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="440.9" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.4</text>
+<polygon points="418.254,106.898 430.558,106.904 427.52,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M463.545,106.898 L 452.222,111.15 Q 440.9,115.402 432.273,112.163 L 423.647,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="440.9" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">3.8</text>
+<circle cx="389.948" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="389.948" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="389.948,75.7572 385.628,64.2372 394.268,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M389.948,30.4666L389.948,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="389.948" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 3.9</text>
+<circle cx="491.852" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="491.852" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="491.852,75.7572 487.532,64.2372 496.172,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M491.852,30.4666L491.852,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="491.852" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 6.1</text>
+<text x="440.9" y="172" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="125%" dominant-baseline="central">with ANALYZE</text>
+</svg>
+</div>
+</center>
+
+<p>
+In the "without ANALYZE" case on the left, the NN algorithm chooses
+loop P (PLINK) as the outer loop because 4.9 is less than 5.2, resulting
+in path P-T which is algorithm-1. NN only looks at the single best choice
+at each step so it completely misses the fact that
+5.2+4.4 makes a slightly cheaper plan than 4.9+4.8. But the N3 algorithm
+keeps track of the 5 best paths for a 2-way join, so it ends up
+selecting path T-P because of its slightly lower overall cost.
+Path T-P is algorithm-2.
+</p>
+
+<p>
+Note that with ANALYZE the cost estimates are
+better aligned with reality and algorithm-1 is
+selected by both NN and N3.
+</p>
+
+<p>(Side note:  The costs estimates in the two most recent graphs
+were computed by the NGQP using a base-2 logarithm and slightly different
+cost assumptions compared to the legacy query planner.
+Hence, the cost estimates in
+these latter two graphs are not directly comparable to the cost estimates
+in the TPC-H Q8 graph.)</p>
+
+<h2 id="_fixing_the_problem"><span>5.2. </span> Fixing The Problem</h2>
+
+<p>Running <a href="lang_analyze.html">ANALYZE</a> on the repository database immediately fixed the
+performance problem.  However, we want Fossil to be robust and to always
+work quickly regardless of whether or not its repository has been analyzed.
+For this reason, the query was modified to use the CROSS JOIN operator
+instead of the plain JOIN operator.
+SQLite will not reorder the tables of a CROSS JOIN.
+This is a long-standing feature of SQLite that is specifically designed
+to allow knowledgeable programmers
+to enforce a particular loop nesting order.  Once the join
+was changed to CROSS JOIN (the addition of a single keyword) the NGQP was
+forced to choose the faster algorithm-1 regardless of whether or not
+statistical information had been gathered using ANALYZE.</p>
+
+<p>We say that algorithm-1 is "faster", but this
+is not strictly true.  Algorithm-1 is faster in common repositories, but
+it is possible to construct a repository in which
+every check-in is on a different uniquely-named branch and
+all check-ins are children of the root check-in.
+In that case, TAGXREF_I1 would become more selective
+than PLINK_I1 and algorithm-2 really would be the faster choice.
+However such repositories are very unlikely to appear in
+practice and so hard-coding the loop nested order using the
+CROSS JOIN syntax is a reasonable solution
+to the problem in this case.</p>
+
+<h2 id="update_2017_a_better_fix"><span>5.3. </span>Update 2017: A Better Fix</h2>
+
+<p>The prior text was written in early 2013, before the first release of
+SQLite version 3.8.0.  This paragraph was added in mid 2021.
+While all of the previous discussion remains true, a lot of improvements
+have been made to the query planner, making this whole section largely moot.
+
+</p><p>In 2017, Fossil was enhanced to make use of the new
+<a href="pragma.html#pragma_optimize">PRAGMA optimize</a> statement.  Whenever Fossil is about to close the
+database connection to its repository, it first runs
+"PRAGMA optimize", which will in turn cause ANALYZE to be run if it
+is needed.  Usually an ANALYZE is not needed, and so there is no
+measurable performance penalty for doing this.  But every now and
+then ANALYZE might be run on a few of the tables in the repository
+database.  Because of this, query planning issues such as the one
+described here no longer come up in Fossil.  The fact that ANALYZE
+is run periodically to keep the <a href="fileformat2.html#stat1tab">sqlite_stat1</a> table up-to-date means
+that hand-tuning of queries is no longer required.  We have not had
+to tweak a query in Fossil in ages.
+
+</p><p>Therefore, the current recommendation for avoiding problems such
+as this one is to simply run "PRAGMA optimize" just prior to closing
+each database connection.  Or, if your application is long-running and
+never closes any database connections, then run "PRAGMA optimize" once
+per day or so.  Also consider running "PRAGMA optimize" after any
+schema change.
+
+<a name="howtofix"></a>
+
+</p><h1 id="_checklist_for_avoiding_or_fixing_query_planner_problems"><span>6. </span> Checklist For Avoiding Or Fixing Query Planner Problems</h1>
+
+<ol>
+<li><p><b>Don't panic!</b>
+Cases where the query planner picks an inferior plan are actually quite
+rare.  You are unlikely to run across any problems in your application.
+If you are not having performance issues, you do not need to worry
+about any of this.</p>
+
+</li><li><p><b>Create appropriate indexes.</b>
+Most SQL performance problems arise not because of query planner issues
+but rather due to lack of appropriate indexes.  Make sure indexes are
+available to assist all large queries.  Most performance issues can be
+resolved by one or two CREATE INDEX commands and with no changes to
+application code.</p>
+
+</li><li><p><b>Avoid creating low-quality indexes.</b>.
+A low-quality index (for the purpose of this checklist) is one where
+there are more than 10 or 20 rows in the table that have the same value
+for the left-most column of the index.  In particular, avoid using
+boolean or "enum" columns as the left-most columns of your indexes.</p>
+
+<p>The Fossil performance problem described in the previous section of
+this document arose because there were over
+ten-thousand entries in the TAGXREF table with the same value for the
+left-most column (the TAGID column) of the TAGXREF_I1 index.</p>
+
+</li><li><p><b>If you must use a low-quality index, be sure to run <a href="lang_analyze.html">ANALYZE</a>.</b>
+Low-quality indexes will not confuse the query planner as long as the
+query planner knows that the indexes are of low quality.  And the way
+the query planner knows this is by the content of the <a href="fileformat2.html#stat1tab">SQLITE_STAT1</a> table,
+which is computed by the ANALYZE command.</p>
+
+<p>Of course, ANALYZE only works effectively if you have a significant
+amount of content in your database in the first place.  When creating a
+new database that you expect to accumulate a lot of data, you can run
+the command "ANALYZE sqlite_schema" to create the SQLITE_STAT1 table,
+then prepopulate the <a href="fileformat2.html#stat1tab">sqlite_stat1</a> table (using ordinary INSERT statements)
+with content that describes a typical
+database for your application - perhaps content that you extracted after
+running ANALYZE on a well-populated template database in the lab.
+Or, you could just run "<a href="pragma.html#pragma_optimize">PRAGMA optimize</a>" before shutting down
+database connections so that ANALYZE will be run automatically as
+needed to keep the <a href="fileformat2.html#stat1tab">sqlite_stat1</a> table current.</p></li>
+
+<li><p><b>Instrument your code.</b>
+Add logic that lets you know quickly and easily which queries are taking
+too much time.  Then work on just those specific queries.</p>
+
+<p>
+</p><hr>
+<i>Update 2024:  The query planner has been improved so much over
+the years that you should never need to use any of the
+hacks described below.  The capabilities described below are still
+available, for backwards compatibility.  But you shouldn't use
+them.  If you do find a case where you are getting a suboptimal query
+plan, please report it to the SQLite developers on the 
+<a href="https://sqlite.org/forum">SQLite Forum</a> so that they can try to fix
+the problem.  In other words:
+<p>
+</p><center><b>Stop Reading Here!</b></center>
+<p>To help encourage you to stop reading, the remainder of this checklist
+is now grayed out.
+</p><hr>
+
+</i></li><li><p style="color:grey;">Use <a href="lang_corefunc.html#unlikely">unlikely()</a> and <a href="lang_corefunc.html#likelihood">likelihood()</a> SQL functions.
+SQLite normally assumes that terms in the WHERE clause that cannot be used
+by indexes have a strong probability of being true.  If this assumption
+is incorrect, it could lead to a suboptimal query plan.  The
+<a href="lang_corefunc.html#unlikely">unlikely()</a> and <a href="lang_corefunc.html#likelihood">likelihood()</a> SQL functions can be used to provide
+hints to the query planner about WHERE clause terms that are probably
+not true, and thus aid the query planner in selecting the best possible
+plan.
+
+</p></li><li><p style="color:grey;">Use the <a href="optoverview.html#crossjoin">CROSS JOIN</a> syntax to enforce a particular
+loop nesting order on queries that might use low-quality indexes in an
+unanalyzed database.
+SQLite <a href="lang_select.html#crossjoin">treats the CROSS JOIN operator specially</a>, forcing the table to
+the left to be an outer loop relative to the table on the right.</p>
+
+</li><li><p style="color:grey;">Use unary "+" operators to disqualify WHERE clause terms.
+If the query planner insists on selecting a poor-quality index for a particular
+query when a much higher-quality index is available, then
+<a href="optoverview.html#uplus">careful use of unary "+" operators</a> in the WHERE clause
+can force the query planner away from the poor-quality index.
+Avoid using this trick if at all possible, and especially avoid it
+early in the application development cycle.  Beware that
+adding a unary "+" operator to an equality expression might change
+the result of that expression if
+<a href="datatype3.html#affinity">type affinity</a> is involved.</p>
+
+</li><li><p style="color:grey;">Use the <a href="lang_indexedby.html">INDEXED BY</a> syntax to enforce the selection of
+particular indexes on problem queries.
+As with the previous two bullets, avoid this step if possible, and
+especially avoid doing this early in development as it is clearly a
+premature optimization.</p>
+</li></ol>
+
+<h1 id="_summary"><span>7. </span> Summary</h1>
+
+<p>The query planner in SQLite normally does a terrific job of selecting
+fast algorithms for running your SQL statements.  This is true of the
+legacy query planner and even more true of the new NGQP.  There may be
+an occasional situation where, due to incomplete information, the query
+planner selects a suboptimal plan.  This will happen less often with the
+NGQP than with the legacy query planner, but it might still happen.  Only
+in those rare cases do application developers need to get involved and
+help the query planner to do the right thing.  In the common case, the
+NGQP is just a new enhancement to SQLite that makes the application run
+a little faster and which requires no new developer thought or action.</p>
+<p align="center"><small><i>This page was last updated on 2025-07-12 15:11:36Z </small></i></p>
+

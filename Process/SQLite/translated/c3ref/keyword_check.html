@@ -1,0 +1,156 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQL关键字检查</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧、快速、可靠。<br>任选三个。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_keyword_check sqlite3_keyword_count sqlite3_keyword_name -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>SQL关键字检查</h2>
+</div>
+<blockquote><pre>
+int sqlite3_keyword_count(void);
+int sqlite3_keyword_name(int,const char**,int*);
+int sqlite3_keyword_check(const char*,int);
+</pre></blockquote>
+<p>
+这些例程提供对SQLite所识别的SQL语言关键字集合的访问。应用程序可以使用这些例程来判断某个特定标识符是否需要进行转义（例如用双引号包裹），以免让解析器混淆。</p>
+
+<p>sqlite3_keyword_count() 接口返回SQLite所理解的不同关键字数量。</p>
+
+<p>sqlite3_keyword_name(N,Z,L) 接口查找基于0的第N个关键字，并使 *Z 指向以UTF8表示的该关键字，同时将关键字的字节数写入 *L。*Z 指向的字符串不是以空字符结尾。如果N在有效范围内，sqlite3_keyword_name(N,Z,L) 例程返回 SQLITE_OK，否则返回 SQLITE_ERROR。如果 Z 或 L 为 NULL 或无效指针，则调用 sqlite3_keyword_name(N,Z,L) 会导致未定义行为。</p>
+
+<p>sqlite3_keyword_check(Z,L) 接口检查 Z 所指向的 L 字节 UTF8 标识符是否为关键字，如果是则返回非零，否则返回零。</p>
+
+<p>SQLite 使用的解析器比较宽容。通常可以将关键字用作标识符，只要这种用法不会导致解析歧义。例如，语句 "CREATE TABLE BEGIN(REPLACE,PRAGMA,END);" 会被 SQLite 接受，并创建一个名为 "BEGIN" 的新表，其中有三个列分别命名为 "REPLACE"、"PRAGMA" 和 "END"。尽管如此，最佳实践仍是避免将关键字用作标识符。避免关键字名称冲突的常见技巧包括：
+<ul>
+<li> 将所有标识符名称放在双引号内。这是官方的 SQL 转义标识符名称的方式。
+<li> 将标识符名称放在 &#91;...&#93; 内。这不是标准 SQL，但 SQL Server 如此做，很多程序员也使用这种技巧。
+<li> 让每个标识符都以字母 “Z” 开头，因为没有 SQL 关键字以 “Z” 开头。
+<li> 在每个标识符名称中包含一个数字。
+</ul></p>
+
+<p>请注意，SQLite 所理解的关键字数量可能取决于编译时选项。例如，如果 SQLite 使用 <a href="../compile.html#omit_vacuum">-DSQLITE_OMIT_VACUUM</a> 选项编译，则 "VACUUM" 并不是关键字。此外，未来版本的 SQLite 可能会新增关键字。</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+
+</body></html>

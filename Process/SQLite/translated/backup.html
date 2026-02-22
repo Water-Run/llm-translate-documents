@@ -1,0 +1,387 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite 备份 API</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info" style="text-align:right;font-size:0.9em;margin-bottom:0.5em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 备份 API
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#using_the_sqlite_online_backup_api">1. 使用 SQLite 在线备份 API</a></div>
+<div class="fancy-toc2"><a href="#other_backup_techniques">1.1. 其他备份技术</a></div>
+<div class="fancy-toc1"><a href="#example_1_loading_and_saving_in_memory_databases">2. 示例 1：加载与保存内存数据库</a></div>
+<div class="fancy-toc2"><a href="#error_handling">2.1. 错误处理</a></div>
+<div class="fancy-toc2"><a href="#possible_enhancements">2.2. 潜在增强</a></div>
+<div class="fancy-toc1"><a href="#example_2_online_backup_of_a_running_database">3. 示例 2：对运行中的数据库执行在线备份</a></div>
+<div class="fancy-toc2"><a href="#file_and_database_connection_locking">3.1. 文件与数据库连接锁定</a></div>
+<div class="fancy-toc2"><a href="#backup_remaining_and_backup_pagecount_">3.2. backup_remaining() 与 backup_pagecount()</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+
+<div class="fancy">
+<h1 id="using_the_sqlite_online_backup_api"><span>1. </span>使用 SQLite 在线备份 API</h1>
+
+<p>
+  历史上，SQLite 数据库的备份（复制）通常通过以下方法创建：
+
+</p><ol>
+  <li> 使用 SQLite API（即 shell 工具）在数据库文件上建立共享锁。
+  </li><li> 使用外部工具（例如 unix 的 'cp' 实用程序或 DOS 的 'copy' 命令）复制数据库文件。
+  </li><li> 释放在步骤 1 中获得的数据库文件共享锁。
+</li></ol>
+
+<p>
+  此过程在许多场景下运行良好，通常也非常快速。但是，该技术也存在如下缺点：
+
+</p><ul>
+  <li> 在创建备份时，任何希望写入数据库文件的数据库客户端都必须等待，直到共享锁被释放。
+  </li><li> 该方法不能用来复制位于内存中的数据库的数据。
+  </li><li> 如果在复制数据库文件期间发生电源故障或操作系统故障，那么在系统恢复之后备份数据库可能已损坏。
+</li></ul>
+
+<p>
+  <a href="c3ref/backup_finish.html#sqlite3backupinit">在线备份 API</a> 的创建就是为了解决这些问题。该 API 允许将一个数据库的内容复制到另一个数据库文件中，替换目标数据库的原有内容。复制操作可以逐步完成，此时源数据库仅在实际阅读数据的短暂时间内被锁定。这样，在对在线数据库进行备份时，其他数据库用户也可以继续运行，而无需被过度延迟。
+</p><p>
+  完成整个备份调用序列后，目标数据库就会成为复制开始时源数据库的逐位相同副本。（目标数据库成为一个“快照”。）
+
+</p><p>
+  在线备份 API 的文档可以在<a href="c3ref/backup_finish.html#sqlite3backupinit">此处</a>找到。
+  本页其余部分包含两个 C 语言示例，展示该 API 的常见用法并进行讨论。阅读这些示例无法替代 API 文档！
+
+</p><h2 id="other_backup_techniques"><span>1.1. </span>其他备份技术</h2>
+
+  <p>在线备份 API 是备份运行中的 SQLite 数据库的原始方法。最近出现的其他实现相同功能的技术包括：
+
+  </p><ul>
+  <li><p>
+  <a href="lang_vacuum.html#vacuuminto">VACUUM INTO</a> 命令会将运行中的 SQLite 数据库压缩复制到一个独立文件。
+
+  </p></li><li><p>
+  <a href="rsync.html">sqlite3_rsync</a> 程序通过 SSH 连接将运行中的 SQLite 数据库复制到远程系统或从远程系统复制。
+  </p></li></ul>
+
+<h1 id="example_1_loading_and_saving_in_memory_databases"><span>2. </span>示例 1：加载与保存内存数据库</h1>
+
+<pre style='margin-left:10ex;'>
+<span style="color:blue;font-style:italic;">/*</span>
+<span style="color:blue;font-style:italic;">** 此函数用于将磁盘上的数据库文件内容 </span>
+<span style="color:blue;font-style:italic;">** 载入到打开的数据库连接 pInMemory 的“main”数据库，或</span>
+<span style="color:blue;font-style:italic;">** 将 pInMemory 当前的数据库内容保存到磁盘上的数据库文件。</span>
+<span style="color:blue;font-style:italic;">** pInMemory 可能是内存数据库，</span>
+<span style="color:blue;font-style:italic;">** 但即便不是也能正常工作。</span>
+<span style="color:blue;font-style:italic;">**</span>
+<span style="color:blue;font-style:italic;">** 参数 zFilename 指向一个以 nul 结尾的字符串，包含</span>
+<span style="color:blue;font-style:italic;">** 要加载或保存的磁盘数据库文件名。如果参数</span>
+<span style="color:blue;font-style:italic;">** isSave 非零，则 zFilename 文件的内容</span>
+<span style="color:blue;font-style:italic;">** 会被 pInMemory 打开的数据库内容覆盖。如果</span>
+<span style="color:blue;font-style:italic;">** 参数 isSave 为零，则 pInMemory 打开的数据库内容</span>
+<span style="color:blue;font-style:italic;">** 将被从 zFilename 文件加载的数据替换。</span>
+<span style="color:blue;font-style:italic;">**</span>
+<span style="color:blue;font-style:italic;">** 如果操作成功，返回 SQLITE_OK。否则，</span>
+<span style="color:blue;font-style:italic;">** 若发生错误，返回 SQLite 错误码。</span>
+<span style="color:blue;font-style:italic;">*/</span>
+int loadOrSaveDb(<a href="c3ref/sqlite3.html">sqlite3</a> *pInMemory, const char *zFilename, int isSave){
+  int rc;                   <span style="color:blue;font-style:italic;">/* 函数返回代码 */</span>
+  <a href="c3ref/sqlite3.html">sqlite3</a> *pFile;           <span style="color:blue;font-style:italic;">/* 在 zFilename 上打开的数据库连接 */</span>
+  <a href="c3ref/backup.html">sqlite3_backup</a> *pBackup;  <span style="color:blue;font-style:italic;">/* 用于复制数据的备份对象 */</span>
+  <a href="c3ref/sqlite3.html">sqlite3</a> *pTo;             <span style="color:blue;font-style:italic;">/* 要复制到的数据库（pFile 或 pInMemory） */</span>
+  <a href="c3ref/sqlite3.html">sqlite3</a> *pFrom;           <span style="color:blue;font-style:italic;">/* 要复制自的数据库（pFile 或 pInMemory） */</span>
+
+  <span style="color:blue;font-style:italic;">/* 打开由 zFilename 指定的数据库文件。如果失败，立即退出。 */</span>
+  rc = <a href="c3ref/open.html">sqlite3_open</a>(zFilename, &pFile);
+  if( rc==SQLITE_OK ){
+
+    <span style="color:blue;font-style:italic;">/* 如果这是“加载”操作（isSave==0），则从刚打开的数据库文件</span>
+    <span style="color:blue;font-style:italic;">** 复制数据到数据库 pInMemory。否则，如果这是“保存”操作（isSave==1），则</span>
+    <span style="color:blue;font-style:italic;">** 从 pInMemory 复制数据到 pFile。根据情况设置 pFrom 和 pTo。 */</span>
+    pFrom = (isSave ? pInMemory : pFile);
+    pTo   = (isSave ? pFile     : pInMemory);
+
+    <span style="color:blue;font-style:italic;">/* 设置备份过程，从连接 pFile 的“main”数据库复制到连接 pInMemory 的 main 数据库。</span>
+    <span style="color:blue;font-style:italic;">** 如果出现问题，pBackup 会被置为 NULL，并且连接 pTo 中会留下错误代码和消息。</span>
+    <span style="color:blue;font-style:italic;">**</span>
+    <span style="color:blue;font-style:italic;">** 如果备份对象成功创建，调用 backup_step() 从 pFile 复制数据到 pInMemory，然后调用 backup_finish()</span>
+    <span style="color:blue;font-style:italic;">** 释放与 pBackup 对象相关的资源。如果发生错误，错误代码和消息将留在连接 pTo 中。</span>
+    <span style="color:blue;font-style:italic;">** 如果没有错误，pTo 的错误代码会被设置为 SQLITE_OK。</span>
+    <span style="color:blue;font-style:italic;">*/</span>
+    pBackup = <a href="c3ref/backup_finish.html#sqlite3backupinit">sqlite3_backup_init</a>(pTo, "main", pFrom, "main");
+    if( pBackup ){
+      (void)<a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step</a>(pBackup, -1);
+      (void)<a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish</a>(pBackup);
+    }
+    rc = <a href="c3ref/errcode.html">sqlite3_errcode</a>(pTo);
+  }
+
+  <span style="color:blue;font-style:italic;">/* 关闭在 zFilename 上打开的数据库连接，并返回本函数结果。 */</span>
+  (void)<a href="c3ref/close.html">sqlite3_close</a>(pFile);
+  return rc;
+}
+</pre>
+
+
+<p>
+  以上 C 函数演示了备份 API 的最常见用法之一：将内存数据库的内容加载到磁盘文件或从磁盘文件保存到内存数据库。该示例中使用备份 API 的方式如下：
+
+  </p><ol>
+    <li>调用 <a href="c3ref/backup_finish.html#sqlite3backupinit">sqlite3_backup_init()</a> 创建一个 <a href="c3ref/backup.html">sqlite3_backup</a>
+        对象，用于在两个数据库之间复制数据（要么从文件复制到内存数据库，要么反之）。
+    </li><li>调用 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 并传入参数 <tt>-1</tt>，将整个源数据库复制到目标数据库。
+    </li><li>调用 <a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish()</a> 清理 <a href="c3ref/backup_finish.html#sqlite3backupinit">sqlite3_backup_init()</a> 分配的资源。
+  </li></ol>
+
+<h2 id="error_handling"><span>2.1. </span>错误处理</h2>
+
+<p>
+  如果在三个主要备份 API 例程中的任意一个发生错误，则 <a href="rescode.html">错误代码</a> 和 <a href="c3ref/errcode.html">消息</a> 会附加到目标的 <a href="c3ref/sqlite3.html">数据库连接</a> 上。
+  此外，如果在调用 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 时遇到错误，那么此错误代码既会由该调用本身返回，也会由随后调用 <a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish()</a> 返回。因此对 <a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish()</a> 的调用不会覆盖 <a href="rescode.html">sqlite3_backup_step()</a> 在目标连接中留下的错误代码。示例代码利用了这一特性来减少错误处理。<a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 和 <a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish()</a> 的返回值被忽略，复制操作的成功或失败的错误代码会在之后从目标 <a href="c3ref/sqlite3.html">数据库连接</a> 中获取。
+
+</p><h2 id="possible_enhancements"><span>2.2. </span>潜在增强</h2>
+
+<p>
+  该函数的实现至少可以在两个方面增强：
+
+  </p><ol>
+    <li> 针对无法获得 zFilename 数据库文件锁（即 <a href="rescode.html#busy">SQLITE_BUSY</a> 错误）进行更好的处理，且
+    </li><li> 更好地处理 pInMemory 与 zFilename 的页面大小不一致的情况。
+  </li></ol>
+
+<p>
+  由于 zFilename 是磁盘上的文件，可能会被其他进程访问。这意味着当调用 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 试图从中读取或写入数据时，可能无法立即获得所需的文件锁。如果发生此情况，此实现会失败并立即返回 SQLITE_BUSY。解决方法是，在打开后立即使用 <a href="c3ref/busy_handler.html">sqlite3_busy_handler()</a> 或 <a href="c3ref/busy_timeout.html">sqlite3_busy_timeout()</a> 为数据库连接 pFile 注册 busy-handler 回调或超时。如果它无法立即获得所需锁，<a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 会像 <a href="c3ref/step.html">sqlite3_step()</a> 或 <a href="c3ref/exec.html">sqlite3_exec()</a> 那样使用任何已注册的 busy-handler 回调或超时。
+
+</p><p>
+  通常，在目的数据库被覆盖之前，源数据库与目标数据库的页面大小不同并不重要。备份操作会将目标数据库的页面大小作为一部分修改。例外情况是如果目标数据库是内存数据库。在这种情况下，如果在备份操作开始前页面大小不同，则操作会以 SQLITE_READONLY 错误失败。不幸的是，这种情况可能会在使用 loadOrSaveDb() 将磁盘中的数据库镜像加载到内存数据库时发生。
+
+</p><p>
+  然而，如果在传递给 loadOrSaveDb() 之前内存数据库 pInMemory 刚被打开（因此完全为空），那么仍然可以使用 SQLite 的 “PRAGMA page_size” 命令更改它的页面大小。loadOrSaveDb() 可以检测到这种情况，并在调用在线备份 API 之前尝试将内存数据库的页面大小设置为 zFilename 的页面大小。
+  
+</p><h1 id="example_2_online_backup_of_a_running_database"><span>3. </span>示例 2：对运行中的数据库执行在线备份</h1>
+
+<pre style='margin-left:10ex;'>
+<span style="color:blue;font-style:italic;">/*</span>
+<span style="color:blue;font-style:italic;">** 对数据库 pDb 执行在线备份，将数据复制到名为</span>
+<span style="color:blue;font-style:italic;">** zFilename 的数据库文件。此函数每次复制 5 个数据库页</span>
+<span style="color:blue;font-style:italic;">** 到 zFilename，然后解锁 pDb 并休眠 250 毫秒，再重复</span>
+<span style="color:blue;font-style:italic;">** 这一过程，直到整个数据库备份完成。</span>
+<span style="color:blue;font-style:italic;">** </span>
+<span style="color:blue;font-style:italic;">** 传递给该函数的第三个参数必须是进度函数指针。在每组</span>
+<span style="color:blue;font-style:italic;">** 5 页备份完成后，将使用两个整型参数调用进度函数：剩余要</span>
+<span style="color:blue;font-style:italic;">** 复制的页数以及源文件的总页数。此信息可以用来更新 GUI 进度条。</span>
+<span style="color:blue;font-style:italic;">**</span>
+<span style="color:blue;font-style:italic;">** 在此函数运行期间，另一个线程可能会使用数据库 pDb，</span>
+<span style="color:blue;font-style:italic;">** 或者另一个进程可能会通过独立连接访问底层数据库文件。</span>
+<span style="color:blue;font-style:italic;">**</span>
+<span style="color:blue;font-style:italic;">** 如果备份过程成功完成，返回 SQLITE_OK。</span>
+<span style="color:blue;font-style:italic;">** 否则，如果发生错误，返回 SQLite 错误码。</span>
+<span style="color:blue;font-style:italic;">*/</span>
+int backupDb(
+  <a href="c3ref/sqlite3.html">sqlite3</a> *pDb,               <span style="color:blue;font-style:italic;">/* 要备份的数据库 */</span>
+  const char *zFilename,      <span style="color:blue;font-style:italic;">/* 备份目标文件名 */</span>
+  void(*xProgress)(int, int)  <span style="color:blue;font-style:italic;">/* 要调用的进度函数 */     </span>
+){
+  int rc;                     <span style="color:blue;font-style:italic;">/* 函数返回代码 */</span>
+  <a href="c3ref/sqlite3.html">sqlite3</a> *pFile;             <span style="color:blue;font-style:italic;">/* 在 zFilename 上打开的数据库连接 */</span>
+  <a href="c3ref/backup.html">sqlite3_backup</a> *pBackup;    <span style="color:blue;font-style:italic;">/* 用于复制数据的备份句柄 */</span>
+
+  <span style="color:blue;font-style:italic;">/* 打开由 zFilename 指定的数据库文件。 */</span>
+  rc = <a href="c3ref/open.html">sqlite3_open</a>(zFilename, &pFile);
+  if( rc==SQLITE_OK ){
+
+    <span style="color:blue;font-style:italic;">/* 打开用于执行传输的 <a href="c3ref/backup.html">sqlite3_backup</a> 对象 */</span>
+    pBackup = <a href="c3ref/backup_finish.html#sqlite3backupinit">sqlite3_backup_init</a>(pFile, "main", pDb, "main");
+    if( pBackup ){
+
+      <span style="color:blue;font-style:italic;">/* 该循环的每次迭代都会将数据库 pDb 的 5 个页面复制</span>
+      <span style="color:blue;font-style:italic;">** 到备份数据库。如果 backup_step() 的返回值表明还有</span>
+      <span style="color:blue;font-style:italic;">** 页面要复制，则在重复前休眠 250 毫秒。 */</span>
+      do {
+        rc = <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step</a>(pBackup, 5);
+        xProgress(
+            <a href="c3ref/backup_finish.html#sqlite3backupremaining">sqlite3_backup_remaining</a>(pBackup),
+            <a href="c3ref/backup_finish.html#sqlite3backuppagecount">sqlite3_backup_pagecount</a>(pBackup)
+        );
+        if( rc==SQLITE_OK || rc==SQLITE_BUSY || rc==SQLITE_LOCKED ){
+          <a href="c3ref/sleep.html">sqlite3_sleep</a>(250);
+        }
+      } while( rc==SQLITE_OK || rc==SQLITE_BUSY || rc==SQLITE_LOCKED );
+
+      <span style="color:blue;font-style:italic;">/* 释放 backup_init() 分配的资源。 */</span>
+      (void)<a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish</a>(pBackup);
+    }
+    rc = <a href="c3ref/errcode.html">sqlite3_errcode</a>(pFile);
+  }
+  
+  <span style="color:blue;font-style:italic;">/* 关闭在 zFilename 上打开的数据库连接并返回本函数结果。 */</span>
+  (void)<a href="c3ref/close.html">sqlite3_close</a>(pFile);
+  return rc;
+}
+</pre>
+
+
+<p>
+  上一示例中的函数通过一次 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 调用复制整个源数据库。这要求在整个过程中持有源数据库文件的读取锁，阻止其他客户端写入数据库。它还会在整个复制过程中保持与数据库 pInMemory 关联的互斥锁，阻止其他线程使用它。本节中的 C 函数旨在由后台线程或进程调用，以创建运行中的数据库备份，并通过如下方法避免这些问题：
+
+  </p><ol>
+    <li> 调用 <a href="c3ref/backup_finish.html#sqlite3backupinit">sqlite3_backup_init()</a> 创建一个 <a href="c3ref/backup.html">sqlite3_backup</a>
+        对象，用于将数据库 pDb 的数据复制到由 zFilename 指定的备份数据库文件。
+    </li><li> 调用 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a>，参数为 5，将数据库 pDb 的 5 个页面复制到备份数据库（文件 zFilename）。
+    </li><li> 如果数据库 pDb 中仍有页面需要复制，则函数休眠 250 毫秒（使用 <a href="c3ref/sleep.html">sqlite3_sleep()</a>），然后返回步骤 2。
+    </li><li> 调用 <a href="c3ref/backup_finish.html#sqlite3backupfinish">sqlite3_backup_finish()</a> 清理 <a href="c3ref/backup_finish.html#sqlite3backupinit">sqlite3_backup_init()</a> 分配的资源。
+  </li></ol>
+
+<h2 id="file_and_database_connection_locking"><span>3.1. </span>文件与数据库连接锁定</h2>
+
+<p>
+  在上述步骤 3 中的 250 毫秒休眠期间，不会对数据库文件持有读取锁，且不会持有与 pDb 关联的互斥锁。这允许其他线程继续使用 <a href="c3ref/sqlite3.html">数据库连接</a> pDb，其他连接也可以写入底层数据库文件。
+
+</p><p>
+  如果另一个线程或进程在此函数休眠期间对源数据库进行写入，SQLite 会检测到这一点，并通常在下一次调用 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a> 时重新启动备份过程。唯一的例外是：如果源数据库不是内存数据库，并且写操作由与备份操作在同一进程中、使用相同数据库句柄（pDb）执行，那么目标数据库（即使用连接 pFile 打开的数据库）会自动与源数据库一起更新。备份过程随后可以在 <a href="c3ref/sleep.html">sqlite3_sleep()</a> 调用返回后继续，仿佛什么都没有发生一样。
+
+</p><p>
+  不论备份过程中间是否因为对源数据库的写入而重新启动，用户都可以确保备份完成后，备份数据库包含原数据库一致且最新的快照。然而：
+
+  </p><ul>
+    <li> 对内存源数据库的写入，或使用除 pDb 之外的数据库连接对文件型源数据库写入，代价要远高于使用 pDb 对文件型源数据库的写入（因为前两种情况必须重启整个备份操作）。
+    </li><li> 如果备份过程频繁重启，可能永远无法完成，backupDb() 函数可能永远不会返回。
+  </li></ul>
+ 
+<h2 id="backup_remaining_and_backup_pagecount_"><span>3.2. </span>backup_remaining() 与 backup_pagecount()</h2>
+
+<p>
+  backupDb() 函数使用 sqlite3_backup_remaining() 与 sqlite3_backup_pagecount() 通过用户提供的 xProgress() 回调报告进度。sqlite3_backup_remaining() 返回剩余待复制页数，sqlite3_backup_pagecount() 返回源数据库（即 pDb 打开的数据库）的总页数。因此可以这样计算完成百分比：
+
+</p><p style="font-family:fixed;margin-left:5em">
+  完成度 = \(100\% \times \frac{\text{pagecount()} - \text{remaining()}}{\text{pagecount()}}\)
+</p><p>
+  sqlite3_backup_remaining() 与 sqlite3_backup_pagecount() 所报告的值是由先前一次调用 sqlite3_backup_step() 所存储的，它们并不实际检查源数据库文件。这意味着，如果源数据库在 sqlite3_backup_step() 返回之后但在调用 sqlite3_backup_remaining() 与 sqlite3_backup_pagecount() 之前被其他线程或进程写入，那么返回的值在技术上可能不准确。不过这通常不会构成问题。
+
+
+</p><div style="clear:both"></div>
+</div><p align="center"><small><i>本页最后更新于 2025-11-13 07:12:58Z </small></i></p>
+

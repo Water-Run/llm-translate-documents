@@ -1,0 +1,175 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Database Connection Client Data</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note" style="text-align:right; font-size:0.75rem; color:#666;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任意选取三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_get_clientdata sqlite3_set_clientdata -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>数据库连接客户端数据</h2>
+</div>
+<blockquote><pre>
+void *sqlite3_get_clientdata(sqlite3*,const char*);
+int sqlite3_set_clientdata(sqlite3*, const char*, void*, void(*)(void*));
+</pre></blockquote>
+<p>
+这些函数用于将一个或多个具名指针与<a href="../c3ref/sqlite3.html">数据库连接</a>关联。
+调用 sqlite3_set_clientdata(D,N,P,X) 会将指针 P
+附加到使用名称 N 的<a href="../c3ref/sqlite3.html">数据库连接</a> D 上。随后的
+sqlite3_get_clientdata(D,N) 调用将返回指针 P 的副本，
+如果之前没有使用相同的 D 和 N 调用过
+sqlite3_set_clientdata()，则返回 NULL 指针。
+名称通过 strcmp() 进行比较，因此区分大小写。
+成功时返回 0，分配失败时返回 SQLITE_NOMEM。
+</p>
+
+<p>如果 P 和 X 都非 NULL，则析构函数 X 会在下面事件中首次发生时使用
+参数 P 被调用：
+<ul>
+<li> 在尝试注册指针 P 的 sqlite3_set_clientdata() 调用期间发生内存不足错误。
+<li> 随后再次使用相同的 D 和 N 参数调用 sqlite3_set_clientdata(D,N,P,X)。
+<li> 数据库连接关闭。SQLite 不保证析构函数调用的顺序，只保证
+在数据库连接关闭过程中每个析构函数都会恰好被调用一次。
+</ul></p>
+
+<p>SQLite 除了在适当时机调用析构函数外，不会对客户端数据做其它处理。
+客户端数据的预期用途是为封装库提供一个机制，用于在 SQLite 数据库连接上
+存储额外的信息。</p>
+
+<p>单个数据库连接可附加的不同客户端数据指针数量没有限制（仅受可用内存限制）。
+然而，当前实现针对只有一到两个不同客户端数据名称的情况进行了优化。
+建议应用程序和封装库各自不要使用多个客户端数据名称。</p>
+
+<p>无法枚举与数据库连接关联的客户端数据指针。
+可以将 N 参数视为一个秘密密钥，只有知道该密钥的代码才能访问关联的数据。</p>
+
+<p>安全警告：这些接口不应在脚本语言或攻击者可能调用它们的其他场景中公开。
+任何能调用这些接口的代理很可能也能控制该进程。</p>
+
+<p>数据库连接客户端数据仅在 SQLite 3.44.0（2023-11-01）及更高版本中可用。</p>
+
+<p>另请参阅：<a href="../c3ref/get_auxdata.html">sqlite3_set_auxdata()</a> 和 <a href="../c3ref/get_auxdata.html">sqlite3_get_auxdata()</a>。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+
+</body></html>

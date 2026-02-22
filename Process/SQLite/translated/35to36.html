@@ -1,0 +1,316 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite Changes From Version 3.5.9 To 3.6.0</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+
+<h1> 从 SQLite 3.5.9 升级到 3.6.0</h1><p>
+  SQLite 3.6.0 版本 (2008-07-16)
+  包含许多改动。正如 SQLite 项目的惯例，大多数改动都是完全向后兼容的。
+  然而，3.6.0 版本中的一些改动是不兼容的，
+  可能需要对应用程序代码和/或 makefile 进行修改。
+  本文档重点介绍 SQLite 3.6.0 中的更改，
+  着重说明那些不兼容的部分。
+</p>
+<blockquote>
+  <strong>关键点：</strong>
+  <ul>
+  <li> 数据库文件格式保持不变。 </li>
+  <li> 所有不兼容项都存在于较为晦涩的接口中，因此对大多数应用程序应当没有影响。 </li>
+  </ul>
+</blockquote>
+<h2>1.0 不兼容的更改</h2><p>
+  由于它们对维护者和程序员至关重要，因此先介绍不兼容的更改。
+</p>
+<h3>1.1 不兼容更改概述</h3><p>
+  <ol>
+  <li><p>对 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的更改</p>
+
+      <ol type="a">
+      <li><p>xAccess 方法的签名已修改为返回一个<a href="rescode.html">错误码</a>并通过参数指向的整数返回输出，而不再直接返回输出。
+      此更改允许 xAccess() 方法报告失败。
+      与签名更改一同引入了新的扩展错误码 <a href="rescode.html#ioerr_access">SQLITE_IOERR_ACCESS</a>。
+      </p></li>
+
+      <li><p>xGetTempname 方法已从 <a href="c3ref/vfs.html">sqlite3_vfs</a> 中移除。
+      取而代之的是当文件名参数为 NULL 时，xOpen 方法增强为自行打开一个临时文件。</p></li>
+
+      <li><p>新增 xGetLastError() 方法到 <a href="c3ref/vfs.html">sqlite3_vfs</a>，
+      用以返回文件系统特定的错误信息和错误码给 SQLite。</p></li>
+      </ol>
+  </li>
+
+  <li><p><a href="c3ref/io_methods.html">sqlite3_io_methods</a> 上 xCheckReservedLock 方法的签名已修改，
+      现在它返回一个<a href="rescode.html">错误码</a>并将布尔结果存储到由参数指向的整数中。
+      与此更改一起加入了新的扩展错误码
+      <a href="rescode.html#ioerr_checkreservedlock">SQLITE_IOERR_CHECKRESERVEDLOCK</a>。</p></li>
+
+  <li><p>当 SQLite 移植到新的操作系统（即除了提供核心移植的 Unix、Windows 和 OS/2 以外的其他操作系统）时，
+      必须提供两个新函数：<a href="c3ref/initialize.html">sqlite3_os_init()</a> 和 <a href="c3ref/initialize.html">sqlite3_os_end()</a>，作为移植的一部分。</p></li>
+
+  <li><p>IN 和 NOT IN 运算符在处理右侧表达式中的 NULL 值时的行为已调整，
+      以符合 SQL 标准并与其他 SQL 数据库引擎保持一致。</p></li>
+
+  <li><p><a href="lang_select.html">SELECT</a> 语句结果集中的列名在某些情况下略作调整，
+      使其表现更像其他 SQL 数据库引擎。</p></li>      
+
+  <li><p>编译时选项的更改：</p>
+
+      <ol type="a">
+      <li><p>不再识别 SQLITE_MUTEX_APPDEF 编译时参数。
+      作为替代，可在运行时通过 <a href="c3ref/config.html">sqlite3_config()</a> 使用 <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmutex">SQLITE_CONFIG_MUTEX</a>
+      操作和 <a href="c3ref/mutex_methods.html">sqlite3_mutex_methods</a> 对象创建其他 <a href="c3ref/mutex_alloc.html">互斥量实现</a>。</p></li>
+
+      <li><p>编译时选项 OS_UNIX、OS_WIN、OS_OS2、OS_OTHER 和 TEMP_STORE 已重命名，
+      新名称都带有 “SQLITE_” 前缀，以避免与应用程序软件的命名空间冲突。
+      这些选项的新名称分别是：
+      SQLITE_OS_UNIX、SQLITE_OS_WIN、SQLITE_OS_OS2、SQLITE_OS_OTHER 和 <a href="compile.html#temp_store">SQLITE_TEMP_STORE</a>。</p></li>
+      </ol>
+  </li>
+  </ol>
+</p>
+<h3>1.2 VFS 层的更改</h3><p>
+  SQLite <a href="releaselog/3_5_0.html">3.5.0 版本</a> 引入了一个 <a href="34to35.html">新的操作系统接口层</a>，
+  为底层操作系统提供了抽象。
+  这是一个重要的创新，并被证明有利于 SQLite 的移植和维护。
+  然而，开发者发现 3.5.0 版本引入的原始“虚拟文件系统”设计存在一些小缺陷，
+  因此 SQLite 3.6.0 包含一些小的不兼容更改来解决这些缺陷。
+</p>
+<blockquote>
+  <strong>关键点：</strong> 3.6.0 版本中 SQLite 操作系统接口的不兼容更改
+  仅影响少数使用 <a href="c3ref/vfs.html">虚拟文件系统</a> 接口的应用，
+  或提供自定义的 <a href="c3ref/mutex_alloc.html">互斥量实现</a>，
+  或使用其他不常见的编译时选项。
+  SQLite 3.6.0 引入的更改不会对绝大多数使用内建 Unix、Windows 和 OS/2 接口且采用标准构建配置的
+  SQLite 应用造成影响。
+</blockquote>
+<h3>1.3 IN 运算符处理 NULL 的方式更改</h3><p>
+  SQLite 在 3.5.9 及之前的所有版本中，
+  对 IN 和 NOT IN 运算符右侧的 NULL 值处理不当。
+  具体地说，SQLite 之前忽略了 IN 和 NOT IN 右侧的 NULL。
+</p>
+<p>
+  假设我们有如下定义的表 X1：
+</p>
+<blockquote><pre>
+  CREATE TABLE x1(x INTEGER);
+  INSERT INTO x1 VALUES(1);
+  INSERT INTO x1 VALUES(2);
+  INSERT INTO x1 VALUES(NULL);
+</pre></blockquote><p>
+  根据上述 X1 的定义，以下表达式在 SQLite 中历史上被评估为 FALSE，
+  虽然正确答案实际上应该是 NULL：
+</p>
+<blockquote><pre>
+  3 IN (1,2,NULL)
+  3 IN (SELECT * FROM x1)
+</pre></blockquote><p>
+  同样，以下表达式历史上被评估为 TRUE，
+  而事实上正确答案也是 NULL：
+</p>
+<blockquote><pre>
+  3 NOT IN (1,2,NULL)
+  3 NOT IN (SELECT * FROM x1)
+</pre></blockquote><p>
+  根据 SQL:1999 标准，SQLite 的历史行为是不正确的，
+  并且与 MySQL 和 PostgreSQL 的表现不一致。
+  3.6.0 版本改变了 IN 和 NOT IN 运算符的行为，
+  以符合标准并与其他 SQL 数据库引擎取得一致。
+</p>
+<blockquote>
+  <strong>关键点：</strong> IN 和 NOT IN 运算符处理 NULL 值的更改
+  从技术上讲是一个缺陷修复，而不是设计更改。
+  然而，维护者在升级到 3.6.0 之前应确认应用程序是否依赖旧的、存在缺陷的行为。
+</blockquote>
+<h3>1.4 列命名规则的更改</h3><p>
+  连接子查询返回的列名已略作修改，
+  使其表现更像其他数据库引擎。考虑以下查询：
+</p>
+<blockquote><pre>
+  CREATE TABLE t1(a);
+  CREATE TABLE t2(x);
+  SELECT * FROM (SELECT t1.a FROM t1 JOIN t2 ORDER BY t2.x LIMIT 1) ORDER BY 1;
+</pre></blockquote><p>
+  在 3.5.9 版本中，以上查询会返回一个名为 "t1.a" 的列。
+  在 3.6.0 版本中，该列名仅为 "a"。
+</p>
+<p>
+  除非列包含 AS 子句，SQLite 从未对 <a href="lang_select.html">SELECT</a> 语句结果集中的列名做出任何承诺。
+  因此，这一列名更改从技术角度来看并不是不兼容项。
+  SQLite 只是从一种未定义的行为改为另一种。
+  然而，许多应用程序依赖 SQLite 未指明的列命名行为，因此在不兼容更改小节中也一并讨论。
+</p>
+<h3>1.5 编译时选项的更改</h3><p>
+  SQLite 的编译时选项由 C 预处理宏控制。
+  SQLite 3.6.0 版本更改了其中一些宏的名称，
+  以便所有特定于 SQLite 的 C 预处理宏都以 “SQLITE_” 前缀开头。
+  此举旨在降低与其他软件模块发生命名冲突的风险。
+</p>
+<blockquote>
+  <strong>关键点：</strong> 编译时选项的更改可能会影响对 SQLite 进行定制构建的项目中的 makefile。
+  这些更改对应用程序代码以及大多数使用标准默认构建的项目应当没有影响。
+</blockquote>
+<h2>2.0 完全向后兼容的增强</h2><p>
+  除了上述不兼容更改之外，SQLite
+  3.6.0 版本还添加了以下向后兼容的改进和增强功能：
+</p>
+<p>
+  <ol>
+
+  <li value="7"><p>新的 <a href="c3ref/config.html">sqlite3_config()</a> 接口允许应用程序在运行时自定义 SQLite 的行为。
+  使用 <a href="c3ref/config.html">sqlite3_config()</a> 可进行以下自定义：</p>
+  <ol type="a">
+  <li><p>使用 <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmutex">SQLITE_CONFIG_MUTEX</a> 关键字与 <a href="c3ref/mutex_methods.html">sqlite3_mutex_methods</a> 对象，
+  指定替代的互斥量实现。</p></li>
+  <li><p>使用 <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmalloc">SQLITE_CONFIG_MALLOC</a> 关键字与 <a href="c3ref/mem_methods.html">sqlite3_mem_methods</a> 对象，
+  指定替代的 malloc 实现。</p></li>
+  <li><p>使用 <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigsinglethread">SQLITE_CONFIG_SINGLETHREAD</a>、<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmultithread">SQLITE_CONFIG_MULTITHREAD</a> 和
+  <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigserialized">SQLITE_CONFIG_SERIALIZED</a>，
+  部分或完全禁用互斥量的使用。</p></li>
+  </ol>
+  </li>
+
+  <li><p>在 <a href="c3ref/open.html">sqlite3_open_v2()</a> 接口中新增了标志 <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOMUTEX</a>。</p></li>
+
+  <li><p>新的 <a href="c3ref/status.html">sqlite3_status()</a> 接口允许应用程序在运行时查询 SQLite 的性能状态。
+  </p></li>
+
+  <li><p><a href="c3ref/memory_highwater.html">sqlite3_memory_used()</a> 和 <a href="c3ref/memory_highwater.html">sqlite3_memory_highwater()</a>
+  接口已被弃用。等效功能可通过 <a href="c3ref/status.html">sqlite3_status()</a> 访问。</p></li>
+
+  <li><p><a href="c3ref/initialize.html">sqlite3_initialize()</a> 接口可用于显式初始化 SQLite 子系统。
+  调用某些接口时会自动调用 <a href="c3ref/initialize.html">sqlite3_initialize()</a>，因此并非必须使用，但推荐调用。</p></li>
+
+  <li><p><a href="c3ref/initialize.html">sqlite3_shutdown()</a> 接口会迫使 SQLite 释放可能由 <a href="c3ref/initialize.html">sqlite3_initialize()</a> 分配的
+  系统资源（内存分配、互斥体、打开的文件句柄）。</p></li>
+
+  <li><p><a href="c3ref/next_stmt.html">sqlite3_next_stmt()</a> 接口允许应用程序查找与 <a href="c3ref/sqlite3.html">数据库连接</a> 相关的所有 <a href="c3ref/stmt.html">预编译语句</a>。</p></li>
+
+  <li><p>新增 <a href="pragma.html#pragma_page_count">page_count</a> PRAGMA，用于返回底层数据库文件的页数。</p></li>
+
+  <li><p>新增了一个 <a href="rtree.html">R*Tree 索引扩展</a>。</p></li>
+
+  </ol>
+</p>
+
+
+
+</body></html>

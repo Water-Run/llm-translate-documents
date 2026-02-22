@@ -1,0 +1,398 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>应用程序定义的 SQL 函数</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly" style="text-align:right; font-size:0.8rem; color:#666;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+应用程序定义的 SQL 函数
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#executive_summary">1. 概要</a></div>
+<div class="fancy-toc1"><a href="#defining_new_sql_functions">2. 定义新的 SQL 函数</a></div>
+<div class="fancy-toc2"><a href="#common_parameters">2.1. 通用参数</a></div>
+<div class="fancy-toc2"><a href="#multiple_calls_to_sqlite3_create_function_for_the_same_function">2.2. 多次调用 sqlite3_create_function() 以注册相同函数</a></div>
+<div class="fancy-toc2"><a href="#callbacks">2.3. 回调</a></div>
+<div class="fancy-toc3"><a href="#the_scalar_function_callback">2.3.1. 标量函数回调</a></div>
+<div class="fancy-toc3"><a href="#the_aggregate_function_callbacks">2.3.2. 聚合函数回调</a></div>
+<div class="fancy-toc3"><a href="#the_window_function_callbacks">2.3.3. 窗口函数回调</a></div>
+<div class="fancy-toc3"><a href="#examples">2.3.4. 示例</a></div>
+<div class="fancy-toc1"><a href="#security_implications">3. 安全影响</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="executive_summary"><span>1. </span>概要</h1>
+
+<p>使用 SQLite 的应用程序可以定义自定义 SQL 函数，这些函数通过回调应用程序代码来计算结果。自定义 SQL 函数的实现可以嵌入到应用程序代码中，也可以是可加载的扩展。
+
+</p><p>应用程序定义的或自定义的 SQL 函数通过 <a href="c3ref/create_function.html">sqlite3_create_function()</a> 系列接口创建。自定义 SQL 函数可以是标量函数、聚合函数或 <a href="windowfunctions.html">窗口函数</a>。自定义 SQL 函数可以具有从 0 到 <a href="limits.html#max_function_arg">SQLITE_MAX_FUNCTION_ARG</a> 的任意个参数。<a href="c3ref/create_function.html">sqlite3_create_function()</a> 接口指定了调用以执行新 SQL 函数处理的回调。
+
+</p><p>SQLite 还支持自定义的 <a href="vtab.html#tabfunc2">表值函数</a>，但它们通过不同的机制实现，本文件不涵盖。
+
+</p><h1 id="defining_new_sql_functions"><span>2. </span>定义新的 SQL 函数</h1>
+
+<p>
+<a href="c3ref/create_function.html">sqlite3_create_function()</a> 系列接口用于创建新的自定义 SQL 函数。这个系列的每个成员都是对一个公共核心的封装。所有成员完成相同的工作；它们只是调用签名不同而已。
+
+</p><ul>
+<li><p><b><a href="c3ref/create_function.html">sqlite3_create_function()</a></b> &rarr;
+原始版本的 sqlite3_create_function() 允许应用程序创建单个新的 SQL 函数，该函数可以是标量函数或聚合函数。函数名使用 UTF8 指定。
+
+</p></li><li><p><b><a href="c3ref/create_function.html">sqlite3_create_function16()</a></b> &rarr;
+此变体与原始 sqlite3_create_function() 完全相同，不同之处在于函数名作为 UTF16 字符串而非 UTF8 字符串指定。
+
+</p></li><li><p><b><a href="c3ref/create_function.html">sqlite3_create_function_v2()</a></b> &rarr;
+此变体与原始 sqlite3_create_function() 相同，但它包含一个额外参数，指向在所有 sqlite3_create_function() 变体中作为第 5 个参数传入的 <a href="c3ref/user_data.html">sqlite3_user_data()</a> 指针的析构器。该析构函数（如果非空）会在自定义函数被删除时调用——通常在数据库连接关闭时。
+
+</p></li><li><p><b><a href="c3ref/create_function.html">sqlite3_create_window_function()</a></b> &rarr;
+此变体与原始 sqlite3_create_function() 相同，只是接受一组不同的回调指针——这些回调指针用于 <a href="windowfunctions.html">窗口函数</a> 定义。
+</p></li></ul>
+
+<h2 id="common_parameters"><span>2.1. </span>通用参数</h2>
+
+<p>传递给 <a href="c3ref/create_function.html">sqlite3_create_function()</a> 系列接口的许多参数在整个系列中都是通用的。
+
+</p><ol>
+<li><p><b>db</b> &rarr;
+第 1 个参数始终是指向自定义 SQL 函数将运行的 <a href="c3ref/sqlite3.html">数据库连接</a> 的指针。自定义 SQL 函数是针对每个数据库连接分别创建的。没有跨所有数据库连接创建 SQL 函数的速成机制。
+
+</p></li><li><p><b>zFunctionName</b> &rarr;
+第 2 个参数是正在创建的 SQL 函数的名称。名称通常为 UTF8，不过对于本机字节序的 <a href="c3ref/create_function.html">sqlite3_create_function16()</a>，名称应使用 UTF16。
+
+</p><p>
+SQL 函数名的最大长度为 255 个 UTF8 字节。尝试创建一个更长名称会导致 <a href="rescode.html#misuse">SQLITE_MISUSE</a> 错误。
+</p>
+SQL 函数创建接口可以多次使用相同的函数名调用。例如，如果两次调用具有相同的函数名但参数数量不同，那么就会注册两个 SQL 函数变体，每个变体接受不同数量的参数。
+
+</li><li><p><b>nArg</b> &rarr;
+第 3 个参数始终是函数接受的参数个数。该值必须是介于 -1 和 <a href="limits.html#max_function_arg">SQLITE_MAX_FUNCTION_ARG</a>（默认值：127）之间的整数。值为 -1 表示该 SQL 函数是可变参数函数，可以接受从 0 到 <a href="limits.html#max_function_arg">SQLITE_MAX_FUNCTION_ARG</a> 的任意数量参数。
+
+</p></li><li><p><b>eTextRep</b> &rarr;
+第 4 个参数是一个 32 位整数标志，其位用来表达有关新函数的各种属性。该参数最初的用途是使用以下常量之一指定函数的首选文本编码：
+</p><ul>
+<li> <a href="c3ref/c_any.html">SQLITE_UTF8</a>
+</li><li> <a href="c3ref/c_any.html">SQLITE_UTF16BE</a>
+</li><li> <a href="c3ref/c_any.html">SQLITE_UTF16LE</a>
+</li></ul>
+所有自定义 SQL 函数都将接受任何编码的文本，编码转换会自动进行。首选编码仅指定函数实现优化的编码。
+可以为同一个函数名和相同参数数量指定多个函数，并为它们设置不同的首选编码与不同的回调实现，SQLite 会根据输入编码与首选编码的匹配度来选择回调集。
+<p>
+首选文本编码标志可以与以下一个或多个属性标志一起进行 OR 操作：
+</p><ul>
+<li> <a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a>
+</li><li> <a href="c3ref/c_deterministic.html#sqlitedirectonly">SQLITE_DIRECTONLY</a>
+</li><li> <a href="c3ref/c_deterministic.html#sqliteinnocuous">SQLITE_INNOCUOUS</a>
+</li><li> <a href="c3ref/c_deterministic.html#sqlitesubtype">SQLITE_SUBTYPE</a>
+</li></ul>
+<p>
+将来版本的 SQLite 可能会添加额外的函数属性标志位。
+
+</p></li><li><p><b>pApp</b> &rarr;
+第 5 个参数是一个任意指针，会传递给回调例程。SQLite 本身不对该指针执行任何操作，只是将其提供给回调，并在函数注销时将其传入析构器。
+</p></li></ol>
+
+<h2 id="multiple_calls_to_sqlite3_create_function_for_the_same_function"><span>2.2. </span>多次调用 sqlite3_create_function() 以注册相同函数</h2>
+
+<p>
+应用程序通常会为同一 SQL 函数调用 sqlite3_create_function() 多次。例如，如果一个 SQL 函数可以接受 2 个或 3 个参数，那么 sqlite3_create_function() 会为两个参数版本调用一次，为三个参数版本再调用一次。底层实现（回调）可以为两个变体不同。
+
+</p><p>
+应用程序还可以使用相同名称和相同参数数量但不同首选文本编码的多个 SQL 函数进行注册。在这种情况下，SQLite 会根据数据库文本编码与首选编码的匹配程度，调用对应版本的回调。通过这种方式，可以提供针对 UTF8 或 UTF16 优化的多个实现。
+
+</p><p>
+如果多次调用 sqlite3_create_function() 时指定的函数名、参数个数和首选文本编码都相同，那么第二次调用的回调及其它参数将覆盖第一次调用，并在第一次调用存在析构回调时调用该析构器。
+
+
+</p><h2 id="callbacks"><span>2.3. </span>回调</h2>
+
+<p>
+SQLite 通过调用回调例程来评估 SQL 函数。
+
+</p><h3 id="the_scalar_function_callback"><span>2.3.1. </span>标量函数回调</h3>
+
+<p>标量 SQL 函数由 sqlite3_create_function() 的 <b>xFunc</b> 参数中的单个回调实现。下面的代码展示了一个 “noop(X)” 标量 SQL 函数的实现，它只是返回其参数：
+
+</p><div class="codeblock"><pre>static void noopfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  assert( argc==1 );
+  sqlite3_result_value(context, argv&#91;0&#93;);
+}
+</pre></div>
+
+<p>
+第 1 个参数 <b>context</b> 是指向一个不透明对象的指针，该对象描述了调用 SQL 函数时的上下文。该 context 指针成为许多其他例程的第一个参数，函数实现可能希望调用这些例程，包括：
+
+<div class='columns' style='columns: 15em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='c3ref/aggregate_context.html'>sqlite3_aggregate_context</a></li>
+<li><a href='c3ref/context_db_handle.html'>sqlite3_context_db_handle</a></li>
+<li><a href='c3ref/get_auxdata.html'>sqlite3_get_auxdata</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_blob</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_blob64</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_double</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_error</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_error16</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_error_code</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_error_nomem</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_error_toobig</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_int</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_int64</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_null</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_pointer</a></li>
+<li><a href='c3ref/result_subtype.html'>sqlite3_result_subtype</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_text</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_text16</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_text16be</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_text16le</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_text64</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_value</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_zeroblob</a></li>
+<li><a href='c3ref/result_blob.html'>sqlite3_result_zeroblob64</a></li>
+<li><a href='c3ref/get_auxdata.html'>sqlite3_set_auxdata</a></li>
+<li><a href='c3ref/user_data.html'>sqlite3_user_data</a></li>
+</ul>
+</div>
+
+
+</p><p><a href="c3ref/result_blob.html">sqlite3_result() 系列函数</a>用于指定标量 SQL 函数的结果。回调应该调用其中一个或多个来设置函数返回值。如果某个回调未调用这些例程，则返回值将为 NULL。
+
+</p><p><a href="c3ref/user_data.html">sqlite3_user_data()</a> 返回在创建 SQL 函数时传递给 <a href="c3ref/create_function.html">sqlite3_create_function()</a> 的 <b>pArg</b> 指针的副本。
+
+</p><p><a href="c3ref/context_db_handle.html">sqlite3_context_db_handle()</a> 返回指向 <a href="c3ref/sqlite3.html">数据库连接</a> 对象的指针。
+
+</p><p><a href="c3ref/aggregate_context.html">sqlite3_aggregate_context()</a> 例程仅用于聚合函数和窗口函数的实现。标量函数不得使用 <a href="c3ref/aggregate_context.html">sqlite3_aggregate_context()</a>。该函数仅为完整性出现在接口列表中。
+
+</p><p>
+标量 SQL 函数实现的第 2 个和第 3 个参数 <b>argc</b> 和 <b>argv</b> 分别表示 SQL 函数本身的参数数量以及每个参数的值。参数值可以是任意数据类型，因此存储在 <a href="c3ref/value.html">sqlite3_value</a> 对象实例中。可以使用 <a href="c3ref/value_blob.html">sqlite3_value() 系列接口</a> 从该对象中提取具体的 C 语言值。
+
+</p><h3 id="the_aggregate_function_callbacks"><span>2.3.2. </span>聚合函数回调</h3>
+
+<p>聚合 SQL 函数通过两个回调函数 <b>xStep</b> 和 <b>xFinal</b> 实现。xStep() 函数在聚合的每一行上调用，xFinal() 函数在最后被调用以计算最终结果。下面略微简化的内置 count() 函数说明如下：
+
+</p><div class="codeblock"><pre>typedef struct CountCtx CountCtx;
+struct CountCtx {
+  i64 n;
+};
+static void countStep(sqlite3_context *context, int argc, sqlite3_value **argv){
+  CountCtx *p;
+  p = sqlite3_aggregate_context(context, sizeof(*p));
+  if( (argc==0 || SQLITE_NULL!=sqlite3_value_type(argv&#91;0&#93;)) && p ){
+    p->n++;
+  }
+}   
+static void countFinalize(sqlite3_context *context){
+  CountCtx *p;
+  p = sqlite3_aggregate_context(context, 0);
+  sqlite3_result_int64(context, p ? p->n : 0);
+}
+</pre></div>
+
+<p>记住 count() 聚合有两个版本。无参数时，count() 返回行数。带一个参数时，count() 返回参数非 NULL 的次数。
+
+</p><p>countStep() 回调在聚合的每一行上调用。如你所见，如果没有参数或该参数不为 NULL，则计数会增加。
+
+</p><p>聚合的 step 函数应始终以调用 <a href="c3ref/aggregate_context.html">sqlite3_aggregate_context()</a> 来获取聚合函数的持久状态作为开头。在第一次调用 step() 时，聚合上下文会被初始化为一个大小为 sqlite3_aggregate_context() 第二个参数的内存块，并且该内存会被置零。在所有后续的 step() 调用中，将返回相同的内存块。除非 sqlite3_aggregate_context() 因内存不足而返回 NULL，因此聚合函数应准备好处理这种情况。
+
+</p><p>在处理完所有行后，countFinalize() 例程会被调用一次。该例程计算最终结果并调用 <a href="c3ref/result_blob.html">sqlite3_result()</a> 系列函数中的一个来设置最终结果。聚合上下文将由 SQLite 自动释放，不过 xFinalize() 例程在返回前必须清理与聚合上下文相关的任何子结构。如果 xStep() 方法被调用一次或多次，那么 SQLite 保证即使查询中止也会最终调用 xFinal() 方法。
+
+</p><h3 id="the_window_function_callbacks"><span>2.3.3. </span>窗口函数回调</h3>
+
+<p><a href="windowfunctions.html">窗口函数</a> 使用与聚合函数相同的 xStep() 和 xFinal() 回调，再加上另外两个：<b>xValue</b> 和 <b>xInverse</b>。有关详细信息，请参阅<a href="windowfunctions.html#udfwinfunc">应用程序定义的窗口函数</a> 文档。
+
+</p><h3 id="examples"><span>2.3.4. </span>示例</h3>
+
+<p>在 SQLite 源代码中散布着数十个 SQL 函数实现，可以作为示例应用。内置 SQL 函数使用与应用程序定义的 SQL 函数相同的接口，因此内置函数也可以作为示例。搜索 SQLite 源代码中的 “sqlite3_context” 即可找到示例。
+
+<a name="sec"></a>
+
+</p><h1 id="security_implications"><span>3. </span>安全影响</h1>
+
+<p>
+如果不谨慎管理，应用程序定义的 SQL 函数可能成为安全漏洞。例如，假设某应用程序定义了一个新的 “system(X)” SQL 函数，它将参数 X 作为命令运行，并返回该命令的整数结果码。其实现可能如下所示：
+
+</p><div class="codeblock"><pre>static void systemFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zCmd = (const char*)sqlite3_value_text(argv&#91;0&#93;);
+  if( zCmd!=0 ){
+    int rc = system(zCmd);
+    sqlite3_result_int(context, rc);
+  }
+}
+</pre></div>
+
+<p>
+这是一个具有强烈副作用的函数。多数程序员会对使用它保持谨慎，但很可能不会认为仅仅定义它有什么害处。然而，光是定义这样的函数就存在巨大风险，即使应用程序本身从未调用它！
+
+</p><p>
+例如，假设应用程序在启动时通常对表 TAB1 执行查询。如果攻击者能获得数据库文件并这样修改模式：
+
+</p><div class="codeblock"><pre>ALTER TABLE tab1 RENAME TO tab1_real;
+CREATE VIEW tab1 AS
+   SELECT * FROM tab1_real
+    WHERE system('rm -rf *') IS NOT NULL;
+</pre></div>
+
+<p>
+那么，当应用程序试图打开数据库、注册 system() 函数，然后对 “tab1” 表执行一个看似无害的查询时，它实际上会删除工作目录下的所有文件。糟糕透顶！
+
+</p><p>
+为了防止此类恶作剧，创建自定义 SQL 函数的应用程序应采纳以下一项或多项安全措施。采取的措施越多越好：
+
+</p><ol>
+<li><p>
+在每个 <a href="c3ref/sqlite3.html">数据库连接</a> 打开后尽快调用 <a href="c3ref/db_config.html">sqlite3_db_config</a>(db,<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigtrustedschema">SQLITE_DBCONFIG_TRUSTED_SCHEMA</a>,0,0)。这可以防止应用程序定义的函数在攻击者可能通过修改数据库模式偷偷调用它们的地方被使用：
+</p><ul>
+<li> 在视图中。
+</li><li> 在触发器中。
+</li><li> 在表定义的 CHECK 约束中。
+</li><li> 在表定义的 DEFAULT 约束中。
+</li><li> 在生成列的定义中。
+</li><li> 在表达式索引的表达式部件中。
+</li><li> 在部分索引的 WHERE 子句中。
+</li></ul>
+<p>
+换句话说，此设置要求应用程序定义的函数仅由应用程序直接调用的顶级 SQL 执行，而不能作为执行其它看似无害查询的副作用。
+</p></li><li><p>
+使用 <a href="pragma.html#pragma_trusted_schema">PRAGMA trusted_schema=OFF</a> SQL 语句来禁用受信任模式。这与上一项作用相同，但不需要使用 C 代码，因此可在其他编程语言编写且无法访问 SQLite C 语言 API 的程序中执行。
+</p></li><li><p>
+编译 SQLite 时使用 <a href="compile.html#trusted_schema">-DSQLITE_TRUSTED_SCHEMA=0</a> 编译时选项。默认情况下这会使 SQLite 不信任模式中的应用程序定义函数。
+</p></li><li><p>
+如果任何应用程序定义的 SQL 函数可能具有危险的副作用，或如果在被滥用时可能泄露敏感信息给攻击者，那么请在 “enc” 参数上使用 <a href="c3ref/c_deterministic.html#sqlitedirectonly">SQLITE_DIRECTONLY</a> 选项标记这些函数。这意味着即使启用了可信模式，该函数也永远无法从模式代码中运行。
+</p></li><li><p>
+除非你确实需要，并且仔细检查了实现以确保即使落入攻击者手中也不会造成伤害，否则不要将应用程序定义的 SQL 函数标记为 <a href="c3ref/c_deterministic.html#sqliteinnocuous">SQLITE_INNOCUOUS</a>。
+</p></li></ol>
+<p align="center"><small><i>本页最后更新于 2025-11-13 07:12:58Z </small></i></p>
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Virtual Table Indexing Information</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。任选三者。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_index_info -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>虚拟表索引信息</h2>
+</div>
+<blockquote><pre>
+struct sqlite3_index_info {
+  /* Inputs */
+  int nConstraint;           /* Number of entries in aConstraint */
+  struct sqlite3_index_constraint {
+     int iColumn;              /* Column constrained.  -1 for ROWID */
+     unsigned char op;         /* Constraint operator */
+     unsigned char usable;     /* True if this constraint is usable */
+     int iTermOffset;          /* Used internally - xBestIndex should ignore */
+  } *aConstraint;            /* Table of WHERE clause constraints */
+  int nOrderBy;              /* Number of terms in the ORDER BY clause */
+  struct sqlite3_index_orderby {
+     int iColumn;              /* Column number */
+     unsigned char desc;       /* True for DESC.  False for ASC. */
+  } *aOrderBy;               /* The ORDER BY clause */
+  /* Outputs */
+  struct sqlite3_index_constraint_usage {
+    int argvIndex;           /* if &gt;0, constraint is part of argv to xFilter */
+    unsigned char omit;      /* Do not code a test for this constraint */
+  } *aConstraintUsage;
+  int idxNum;                /* Number used to identify the index */
+  char *idxStr;              /* String, possibly obtained from sqlite3_malloc */
+  int needToFreeIdxStr;      /* Free idxStr using sqlite3_free() if true */
+  int orderByConsumed;       /* True if output is already ordered */
+  double estimatedCost;           /* Estimated cost of using this index */
+  /* Fields below are only available in SQLite 3.8.2 and later */
+  sqlite3_int64 estimatedRows;    /* Estimated number of rows returned */
+  /* Fields below are only available in SQLite 3.9.0 and later */
+  int idxFlags;              /* Mask of SQLITE_INDEX_SCAN_* flags */
+  /* Fields below are only available in SQLite 3.10.0 and later */
+  sqlite3_uint64 colUsed;    /* Input: Mask of columns used by statement */
+};
+</pre></blockquote>
+<p>
+sqlite3_index_info 结构体及其子结构作为虚拟表接口的一部分， 用来将信息传入并接收来自虚拟表模块的 <a href="../vtab.html#xbestindex">xBestIndex</a> 方法的回复。**Inputs** 下的字段是 xBestIndex 的输入，并且是只读的。xBestIndex 会将其结果填充到 **Outputs** 字段。</p>
+
+<p>aConstraint[] 数组记录了如下形式的 WHERE 子句约束：</p>
+
+<p><blockquote>column OP expr</blockquote></p>
+
+<p>其中 OP 是 =、&lt;、&lt;=、&gt; 或 &gt;=。具体的运算符存储在 aConstraint[].op 中，使用 <a href="../c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_ 系列值</a> 之一。列的索引存放在 aConstraint[].iColumn 中。当右侧表达式可计算（因此约束可用）时，aConstraint[].usable 为 TRUE；否则为 false。</p>
+
+<p>优化器会自动将类似 “expr OP column” 的项取反，并对 WHERE 子句进行其他简化，以尽可能多地将 WHERE 子句项转化为上面所示的形式。aConstraint[] 数组仅报告与当前查询的特定虚拟表相关的 WHERE 子句项。</p>
+
+<p>ORDER BY 子句的信息存储在 aOrderBy[] 中。aOrderBy 每一项记录 ORDER BY 子句中的一列。</p>
+
+<p>colUsed 字段指示当前扫描可能需要虚拟表的哪些列。虚拟表列根据传给 sqlite3_declare_vtab() 的 CREATE TABLE 语句中的出现顺序，从零开始编号。在前 63 列（第 0 到第 62 列）中，如果某列可能会被 SQLite 所需，则 colUsed 掩码中的对应位会被置位。如果表包含至少 64 列，且第 63 列之后的任意列也可能被需要，则 colUsed 的第 63 位也会被置位。换句话说，如果表达式 \((colUsed & ((sqlite3_uint64)1 << (iCol>=63 ? 63 : iCol)))\) 的值不为零，则列 iCol 可能会被需要。</p>
+
+<p><a href="../vtab.html#xbestindex">xBestIndex</a> 方法必须填充 aConstraintUsage[]，以告知应传递给 xFilter 的参数。如果 argvIndex&gt;0，则对应的 aConstraint[] 右侧表达式会被求值，并加入作为 argv 的第 argvIndex 项。如果 aConstraintUsage[].omit 为 true，则假设该约束已被虚拟表完全处理，字节码可能不会再次检查该约束。omit 标志是一个优化提示。当 omit 保持在 false 的默认设置时，字节码中总会单独检查该约束。如果 omit 被设置为 true，则该约束可能会也可能不会在字节码中再次检查。换句话说，当 omit 为 true 时，并不能保证约束不会在字节码中再次被检查。</p>
+
+<p>idxNum 和 idxStr 的值会被记录并传递给 <a href="../vtab.html#xfilter">xFilter</a> 方法。只有在 needToFreeIdxStr 为 true 时，才使用 <a href="../c3ref/free.html">sqlite3_free()</a> 释放 idxStr。</p>
+
+<p>orderByConsumed 表示来自 <a href="../vtab.html#xfilter">xFilter</a>/<a href="../vtab.html#xnext">xNext</a> 的输出已经按正确顺序排列，满足 ORDER BY 子句，因此不需要再进行单独排序。</p>
+
+<p>estimatedCost 的值是某一策略的成本估计。成本为 N 表示该策略的开销与对具有 N 行的 SQLite 表进行线性扫描相当。成本为 log(N) 则表示该操作的费用与对具有 N 行的 SQLite 表的唯一索引字段执行二分搜索相当。</p>
+
+<p>estimatedRows 是对该策略可能返回的行数的估计。</p>
+
+<p>xBestIndex 方法可选地将 idxFlags 字段填充为 SQLITE_INDEX_SCAN_* 标志的掩码。其中一个标志是 <a href="../c3ref/c_index_scan_hex.html">SQLITE_INDEX_SCAN_HEX</a>，若设置，则 <a href="../eqp.html">EXPLAIN QUERY PLAN</a> 输出将以十六进制而非十进制显示 idxNum。另一个标志是 SQLITE_INDEX_SCAN_UNIQUE，若设置则表示查询计划最多返回一行。</p>
+
+<p>此外，如果 xBestIndex 设置了 SQLITE_INDEX_SCAN_UNIQUE 标志，那么如果同一语句中调用 xUpdate() 方法删除或更新虚拟表行并返回 SQLITE_CONSTRAINT，SQLite 也会假设无需回滚任何数据库更改。换句话说，如果 xUpdate() 返回 SQLITE_CONSTRAINT，数据库内容必须与调用 xUpdate() 之前完全相同。相比之下，如果未设置 SQLITE_INDEX_SCAN_UNIQUE，且 xUpdate 返回 SQLITE_CONSTRAINT，则 xUpdate 方法所做的任何数据库更改都会由 SQLite 自动回滚。</p>
+
+<p>重要提示：estimatedRows 字段在 <a href="../releaselog/3_8_2.html">SQLite 3.8.2</a>（2013-12-06）中被添加到 sqlite3_index_info 结构体中。如果虚拟表扩展在早于 3.8.2 的 SQLite 版本中使用，则尝试读取或写入 estimatedRows 字段的结果是未定义的（但很可能导致应用崩溃）。因此，仅当 <a href="../c3ref/libversion.html">sqlite3_libversion_number()</a> 返回值大于或等于 3008002 时才应使用 estimatedRows 字段。同样，idxFlags 字段在 <a href="../releaselog/3_9_0.html">版本 3.9.0</a>（2015-10-14）中添加。只有在 sqlite3_libversion_number() 返回值大于或等于 3009000 时，才能使用该字段。</p><p>使用该对象的 3 个方法：
+ <a href="../c3ref/vtab_collation.html">sqlite3_vtab_collation()</a>,
+<a href="../c3ref/vtab_distinct.html">sqlite3_vtab_distinct()</a>,
+<a href="../c3ref/vtab_rhs_value.html">sqlite3_vtab_rhs_value()</a></p>
+<p>另见
+  <a href="../c3ref/objlist.html">对象</a>，
+  <a href="../c3ref/constlist.html">常量</a>，以及
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+

@@ -1,0 +1,202 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Function Flags</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧. 快速. 可靠.<br>任选三项.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: SQLITE_DETERMINISTIC SQLITE_DIRECTONLY SQLITE_INNOCUOUS SQLITE_RESULT_SUBTYPE SQLITE_SELFORDER1 SQLITE_SUBTYPE -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>函数标志</h2>
+</div>
+<blockquote><pre>
+#define SQLITE_DETERMINISTIC    0x000000800
+#define SQLITE_DIRECTONLY       0x000080000
+#define SQLITE_SUBTYPE          0x000100000
+#define SQLITE_INNOCUOUS        0x000200000
+#define SQLITE_RESULT_SUBTYPE   0x001000000
+#define SQLITE_SELFORDER1       0x002000000
+</pre></blockquote>
+<p>
+这些常量可与<a href="../c3ref/c_any.html">首选文本编码</a>一起按位或，作为<a href="../c3ref/create_function.html">sqlite3_create_function()</a>、
+<a href="../c3ref/create_function.html">sqlite3_create_function16()</a>或<a href="../c3ref/create_function.html">sqlite3_create_function_v2()</a>的第四个参数。</p>
+
+<p><dl>
+<a name="sqlitedeterministic"></a>
+ <dt>SQLITE_DETERMINISTIC</dt><dd>
+SQLITE_DETERMINISTIC 标志表示只要输入参数相同，该函数总是返回相同的输出。
+例如，<a href="../lang_corefunc.html#abs">abs() 函数</a>是确定性的，但<a href="../lang_corefunc.html#randomblob">randomblob()</a>则不是。
+函数必须是确定性的，才能在某些上下文中使用，例如在<a href="../partialindex.html">部分索引</a>的 WHERE 子句中，或在<a href="../gencol.html">生成列</a>中。
+SQLite 也可能通过将确定性函数从内部循环中提取出来来优化它们。
+</dd></p>
+
+<p><a name="sqlitedirectonly"></a>
+ <dt>SQLITE_DIRECTONLY</dt><dd>
+SQLITE_DIRECTONLY 标志表示该函数只能从顶层 SQL 调用，不能在视图或触发器中使用，也不能用于诸如<a href="../lang_createtable.html#ckconst">CHECK 约束</a>、<a href="../lang_createtable.html#dfltval">DEFAULT 子句</a>、
+<a href="../expridx.html">表达式索引</a>、<a href="../partialindex.html">部分索引</a>或<a href="../gencol.html">生成列</a>等模式结构中。
+<p>
+对于任何具有副作用或可能泄露敏感信息的<a href="../appfunc.html">应用定义 SQL 函数</a>，建议设置 SQLITE_DIRECTONLY 标志。
+这可以防止攻击者引导应用程序使用一个其模式被偷偷修改过的数据库文件，从而以有害的方式调用该应用定义函数。
+<p>
+有些人认为在所有<a href="../appfunc.html">应用定义 SQL 函数</a>上都设置 SQLITE_DIRECTONLY 是一种良好实践，无论它们是否涉及安全，因为这样可以阻止将这些函数用于数据库模式中，从而确保数据库可以使用不具备访问应用定义函数能力的通用工具（例如<a href="../cli.html">CLI</a>）进行检查和修改。
+</dd></p>
+
+<p><a name="sqliteinnocuous"></a>
+ <dt>SQLITE_INNOCUOUS</dt><dd>
+SQLITE_INNOCUOUS 标志表示即使被误用，该函数也不太可能引发问题。
+一个无害函数不应有副作用，也不应依赖除输入参数之外的任何值。
+<a href="../lang_corefunc.html#abs">abs() 函数</a>是无害函数的一个例子。
+而由于具有副作用，<a href="../lang_corefunc.html#load_extension">load_extension() SQL 函数</a>则不是无害函数。
+<p>
+SQLITE_INNOCUOUS 与 SQLITE_DETERMINISTIC 相似，但并不完全相同。
+<a href="../lang_corefunc.html#random">random() 函数</a>就是一个无害但不确定性的例子。
+<p>
+一些加强的安全设置（<a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigtrustedschema">SQLITE_DBCONFIG_TRUSTED_SCHEMA</a> 和 <a href="../pragma.html#pragma_trusted_schema">PRAGMA trusted_schema=OFF</a>）会禁用在视图和触发器中以及在模式结构中的 SQL 函数使用，例如在<a href="../lang_createtable.html#ckconst">CHECK 约束</a>、<a href="../lang_createtable.html#dfltval">DEFAULT 子句</a>、
+<a href="../expridx.html">表达式索引</a>、<a href="../partialindex.html">部分索引</a>和<a href="../gencol.html">生成列</a>中，除非该函数被标记为 SQLITE_INNOCUOUS。
+大多数内置函数都是无害的。建议开发人员不要为应用定义函数设置 SQLITE_INNOCUOUS，除非该函数经过仔细审计并确认没有潜在的安全副作用和信息泄露。
+</dd></p>
+
+<p><a name="sqlitesubtype"></a>
+ <dt>SQLITE_SUBTYPE</dt><dd>
+SQLITE_SUBTYPE 标志向 SQLite 表示该函数可能会调用<a href="../c3ref/value_subtype.html">sqlite3_value_subtype()</a>来检查其参数的子类型。
+此标志指示 SQLite 省略某些角落优化，这些优化可能会破坏<a href="../c3ref/value_subtype.html">sqlite3_value_subtype()</a>函数的操作，导致它返回零而不是正确的子类型。
+所有调用<a href="../c3ref/value_subtype.html">sqlite3_value_subtype()</a>的 SQL 函数都应具有此属性。
+如果省略 SQLITE_SUBTYPE 属性，则来自<a href="../c3ref/value_subtype.html">sqlite3_value_subtype()</a>的返回值有时可能为零，即使函数参数表达式指定了非零子类型。</p>
+
+<p><a name="sqliteresultsubtype"></a>
+ <dt>SQLITE_RESULT_SUBTYPE</dt><dd>
+SQLITE_RESULT_SUBTYPE 标志向 SQLite 表示该函数可能调用<a href="../c3ref/result_subtype.html">sqlite3_result_subtype()</a>来为其结果关联一个子类型。
+所有调用<a href="../c3ref/result_subtype.html">sqlite3_result_subtype()</a>的函数都应具有此属性。
+如果不具备此属性，当函数在<a href="../expridx.html">表达式索引</a>中的术语使用时，对<a href="../c3ref/result_subtype.html">sqlite3_result_subtype()</a>的调用可能变为无效。
+另一方面，从不调用<a href="../c3ref/result_subtype.html">sqlite3_result_subtype()</a>的 SQL 函数应避免设置此属性，因为此属性的目的是禁用与子类型不兼容的某些优化。</p>
+
+<p><a name="sqliteselforder1"></a>
+ <dt>SQLITE_SELFORDER1</dt><dd>
+SQLITE_SELFORDER1 标志表示该函数是一个聚合函数，它会在内部对提供给第一个参数的值进行排序。
+带有单个 ORDER BY 项的有序集合聚合 SQL 记法可以用于调用该函数。
+如果在缺少该标志的函数上使用有序集合聚合记法，将会引发错误。
+请注意，只有在使用编译时选项 -DSQLITE_ENABLE_ORDERED_SET_AGGREGATES 构建 SQLite 时，才可使用有序集合聚合语法。
+</dd>
+</dl>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
+

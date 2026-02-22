@@ -1,0 +1,148 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Configuring The SQLite Library</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_config -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>配置 SQLite 库</h2>
+</div>
+<blockquote><pre>
+int sqlite3_config(int, ...);
+</pre></blockquote>
+<p>
+sqlite3_config() 接口用于对 SQLite 进行全局配置更改，以便将 SQLite 调整为应用程序的特定需求。默认配置对大多数应用程序是推荐的，因此通常不需要此例程。它是为具有不寻常需求的少数应用程序提供的。</p>
+
+<p><b>sqlite3_config() 接口不是线程安全的。应用程序必须确保在 sqlite3_config() 运行时，其他线程不会调用其他 SQLite 接口。</b></p>
+
+<p>sqlite3_config() 的第一个参数是一个整数<a href="../c3ref/c_config_covering_index_scan.html">配置选项</a>，用于确定要配置 SQLite 的哪个属性。后续的参数则取决于第一个参数指定的<a href="../c3ref/c_config_covering_index_scan.html">配置选项</a>。</p>
+
+<p>对于大多数配置选项，sqlite3_config() 接口只能在使用<a href="../c3ref/initialize.html">sqlite3_initialize()</a>进行库初始化之前或在通过<a href="../c3ref/initialize.html">sqlite3_shutdown()</a>关闭之后调用。可以在任何时间调用的特殊配置选项称为“随时配置选项”。如果 sqlite3_config() 在<a href="../c3ref/initialize.html">sqlite3_initialize()</a>之后且在<a href="../c3ref/initialize.html">sqlite3_shutdown()</a>之前被调用，并且第一个参数不是随时配置选项，那么 sqlite3_config() 调用将返回 SQLITE_MISUSE。需要注意的是，sqlite3_config() 可以作为应用程序定义的<a href="../c3ref/initialize.html">sqlite3_os_init()</a> 实现的一部分被调用。</p>
+
+<p>当配置选项设置成功时，sqlite3_config() 返回 <a href="../rescode.html#ok">SQLITE_OK</a>。如果该选项未知或 SQLite 无法设置该选项，则此例程返回非零的<a href="../rescode.html">错误代码</a>。
+</p><p>另见
+  <a href="../c3ref/objlist.html">对象</a>列表、
+  <a href="../c3ref/constlist.html">常量</a>列表和
+  <a href="../c3ref/funclist.html">函数</a>列表。</p>
+
+</body>
+</html>

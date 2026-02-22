@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>SQLite Release 3.42.0 On 2023-05-16</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='../about.html'>About</a>
+<li class='desktoponly'><a href="../docs.html">Documentation</a>
+<li class='desktoponly'><a href="../download.html">Download</a>
+<li class='wideonly'><a href='../copyright.html'>License</a>
+<li class='desktoponly'><a href="../support.html">Support</a>
+<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>About</a>
+<li><a href='../docs.html'>Documentation</a>
+<li><a href='../download.html'>Download</a>
+<li><a href='../support.html'>Support</a>
+<li><a href='../prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<h2>SQLite Release 3.42.0 On 2023-05-16</h2><p><ol class='lessindent'>
+<li> Add the <a href="../fts5.html#the_secure_delete_configuration_option">FTS5 secure-delete command</a>.  This option causes all forensic traces
+     to be removed from the FTS5 inverted index when content is deleted.
+<li> Enhance the <a href="../json1.html">JSON SQL functions</a> to support <a href="../json1.html#json5">JSON5 extensions</a>.
+<li> The <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfiglog">SQLITE_CONFIG_LOG</a> and <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpcachehdrsz">SQLITE_CONFIG_PCACHE_HDRSZ</a> calls to <a href="../c3ref/config.html">sqlite3_config()</a>
+     are now allowed to occur <i>after</i> <a href="../c3ref/initialize.html">sqlite3_initialize()</a>.
+<li> New <a href="../c3ref/db_config.html">sqlite3_db_config()</a> options: <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigstmtscanstatus">SQLITE_DBCONFIG_STMT_SCANSTATUS</a> and
+     <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigreversescanorder">SQLITE_DBCONFIG_REVERSE_SCANORDER</a>.
+<li> Query planner improvements:
+     <ol type="a">
+     <li> Enable the "count-of-view" optimization by default.
+     <li> Avoid computing unused columns in subqueries.
+     <li> Improvements to the <a href="../optoverview.html#pushdown">WHERE-clause push-down optimization</a>.
+     </ol>
+<li> Enhancements to the <a href="../cli.html">CLI</a>:
+     <ol type="a">
+     <li> Add the --unsafe-testing command-line option.  Without this option, some
+          dot-commands (ex: ".testctrl") are now disabled because those commands
+          that are intended for testing only and can cause malfunctions if misused.
+     <li> Allow commands ".log on" and ".log off", even in --safe mode.
+     <li> "--" as a command-line argument means all subsequent arguments that
+          start with "-" are interpreted as normal non-option argument.
+     <li> Magic parameters ":inf" and ":nan" bind to floating point literals
+          Infinity and NaN, respectively.
+     <li> The --utf8 command-line option omits all translation to or from
+          MBCS on the Windows console for interactive sessions, and sets
+          the console code page for UTF-8 I/O during such sessions.
+          The --utf8 option is a no-op on all other platforms.
+     </ol>
+<li> Add the ability for <a href="../appfunc.html">application-defined SQL functions</a> to have the same name
+     as join keywords: CROSS, FULL, INNER, LEFT, NATURAL, OUTER, or RIGHT.
+<li> Enhancements to <a href="../pragma.html#pragma_integrity_check">PRAGMA integrity_check</a>:
+     <ol type="a">
+     <li> Detect and raise an error when a NaN value is stored in a NOT NULL column.
+     <li> Improved error message output identifies the root page of a b-tree when
+          an error is found within a b-tree.
+     </ol>
+<li> Allow the <a href="../sessionintro.html">session extension</a> to be configured to capture changes from
+     tables that lack an explicit ROWID.
+<li> Added the <a href="../lang_datefunc.html#subsec">subsecond modifier</a> to the <a href="../lang_datefunc.html">date and time functions</a>.
+<li> Negative values passed into <a href="../c3ref/sleep.html">sqlite3_sleep()</a> are henceforth interpreted as 0.
+<li> The maximum recursion depth for JSON arrays and objects is lowered from 2000
+     to 1000.
+<li> Extended the <a href="../printf.html">built-in printf()</a> function so the <a href="../printf.html#comma">comma option</a> now works with
+     floating-point conversions in addition to integer conversions.
+<li> Miscellaneous bug fixes and performance optimizations
+<p><b>Hashes:</b>
+<li>SQLITE_SOURCE_ID: 2023-05-16 12:36:15 831d0fb2836b71c9bc51067c49fee4b8f18047814f2ff22d817d25195cf350b0
+<li>SHA3-256 for sqlite3.c: 6aa3fadf000000625353bbaa1e83af114c40c240a0aa5a2c1c2aabcfc28d4f92
+
+</ol></p>
+
+      <p>A <a href="../changes.html">complete list of SQLite releases</a>
+      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
+      A detailed history of every
+      check-in is available at
+      <a href="https://sqlite.org/src/timeline">
+      SQLite version control site</a>.</p>
+    
+

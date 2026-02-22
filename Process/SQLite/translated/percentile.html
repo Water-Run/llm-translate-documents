@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Percentile Extension</title>
+<!-- path= -->
+</head>
+<body>
+<div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+Small. Fast. Reliable.<br>Choose any three.
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">Home</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
+<li class='wideonly'><a href='about.html'>About</a>
+<li class='desktoponly'><a href="docs.html">Documentation</a>
+<li class='desktoponly'><a href="download.html">Download</a>
+<li class='wideonly'><a href='copyright.html'>License</a>
+<li class='desktoponly'><a href="support.html">Support</a>
+<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>About</a>
+<li><a href='docs.html'>Documentation</a>
+<li><a href='download.html'>Download</a>
+<li><a href='support.html'>Support</a>
+<li><a href='prosupport.html'>Purchase</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">Search Documentation</option>
+<option value="c">Search Changelog</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="Go">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+The Percentile Extension
+</div>
+<details class="fancy_toc">
+<summary>Table Of Contents</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. Overview</a></div>
+<div class="fancy-toc2"><a href="#availability">1.1. Availability</a></div>
+<div class="fancy-toc1"><a href="#aggregate_functions_implemented_by_percentile">2. Aggregate Functions Implemented By Percentile</a></div>
+<div class="fancy-toc2"><a href="#the_median_y_aggregate_function">2.1. The median(Y) aggregate function</a></div>
+<div class="fancy-toc2"><a href="#the_percentile_y_p_aggregate_function">2.2. The percentile(Y,P) aggregate function</a></div>
+<div class="fancy-toc2"><a href="#the_percentile_cont_y_p_aggregate_function">2.3. The percentile_cont(Y,P) aggregate function</a></div>
+<div class="fancy-toc2"><a href="#the_percentile_disc_y_p_aggregate_function">2.4. The percentile_disc(Y,P) aggregate function</a></div>
+<div class="fancy-toc1"><a href="#design_requirements">3. Design Requirements</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+<h1 id="overview"><span>1. </span>Overview</h1>
+
+<p> The percentile extension provides four aggregate functions
+that compute a percentile score and/or the median value for a distribution.
+
+</p><h2 id="availability"><span>1.1. </span>Availability</h2>
+
+<p>The percentile extension has been part of <a href="amalgamation.html">the amalgamation</a> since
+SQLite version 3.51.0 (2025-11-04).  However, the percentile extension
+is disabled by default and must be activated at compile-time using
+the <a href="compile.html#enable_percentile">-DSQLITE_ENABLE_PERCENTILE</a> compile-time option.
+
+</p><p>Prior to SQLite 3.51.0, the percentile
+extension was in a separate source code file that needed to be compiled
+independently and treated as a <a href="loadext.html">loadable extension</a>.
+
+</p><h1 id="aggregate_functions_implemented_by_percentile"><span>2. </span>Aggregate Functions Implemented By Percentile</h1>
+
+<p>The percentile extension implements the aggregate SQL functions
+   described below.  The algorithms used by all of these functions
+   use O(N) space and O(NlogN) time, where N is the number of non-NULL
+   inputs.
+
+<a name="*medianfunc"></a>
+
+</p><h2 id="the_median_y_aggregate_function"><span>2.1. </span>The median(Y) aggregate function</h2>
+
+<p>The median(Y) function is an aggregate that computes the median value of
+   all non-NULL inputs Y.  If any Y input to median() is not NULL and is not
+   a numeric value, an error is raised.  If there are no non-NULL, numeric
+   inputs, then the result of median() is NULL.
+
+</p><p>The median is the value of the center element when all the inputs are
+   sorted and the number of inputs is odd.  If there are an even number of
+   inputs is even, then the median is the average of the two center inputs.
+
+</p><p>The median(Y) function is equivalent to <a href="lang_aggfunc.html#percentile">percentile(Y,50)</a>.
+
+<a name="*percentilefunc"></a>
+
+</p><h2 id="the_percentile_y_p_aggregate_function"><span>2.2. </span>The percentile(Y,P) aggregate function</h2>
+
+<p>The percentile(Y,P) aggregate function computes an answer X which is
+   a value that is greater than or equal to P percent of the non-NULL inputs
+   and which is less than or equal to 100-P percent of the inputs.  The
+   parameter P must be a number between 0.0 and 100.0.  The value of P must
+   be the same for all terms of the aggregate and may not be NULL.  Y inputs
+   must be either NULL or numeric.  NULL values for Y are ignored.  Any
+   non-NULL Y input that is not numeric causes an error to be raised.
+
+</p><p>The percentile() function works by sorting the non-NULL inputs and then
+   computing the input or inputs that are closest to P percent from the first
+   to the last.  The return value is the weighted average of the two closest
+   inputs.
+
+<a name="*percentilecontfunc"></a>
+
+</p><h2 id="the_percentile_cont_y_p_aggregate_function"><span>2.3. </span>The percentile_cont(Y,P) aggregate function</h2>
+
+<p>The percentile_cont(Y,P) function works like <a href="lang_aggfunc.html#percentile">percentile(Y,P)</a> except that
+   the P value spans the range of 0.0 to 1.0 instead of 0.0 to 100.0.  Thus
+   the result of percentile_cont(Y,P) is the same as <a href="lang_aggfunc.html#percentile">percentile(Y,P*100)</a>.
+
+</p><p>The percentile_cont() function is defined by SQL standards.  However, instead
+   of being a simple function call "percentile_cont(Y,P)", the
+   SQL-standard syntax goes like this:
+
+</p><div class="codeblock"><pre>SELECT percentile_cont(P) WITHIN GROUP (ORDER BY Y) FROM tab;
+</pre></div>
+
+<p>That is a lot of syntax to mean exactly the same thing as:
+
+</p><div class="codeblock"><pre>SELECT percentile_cont(Y,P) FROM tab;
+</pre></div>
+
+<p>SQLite will support the SQL-standard syntax, but only if it is compiled
+   (from canonical sources, not from the <a href="amalgamation.html">amalgamation</a>) using the
+   <a href="compile.html#enable_ordered_set_aggregates">-DSQLITE_ENABLE_ORDERED_SET_AGGREGATES=1</a> compile-time option.  Without that
+   compile-time option, only the simpler "percentile_cont(Y,P)" form is supported. Since
+   there are no advantages to the prolix SQL-standard format, and dramatic
+   readability disadvantages, and because the <a href="compile.html#enable_ordered_set_aggregates">SQLITE_ENABLE_ORDERED_SET_AGGREGATES</a>
+   compile-time option causes the SQLite library to be larger, that option is
+   omitted from most builds.
+
+</p><p>This author believes that the "_cont" suffix on this function name is
+   an abbreviation for "continuous" and reflects the fact that the return value
+   is a weighted average of the two closest input values to the actual percentile
+   rank.  The name is an SQL standard, not something
+   chosen by the SQLite developers.
+
+<a name="*percentilediscfunc"></a>
+
+</p><h2 id="the_percentile_disc_y_p_aggregate_function"><span>2.4. </span>The percentile_disc(Y,P) aggregate function</h2>
+
+<p>The percentile_disc(Y,P) function works like <a href="lang_aggfunc.html#percentile_cont">percentile_cont(Y,P)</a> except
+   that instead of doing a weighted average of the closest available inputs, it
+   always returns a value that is one of the input values - the smaller of the
+   two possible choices.  The percentile_disc(Y,P) function is defined by SQL
+   standards.  As with percentile_cont(), the prolix ordered-set aggregate syntax
+   is required, but that syntax is only supported by SQLite when SQLite is
+   compiled using the <a href="compile.html#enable_ordered_set_aggregates">SQLITE_ENABLE_ORDERED_SET_AGGREGATES</a> compile-time option.
+
+</p><p>This author believes that the "_disc" suffix on this function name is
+   an abbreviation for "discrete".  The name is an SQL standard, not something
+   chosen by the SQLite developers.
+
+
+</p><h1 id="design_requirements"><span>3. </span>Design Requirements</h1>
+
+<p>The following requirements define the percentile extension.
+
+</p><ol>
+<li><p>  The percentile(Y,P) function is an aggregate function taking
+     exactly two arguments.
+
+</p></li><li><p>  If the P argument to percentile(Y,P) is not the same for every
+     row in the aggregate then an error is thrown.  The word "same"
+     in the previous sentence means that the value differs by less
+     than 0.001.
+
+</p></li><li><p>  If the P argument to percentile(Y,P) evaluates to anything other
+     than a number in the range of 0.0 to 100.0 inclusive then an
+     error is thrown.
+
+</p></li><li><p> If any Y argument to percentile(Y,P) evaluates to a value that
+     is not NULL and is not numeric then an error is thrown.
+
+</p></li><li><p>  If any Y argument to percentile(Y,P) evaluates to plus or minus
+     infinity then an error is thrown.  (SQLite always interprets NaN
+     values as NULL.)
+
+</p></li><li><p>  Both Y and P in percentile(Y,P) can be arbitrary expressions,
+     including CASE WHEN expressions.
+
+</p></li><li><p>  The percentile(Y,P) aggregate is able to handle inputs of at least
+     one million (1,000,000) rows.
+
+</p></li><li><p> If there are no non-NULL values for Y, then percentile(Y,P)
+     returns NULL.
+
+</p></li><li><p>  If there is exactly one non-NULL value for Y, the percentile(Y,P)
+     returns the one Y value.
+
+</p></li><li><p>  If there are N non-NULL values of Y where N is two or more and
+     the Y values are ordered from least to greatest and a graph is
+     drawn from 0 to N-1 such that the height of the graph at J is
+     the J-th Y value and such that straight lines are drawn between
+     adjacent Y values, then the percentile(Y,P) function returns
+     the height of the graph at P*(N-1)/100.
+
+</p></li><li><p>  The percentile(Y,P) function always returns either a floating
+     point number or NULL.
+
+</p></li><li><p>  The percentile(Y,P) is implemented as a single C99 source-code
+     file that compiles into a shared-library or DLL that can be loaded
+     into SQLite using the sqlite3_load_extension() interface.
+
+</p></li><li><p>  A separate median(Y) function is the equivalent of percentile(Y,50).
+
+</p></li><li><p>  A separate percentile_cont(Y,P) function returns the same result as
+         percentile(Y,P*100.0).  In other words, the fraction value in
+         the second argument to percentile_cont() should be in the range
+         of 0 to 1 instead of 0 to 100 as it is for percentile().
+
+</p></li><li><p>  A separate percentile_disc(Y,P) function is like
+         percentile_cont(Y,P) except that instead of returning the weighted
+         average of the nearest two input values, it returns the next lower
+         value.  So the percentile_disc(Y,P) will always return a value
+         that was one of the inputs.
+
+</p></li><li><p>  All of median(), percentile(Y,P), percentile_cont(Y,P) and
+         percentile_disc(Y,P) can be used as window functions.
+</p></li></ol>
+<p align="center"><small><i>This page was last updated on 2025-11-13 07:12:58Z </small></i></p>
+

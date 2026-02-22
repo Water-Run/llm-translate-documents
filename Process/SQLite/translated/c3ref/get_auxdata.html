@@ -1,0 +1,158 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="../sqlite.css" rel="stylesheet">
+<title>Function Auxiliary Data</title>
+<!-- path=../ -->
+</head>
+<body>
+<div class=nosearch>
+<a href="../index.html">
+<img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note" style="text-align:right; font-size:0.85rem; color:#999;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="../search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script>
+<!-- keywords: sqlite3_get_auxdata sqlite3_set_auxdata -->
+<div class=nosearch>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>函数辅助数据</h2>
+</div>
+<blockquote><pre>
+void *sqlite3_get_auxdata(sqlite3_context*, int N);
+void sqlite3_set_auxdata(sqlite3_context*, int N, void*, void (*)(void*));
+</pre></blockquote>
+<p>
+这些函数可被（非聚合）SQL函数用来将辅助数据与参数值相关联。如果在查询执行过程中相同的参数值被传递给同一个SQL函数的多个调用，在某些情况下关联的辅助数据可能会被保留。一个可能用到此功能的示例是正则表达式匹配函数。正则表达式的编译版本可以作为与模式字符串关联的辅助数据存储。只要模式字符串保持不变，编译后的正则表达式就可以在同一个函数的多次调用中重复使用。</p>
+
+<p>sqlite3_get_auxdata(C,N) 接口返回一个指针，指向由 sqlite3_set_auxdata(C,N,P,X) 函数与应用定义函数的第 N 个参数值关联的辅助数据。N 为最左边的函数参数时为零。如果与函数参数没有关联任何辅助数据，sqlite3_get_auxdata(C,N) 接口返回 NULL 指针。</p>
+
+<p>sqlite3_set_auxdata(C,N,P,X) 接口将 P 保存为应用定义函数第 N 个参数的辅助数据。随后的 sqlite3_get_auxdata(C,N) 调用会返回最近一次 sqlite3_set_auxdata(C,N,P,X) 调用中的 P（如果辅助数据仍然有效）或者在辅助数据已被丢弃时返回 NULL。在每次 sqlite3_set_auxdata(C,N,P,X) 调用且 X 不为 NULL 时，当辅助数据被丢弃时，SQLite 会准确调用一次析构函数 X，并将参数 P 传入。SQLite 可以随时丢弃辅助数据，包括： <ul>
+<li>当相应的函数参数发生变化时，或者</li>
+<li>当 <a href="../c3ref/reset.html">sqlite3_reset()</a> 或 <a href="../c3ref/finalize.html">sqlite3_finalize()</a> 针对该 SQL 语句被调用时，或者</li>
+<li>当 sqlite3_set_auxdata() 在同一参数上再次被调用时，或者</li>
+<li>当原始 sqlite3_set_auxdata() 调用期间发生内存分配错误时，或者</li>
+<li>当原始 sqlite3_set_auxdata() 调用期间如果该函数在查询规划阶段而不是查询执行阶段被求值时，就像开启 <a href="../compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> 时有时发生的。</li>
+</ul></p>
+
+<p>特别注意最后两个要点。sqlite3_set_auxdata(C,N,P,X) 中的析构函数 X 可能会被立即调用，甚至在 sqlite3_set_auxdata() 接口返回之前。因此 sqlite3_set_auxdata() 应该在函数实现的末尾附近调用，并且在调用 sqlite3_set_auxdata() 之后函数实现不应再使用 P。此外，紧接着对应的 sqlite3_set_auxdata() 调用之后调用 sqlite3_get_auxdata() 在 sqlite3_set_auxdata() 调用期间发生内存不足或函数在查询规划阶段而不是查询执行阶段被求值时，仍可能返回 NULL。</p>
+
+<p>在实践中，对于编译时常量（包括字面值、<a href="../lang_expr.html#varparam">参数</a>以及由它们组成的表达式）所对应的函数参数，其辅助数据在函数调用之间会被保存。</p>
+
+<p>这些接口中 N 参数的值应为非负数。未来的扩展可能会利用负的 N 值来定义新的函数缓存行为。</p>
+
+<p>这些例程必须在运行该 SQL 函数的同一线程中被调用。</p>
+
+<p>另请参见：<a href="../c3ref/get_clientdata.html">sqlite3_get_clientdata()</a> 和 <a href="../c3ref/get_clientdata.html">sqlite3_set_clientdata()</a>。</p><p>另请参见以下列表：
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>、以及
+  <a href="../c3ref/funclist.html">函数</a>。</p>
+
