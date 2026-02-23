@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Invert A Changeset</title>
+<title>反转更改集</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选三者。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,37 +121,28 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Invert A Changeset</h2><blockquote><pre>int sqlite3changeset_invert(
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>反转更改集</h2><blockquote><pre>int sqlite3changeset_invert(
   int nIn, const void *pIn,       /* Input changeset */
   int *pnOut, void **ppOut        /* OUT: Inverse of input */
 );
 </pre></blockquote><p>
-This function is used to "invert" a changeset object. Applying an inverted
-changeset to a database reverses the effects of applying the uninverted
-changeset. Specifically:</p>
+此函数用于“反转”更改集对象。将反转后的更改集应用到数据库，会撤销应用未反转更改集的效果。具体来说：</p>
 
 <p><ul>
-  <li> Each DELETE change is changed to an INSERT, and
-  <li> Each INSERT change is changed to a DELETE, and
-  <li> For each UPDATE change, the old.* and new.* values are exchanged.
+  <li> 每个 DELETE 更改会变为 INSERT，且
+  <li> 每个 INSERT 更改会变为 DELETE，且
+  <li> 对于每个 UPDATE 更改，old.* 和 new.* 的值会互换。
 </ul></p>
 
-<p>This function does not change the order in which changes appear within
-the changeset. It merely reverses the sense of each individual change.</p>
+<p>此函数不会改变更改集内更改的出现顺序。它只是反转每个更改的方向。</p>
 
-<p>If successful, a pointer to a buffer containing the inverted changeset
-is stored in *ppOut, the size of the same buffer is stored in *pnOut, and
-SQLITE_OK is returned. If an error occurs, both *pnOut and *ppOut are
-zeroed and an SQLite error code returned.</p>
+<p>如果成功，一个指向包含反转后更改集缓冲区的指针会存储在 *ppOut 中，相同缓冲区的大小存储在 *pnOut 中，并返回 SQLITE_OK。如果发生错误，则 *pnOut 和 *ppOut 都会被清零，并返回一个 SQLite 错误码。</p>
 
-<p>It is the responsibility of the caller to eventually call sqlite3_free()
-on the *ppOut pointer to free the buffer allocation following a successful 
-call to this function.</p>
+<p>调用者有责任在成功调用此函数之后最终调用 sqlite3_free() 释放 *ppOut 指针指向的缓冲区分配。</p>
 
-<p>WARNING/TODO: This function currently assumes that the input is a valid
-changeset. If it is not, the results are undefined.
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>警告/待办：此函数目前假设输入是有效的更改集。如果不是，结果未定义。</p><p>另请参见
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a> 的列表。</p>
 
+</body></html>

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Application Defined Page Cache.</title>
+<title>应用程序定义的页面缓存。</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.8em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: {page cache} sqlite3_pcache_methods2 -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Application Defined Page Cache.</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>应用程序定义的页面缓存。</h2>
 </div>
 <blockquote><pre>
 typedef struct sqlite3_pcache_methods2 sqlite3_pcache_methods2;
@@ -140,172 +146,85 @@ struct sqlite3_pcache_methods2 {
 };
 </pre></blockquote>
 <p>
-The <a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpcache2">SQLITE_CONFIG_PCACHE2</a>, ...) interface can
-register an alternative page cache implementation by passing in an
-instance of the sqlite3_pcache_methods2 structure.
-In many applications, most of the heap memory allocated by
-SQLite is used for the page cache.
-By implementing a
-custom page cache using this API, an application can better control
-the amount of memory consumed by SQLite, the way in which
-that memory is allocated and released, and the policies used to
-determine exactly which parts of a database file are cached and for
-how long.</p>
+通过 <a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigpcache2">SQLITE_CONFIG_PCACHE2</a>, ...) 接口可以通过传入 sqlite3_pcache_methods2 结构的实例来注册替代的页面缓存实现。
+在许多应用中，SQLite 分配的大部分堆内存都用于页面缓存。
+通过使用此 API 实现自定义页面缓存，应用程序可以更好地控制 SQLite 所消耗的内存总量、内存的分配与释放方式，以及用来决定数据库文件的哪些部分被缓存以及缓存多长期限的策略。</p>
 
-<p>The alternative page cache mechanism is an
-extreme measure that is only needed by the most demanding applications.
-The built-in page cache is recommended for most uses.</p>
+<p>替代的页面缓存机制属于极端手段，仅在最苛刻的应用中才需要。对于大多数用途，推荐使用内置的页面缓存。</p>
 
-<p>The contents of the sqlite3_pcache_methods2 structure are copied to an
-internal buffer by SQLite within the call to <a href="../c3ref/config.html">sqlite3_config</a>.  Hence
-the application may discard the parameter after the call to
-<a href="../c3ref/config.html">sqlite3_config()</a> returns.</p>
+<p>在 <a href="../c3ref/config.html">sqlite3_config</a> 调用期间，SQLite 会将 sqlite3_pcache_methods2 结构的内容复制到内部缓冲区。因此，应用程序可以在 <a href="../c3ref/config.html">sqlite3_config()</a> 返回后丢弃该参数。</p>
 
 <p><a name="thexinitpagecachemethod"></a>
 
-The xInit() method is called once for each effective
-call to <a href="../c3ref/initialize.html">sqlite3_initialize()</a>
-(usually only once during the lifetime of the process). The xInit()
-method is passed a copy of the sqlite3_pcache_methods2.pArg value.
-The intent of the xInit() method is to set up global data structures
-required by the custom page cache implementation.
-If the xInit() method is NULL, then the
-built-in default page cache is used instead of the application defined
-page cache.</p>
+xInit() 方法在每次有效调用 <a href="../c3ref/initialize.html">sqlite3_initialize()</a> 时只会被调用一次（通常在进程整个生命周期内仅调用一次）。xInit() 方法会接收到 sqlite3_pcache_methods2.pArg 值的副本。xInit() 方法的目的是设置自定义页面缓存实现所需的全局数据结构。
+如果 xInit() 方法为 NULL，那么内置的默认页面缓存将替代应用程序定义的页面缓存。</p>
 
 <p><a name="thexshutdownpagecachemethod"></a>
 
-The xShutdown() method is called by <a href="../c3ref/initialize.html">sqlite3_shutdown()</a>.
-It can be used to clean up
-any outstanding resources before process shutdown, if required.
-The xShutdown() method may be NULL.</p>
+xShutdown() 方法由 <a href="../c3ref/initialize.html">sqlite3_shutdown()</a> 调用。如有需要，可以用来在进程关闭前清理任何未释放的资源。
+xShutdown() 方法可以为 NULL。</p>
 
-<p>SQLite automatically serializes calls to the xInit method,
-so the xInit method need not be threadsafe.  The
-xShutdown method is only called from <a href="../c3ref/initialize.html">sqlite3_shutdown()</a> so it does
-not need to be threadsafe either.  All other methods must be threadsafe
-in multithreaded applications.</p>
+<p>SQLite 会自动对 xInit 方法的调用进行序列化，因此 xInit 方法无需线程安全。xShutdown 方法仅由 <a href="../c3ref/initialize.html">sqlite3_shutdown()</a> 调用，也无需线程安全。所有其他方法在多线程应用中必须是线程安全的。</p>
 
-<p>SQLite will never invoke xInit() more than once without an intervening
-call to xShutdown().</p>
+<p>SQLite 在未调用 xShutdown() 的情况下永远不会对 xInit() 进行多于一次的调用。</p>
 
 <p><a name="thexcreatepagecachemethods"></a>
 
-SQLite invokes the xCreate() method to construct a new cache instance.
-SQLite will typically create one cache instance for each open database file,
-though this is not guaranteed. The
-first parameter, szPage, is the size in bytes of the pages that must
-be allocated by the cache.  szPage will always be a power of two.  The
-second parameter szExtra is a number of bytes of extra storage
-associated with each page cache entry.  The szExtra parameter will be
-a number less than 250.  SQLite will use the
-extra szExtra bytes on each page to store metadata about the underlying
-database page on disk.  The value passed into szExtra depends
-on the SQLite version, the target platform, and how SQLite was compiled.
-The third argument to xCreate(), bPurgeable, is true if the cache being
-created will be used to cache database pages of a file stored on disk, or
-false if it is used for an in-memory database. The cache implementation
-does not have to do anything special based upon the value of bPurgeable;
-it is purely advisory.  On a cache where bPurgeable is false, SQLite will
-never invoke xUnpin() except to deliberately delete a page.
-In other words, calls to xUnpin() on a cache with bPurgeable set to
-false will always have the "discard" flag set to true.
-Hence, a cache created with bPurgeable set to false will
-never contain any unpinned pages.</p>
+SQLite 调用 xCreate() 方法来构建新的缓存实例。通常 SQLite 会为每个打开的数据库文件创建一个缓存实例，但这并不保证。
+第一个参数 szPage 是缓存必须分配的页面的字节大小。szPage 总是 2 的幂。
+第二个参数 szExtra 是与每个页面缓存条目关联的额外存储字节数。szExtra 的值小于 250。SQLite 会在每个页面中使用这额外的 szExtra 字节来存储磁盘上对应数据库页面的元数据。传入 szExtra 的值取决于 SQLite 版本、目标平台以及 SQLite 的编译方式。
+xCreate() 的第三个参数 bPurgeable 为 true 时表示创建的缓存将用于缓存磁盘文件的数据库页面；如果用于内存数据库则为 false。缓存实现无需根据 bPurgeable 的值做特殊处理；它仅作为建议。
+对于 bPurgeable 为 false 的缓存，SQLite 除了刻意删除页面外永远不会调用 xUnpin()。
+换句话说，在 bPurgeable 为 false 的缓存上调用 xUnpin() 时，“discard” 标志总会被设置为 true。
+因此，bPurgeable 为 false 的缓存永远不会包含任何未固定的页面。</p>
 
 <p><a name="thexcachesizepagecachemethod"></a>
 
-The xCachesize() method may be called at any time by SQLite to set the
-suggested maximum cache-size (number of pages stored) for the cache
-instance passed as the first argument. This is the value configured using
-the SQLite "<a href="../pragma.html#pragma_cache_size">PRAGMA cache_size</a>" command.  As with the bPurgeable
-parameter, the implementation is not required to do anything with this
-value; it is advisory only.</p>
+SQLite 可以随时调用 xCachesize() 方法来设置传入缓存实例的建议最大缓存大小（存储页面数）。该值通过 SQLite 的 "<a href="../pragma.html#pragma_cache_size">PRAGMA cache_size</a>" 命令配置。
+与 bPurgeable 参数一样，实现不需要对此值做出响应；它仅作为建议。</p>
 
 <p><a name="thexpagecountpagecachemethods"></a>
 
-The xPagecount() method must return the number of pages currently
-stored in the cache, both pinned and unpinned.</p>
+xPagecount() 方法必须返回当前存储在缓存中的页面总数，包括固定和未固定的页面。</p>
 
 <p><a name="thexfetchpagecachemethods"></a>
 
-The xFetch() method locates a page in the cache and returns a pointer to
-an sqlite3_pcache_page object associated with that page, or a NULL pointer.
-The pBuf element of the returned sqlite3_pcache_page object will be a
-pointer to a buffer of szPage bytes used to store the content of a
-single database page.  The pExtra element of sqlite3_pcache_page will be
-a pointer to the szExtra bytes of extra storage that SQLite has requested
-for each entry in the page cache.</p>
+xFetch() 方法会在缓存中定位页面并返回与该页面关联的 sqlite3_pcache_page 对象的指针，或者返回 NULL。所返回的 sqlite3_pcache_page 对象的 pBuf 元素将指向一个 szPage 字节大小的缓冲区，用来存储单个数据库页面的内容。sqlite3_pcache_page 的 pExtra 元素将指向 SQLite 为每个页面缓存条目请求的 szExtra 字节额外存储空间。</p>
 
-<p>The page to be fetched is determined by the key. The minimum key value
-is 1.  After it has been retrieved using xFetch, the page is considered
-to be "pinned".</p>
+<p>要获取的页面由 key 决定。最小的 key 值是 1。在通过 xFetch 获取之后，该页面视为“固定”状态。</p>
 
-<p>If the requested page is already in the page cache, then the page cache
-implementation must return a pointer to the page buffer with its content
-intact.  If the requested page is not already in the cache, then the
-cache implementation should use the value of the createFlag
-parameter to help it determine what action to take:</p>
+<p>如果请求的页面已经存在于页面缓存中，那么页面缓存实现必须返回一个指向内容完整页面缓冲区的指针。如果请求的页面尚未缓存，则缓存实现应根据 createFlag 参数的值来决定采取何种行动：</p>
 
 <p><table border=1 width=85% align=center>
-<tr><th> createFlag <th> Behavior when page is not already in cache
-<tr><td> 0 <td> Do not allocate a new page.  Return NULL.
-<tr><td> 1 <td> Allocate a new page if it is easy and convenient to do so.
-Otherwise return NULL.
-<tr><td> 2 <td> Make every effort to allocate a new page.  Only return
-NULL if allocating a new page is effectively impossible.
+<tr><th> createFlag <th> 页面尚未缓存时的行为
+<tr><td> 0 <td> 不分配新页面。返回 NULL。
+<tr><td> 1 <td> 如果容易且方便，分配新页面。否则返回 NULL。
+<tr><td> 2 <td> 尽一切努力分配新页面。只有在几乎不可能分配新页面时才返回 NULL。
 </table></p>
 
-<p>SQLite will normally invoke xFetch() with a createFlag of 0 or 1.  SQLite
-will only use a createFlag of 2 after a prior call with a createFlag of 1
-failed.  In between the xFetch() calls, SQLite may
-attempt to unpin one or more cache pages by spilling the content of
-pinned pages to disk and synching the operating system disk cache.</p>
+<p>SQLite 通常会以 createFlag 为 0 或 1 调用 xFetch()。只有在先前使用 createFlag 为 1 的调用失败之后，SQLite 才会使用 createFlag 为 2。在 xFetch() 调用之间，SQLite 可能会尝试通过将固定页面的内容溢写到磁盘并同步操作系统磁盘缓存来取消固定一个或多个缓存页面。</p>
 
 <p><a name="thexunpinpagecachemethod"></a>
 
-xUnpin() is called by SQLite with a pointer to a currently pinned page
-as its second argument.  If the third parameter, discard, is non-zero,
-then the page must be evicted from the cache.
-If the discard parameter is
-zero, then the page may be discarded or retained at the discretion of the
-page cache implementation. The page cache implementation
-may choose to evict unpinned pages at any time.</p>
+xUnpin() 由 SQLite 调用，第二个参数为当前固定的页面指针。如果第三个参数 discard 非零，则必须将该页面从缓存中逐出。如果 discard 参数为零，则页面可以由页面缓存实现自行决定抛弃还是保留。页面缓存实现可以在任何时候选择逐出未固定页面。</p>
 
-<p>The cache must not perform any reference counting. A single
-call to xUnpin() unpins the page regardless of the number of prior calls
-to xFetch().</p>
+<p>缓存不能进行任何引用计数。无论之前调用了多少次 xFetch()，只要调用一次 xUnpin() 就能取消该页面的固定状态。</p>
 
 <p><a name="thexrekeypagecachemethods"></a>
 
-The xRekey() method is used to change the key value associated with the
-page passed as the second argument. If the cache
-previously contains an entry associated with newKey, it must be
-discarded. Any prior cache entry associated with newKey is guaranteed not
-to be pinned.</p>
+xRekey() 方法用于更改与作为第二个参数传入页面关联的 key 值。如果缓存中之前存在与 newKey 相关的条目，则必须将其丢弃。与 newKey 相关的任何先前缓存条目都保证未被固定。</p>
 
-<p>When SQLite calls the xTruncate() method, the cache must discard all
-existing cache entries with page numbers (keys) greater than or equal
-to the value of the iLimit parameter passed to xTruncate(). If any
-of these pages are pinned, they become implicitly unpinned, meaning that
-they can be safely discarded.</p>
+<p>当 SQLite 调用 xTruncate() 方法时，缓存必须丢弃所有页面编号（key）大于或等于传入的 iLimit 参数值的现有缓存条目。如果这些页面中有固定页面，它们会被隐式取消固定，也就是说可以安全地丢弃。</p>
 
 <p><a name="thexdestroypagecachemethod"></a>
 
-The xDestroy() method is used to delete a cache allocated by xCreate().
-All resources associated with the specified cache should be freed. After
-calling the xDestroy() method, SQLite considers the <a href="../c3ref/pcache.html">sqlite3_pcache*</a>
-handle invalid, and will not use it with any other sqlite3_pcache_methods2
-functions.</p>
+xDestroy() 方法用于删除由 xCreate() 分配的缓存。所有与指定缓存相关的资源都应被释放。在调用 xDestroy() 方法之后，SQLite 会将 <a href="../c3ref/pcache.html">sqlite3_pcache*</a> 句柄视为无效，并不会将其与任何其他 sqlite3_pcache_methods2 函数一起使用。</p>
 
 <p><a name="thexshrinkpagecachemethod"></a>
 
-SQLite invokes the xShrink() method when it wants the page cache to
-free up as much of heap memory as possible.  The page cache implementation
-is not obligated to free any memory, but well-behaved implementations should
-do their best.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+当 SQLite 希望页面缓存尽可能释放堆内存时，会调用 xShrink() 方法。页面缓存实现没有义务释放任何内存，但表现良好的实现应该尽最大努力。
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>,
+  <a href="../c3ref/constlist.html">常量</a>, 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
 

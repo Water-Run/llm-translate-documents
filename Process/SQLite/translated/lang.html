@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Query Language Understood by SQLite</title>
+<title>SQLite 理解的查询语言</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>随便选三个。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,78 +123,67 @@ antiRobotDefense();
 </script>
 
 
-<h1 align=center>SQL As Understood By SQLite</h1>
+<h1 align=center>SQLite 理解的 SQL</h1>
 
-<p>SQLite understands most of the standard SQL
-language.  But it does <a href="omitted.html">omit some features</a>
-while at the same time
-adding a few features of its own.  This document attempts to
-describe precisely what parts of the SQL language SQLite does
-and does not support.  A list of <a href="lang_keywords.html">SQL keywords</a> is
-also provided.  The SQL language syntax is described by
-<a href="syntaxdiagrams.html">syntax diagrams</a>.
+<p>SQLite 理解标准 SQL 语言的大部分内容。但它 <a href="omitted.html">略去了一些特性</a>，同时又增加了它自己的某些功能。本文档试图精确描述 SQLite 支持和不支持的 SQL 语言部分。还提供了 <a href="lang_keywords.html">SQL 关键字</a> 列表。SQL 语言语法由 <a href="syntaxdiagrams.html">语法图</a> 描述。</p>
 
-<p>The following syntax documentation topics are available:</p>
+<p>以下语法文档主题可用：</p>
 
 <table width="100%" cellpadding="5" border="0">
 <tr><td valign="top"><ul>
 
 <div class='columns' style='columns: 17em auto;'>
 <ul style='padding-top:0;'>
-<li><a href='lang_aggfunc.html'>aggregate functions</a></li>
-<li><a href='lang_altertable.html'>ALTER TABLE</a></li>
-<li><a href='lang_analyze.html'>ANALYZE</a></li>
-<li><a href='lang_attach.html'>ATTACH DATABASE</a></li>
-<li><a href='lang_transaction.html'>BEGIN TRANSACTION</a></li>
-<li><a href='lang_comment.html'>comment</a></li>
-<li><a href='lang_transaction.html'>COMMIT TRANSACTION</a></li>
-<li><a href='lang_corefunc.html'>core functions</a></li>
-<li><a href='lang_createindex.html'>CREATE INDEX</a></li>
-<li><a href='lang_createtable.html'>CREATE TABLE</a></li>
-<li><a href='lang_createtrigger.html'>CREATE TRIGGER</a></li>
-<li><a href='lang_createview.html'>CREATE VIEW</a></li>
-<li><a href='lang_createvtab.html'>CREATE VIRTUAL TABLE</a></li>
-<li><a href='lang_datefunc.html'>date and time functions</a></li>
-<li><a href='lang_delete.html'>DELETE</a></li>
-<li><a href='lang_detach.html'>DETACH DATABASE</a></li>
-<li><a href='lang_dropindex.html'>DROP INDEX</a></li>
-<li><a href='lang_droptable.html'>DROP TABLE</a></li>
-<li><a href='lang_droptrigger.html'>DROP TRIGGER</a></li>
-<li><a href='lang_dropview.html'>DROP VIEW</a></li>
-<li><a href='lang_transaction.html'>END TRANSACTION</a></li>
-<li><a href='lang_explain.html'>EXPLAIN</a></li>
-<li><a href='lang_expr.html'>expression</a></li>
-<li><a href='lang_indexedby.html'>INDEXED BY</a></li>
-<li><a href='lang_insert.html'>INSERT</a></li>
-<li><a href='json1.html'>JSON functions</a></li>
-<li><a href='lang_keywords.html'>keywords</a></li>
-<li><a href='lang_mathfunc.html'>math functions</a></li>
-<li><a href='lang_conflict.html'>ON CONFLICT clause</a></li>
-<li><a href='pragma.html#syntax'>PRAGMA</a></li>
-<li><a href='lang_reindex.html'>REINDEX</a></li>
-<li><a href='lang_savepoint.html'>RELEASE SAVEPOINT</a></li>
-<li><a href='lang_replace.html'>REPLACE</a></li>
-<li><a href='lang_returning.html'>RETURNING clause</a></li>
-<li><a href='lang_transaction.html'>ROLLBACK TRANSACTION</a></li>
-<li><a href='lang_savepoint.html'>SAVEPOINT</a></li>
-<li><a href='lang_select.html'>SELECT</a></li>
-<li><a href='lang_update.html'>UPDATE</a></li>
-<li><a href='lang_upsert.html'>UPSERT</a></li>
-<li><a href='lang_vacuum.html'>VACUUM</a></li>
-<li><a href='windowfunctions.html'>window functions</a></li>
-<li><a href='lang_with.html'>WITH clause</a></li>
+<li><a href='lang_aggfunc.html'>聚合函数</a></li>
+<li><a href='lang_altertable.html'>ALTER TABLE（修改表）</a></li>
+<li><a href='lang_analyze.html'>ANALYZE（分析）</a></li>
+<li><a href='lang_attach.html'>ATTACH DATABASE（附加数据库）</a></li>
+<li><a href='lang_transaction.html'>BEGIN TRANSACTION（开始事务）</a></li>
+<li><a href='lang_comment.html'>注释</a></li>
+<li><a href='lang_transaction.html'>COMMIT TRANSACTION（提交事务）</a></li>
+<li><a href='lang_corefunc.html'>核心函数</a></li>
+<li><a href='lang_createindex.html'>CREATE INDEX（创建索引）</a></li>
+<li><a href='lang_createtable.html'>CREATE TABLE（创建表）</a></li>
+<li><a href='lang_createtrigger.html'>CREATE TRIGGER（创建触发器）</a></li>
+<li><a href='lang_createview.html'>CREATE VIEW（创建视图）</a></li>
+<li><a href='lang_createvtab.html'>CREATE VIRTUAL TABLE（创建虚拟表）</a></li>
+<li><a href='lang_datefunc.html'>日期和时间函数</a></li>
+<li><a href='lang_delete.html'>DELETE（删除）</a></li>
+<li><a href='lang_detach.html'>DETACH DATABASE（分离数据库）</a></li>
+<li><a href='lang_dropindex.html'>DROP INDEX（删除索引）</a></li>
+<li><a href='lang_droptable.html'>DROP TABLE（删除表）</a></li>
+<li><a href='lang_droptrigger.html'>DROP TRIGGER（删除触发器）</a></li>
+<li><a href='lang_dropview.html'>DROP VIEW（删除视图）</a></li>
+<li><a href='lang_transaction.html'>END TRANSACTION（结束事务）</a></li>
+<li><a href='lang_explain.html'>EXPLAIN（解释）</a></li>
+<li><a href='lang_expr.html'>表达式</a></li>
+<li><a href='lang_indexedby.html'>INDEXED BY（按...索引）</a></li>
+<li><a href='lang_insert.html'>INSERT（插入）</a></li>
+<li><a href='json1.html'>JSON 函数</a></li>
+<li><a href='lang_keywords.html'>关键字</a></li>
+<li><a href='lang_mathfunc.html'>数学函数</a></li>
+<li><a href='lang_conflict.html'>ON CONFLICT 子句</a></li>
+<li><a href='pragma.html#syntax'>PRAGMA（编译指示）</a></li>
+<li><a href='lang_reindex.html'>REINDEX（重建索引）</a></li>
+<li><a href='lang_savepoint.html'>RELEASE SAVEPOINT（释放保存点）</a></li>
+<li><a href='lang_replace.html'>REPLACE（替换）</a></li>
+<li><a href='lang_returning.html'>RETURNING 子句</a></li>
+<li><a href='lang_transaction.html'>ROLLBACK TRANSACTION（回滚事务）</a></li>
+<li><a href='lang_savepoint.html'>SAVEPOINT（保存点）</a></li>
+<li><a href='lang_select.html'>SELECT（查询）</a></li>
+<li><a href='lang_update.html'>UPDATE（更新）</a></li>
+<li><a href='lang_upsert.html'>UPSERT（插入或更新）</a></li>
+<li><a href='lang_vacuum.html'>VACUUM（清理）</a></li>
+<li><a href='windowfunctions.html'>窗口函数</a></li>
+<li><a href='lang_with.html'>WITH 子句</a></li>
 </ul>
 </div>
 
 </ul></td></tr></table>
 
-<p>The routines <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>, <a href="c3ref/prepare.html">sqlite3_prepare()</a>,
-<a href="c3ref/prepare.html">sqlite3_prepare16()</a>, <a href="c3ref/prepare.html">sqlite3_prepare16_v2()</a>,
-<a href="c3ref/exec.html">sqlite3_exec()</a>, and <a href="c3ref/free_table.html">sqlite3_get_table()</a> accept
-an SQL statement list (sql-stmt-list) which is a semicolon-separated
-list of statements.</p>
+<p>例程 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>、<a href="c3ref/prepare.html">sqlite3_prepare()</a>、<a href="c3ref/prepare.html">sqlite3_prepare16()</a>、<a href="c3ref/prepare.html">sqlite3_prepare16_v2()</a>、<a href="c3ref/exec.html">sqlite3_exec()</a> 和 <a href="c3ref/free_table.html">sqlite3_get_table()</a> 接受 SQL 语句列表（sql-stmt-list），它是以分号分隔的语句列表。</p>
 
-<p><b><a href="syntax/sql-stmt-list.html">sql-stmt-list:</a></b></p><div class='imgcontainer'>
+<p><b><a href="syntax/sql-stmt-list.html">sql-stmt-list：</a></b></p><div class='imgcontainer'>
  <div style="max-width:242px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 242.093 88.776" data-pikchr-date="20250319161943">
 <circle cx="5.76" cy="55.08" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
 <path d="M9.36,55.08L45.36,55.08"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
@@ -213,10 +208,9 @@ list of statements.</p>
  </div>
 
 
-<p>Each SQL statement in the statement list is an instance of the
-following:</p>
+<p>语句列表中的每个 SQL 语句都是以下内容的一个实例：</p>
 
-<p><b><a href="syntax/sql-stmt.html">sql-stmt:</a></b></p><div class='imgcontainer'>
+<p><b><a href="syntax/sql-stmt.html">sql-stmt：</a></b></p><div class='imgcontainer'>
  <div style="max-width:716px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 716.88 1017.36" data-pikchr-date="20250319161943">
 <circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
 <polygon points="50.88,55.08 39.36,59.4 39.36,50.76" style="fill:rgb(0,0,0)"/>
@@ -432,5 +426,7 @@ following:</p>
 </div>
  </div>
 
-<p align="center"><small><i>This page was last updated on 2024-04-01 12:41:31Z </small></i></p>
+<p align="center"><small><i>此页面最后更新于 2024-04-01 12:41:31Z </i></small></p>
 
+</body>
+</html>

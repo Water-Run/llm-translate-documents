@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -120,25 +126,19 @@ antiRobotDefense();
 <p>
 <center><table border="1" cellpadding="10" width="75%">
 <tr><td bgcolor="#ffffbb">
-<b>Editorial Note:</b>
-This document describes SQLite version 2, which was deprecated and
-replaced by SQLite3 in 2004.
-This document is retained as part of the historical record of SQLite.
-Modern programmers should refer to
-more up-to-date documentation on SQLite is available elsewhere
-on this website.
+<b>编辑说明：</b>
+本文档描述了 SQLite 版本 2，该版本在 2004 年已被弃用并由 SQLite3 取代。
+此文档作为 SQLite 历史记录的一部分得以保留。
+现代程序员应参阅本网站其他位置提供的更加最新的 SQLite 文档。
 </table></center>
-<h2>The C language interface to SQLite Version 2</h2>
+<h2>SQLite 第二版的 C 语言接口</h2>
 
-<p>The SQLite library is designed to be very easy to use from
-a C or C++ program.  This document gives an overview of the C/C++
-programming interface.</p>
+<p>SQLite 库的设计非常便于 C 或 C++ 程序使用。本文件概述了 C/C++ 编程接口。</p>
 
-<h3>1.0 The Core API</h3>
+<h3>1.0 核心 API</h3>
 
-<p>The interface to the SQLite library consists of three core functions,
-one opaque data structure, and some constants used as return values.
-The core interface is as follows:</p>
+<p>SQLite 库的接口包括三个核心函数、一个不透明数据结构以及一些作为返回值使用的常量。
+核心接口如下所示：</p>
 
 <blockquote><pre>
 typedef struct sqlite sqlite;
@@ -157,81 +157,39 @@ int sqlite_exec(
 );
 </pre></blockquote>
 
-<p>
-The above is all you really need to know in order to use SQLite
-in your C or C++ programs.  There are other interface functions
-available (and described below) but we will begin by describing
-the core functions shown above.
-</p>
+<p>以上就是在 C 或 C++ 程序中使用 SQLite 所需了解的全部内容。当然还存在其他接口函数（将在下文描述），但我们将从上面显示的核心函数开始介绍。</p>
 
 <a name="sqlite_open"></a>
-<h4>1.1 Opening a database</h4>
+<h4>1.1 打开数据库</h4>
 
-<p>Use the <b>sqlite_open</b> function to open an existing SQLite
-database or to create a new SQLite database.  The first argument
-is the database name.  The second argument is intended to signal
-whether the database is going to be used for reading and writing
-or just for reading.  But in the current implementation, the
-second argument to <b>sqlite_open</b> is ignored.
-The third argument is a pointer to a string pointer.
-If the third argument is not NULL and an error occurs
-while trying to open the database, then an error message will be
-written to memory obtained from malloc() and *errmsg will be made
-to point to this error message.  The calling function is responsible
-for freeing the memory when it has finished with it.</p>
+<p>使用 <b>sqlite_open</b> 函数可以打开一个已有的 SQLite 数据库，也可以创建一个新的 SQLite 数据库。第一个参数是数据库名称。第二个参数本意是用来指示是以读写还是只读方式使用数据库。但在当前实现中，传入 <b>sqlite_open</b> 的第二个参数会被忽略。
+第三个参数是一个指向字符串指针的指针。如果第三个参数不为 NULL 且在尝试打开数据库的过程中发生错误，那么将会申请一段来自 malloc() 的内存并写入错误信息，同时 *errmsg 将指向这段错误信息。调用函数有责任在结束使用后释放这段内存。</p>
 
-<p>The name of an SQLite database is the name of a file that will
-contain the database.  If the file does not exist, SQLite attempts
-to create and initialize it.  If the file is read-only (due to
-permission bits or because it is located on read-only media like
-a CD-ROM) then SQLite opens the database for reading only.  The
-entire SQL database is stored in a single file on the disk.  But
-additional temporary files may be created during the execution of
-an SQL command in order to store the database rollback journal or
-temporary and intermediate results of a query.</p>
+<p>SQLite 数据库的名称即是包含该数据库内容的文件名称。如果文件不存在，SQLite 会尝试创建并初始化它。如果该文件是只读的（由于权限设置或位于像 CD-ROM 这样的只读介质上），那么 SQLite 将以只读方式打开该数据库。整个 SQL 数据库存储在磁盘上的单个文件中。但在执行 SQL 命令时，可能会为了存储事务回滚日志或中间查询结果而创建额外的临时文件。</p>
 
-<p>The return value of the <b>sqlite_open</b> function is a
-pointer to an opaque <b>sqlite</b> structure.  This pointer will
-be the first argument to all subsequent SQLite function calls that
-deal with the same database.  NULL is returned if the open fails
-for any reason.</p>
+<p><b>sqlite_open</b> 函数的返回值是一个指向不透明 <b>sqlite</b> 结构的指针。所有后续与该数据库相关的 SQLite 函数调用都应将该指针作为第一个参数。如果因任何原因打开失败，则返回 NULL。</p>
 
 <a name="sqlite_close"></a>
-<h4>1.2 Closing the database</h4>
+<h4>1.2 关闭数据库</h4>
 
-<p>To close an SQLite database, call the <b>sqlite_close</b>
-function passing it the sqlite structure pointer that was obtained
-from a prior call to <b>sqlite_open</b>.
-If a transaction is active when the database is closed, the transaction
-is rolled back.</p>
+<p>要关闭一个 SQLite 数据库，调用 <b>sqlite_close</b> 函数，并传入先前从 <b>sqlite_open</b> 获得的 sqlite 结构指针。
+如果在关闭数据库时有一个事务正在进行中，该事务将会被回滚。</p>
 
 <a name="sqlite_exec"></a>
-<h4>1.3 Executing SQL statements</h4>
+<h4>1.3 执行 SQL 语句</h4>
 
-<p>The <b>sqlite_exec</b> function is used to process SQL statements
-and queries.  This function requires 5 parameters as follows:</p>
+<p><b>sqlite_exec</b> 函数用于处理 SQL 语句和查询。此函数需要 5 个参数，如下所示：</p>
 
 <ol>
-<li><p>A pointer to the sqlite structure obtained from a prior call
-       to <b>sqlite_open</b>.</p></li>
-<li><p>A zero-terminated string containing the text of one or more
-       SQL statements and/or queries to be processed.</p></li>
-<li><p>A pointer to a callback function which is invoked once for each
-       row in the result of a query.  This argument may be NULL, in which
-       case no callbacks will ever be invoked.</p></li>
-<li><p>A pointer that is forwarded to become the first argument
-       to the callback function.</p></li>
-<li><p>A pointer to an error string.  Error messages are written to space
-       obtained from malloc() and the error string is made to point to
-       the malloced space.  The calling function is responsible for freeing
-       this space when it has finished with it.
-       This argument may be NULL, in which case error messages are not
-       reported back to the calling function.</p></li>
+<li><p>一个指向通过先前调用 <b>sqlite_open</b> 获取的 sqlite 结构的指针。</p></li>
+<li><p>一个以零结尾的字符串，包含一个或多个要处理的 SQL 语句和/或查询。</p></li>
+<li><p>一个指向回调函数的指针，该函数在查询结果中的每一行上都会被调用一次。该参数可以为 NULL，此时不会调用回调函数。</p></li>
+<li><p>一个指针，该指针会被转发为回调函数的第一个参数。</p></li>
+<li><p>一个指向错误字符串的指针。错误信息被写入 malloc() 获取的空间，并使该参数指向这段空间。调用函数在使用完之后需释放这段空间。
+该参数可以为 NULL，此时不会将错误信息报告回调用函数。</p></li>
 </ol>
 
-<p>
-The callback function is used to receive the results of a query.  A
-prototype for the callback function is as follows:</p>
+<p>回调函数用于接收查询的结果。回调函数的原型如下：</p>
 
 <blockquote><pre>
 int Callback(void *pArg, int argc, char **argv, char **columnNames){
@@ -240,57 +198,34 @@ int Callback(void *pArg, int argc, char **argv, char **columnNames){
 </pre></blockquote>
 
 <a name="callback_row_data"></a>
-<p>The first argument to the callback is just a copy of the fourth argument
-to <b>sqlite_exec</b>  This parameter can be used to pass arbitrary
-information through to the callback function from client code.
-The second argument is the number of columns in the query result.
-The third argument is an array of pointers to strings where each string
-is a single column of the result for that record.  Note that the
-callback function reports a NULL value in the database as a NULL pointer,
-which is very different from an empty string.  If the i-th parameter
-is an empty string, we will get:</p>
+<p>回调函数的第一个参数只是 <b>sqlite_exec</b> 的第四个参数的副本。该参数可用来将任意信息从客户端代码传入回调函数。
+第二个参数是查询结果中的列数。
+第三个参数是指向字符串指针数组的指针，对于每一行，其中的每个指针都指向该行对应列的值。注意数据库中的 NULL 值在回调函数中表示为 NULL 指针，这与空字符串完全不同。如果第 i 个参数是空字符串，我们会得到：</p>
 <blockquote><pre>
-argv&#91;i]&#91;0] == 0
+argv[i][0] == 0
 </pre></blockquote>
-<p>But if the i-th parameter is NULL we will get:</p>
+<p>但如果第 i 个参数是 NULL，则得到：</p>
 <blockquote><pre>
-argv&#91;i] == 0
+argv[i] == 0
 </pre></blockquote>
 
-<p>The names of the columns are contained in the first <i>argc</i>
-entries of the fourth argument.
-If the <a href="pragma.html">SHOW_DATATYPES</a> pragma
-is on (it is off by default) then
-the second <i>argc</i> entries in the 4th argument are the datatypes
-for the corresponding columns.
-</p>
+<p>列名包含在第四个参数的前 <i>argc</i> 项中。
+如果 <a href="pragma.html">SHOW_DATATYPES</a> PRAGMA 打开（默认关闭），则第四个参数的前 <i>argc</i> 项中的第二部分是对应列的数据类型。</p>
 
-<p>If the <a href="pragma.html#pragma_empty_result_callbacks">
-EMPTY_RESULT_CALLBACKS</a> pragma is set to ON and the result of
-a query is an empty set, then the callback is invoked once with the
-third parameter (argv) set to 0.  In other words
+<p>如果 <a href="pragma.html#pragma_empty_result_callbacks">
+EMPTY_RESULT_CALLBACKS</a> PRAGMA 设置为 ON 且查询结果为空集，那么回调函数会被调用一次，此时第三个参数（argv）为 0。换句话说：</p>
 <blockquote><pre>
 argv == 0
 </pre></blockquote>
-The second parameter (argc)
-and the fourth parameter (columnNames) are still valid
-and can be used to determine the number and names of the result
-columns if there had been a result.
-The default behavior is not to invoke the callback at all if the
-result set is empty.</p>
+<p>第二个参数（argc）和第四个参数（columnNames）仍然有效，可用于判断若有结果时的列数和列名。
+默认行为是在结果集为空时根本不调用回调函数。</p>
 
 <a name="callback_returns_nonzero"></a>
-<p>The callback function should normally return 0.  If the callback
-function returns non-zero, the query is immediately aborted and 
-<b>sqlite_exec</b> will return SQLITE_ABORT.</p>
+<p>回调函数通常应返回 0。如果回调函数返回非零，查询会立即中止，<b>sqlite_exec</b> 会返回 SQLITE_ABORT。</p>
 
-<h4>1.4 Error Codes</h4>
+<h4>1.4 错误代码</h4>
 
-<p>
-The <b>sqlite_exec</b> function normally returns SQLITE_OK.  But
-if something goes wrong it can return a different value to indicate
-the type of error.  Here is a complete list of the return codes:
-</p>
+<p><b>sqlite_exec</b> 函数通常返回 SQLITE_OK。但如果出现错误，可以返回不同的值以表示错误类型。下面是完整的返回代码列表：</p>
 
 <blockquote><pre>
 #define SQLITE_OK           0   /* Successful result */
@@ -321,157 +256,66 @@ the type of error.  Here is a complete list of the return codes:
 #define SQLITE_DONE        101  /* sqlite_step() has finished executing */
 </pre></blockquote>
 
-<p>
-The meanings of these various return values are as follows:
-</p>
+<p>这些返回值的含义如下：</p>
 
 <blockquote>
 <dl>
 <dt>SQLITE_OK</dt>
-<dd><p>This value is returned if everything worked and there were no errors.
-</p></dd>
+<dd><p>如果一切正常且没有发生错误，则返回该值。</p></dd>
 <dt>SQLITE_INTERNAL</dt>
-<dd><p>This value indicates that an internal consistency check within
-the SQLite library failed.  This can only happen if there is a bug in
-the SQLite library.  If you ever get an SQLITE_INTERNAL reply from
-an <b>sqlite_exec</b> call, please report the problem on the SQLite
-mailing list.
-</p></dd>
+<dd><p>该值表示 SQLite 库内部的一致性检查失败。只有当 SQLite 库内存在 bug 时才会发生。如果你在调用 <b>sqlite_exec</b> 时得到 SQLITE_INTERNAL，请务必在 SQLite 邮件列表中报告问题。</p></dd>
 <dt>SQLITE_ERROR</dt>
-<dd><p>This return value indicates that there was an error in the SQL
-that was passed into the <b>sqlite_exec</b>.
-</p></dd>
+<dd><p>该返回值表示传入 <b>sqlite_exec</b> 的 SQL 存在错误。</p></dd>
 <dt>SQLITE_PERM</dt>
-<dd><p>This return value says that the access permissions on the database
-file are such that the file cannot be opened.
-</p></dd>
+<dd><p>该返回值表示数据库文件的访问权限不足，因而无法打开该文件。</p></dd>
 <dt>SQLITE_ABORT</dt>
-<dd><p>This value is returned if the callback function returns non-zero.
-</p></dd>
+<dd><p>如果回调函数返回非零值，则返回此值。</p></dd>
 <dt>SQLITE_BUSY</dt>
-<dd><p>This return code indicates that another program or thread has
-the database locked.  SQLite allows two or more threads to read the
-database at the same time, but only one thread can have the database
-open for writing at the same time.  Locking in SQLite is on the
-entire database.</p>
-</p></dd>
+<dd><p>该返回码表示数据库文件正被另一个程序或线程锁定。SQLite 允许多个线程同时读取数据库，但同一时刻只能有一个线程以写模式打开数据库。SQLite 的锁定是针对整个数据库文件的。</p></dd>
 <dt>SQLITE_LOCKED</dt>
-<dd><p>This return code is similar to SQLITE_BUSY in that it indicates
-that the database is locked.  But the source of the lock is a recursive
-call to <b>sqlite_exec</b>.  This return can only occur if you attempt
-to invoke sqlite_exec from within a callback routine of a query
-from a prior invocation of sqlite_exec.  Recursive calls to
-sqlite_exec are allowed as long as they do
-not attempt to write the same table.
-</p></dd>
+<dd><p>该返回码与 SQLITE_BUSY 相似，也表示数据库被锁定。但该锁定来自对 <b>sqlite_exec</b> 的递归调用。只有当你尝试在先前 <b>sqlite_exec</b> 的回调例程中再次调用 sqlite_exec 时才可能出现这种返回码。只要不尝试写入同一个表，就允许对 sqlite_exec 的递归调用。</p></dd>
 <dt>SQLITE_NOMEM</dt>
-<dd><p>This value is returned if a call to <b>malloc</b> fails.
-</p></dd>
+<dd><p>如果调用 <b>malloc</b> 失败，则返回此值。</p></dd>
 <dt>SQLITE_READONLY</dt>
-<dd><p>This return code indicates that an attempt was made to write to
-a database file that is opened for reading only.
-</p></dd>
+<dd><p>该返回码表示尝试写入一个只读打开的数据库文件。</p></dd>
 <dt>SQLITE_INTERRUPT</dt>
-<dd><p>This value is returned if a call to <b>sqlite_interrupt</b>
-interrupts a database operation in progress.
-</p></dd>
+<dd><p>当调用 <b>sqlite_interrupt</b> 中断了正在进行的数据库操作时，会返回该值。</p></dd>
 <dt>SQLITE_IOERR</dt>
-<dd><p>This value is returned if the operating system informs SQLite
-that it is unable to perform some disk I/O operation.  This could mean
-that there is no more space left on the disk.
-</p></dd>
+<dd><p>当操作系统告知 SQLite 无法执行某项磁盘 I/O 操作时，会返回该值。通常意味着磁盘空间不足。</p></dd>
 <dt>SQLITE_CORRUPT</dt>
-<dd><p>This value is returned if SQLite detects that the database it is
-working on has become corrupted.  Corruption might occur due to a rogue
-process writing to the database file or it might happen due to a
-previously undetected logic error in SQLite. This value is also
-returned if a disk I/O error occurs in such a way that SQLite is forced
-to leave the database file in a corrupted state.  The latter should only
-happen due to a hardware or operating system malfunction.
-</p></dd>
+<dd><p>如果 SQLite 检测到正在操作的数据库已损坏，则返回该值。损坏可能由恶意进程写入数据库文件引发，也可能由以前未发现的 SQLite 逻辑错误引起。如果磁盘 I/O 错误造成 SQLite 被迫留下损坏的数据库文件，也会返回该值。后一种情况通常由硬件或操作系统故障引起。</p></dd>
 <dt>SQLITE_FULL</dt>
-<dd><p>This value is returned if an insertion failed because there is
-no space left on the disk, or the database is too big to hold any
-more information.  The latter case should only occur for databases
-that are larger than 2GB in size.
-</p></dd>
+<dd><p>如果插入失败，因为磁盘空间已满或数据库已经无法容纳更多数据，则返回该值。后一种情况通常仅在数据库大于 2GB 时才会发生。</p></dd>
 <dt>SQLITE_CANTOPEN</dt>
-<dd><p>This value is returned if the database file could not be opened
-for some reason.
-</p></dd>
+<dd><p>该值表示由于某种原因无法打开数据库文件。</p></dd>
 <dt>SQLITE_PROTOCOL</dt>
-<dd><p>This value is returned if some other process is messing with
-file locks and has violated the file locking protocol that SQLite uses
-on its rollback journal files.
-</p></dd>
+<dd><p>如果另一个进程干扰了文件锁定并违反了 SQLite 在回滚日志文件上使用的锁定协议，则返回该值。</p></dd>
 <dt>SQLITE_SCHEMA</dt>
-<dd><p>When the database is first opened, SQLite reads the database schema
-into memory and uses that schema to parse new SQL statements.  If another
-process changes the schema, the command currently being processed will
-abort because the virtual machine code generated assumed the old
-schema.  This is the return code for such cases.  Retrying the
-command usually will clear the problem.
-</p></dd>
+<dd><p>当数据库首次打开时，SQLite 会读取数据库模式到内存，并使用该模式解析新的 SQL 语句。如果另一个进程修改了模式，当前正在执行的命令会因虚拟机代码假设了旧模式而中止。对于这种情况，会返回该错误码。通常重试该命令即可解决问题。</p></dd>
 <dt>SQLITE_TOOBIG</dt>
-<dd><p>SQLite will not store more than about 1 megabyte of data in a single
-row of a single table.  If you attempt to store more than 1 megabyte
-in a single row, this is the return code you get.
-</p></dd>
+<dd><p>SQLite 不会在同一表的单行中存储超过约 1MB 的数据。如果你尝试存储超过 1MB 的数据，会返回此值。</p></dd>
 <dt>SQLITE_CONSTRAINT</dt>
-<dd><p>This constant is returned if the SQL statement would have violated
-a database constraint.
-</p></dd>
+<dd><p>如果 SQL 语句违反了数据库约束，则返回该常量。</p></dd>
 <dt>SQLITE_MISMATCH</dt>
-<dd><p>This error occurs when there is an attempt to insert non-integer
-data into a column labeled INTEGER PRIMARY KEY.  For most columns, SQLite
-ignores the data type and allows any kind of data to be stored.  But
-an INTEGER PRIMARY KEY column is only allowed to store integer data.
-</p></dd>
+<dd><p>当尝试向标记为 INTEGER PRIMARY KEY 的列插入非整数数据时会出现此错误。对于大多数列，SQLite 会忽略数据类型并允许任意类型的数据。但 INTEGER PRIMARY KEY 列只能存储整数数据。</p></dd>
 <dt>SQLITE_MISUSE</dt>
-<dd><p>This error might occur if one or more of the SQLite API routines
-is used incorrectly.  Examples of incorrect usage include calling
-<b>sqlite_exec</b> after the database has been closed using
-<b>sqlite_close</b> or 
-calling <b>sqlite_exec</b> with the same
-database pointer simultaneously from two separate threads.
-</p></dd>
+<dd><p>如果 SQLite API 的一个或多个例程使用不当，可能会出现此错误。错误用法的例子包括在调用 <b>sqlite_close</b> 关闭数据库后再调用 <b>sqlite_exec</b>，或在两个独立线程中同时对同一个数据库指针调用 <b>sqlite_exec</b>。</p></dd>
 <dt>SQLITE_NOLFS</dt>
-<dd><p>This error means that you have attempted to create or access a
-database file that is larger than 2GB on a legacy Unix machine that
-lacks large file support.
-</p></dd>
+<dd><p>该错误表示你在一个缺乏大文件支持的旧 Unix 机器上试图创建或访问超过 2GB 的数据库文件。</p></dd>
 <dt>SQLITE_AUTH</dt>
-<dd><p>This error indicates that the authorizer callback
-has disallowed the SQL you are attempting to execute.
-</p></dd>
+<dd><p>该错误表示授权回调拒绝你尝试执行的 SQL。</p></dd>
 <dt>SQLITE_ROW</dt>
-<dd><p>This is one of the return codes from the
-<b>sqlite_step</b> routine which is part of the non-callback API.
-It indicates that another row of result data is available.
-</p></dd>
+<dd><p>这是非回调 API 的 <b>sqlite_step</b> 例程的返回码之一。它表示还有另一行结果数据可用。</p></dd>
 <dt>SQLITE_DONE</dt>
-<dd><p>This is one of the return codes from the
-<b>sqlite_step</b> routine which is part of the non-callback API.
-It indicates that the SQL statement has been completely executed and
-the <b>sqlite_finalize</b> routine is ready to be called.
-</p></dd>
+<dd><p>这是非回调 API 的 <b>sqlite_step</b> 例程的返回码之一。它表示 SQL 语句已完全执行完毕，且可以调用 <b>sqlite_finalize</b>。</p></dd>
 </dl>
 </blockquote>
 
-<h3>2.0 Accessing Data Without Using A Callback Function</h3>
+<h3>2.0 在不使用回调函数的情况下访问数据</h3>
 
-<p>
-The <b>sqlite_exec</b> routine described above used to be the only
-way to retrieve data from an SQLite database.  But many programmers found
-it inconvenient to use a callback function to obtain results.  So beginning
-with SQLite version 2.7.7, a second access interface is available that
-does not use callbacks.
-</p>
+<p><b>sqlite_exec</b> 例程曾经是从 SQLite 数据库检索数据的唯一方式。但许多程序员觉得使用回调函数来获取结果非常不便。因此自 SQLite 2.7.7 开始，提供了一个不使用回调函数的第二种访问接口。</p>
 
-<p>
-The new interface uses three separate functions to replace the single
-<b>sqlite_exec</b> function.
-</p>
+<p>新的接口使用三个独立的函数替代单个 <b>sqlite_exec</b> 函数。</p>
 
 <blockquote><pre>
 typedef struct sqlite_vm sqlite_vm;
@@ -497,185 +341,57 @@ int sqlite_finalize(
 );
 </pre></blockquote>
 
-<p>
-The strategy is to compile a single SQL statement using
-<b>sqlite_compile</b> then invoke <b>sqlite_step</b> multiple times,
-once for each row of output, and finally call <b>sqlite_finalize</b>
-to clean up after the SQL has finished execution.
-</p>
+<p>策略是先使用 <b>sqlite_compile</b> 编译一个 SQL 语句，然后多次调用 <b>sqlite_step</b>（每行输出一次），最后调用 <b>sqlite_finalize</b> 清理执行完成后的资源。</p>
 
-<h4>2.1 Compiling An SQL Statement Into A Virtual Machine</h4>
+<h4>2.1 将 SQL 语句编译到虚拟机</h4>
 
-<p>
-The <b>sqlite_compile</b> "compiles" a single SQL statement (specified
-by the second parameter) and generates a virtual machine that is able
-to execute that statement.  
-As with most interface routines, the first parameter must be a pointer
-to an sqlite structure that was obtained from a prior call to
-<b>sqlite_open</b>.
+<p><b>sqlite_compile</b> 会“编译”第二个参数指定的单条 SQL 语句，并生成一个可以执行该语句的虚拟机。
+与大多数接口例程一样，第一个参数必须是先前通过 <b>sqlite_open</b> 获取的 sqlite 结构指针。</p>
 
-<p>
-A pointer to the virtual machine is stored in a pointer which is passed
-in as the 4th parameter.
-Space to hold the virtual machine is dynamically allocated.  To avoid
-a memory leak, the calling function must invoke
-<b>sqlite_finalize</b> on the virtual machine after it has finished
-with it.
-The 4th parameter may be set to NULL if an error is encountered during
-compilation.
-</p>
+<p>通过第四个参数传入一个指针，用于接收虚拟机的地址。
+用于存放虚拟机的空间通过动态分配获取。为避免内存泄漏，调用函数在使用完虚拟机后必须调用 <b>sqlite_finalize</b>。
+如果在编译过程中发生错误，可将第四个参数设为 NULL。</p>
 
-<p>
-If any errors are encountered during compilation, an error message is
-written into memory obtained from <b>malloc</b> and the 5th parameter
-is made to point to that memory.  If the 5th parameter is NULL, then
-no error message is generated.  If the 5th parameter is not NULL, then
-the calling function should dispose of the memory containing the error
-message by calling <b>sqlite_freemem</b>.
-</p>
+<p>如果在编译过程中遇到错误，错误信息会被写入来自 <b>malloc</b> 的内存中，并使第五个参数指向这段空间。如果第五个参数为 NULL，则不生成错误信息。否则调用函数应该在使用完错误信息后通过 <b>sqlite_freemem</b> 释放它。</p>
 
-<p>
-If the 2nd parameter actually contains two or more statements of SQL,
-only the first statement is compiled.  (This is different from the
-behavior of <b>sqlite_exec</b> which executes all SQL statements
-in its input string.)  The 3rd parameter to <b>sqlite_compile</b>
-is made to point to the first character beyond the end of the first
-statement of SQL in the input.  If the 2nd parameter contains only
-a single SQL statement, then the 3rd parameter will be made to point
-to the '\000' terminator at the end of the 2nd parameter.
-</p>
+<p>如果第二个参数实际上包含两个或更多的 SQL 语句，则仅编译第一条。（这与 <b>sqlite_exec</b> 的行为不同，后者会执行输入字符串中的所有 SQL 语句。）<b>sqlite_compile</b> 的第三个参数会被设置为指向输入中第一条语句结束后的第一个字符。如果第二个参数只包含一条 SQL 语句，则第三个参数会指向第二个参数末尾的 '\000' 终止符。</p>
 
-<p>
-On success, <b>sqlite_compile</b> returns SQLITE_OK.
-Otherwise an error code is returned.
-</p>
+<p>编译成功时，<b>sqlite_compile</b> 返回 SQLITE_OK。否则返回错误码。</p>
 
-<h4>2.2 Step-By-Step Execution Of An SQL Statement</h4>
+<h4>2.2 步进执行 SQL 语句</h4>
 
-<p>
-After a virtual machine has been generated using <b>sqlite_compile</b>
-it is executed by one or more calls to <b>sqlite_step</b>.  Each
-invocation of <b>sqlite_step</b>, except the last one,
-returns a single row of the result.
-The number of columns in  the result is stored in the integer that
-the 2nd parameter points to.
-The pointer specified by the 3rd parameter is made to point
-to an array of pointers to column values.
-The pointer in the 4th parameter is made to point to an array
-of pointers to column names and datatypes.
-The 2nd through 4th parameters to <b>sqlite_step</b> convey the
-same information as the 2nd through 4th parameters of the
-<b>callback</b> routine when using
-the <b>sqlite_exec</b> interface.  Except, with <b>sqlite_step</b>
-the column datatype information is always included in the
-4th parameter regardless of whether or not the
-<a href="pragma.html">SHOW_DATATYPES</a> pragma
-is on or off.
-</p>
+<p>当用 <b>sqlite_compile</b> 生成虚拟机后，可通过一次或多次调用 <b>sqlite_step</b> 来执行该虚拟机。每次调用 <b>sqlite_step</b>（除了最后一次）都会返回一行结果。
+结果中的列数存储在第二个参数指向的整数中。
+第三个参数指向一个列值指针数组。
+第四个参数指向一个包含列名和数据类型的指针数组。
+与使用 <b>sqlite_exec</b> 接口的回调例程中的第二至第四个参数相同，<b>sqlite_step</b> 的第二至第四个参数也提供了相同的信息。不过使用 <b>sqlite_step</b> 时，第 4 个参数始终包含列的数据类型信息，无论 <a href="pragma.html">SHOW_DATATYPES</a> PRAGMA 是否打开。</p>
 
-<p>
-Each invocation of <b>sqlite_step</b> returns an integer code that
-indicates what happened during that step.  This code may be
-SQLITE_BUSY, SQLITE_ROW, SQLITE_DONE, SQLITE_ERROR, or
-SQLITE_MISUSE.
-</p>
+<p>每次调用 <b>sqlite_step</b> 都会返回一个整数码，表示该步的执行结果，可能为 SQLITE_BUSY、SQLITE_ROW、SQLITE_DONE、SQLITE_ERROR 或 SQLITE_MISUSE。</p>
 
-<p>
-If the virtual machine is unable to open the database file because
-it is locked by another thread or process, <b>sqlite_step</b>
-will return SQLITE_BUSY.  The calling function should do some other
-activity, or sleep, for a short amount of time to give the lock a
-chance to clear, then invoke <b>sqlite_step</b> again.  This can
-be repeated as many times as desired.
-</p>
+<p>如果虚拟机因数据库文件被另一个线程或进程锁定而无法打开文件，<b>sqlite_step</b> 会返回 SQLITE_BUSY。调用函数应稍作其他操作或短暂休眠，给锁腾出时间，然后再次调用 <b>sqlite_step</b>。上述过程可以反复尝试。</p>
 
-<p>
-Whenever another row of result data is available,
-<b>sqlite_step</b> will return SQLITE_ROW.  The row data is
-stored in an array of pointers to strings and the 2nd parameter
-is made to point to this array.
-</p>
+<p>每当另一行结果数据可用时，<b>sqlite_step</b> 会返回 SQLITE_ROW。该行数据存储在字符串指针数组中，并使第二个参数指向该数组。</p>
 
-<p>
-When all processing is complete, <b>sqlite_step</b> will return
-either SQLITE_DONE or SQLITE_ERROR.  SQLITE_DONE indicates that the
-statement completed successfully and SQLITE_ERROR indicates that there
-was a run-time error.  (The details of the error are obtained from
-<b>sqlite_finalize</b>.)  It is a misuse of the library to attempt
-to call <b>sqlite_step</b> again after it has returned SQLITE_DONE
-or SQLITE_ERROR.
-</p>
+<p>当所有处理完成时，<b>sqlite_step</b> 会返回 SQLITE_DONE 或 SQLITE_ERROR。SQLITE_DONE 表示语句执行成功，SQLITE_ERROR 表示发生运行时错误。（错误详情可从 <b>sqlite_finalize</b> 获取。）在 <b>sqlite_step</b> 返回 SQLITE_DONE 或 SQLITE_ERROR 之后再次调用它是一种滥用。</p>
 
-<p>
-When <b>sqlite_step</b> returns SQLITE_DONE or SQLITE_ERROR,
-the *pN and *pazColName values are set to the number of columns
-in the result set and to the names of the columns, just as they
-are for an SQLITE_ROW return.  This allows the calling code to
-find the number of result columns and the column names and datatypes
-even if the result set is empty.  The *pazValue parameter is always
-set to NULL when the return code is SQLITE_DONE or SQLITE_ERROR.
-If the SQL being executed is a statement that does not
-return a result (such as an INSERT or an UPDATE) then *pN will
-be set to zero and *pazColName will be set to NULL.
-</p>
+<p>当 <b>sqlite_step</b> 返回 SQLITE_DONE 或 SQLITE_ERROR 时，*pN 和 *pazColName 会被设置为结果集中的列数及列名（与 SQLITE_ROW 返回时一致）。这使调用代码即使在结果集为空时也能获取列数以及列名和数据类型。*pazValue 参数在返回 SQLITE_DONE 或 SQLITE_ERROR 时始终设为 NULL。如果正在执行的 SQL 是不返回结果的语句（例如 INSERT 或 UPDATE），则 *pN 会设为 0，*pazColName 会设为 NULL。</p>
 
-<p>
-If you abuse the library by trying to call <b>sqlite_step</b>
-inappropriately it will attempt return SQLITE_MISUSE.
-This can happen if you call sqlite_step() on the same virtual machine
-at the same
-time from two or more threads or if you call sqlite_step()
-again after it returned SQLITE_DONE or SQLITE_ERROR or if you
-pass in an invalid virtual machine pointer to sqlite_step().
-You should not depend on the SQLITE_MISUSE return code to indicate
-an error.  It is possible that a misuse of the interface will go
-undetected and result in a program crash.  The SQLITE_MISUSE is
-intended as a debugging aid only - to help you detect incorrect
-usage prior to a mishap.  The misuse detection logic is not guaranteed
-to work in every case.
-</p>
+<p>如果你滥用该库，使 <b>sqlite_step</b> 以不当方式被调用，它会尝试返回 SQLITE_MISUSE。这种情况可能发生在以下几种场景：在多个线程中同时对同一个虚拟机调用 sqlite_step()；在 sqlite_step() 返回 SQLITE_DONE 或 SQLITE_ERROR 后再次调用；或者传入无效的虚拟机指针。你不应依赖 SQLITE_MISUSE 来指示错误，因为接口滥用可能未被检测到而导致程序崩溃。SQLITE_MISUSE 仅用于调试，帮助你在发生严重问题前发现错误用法。其滥用检测逻辑也不能保证在所有情况下都能正常工作。</p>
 
-<h4>2.3 Deleting A Virtual Machine</h4>
+<h4>2.3 删除虚拟机</h4>
 
-<p>
-Every virtual machine that <b>sqlite_compile</b> creates should
-eventually be handed to <b>sqlite_finalize</b>.  The sqlite_finalize()
-procedure deallocates the memory and other resources that the virtual
-machine uses.  Failure to call sqlite_finalize() will result in 
-resource leaks in your program.
-</p>
+<p>每个由 <b>sqlite_compile</b> 创建的虚拟机最终都应该交给 <b>sqlite_finalize</b>。<b>sqlite_finalize()</b> 会释放虚拟机所使用的内存和其他资源。不调用 <b>sqlite_finalize()</b> 会导致程序中的资源泄漏。</p>
 
-<p>
-The <b>sqlite_finalize</b> routine also returns the result code
-that indicates success or failure of the SQL operation that the
-virtual machine carried out.
-The value returned by sqlite_finalize() will be the same as would
-have been returned had the same SQL been executed by <b>sqlite_exec</b>.
-The error message returned will also be the same.
-</p>
+<p><b>sqlite_finalize</b> 例程还会返回一个结果码，以表示该虚拟机执行的 SQL 操作是否成功。
+<code>sqlite_finalize()</code> 返回的值与若直接通过 <b>sqlite_exec</b> 执行同一 SQL 语句时的返回值相同。其返回的错误信息也一样。</p>
 
-<p>
-It is acceptable to call <b>sqlite_finalize</b> on a virtual machine
-before <b>sqlite_step</b> has returned SQLITE_DONE.  Doing so has
-the effect of interrupting the operation in progress.  Partially completed
-changes will be rolled back and the database will be restored to its
-original state (unless an alternative recovery algorithm is selected using
-an ON CONFLICT clause in the SQL being executed.)  The effect is the
-same as if a callback function of <b>sqlite_exec</b> had returned
-non-zero.
-</p>
+<p>在 <b>sqlite_step</b> 返回 SQLITE_DONE 之前调用 <b>sqlite_finalize</b> 是可以接受的。这会中断正在进行的操作。部分完成的更改会被回滚，数据库会恢复到初始状态（除非通过正在执行的 SQL 中的 ON CONFLICT 子句选择了其他恢复算法）。其效果等同于 <b>sqlite_exec</b> 的回调函数返回非零值的情况。</p>
 
-<p>
-It is also acceptable to call <b>sqlite_finalize</b> on a virtual machine
-that has never been passed to <b>sqlite_step</b> even once.
-</p>
+<p>也可以在虚拟机从未被传入 <b>sqlite_step</b> 的情况下调用 <b>sqlite_finalize</b>。</p>
 
-<h3>3.0 The Extended API</h3>
+<h3>3.0 扩展 API</h3>
 
-<p>Only the three core routines described in section 1.0 are required to use
-SQLite.  But there are many other functions that provide 
-useful interfaces.  These extended routines are as follows:
-</p>
+<p>使用 SQLite 仅需要第 1.0 节中描述的三个核心例程。但仍有许多其他函数提供有用的接口。以下是这些扩展例程：</p>
 
 <blockquote><pre>
 int sqlite_last_insert_rowid(sqlite*);
@@ -701,9 +417,9 @@ void sqlite_busy_handler(sqlite*, int (*)(void*,const char*,int), void*);
 
 void sqlite_busy_timeout(sqlite*, int ms);
 
-const char sqlite_version&#91;];
+const char sqlite_version[];
 
-const char sqlite_encoding&#91;];
+const char sqlite_encoding[];
 
 int sqlite_exec_printf(
   sqlite*,
@@ -753,110 +469,58 @@ void sqlite_progress_handler(sqlite*, int, int (*)(void*), void*);
 
 </pre></blockquote>
 
-<p>All of the above definitions are included in the "sqlite.h"
-header file that comes in the source tree.</p>
+<p>上述所有定义都包含在源代码树中的 "sqlite.h" 头文件里。</p>
 
-<h4>3.1 The ROWID of the most recent insert</h4>
+<h4>3.1 最近一次插入的 ROWID</h4>
 
-<p>Every row of an SQLite table has a unique integer key.  If the
-table has a column labeled INTEGER PRIMARY KEY, then that column
-serves as the key.  If there is no INTEGER PRIMARY KEY column then
-the key is a unique integer.  The key for a row can be accessed in
-a SELECT statement or used in a WHERE or ORDER BY clause using any
-of the names "ROWID", "OID", or "_ROWID_".</p>
+<p>SQLite 表中的每一行都有一个唯一的整数键。如果表包含标记为 INTEGER PRIMARY KEY 的列，则该列作为键。如果没有 INTEGER PRIMARY KEY 列，则键就是一个唯一整数。可以在 SELECT 语句中或在 WHERE/ORDER BY 子句中使用任意名称 "ROWID"、"OID" 或 "_ROWID_" 来访问该键。</p>
 
-<p>When you do an insert into a table that does not have an INTEGER PRIMARY
-KEY column, or if the table does have an INTEGER PRIMARY KEY but the value
-for that column is not specified in the VALUES clause of the insert, then
-the key is automatically generated.  You can find the value of the key
-for the most recent INSERT statement using the
-<b>sqlite_last_insert_rowid</b> API function.</p>
+<p>当你插入一个没有 INTEGER PRIMARY KEY 的表，或虽然表有 INTEGER PRIMARY KEY 但 INSERT 语句的 VALUES 子句中未指定该列的值时，键会自动生成。可以使用 <b>sqlite_last_insert_rowid</b> API 函数获取最近一次 INSERT 语句生成的键。</p>
 
-<h4>3.2 The number of rows that changed</h4>
+<h4>3.2 更改的行数</h4>
 
-<p>The <b>sqlite_changes</b> API function returns the number of rows
-that have been inserted, deleted, or modified since the database was
-last quiescent.  A "quiescent" database is one in which there are
-no outstanding calls to <b>sqlite_exec</b> and no VMs created by
-<b>sqlite_compile</b> that have not been finalized by <b>sqlite_finalize</b>.
-In common usage, <b>sqlite_changes</b> returns the number
-of rows inserted, deleted, or modified by the most recent <b>sqlite_exec</b>
-call or since the most recent <b>sqlite_compile</b>.  But if you have
-nested calls to <b>sqlite_exec</b> (that is, if the callback routine
-of one <b>sqlite_exec</b> invokes another <b>sqlite_exec</b>) or if
-you invoke <b>sqlite_compile</b> to create a new VM while there is
-still another VM in existence, then
-the meaning of the number returned by <b>sqlite_changes</b> is more
-complex.
-The number reported includes any changes
-that were later undone by a ROLLBACK or ABORT.  But rows that are
-deleted because of a DROP TABLE are <em>not</em> counted.</p>
+<p><b>sqlite_changes</b> API 函数返回自数据库上次空闲以来被插入、删除或修改的行数。所谓“空闲”数据库是指没有未完成的 <b>sqlite_exec</b> 调用，也没有尚未由 <b>sqlite_finalize</b> 完成的通过 <b>sqlite_compile</b> 创建的虚拟机。在常见用法中，<b>sqlite_changes</b> 返回最近一次 <b>sqlite_exec</b> 调用或最近一次 <b>sqlite_compile</b> 调用所影响的行数。但如果你嵌套调用 <b>sqlite_exec</b>（即某个 <b>sqlite_exec</b> 的回调例程又调用了另一个 <b>sqlite_exec</b>）或在已有虚拟机存在时调用 <b>sqlite_compile</b> 创建新虚拟机，那么 <b>sqlite_changes</b> 返回的值含义会更复杂。
+返回值包含后来被 ROLLBACK 或 ABORT 撤销的更改。但因执行 DROP TABLE 而删除的行不予计入。</p>
 
-<p>SQLite implements the command "<b>DELETE FROM table</b>" (without
-a WHERE clause) by dropping the table then recreating it.  
-This is much faster than deleting the elements of the table individually.
-But it also means that the value returned from <b>sqlite_changes</b>
-will be zero regardless of the number of elements that were originally
-in the table.  If an accurate count of the number of elements deleted
-is necessary, use "<b>DELETE FROM table WHERE 1</b>" instead.</p>
+<p>SQLite 通过删除表后重新创建该表来实现 "<b>DELETE FROM table</b>"（无 WHERE 子句）的命令。这比逐条删除表中的元素要快得多。但这意味着 <b>sqlite_changes</b> 返回的值始终为零，无论表中原本有多少元素。如果需要准确统计删除的元素数量，请改用 "<b>DELETE FROM table WHERE 1</b>"。</p>
 
-<h4>3.3 Querying into memory obtained from malloc()</h4>
+<h4>3.3 将查询结果写入 malloc() 获取的内存</h4>
 
-<p>The <b>sqlite_get_table</b> function is a wrapper around
-<b>sqlite_exec</b> that collects all the information from successive
-callbacks and writes it into memory obtained from malloc().  This
-is a convenience function that allows the application to get the
-entire result of a database query with a single function call.</p>
+<p><b>sqlite_get_table</b> 函数是对 <b>sqlite_exec</b> 的封装，它收集连续回调中的所有信息，并写入 malloc() 分配的内存。这是一个方便函数，允许应用程序通过一次函数调用获取整个查询结果。</p>
 
-<p>The main result from <b>sqlite_get_table</b> is an array of pointers
-to strings.  There is one element in this array for each column of
-each row in the result.  NULL results are represented by a NULL
-pointer. In addition to the regular data, there is an added row at the 
-beginning of the array that contains the name of each column of the
-result.</p>
+<p><b>sqlite_get_table</b> 的主要结果是一个指向字符串指针的数组。数组中每个元素对应结果集中的每一列和每一行。NULL 结果以 NULL 指针表示。除了常规数据外，数组开头还有一行包含结果集中每列名称。</p>
 
-<p>As an example, consider the following query:</p>
+<p>举个例子，考虑以下查询：</p>
 
 <blockquote>
 SELECT employee_name, login, host FROM users WHERE login LIKE 'd%';
 </blockquote>
 
-<p>This query will return the name, login and host computer name
-for every employee whose login begins with the letter "d".  If this
-query is submitted to <b>sqlite_get_table</b> the result might
-look like this:</p>
+<p>该查询将返回所有登录名以字母 "d" 开头的员工的姓名、登录名和主机名。如果将该查询提交给 <b>sqlite_get_table</b>，结果可能如下：</p>
 
 <blockquote>
 nrow = 2<br>
 ncolumn = 3<br>
-result&#91;0] = "employee_name"<br>
-result&#91;1] = "login"<br>
-result&#91;2] = "host"<br>
-result&#91;3] = "dummy"<br>
-result&#91;4] = "No such user"<br>
-result&#91;5] = 0<br>
-result&#91;6] = "D. Richard Hipp"<br>
-result&#91;7] = "drh"<br>
-result&#91;8] = "zadok"
+result[0] = "employee_name"<br>
+result[1] = "login"<br>
+result[2] = "host"<br>
+result[3] = "dummy"<br>
+result[4] = "No such user"<br>
+result[5] = 0<br>
+result[6] = "D. Richard Hipp"<br>
+result[7] = "drh"<br>
+result[8] = "zadok"
 </blockquote>
 
-<p>Notice that the "host" value for the "dummy" record is NULL so
-the result&#91;] array contains a NULL pointer at that slot.</p>
+<p>注意 “dummy” 记录的 “host” 值为 NULL，因此 result[] 数组在该位置包含 NULL 指针。</p>
 
-<p>If the result set of a query is empty, then by default
-<b>sqlite_get_table</b> will set nrow to 0 and leave its
-result parameter is set to NULL.  But if the EMPTY_RESULT_CALLBACKS
-pragma is ON then the result parameter is initialized to the names
-of the columns only.  For example, consider this query which has
-an empty result set:</p>
+<p>如果查询结果集为空，则默认情况下 <b>sqlite_get_table</b> 会将 nrow 设为 0 并让 result 参数为 NULL。但如果 EMPTY_RESULT_CALLBACKS PRAGMA 为 ON，则 result 参数会初始化为仅包含列名。比如，考虑如下查询，它的结果集为空：</p>
 
 <blockquote>
 SELECT employee_name, login, host FROM users WHERE employee_name IS NULL;
 </blockquote>
 
-<p>
-The default behavior gives this results:
-</p>
+<p>默认行为会得到以下结果：</p>
 
 <blockquote>
 nrow = 0<br>
@@ -864,119 +528,55 @@ ncolumn = 0<br>
 result = 0<br>
 </blockquote>
 
-<p>
-But if the EMPTY_RESULT_CALLBACKS pragma is ON, then the following
-is returned:
-</p>
+<p>但如果 EMPTY_RESULT_CALLBACKS PRAGMA 为 ON，则返回如下内容：</p>
 
 <blockquote>
 nrow = 0<br>
 ncolumn = 3<br>
-result&#91;0] = "employee_name"<br>
-result&#91;1] = "login"<br>
-result&#91;2] = "host"<br>
+result[0] = "employee_name"<br>
+result[1] = "login"<br>
+result[2] = "host"<br>
 </blockquote>
 
-<p>Memory to hold the information returned by <b>sqlite_get_table</b>
-is obtained from malloc().  But the calling function should not try
-to free this information directly.  Instead, pass the complete table
-to <b>sqlite_free_table</b> when the table is no longer needed.
-It is safe to call <b>sqlite_free_table</b> with a NULL pointer such
-as would be returned if the result set is empty.</p>
+<p><b>sqlite_get_table</b> 返回的信息存储在 malloc() 分配的内存中。但调用函数不应该直接释放这段内存。应在不再需要该表时将其完整地传给 <b>sqlite_free_table</b>。
+即使传入 NULL（如查询结果为空时）也可以安全地调用 <b>sqlite_free_table</b>。</p>
 
-<p>The <b>sqlite_get_table</b> routine returns the same integer
-result code as <b>sqlite_exec</b>.</p>
+<p><b>sqlite_get_table</b> 例程返回的整数结果码与 <b>sqlite_exec</b> 相同。</p>
 
-<h4>3.4 Interrupting an SQLite operation</h4>
+<h4>3.4 中断 SQLite 操作</h4>
 
-<p>The <b>sqlite_interrupt</b> function can be called from a
-different thread or from a signal handler to cause the current database
-operation to exit at its first opportunity.  When this happens,
-the <b>sqlite_exec</b> routine (or the equivalent) that started
-the database operation will return SQLITE_INTERRUPT.</p>
+<p>可以从不同线程或信号处理程序中调用 <b>sqlite_interrupt</b> 函数，从而使当前数据库操作在下一个机会点退出。此时启动数据库操作的 <b>sqlite_exec</b> 例程（或其等价函数）会返回 SQLITE_INTERRUPT。</p>
 
-<h4>3.5 Testing for a complete SQL statement</h4>
+<h4>3.5 测试完整 SQL 语句</h4>
 
-<p>The next interface routine to SQLite is a convenience function used
-to test whether or not a string forms a complete SQL statement.
-If the <b>sqlite_complete</b> function returns true when its input
-is a string, then the argument forms a complete SQL statement.
-There are no guarantees that the syntax of that statement is correct,
-but we at least know the statement is complete.  If <b>sqlite_complete</b>
-returns false, then more text is required to complete the SQL statement.</p>
+<p>SQLite 的下一个接口例程是一个便利函数，用于测试某字符串是否构成一条完整的 SQL 语句。如果 <b>sqlite_complete</b> 函数在其输入为某字符串时返回 true，那么该参数构成一条完整 SQL 语句。虽然不能保证语法正确，但至少我们知道语句完整。如果 <b>sqlite_complete</b> 返回 false，则需要更多文本来完成 SQL 语句。</p>
 
-<p>For the purpose of the <b>sqlite_complete</b> function, an SQL
-statement is complete if it ends in a semicolon.</p>
+<p>在 <b>sqlite_complete</b> 的判断中，若 SQL 语句以分号结尾即视为完整。</p>
 
-<p>The <b>sqlite</b> command-line utility uses the <b>sqlite_complete</b>
-function to know when it needs to call <b>sqlite_exec</b>.  After each
-line of input is received, <b>sqlite</b> calls <b>sqlite_complete</b>
-on all input in its buffer.  If <b>sqlite_complete</b> returns true, 
-then <b>sqlite_exec</b> is called and the input buffer is reset.  If
-<b>sqlite_complete</b> returns false, then the prompt is changed to
-the continuation prompt and another line of text is read and added to
-the input buffer.</p>
+<p>SQLite 命令行工具使用 <b>sqlite_complete</b> 函数来判断何时需要调用 <b>sqlite_exec</b>。每读取一行输入后，<b>sqlite</b> 会在其缓冲区中调用 <b>sqlite_complete</b>。如果返回 true，则调用 <b>sqlite_exec</b> 并重置输入缓冲区。如果返回 false，则提示符变为续行提示符，再读取一行文字并追加到缓冲区。</p>
 
-<h4>3.6 Library version string</h4>
+<h4>3.6 库版本字符串</h4>
 
-<p>The SQLite library exports the string constant named
-<b>sqlite_version</b> which contains the version number of the
-library.  The header file contains a macro SQLITE_VERSION
-with the same information.  If desired, a program can compare
-the SQLITE_VERSION macro against the <b>sqlite_version</b>
-string constant to verify that the version number of the
-header file and the library match.</p> 
+<p>SQLite 库导出名为 <b>sqlite_version</b> 的字符串常量，包含该库的版本号。头文件中还包含与之对应的宏 SQLITE_VERSION。需要时，程序可以将 SQLITE_VERSION 宏与 <b>sqlite_version</b> 字符串进行比较，以确认头文件与库的版本号一致。</p>
 
-<h4>3.7 Library character encoding</h4>
+<h4>3.7 库字符编码</h4>
 
-<p>By default, SQLite assumes that all data uses a fixed-size
-8-bit character (iso8859).  But if you give the --enable-utf8 option
-to the configure script, then the library assumes UTF-8 variable
-sized characters.  This makes a difference for the LIKE and GLOB
-operators and the LENGTH() and SUBSTR() functions.  The static
-string <b>sqlite_encoding</b> will be set to either "UTF-8" or
-"iso8859" to indicate how the library was compiled.  In addition,
-the <b>sqlite.h</b> header file will define one of the
-macros <b>SQLITE_UTF8</b> or <b>SQLITE_ISO8859</b>, as appropriate.</p>
+<p>默认情况下，SQLite 假定所有数据使用固定大小的 8 位字符集（iso8859）。但如果在配置脚本中启用 --enable-utf8 选项，则库会假定使用 UTF-8 可变长度字符。这对 LIKE 和 GLOB 运算符以及 LENGTH() 和 SUBSTR() 函数等会有影响。静态字符串 <b>sqlite_encoding</b> 会被设置为 "UTF-8" 或 "iso8859"，以指示库的编译方式。此外，<b>sqlite.h</b> 头文件会根据情况定义宏 <b>SQLITE_UTF8</b> 或 <b>SQLITE_ISO8859</b>。</p>
 
-<p>Note that the character encoding mechanism used by SQLite cannot
-be changed at run-time.  This is a compile-time option only.  The
-<b>sqlite_encoding</b> character string just tells you how the library
-was compiled.</p>
+<p>请注意，SQLite 使用的字符编码机制无法在运行时更改。这是一个编译时选项。<b>sqlite_encoding</b> 字符串仅用于告知库的编译方式。</p>
 
-<h4>3.8 Changing the library's response to locked files</h4>
+<h4>3.8 更改库对被锁文件的响应</h4>
 
-<p>The <b>sqlite_busy_handler</b> procedure can be used to register
-a busy callback with an open SQLite database.  The busy callback will
-be invoked whenever SQLite tries to access a database that is locked.
-The callback will typically do some other useful work, or perhaps sleep,
-in order to give the lock a chance to clear.  If the callback returns
-non-zero, then SQLite tries again to access the database and the cycle
-repeats.  If the callback returns zero, then SQLite aborts the current
-operation and returns SQLITE_BUSY.</p>
+<p><b>sqlite_busy_handler</b> 过程可用于在已打开的 SQLite 数据库上注册一个忙等待回调。当 SQLite 试图访问锁定的数据库时，该回调会被调用。回调通常会执行其他有用的工作，或睡眠一段时间，以给锁腾出时间。如果回调返回非零，SQLite 会再次尝试访问数据库，如此循环。如果回调返回零，则 SQLite 会终止当前操作并返回 SQLITE_BUSY。</p>
 
-<p>The arguments to <b>sqlite_busy_handler</b> are the opaque
-structure returned from <b>sqlite_open</b>, a pointer to the busy
-callback function, and a generic pointer that will be passed as
-the first argument to the busy callback.  When SQLite invokes the
-busy callback, it sends it three arguments:  the generic pointer
-that was passed in as the third argument to <b>sqlite_busy_handler</b>,
-the name of the database table or index that the library is trying
-to access, and the number of times that the library has attempted to
-access the database table or index.</p>
+<p><b>sqlite_busy_handler</b> 的参数包括从 <b>sqlite_open</b> 返回的不透明结构、一个指向忙等待回调函数的指针，以及一个通用指针，该指针会作为第一个参数传给忙等待回调。当 SQLite 调用回调时，会传入三个参数：传递给 <b>sqlite_busy_handler</b> 的第三个参数、库试图访问的数据库表或索引名称，以及库尝试访问该表或索引的次数。</p>
 
-<p>For the common case where we want the busy callback to sleep,
-the SQLite library provides a convenience routine <b>sqlite_busy_timeout</b>.
-The first argument to <b>sqlite_busy_timeout</b> is a pointer to
-an open SQLite database and the second argument is a number of milliseconds.
-After <b>sqlite_busy_timeout</b> has been executed, the SQLite library
-will wait for the lock to clear for at least the number of milliseconds 
-specified before it returns SQLITE_BUSY.  Specifying zero milliseconds for
-the timeout restores the default behavior.</p>
+<p>在常见场景中，我们希望忙等待回调进行睡眠。为此，SQLite 提供了便利例程 <b>sqlite_busy_timeout</b>。其第一个参数是一个打开的 SQLite 数据库指针，第二个参数是毫秒数。
+执行 <b>sqlite_busy_timeout</b> 后，SQLite 将在返回 SQLITE_BUSY 之前等待至少指定的毫秒数，以便锁定有足够时间被释放。指定零毫秒会恢复默认行为。</p>
 
-<h4>3.9 Using the <tt>_printf()</tt> wrapper functions</h4>
+<h4>3.9 使用 <tt>_printf()</tt> 封装函数</h4>
 
-<p>The four utility functions</p>
+<p>以下四个工具函数：</p>
 
 <p>
 <ul>
@@ -987,40 +587,13 @@ the timeout restores the default behavior.</p>
 </ul>
 </p>
 
-<p>implement the same query functionality as <b>sqlite_exec</b>
-and <b>sqlite_get_table</b>.  But instead of taking a complete
-SQL statement as their second argument, the four <b>_printf</b>
-routines take a printf-style format string.  The SQL statement to
-be executed is generated from this format string and from whatever
-additional arguments are attached to the end of the function call.</p>
+<p>实现的查询功能与 <b>sqlite_exec</b> 和 <b>sqlite_get_table</b> 相同。但这四个 <b>_printf</b> 例程并不是将完整 SQL 语句作为第二个参数，而是接受 printf 风格的格式字符串。要执行的 SQL 语句由该格式字符串以及附加的参数共同生成。</p>
 
-<p>There are two advantages to using the SQLite printf
-functions instead of <b>sprintf</b>.  First of all, with the
-SQLite printf routines, there is never a danger of overflowing a
-static buffer as there is with <b>sprintf</b>.  The SQLite
-printf routines automatically allocate (and later free)
-as much memory as is 
-necessary to hold the SQL statements generated.</p>
+<p>使用 SQLite printf 函数而不是 <b>sprintf</b> 有两个优点。首先，使用 SQLite printf 例程不会有溢出静态缓冲区的风险，而 <b>sprintf</b> 则有此风险。SQLite printf 例程会自动分配（并在稍后释放）足够大的内存，以容纳生成的 SQL 语句。</p>
 
-<p>The second advantage the SQLite printf routines have over
-<b>sprintf</b> are two new formatting options specifically designed
-to support string literals in SQL.  Within the format string,
-the %q formatting option works very much like %s in that it
-reads a null-terminated string from the argument list and inserts
-it into the result.  But %q translates the inserted string by
-making two copies of every single-quote (') character in the
-substituted string.  This has the effect of escaping the end-of-string
-meaning of single-quote within a string literal. The %Q formatting
-option works similar; it translates the single-quotes like %q and
-additionally encloses the resulting string in single-quotes.
-If the argument for the %Q formatting options is a NULL pointer,
-the resulting string is NULL without single quotes.
-</p>
+<p>SQLite printf 相对于 <b>sprintf</b> 的第二个优势是新增的两个格式选项，专门用于支持 SQL 中的字符串字面量。在格式字符串中，%q 格式选项类似于 %s，从参数列表中读取一个以 NULL 结尾的字符串并插入结果。但 %q 会对插入字符串中的每个单引号 (') 进行重复，从而转义字符串字面量中的结尾标志。%Q 格式选项的处理方式类似：它除了对单引号进行改写外，还将在结果字符串前后加上单引号。如果 %Q 的参数是 NULL 指针，则生成的字符串为 NULL（不加引号）。</p>
 
-<p>Consider an example.  Suppose you are trying to insert a string
-value into a database table where the string value was obtained from
-user input.  Suppose the string to be inserted is stored in a variable
-named zString.  The code to do the insertion might look like this:</p>
+<p>举例来说，假设需要将来自用户输入的字符串值插入数据库表。字符串存储在 zString 变量中。插入代码可能如下所示：</p>
 
 <blockquote><pre>
 sqlite_exec_printf(db,
@@ -1028,16 +601,13 @@ sqlite_exec_printf(db,
   0, 0, 0, zString);
 </pre></blockquote>
 
-<p>If the zString variable holds text like "Hello", then this statement
-will work just fine.  But suppose the user enters a string like 
-"Hi y'all!".  The SQL statement generated reads as follows:
+<p>如果 zString 变量的内容是 "Hello"，则该语句可以正常执行。但如果用户输入了 "Hi y'all!"，生成的 SQL 会是：</p>
 
 <blockquote><pre>
 INSERT INTO table1 VALUES('Hi y'all')
 </pre></blockquote>
 
-<p>This is not valid SQL because of the apostrophe in the word "y'all".
-But if the %q formatting option is used instead of %s, like this:</p>
+<p>由于 "y'all" 中的撇号，该语句并非合法 SQL。但如果使用 %q 代替 %s：</p>
 
 <blockquote><pre>
 sqlite_exec_printf(db,
@@ -1045,19 +615,15 @@ sqlite_exec_printf(db,
   0, 0, 0, zString);
 </pre></blockquote>
 
-<p>Then the generated SQL will look like the following:</p>
+<p>则生成的 SQL 如下：</p>
 
 <blockquote><pre>
 INSERT INTO table1 VALUES('Hi y''all')
 </pre></blockquote>
 
-<p>Here the apostrophe has been escaped and the SQL statement is well-formed.
-When generating SQL on-the-fly from data that might contain a
-single-quote character ('), it is always a good idea to use the
-SQLite printf routines and the %q formatting option instead of <b>sprintf</b>.
-</p>
+<p>此时撇号已被转义，SQL 语句合法。在从可能包含单引号 (') 的数据中动态生成 SQL 时，建议始终使用 SQLite printf 例程和 %q 格式选项，而不是 <b>sprintf</b>。</p>
 
-<p>If the %Q formatting option is used instead of %q, like this:</p>
+<p>如果使用 %Q 替换 %q，如下所示：</p>
 
 <blockquote><pre>
 sqlite_exec_printf(db,
@@ -1065,67 +631,39 @@ sqlite_exec_printf(db,
   0, 0, 0, zString);
 </pre></blockquote>
 
-<p>Then the generated SQL will look like the following:</p>
+<p>则生成的 SQL 如下：</p>
 
 <blockquote><pre>
 INSERT INTO table1 VALUES('Hi y''all')
 </pre></blockquote>
 
-<p>If the value of the zString variable is NULL, the generated SQL
-will look like the following:</p>
+<p>如果 zString 的值为 NULL，则生成的 SQL 为：</p>
 
 <blockquote><pre>
 INSERT INTO table1 VALUES(NULL)
 </pre></blockquote>
 
-<p>All of the _printf() routines above are built around the following
-two functions:</p>
+<p>上述所有 <b>_printf()</b> 例程都建立在以下两个函数之上：</p>
 
 <blockquote><pre>
 char *sqlite_mprintf(const char *zFormat, ...);
 char *sqlite_vmprintf(const char *zFormat, va_list);
 </pre></blockquote>
 
-<p>The <b>sqlite_mprintf()</b> routine works like the standard library
-<b>sprintf()</b> except that it writes its results into memory obtained
-from malloc() and returns a pointer to the malloced buffer.  
-<b>sqlite_mprintf()</b> also understands the %q and %Q extensions described
-above.  The <b>sqlite_vmprintf()</b> is a varargs version of the same
-routine.  The string pointer that these routines return should be freed
-by passing it to <b>sqlite_freemem()</b>.
-</p>
+<p><b>sqlite_mprintf()</b> 的行为类似于标准库的 <b>sprintf()</b>，但它将结果写入 malloc() 分配的内存，并返回指向该内存的指针。<b>sqlite_mprintf()</b> 也支持上述的 %q 和 %Q 扩展。<b>sqlite_vmprintf()</b> 是上述例程的 varargs 版本。这些例程返回的字符串指针应通过 <b>sqlite_freemem()</b> 释放。</p>
 
-<h4>3.10 Performing background jobs during large queries</h3>
+<h4>3.10 在大型查询期间执行后台任务</h4>
 
-<p>The <b>sqlite_progress_handler()</b> routine can be used to register a
-callback routine with an SQLite database to be invoked periodically during long
-running calls to <b>sqlite_exec()</b>, <b>sqlite_step()</b> and the various
-wrapper functions.
-</p>
+<p><b>sqlite_progress_handler()</b> 例程可用于在 SQLite 数据库上注册一个回调，该回调会在调用 <b>sqlite_exec()</b>、<b>sqlite_step()</b> 及其各类封装函数运行时间较长时定期执行。</p>
 
-<p>The callback is invoked every N virtual machine operations, where N is
-supplied as the second argument to <b>sqlite_progress_handler()</b>. The third
-and fourth arguments to <b>sqlite_progress_handler()</b> are a pointer to the
-routine to be invoked and a void pointer to be passed as the first argument to
-it.
-</p>
+<p>该回调会在每执行 N 次虚拟机操作后调用一次，其中 N 由传入 <b>sqlite_progress_handler()</b> 的第二个参数指定。第三个与第四个参数分别是要调用的例程的指针以及作为第一个参数传给它的 void 指针。</p>
 
-<p>The time taken to execute each virtual machine operation can vary based on
-many factors.  A typical value for a 1 GHz PC is between half and three million
-per second but may be much higher or lower, depending on the query.  As such it
-is difficult to schedule background operations based on virtual machine
-operations. Instead, it is recommended that a callback be scheduled relatively
-frequently (say every 1000 instructions) and external timer routines used to
-determine whether or not background jobs need to be run.  
-</p>
+<p>每次虚拟机操作所需的时间取决于多种因素。对于 1GHz 的 PC，典型值在每秒 50 万到 300 万次之间，但根据具体查询可能更高或更低。因此很难仅依据虚拟机操作次数来安排后台任务。建议将回调频繁调度（比如每 1000 条指令一次），并配合外部计时器函数决定是否需要运行后台任务。</p>
 
 <a name="cfunc"></a>
-<h3>4.0 Adding New SQL Functions</h3>
+<h3>4.0 添加新的 SQL 函数</h3>
 
-<p>Beginning with version 2.4.0, SQLite allows the SQL language to be
-extended with new functions implemented as C code.  The following interface
-is used:
-</p>
+<p>自 2.4.0 版本起，SQLite 允许通过 C 代码实现新的函数来扩展 SQL 语言。使用以下接口：</p>
 
 <blockquote><pre>
 typedef struct sqlite_func sqlite_func;
@@ -1156,86 +694,27 @@ void *sqlite_aggregate_context(sqlite_func*, int nBytes);
 int sqlite_aggregate_count(sqlite_func*);
 </pre></blockquote>
 
-<p>
-The <b>sqlite_create_function()</b> interface is used to create 
-regular functions and <b>sqlite_create_aggregate()</b> is used to
-create new aggregate functions.  In both cases, the <b>db</b>
-parameter is an open SQLite database on which the functions should
-be registered, <b>zName</b> is the name of the new function,
-<b>nArg</b> is the number of arguments, and <b>pUserData</b> is
-a pointer which is passed through unchanged to the C implementation
-of the function.  Both routines return 0 on success and non-zero
-if there are any errors.
-</p>
+<p><b>sqlite_create_function()</b> 接口用于创建普通函数，而 <b>sqlite_create_aggregate()</b> 用于创建新的聚合函数。在这两种情况下，<b>db</b> 参数是应注册函数的已打开 SQLite 数据库，<b>zName</b> 是新函数名称，<b>nArg</b> 是参数个数，<b>pUserData</b> 是一个指针，该指针会原样传入函数的 C 实现。两者成功时返回 0，若发生错误则返回非零值。</p>
 
-<p>
-The length of a function name may not exceed 255 characters.
-Any attempt to create a function whose name exceeds 255 characters
-in length will result in an error.
-</p>
+<p>函数名称的长度不得超过 255 个字符。任何尝试创建名称长度超过 255 字符的函数都会导致错误。</p>
 
-<p>
-For regular functions, the <b>xFunc</b> callback is invoked once
-for each function call.  The implementation of xFunc should call
-one of the <b>sqlite_set_result_...</b> interfaces to return its
-result.  The <b>sqlite_user_data()</b> routine can be used to
-retrieve the <b>pUserData</b> pointer that was passed in when the
-function was registered.
-</p>
+<p>对于普通函数，<b>xFunc</b> 回调会在每次函数调用时被执行。xFunc 的实现应调用其中一个 <b>sqlite_set_result_...</b> 接口来返回结果。可以使用 <b>sqlite_user_data()</b> 来获取注册函数时传入的 <b>pUserData</b> 指针。</p>
 
-<p>
-For aggregate functions, the <b>xStep</b> callback is invoked once
-for each row in the result and then <b>xFinalize</b> is invoked at the
-end to compute a final answer.  The xStep routine can use the
-<b>sqlite_aggregate_context()</b> interface to allocate memory that
-will be unique to that particular instance of the SQL function.
-This memory will be automatically deleted after xFinalize is called.
-The <b>sqlite_aggregate_count()</b> routine can be used to find out
-how many rows of data were passed to the aggregate.  The xFinalize
-callback should invoke one of the <b>sqlite_set_result_...</b>
-interfaces to set the final result of the aggregate.
-</p>
+<p>对于聚合函数，<b>xStep</b> 回调用于处理结果集中每一行，之后会调用 <b>xFinalize</b> 得到最终结果。xStep 例程可使用 <b>sqlite_aggregate_context()</b> 接口申请一段在该函数实例中独有的内存。在调用 <b>xFinalize</b> 后，该内存会自动释放。<b>sqlite_aggregate_count()</b> 可用于获取传入聚合的行数。<b>xFinalize</b> 回调应调用某个 <b>sqlite_set_result_...</b> 接口来设置聚合的最终结果。</p>
 
-<p>
-SQLite now implements all of its built-in functions using this
-interface.  For additional information and examples on how to create
-new SQL functions, review the SQLite source code in the file
-<b>func.c</b>.
-</p>
+<p>现在 SQLite 所有内置函数都使用该接口实现。若需了解如何创建新的 SQL 函数的更多信息和示例，请查看源代码树中 <b>func.c</b> 文件。</p>
 
-<h3>5.0 Multi-Threading And SQLite</h3>
+<h3>5.0 多线程与 SQLite</h3>
 
-<p>
-If SQLite is compiled with the THREADSAFE preprocessor macro set to 1,
-then it is safe to use SQLite from two or more threads of the same process
-at the same time.  But each thread should have its own <b>sqlite*</b>
-pointer returned from <b>sqlite_open</b>.  It is never safe for two
-or more threads to access the same <b>sqlite*</b> pointer at the same time.
-</p>
+<p>如果 SQLite 的编译将 THREADSAFE 预处理宏设置为 1，则可以安全地在同一进程的两个或多个线程中同时使用 SQLite。但每个线程应拥有自己的由 <b>sqlite_open</b> 返回的 <b>sqlite*</b> 指针。多个线程同时访问同一个 <b>sqlite*</b> 指针是不安全的。</p>
 
-<p>
-In precompiled SQLite libraries available on the website, the Unix
-versions are compiled with THREADSAFE turned off but the Windows
-versions are compiled with THREADSAFE turned on.  If you need something
-different than this you will have to recompile.
-</p>
+<p>在本站提供的预编译 SQLite 库中，Unix 版本默认关闭 THREADSAFE，而 Windows 版本默认打开。如果你需要不同设置，则必须重新编译。</p>
 
-<p>
-Under Unix, an <b>sqlite*</b> pointer should not be carried across a
-<b>fork()</b> system call into the child process.  The child process
-should open its own copy of the database after the <b>fork()</b>.
-</p>
+<p>在 Unix 系统上，不应将 <b>sqlite*</b> 指针随 <b>fork()</b> 系统调用传递给子进程。子进程应在 <b>fork()</b> 后自行打开数据库副本。</p>
 
-<h3>6.0 Usage Examples</h3>
+<h3>6.0 用法示例</h3>
 
-<p>For examples of how the SQLite C/C++ interface can be used,
-refer to the source code for the <b>sqlite</b> program in the
-file <a href="https://sqlite.org/src/file/src/shell.c.in">src/shell.c</a>
-of the source tree.
-Additional information about sqlite is available at
-<a href="cli.html">cli.html</a>.
-See also the sources to the Tcl interface for SQLite in
-the source file 
-<a href="https://sqlite.org/src/file/src/tclsqlite.c">src/tclsqlite.c</a>.</p>
-<p align="center"><small><i>This page was last updated on 2025-07-12 15:11:36Z </small></i></p>
+<p>有关 SQLite C/C++ 接口的示例，请参阅源代码树中 <b>sqlite</b> 程序的文件 <a href="https://sqlite.org/src/file/src/shell.c.in">src/shell.c</a>。更多关于 sqlite 的信息请访问 <a href="cli.html">cli.html</a>。另外，也可查看 SQLite Tcl 接口的源文件 <a href="https://sqlite.org/src/file/src/tclsqlite.c">src/tclsqlite.c</a>。</p>
+<p align="center"><small><i>本页面最后更新于 2025-07-12 15:11:36Z </i></small></p>
 
+</body></html>

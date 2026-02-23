@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The generate_series Table-Valued Function</title>
+<title>generate_series 表值函数</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-notice desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -118,13 +124,13 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The generate_series Table-Valued Function
+generate_series 表值函数
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. Overview</a></div>
-<div class="fancy-toc2"><a href="#equivalent_recursive_common_table_expression">1.1. Equivalent Recursive Common Table Expression</a></div>
-<div class="fancy-toc1"><a href="#usage_examples">2. Usage Examples</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. 概述</a></div>
+<div class="fancy-toc2"><a href="#equivalent_recursive_common_table_expression">1.1. 等价的递归公用表表达式</a></div>
+<div class="fancy-toc1"><a href="#usage_examples">2. 使用示例</a></div>
 </div>
 </details>
 </div>
@@ -133,36 +139,21 @@ The generate_series Table-Valued Function
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
-<p>The generate_series(START,STOP,STEP) <a href="vtab.html#tabfunc2">table-valued function</a> is a
-<a href="loadext.html">loadable extension</a> included in the SQLite source tree, and compiled into
-the <a href="cli.html">command-line shell</a>.  The generate_series() table has one visible
-result column named "value" holding integer values
-and a number of rows determined by the
-parameters START, STOP, and STEP.  The first row of the table has
-a value of START.  Subsequent rows increment by STEP to a value
-not exceeding STOP.
+<p>generate_series(START,STOP,STEP) <a href="vtab.html#tabfunc2">表值函数</a> 是包含在 SQLite 源代码树中的
+<a href="loadext.html">可加载扩展</a>，并编译到
+<a href="cli.html">命令行 shell</a> 中。generate_series() 表有一个名为“value”的可见结果列用于保存整数值，
+行数由参数 START、STOP 和 STEP 决定。该表的第一行的值为 START，之后的行按 STEP 增量，直到不超过 STOP。
 
-</p><p>The generate_series() table has additional, hidden columns
-named "start", "stop", and "step" whose values are the effective
-values of START, STOP and STEP as provided or defaulted.
-It also has a rowid, accessible by its usual names.
+</p><p>generate_series() 表还有额外的隐藏列，分别名为“start”、“stop”和“step”，它们的值对应于提供的或默认的 START、STOP 和 STEP 的有效值。
+它还具有一个 rowid，可通过常规名称访问。
 
-</p><p>Omitted parameters take on default values.  STEP defaults to 1.
-STOP defaults to 4294967295.  The START parameter is required
-as of version 3.37.0 (2021-11-27) and later and an error will
-be raised if START is omitted or has a self-referential or otherwise
-uncomputable value.  Older versions used a default of 0 for START.
-The legacy behavior can be obtained from recent code by compiling
-with -DZERO_ARGUMENT_GENERATE_SERIES.
+</p><p>省略的参数会采用默认值。STEP 默认为 1。STOP 默认为 4294967295。从版本 3.37.0（2021-11-27）及以后开始，START 参数是必需的，如果 START 被省略或具有自引用或其他无法计算的值，将引发错误。旧版本对 START 的默认值为 0。可以通过在近期代码中使用 -DZERO_ARGUMENT_GENERATE_SERIES 编译来获得旧的行为。
 
-</p><h2 id="equivalent_recursive_common_table_expression"><span>1.1. </span>Equivalent Recursive Common Table Expression</h2>
+</p><h2 id="equivalent_recursive_common_table_expression"><span>1.1. </span>等价的递归公用表表达式</h2>
 
-<p>The generate_series table can be simulated for positive step values
-using a <a href="lang_with.html#recursivecte">recursive common table expression</a>.  If the three parameters
-are $start, $end, and $step, then the equivalent common table
-expression is:
+<p>对于正的步长值，可以使用<a href="lang_with.html#recursivecte">递归公用表表达式</a>模拟 generate_series 表。如果三个参数分别为 \($start\)、\($end\) 和 \($step\)，那么等价的公用表表达式为：
 
 </p><div class="codeblock"><pre>WITH RECURSIVE generate_series(value) AS (
   SELECT $start
@@ -172,24 +163,21 @@ expression is:
 ) ...
 </pre></div>
 
-<p>The common table expression works without having to load an
-extension.  On the other hand, the extension is easier to program
-and faster.
+<p>该公用表表达式无需加载扩展即可工作。另一方面，扩展更易编程且更快。
 
-</p><h1 id="usage_examples"><span>2. </span>Usage Examples</h1>
+</p><h1 id="usage_examples"><span>2. </span>使用示例</h1>
 
-<p>Generate all multiples of 5 less than or equal to 100:
+<p>生成所有小于或等于 100 的 5 的倍数：
 
 </p><div class="codeblock"><pre>SELECT value FROM generate_series(5,100,5);
 </pre></div>
 
-<p>Generate the 20 random integer values:
+<p>生成 20 个随机整数值：
 
 </p><div class="codeblock"><pre>SELECT random() FROM generate_series(1,20);
 </pre></div>
 
-<p>Find the name of every customer whose account number
-   is an even multiple of 100 between 10000 and 20000.
+<p>查找账户编号在 10000 到 20000 之间且是 100 的偶数倍的每位客户的姓名。
 
 </p><div class="codeblock"><pre>SELECT customer.name
   FROM customer, generate_series(10000,20000,100)

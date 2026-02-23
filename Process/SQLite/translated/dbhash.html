@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The dbhash.exe Utility Program</title>
+<title>dbhash.exe 实用程序</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
 Small. Fast. Reliable.<br>Choose any three.
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -118,76 +124,56 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The dbhash.exe Utility Program
+dbhash.exe 实用程序
 </div>
 </div>
 
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
-<p>The <b>dbhash</b> (or <b>dbhash.exe</b> on Windows) utility is a
-command-line program that computes the SHA1 hash of the schema and content 
-for an SQLite database.
+<p><b>dbhash</b>（在 Windows 上为 <b>dbhash.exe</b>）工具是一个命令行程序，用于计算 SQLite 数据库的架构与内容的 SHA1 哈希值。
 
-</p><p>Dbhash ignores extraneous formatting details and hashes only the database
-schema and content.  Hence the hash is constant even if the database file
-is modified by:
+</p><p>Dbhash 忽略多余的格式细节，仅对数据库的架构与内容进行哈希。因此，即使数据库文件经过以下操作修改，哈希仍然保持不变：
 
 </p><ul>
-<li> <a href="lang_vacuum.html">VACUUM</a>
-</li><li> <a href="pragma.html#pragma_page_size">PRAGMA page_size</a>
-</li><li> <a href="pragma.html#pragma_journal_mode">PRAGMA journal_mode</a>
-</li><li> <a href="lang_reindex.html">REINDEX</a>
-</li><li> <a href="lang_analyze.html">ANALYZE</a>
-</li><li> copied via the <a href="backup.html">backup API</a>
-</li><li> ... and so forth
+<li> <a href="lang_vacuum.html">VACUUM 操作</a>
+</li><li> <a href="pragma.html#pragma_page_size">PRAGMA page_size 指令</a>
+</li><li> <a href="pragma.html#pragma_journal_mode">PRAGMA journal_mode 指令</a>
+</li><li> <a href="lang_reindex.html">REINDEX 操作</a>
+</li><li> <a href="lang_analyze.html">ANALYZE 操作</a>
+</li><li> 通过 <a href="backup.html">备份 API</a> 复制
+</li><li> ... 等等
 </li></ul>
 
-<p>The operations above can potentially cause vast changes in the raw database
-file, and hence cause very different SHA1 hashes at the file level.
-But since the content represented in the database file is unchanged by these
-operations, the hash computed by dbhash is also unchanged.
+<p>上述操作可能会在原始数据库文件层面造成巨大变化，因此导致文件级的 SHA1 哈希相差甚远。但由于这些操作不会改变数据库文件所表示的内容，dbhash 计算出的哈希也就保持不变。
 
-</p><p>Dbhash can be used to compare two databases to confirm that they
-are equivalent, even though their representation on disk is quite different.
-Dbhash might also be used to verify the content of a remote database without having
-to transmit the entire content of the remote database over a slow link.
+</p><p>Dbhash 可用于比较两个数据库，确认它们是等价的，即使它们在磁盘上的表示方式大相径庭。dbhash 还可用于在无需通过较慢链路传输整个远程数据库内容的情况下，验证远程数据库的内容。
 
-</p><h1 id="usage"><span>2. </span>Usage</h1>
+</p><h1 id="usage"><span>2. </span>使用方法</h1>
 
-<p>Dbhash is a command-line utility.
-To run it, type "dbhash" on a command-line prompt followed by the names of
-one or more SQLite database files that are to be hashed.
-The database hashes will be displayed on standard output.
-For example:
+<p>Dbhash 是一个命令行工具。要运行它，请在命令提示符中键入 “dbhash”，后接一个或多个要进行哈希的 SQLite 数据库文件名。数据库的哈希结果会输出到标准输出。例如：
 
 </p><div class="codeblock"><pre>drh@bella:~/sqlite/bld$ dbhash ~/Fossils/sqlite.fossil
 8d3da9ff87196312aaa33076627ccb7943ef79e3 /home/drh/Fossils/sqlite.fossil
 </pre></div>
 
-<p>Dbhash supports command-line options that can restrict the tables of the
-database file that are hashed, or restrict the hash to only content or only
-the schema.  Run "dbhash --help" for further information.
+<p>Dbhash 支持命令行选项，可限制要哈希的数据库文件中的表，或仅限对内容或架构进行哈希。运行 “dbhash --help” 可获取更多信息。
 
-</p><h1 id="building"><span>3. </span>Building</h1>
+</p><h1 id="building"><span>3. </span>构建</h1>
 
-<p>To build a copy of the dbhash utility program on unix, get a copy of the
-canonical SQLite source code and enter:
+<p>要在 Unix 上构建 dbhash 实用程序的副本，请获取一份标准的 SQLite 源代码并执行：
 
 </p><div class="codeblock"><pre>./configure
 make dbhash
 </pre></div>
 
-<p>On Windows, enter:
+<p>在 Windows 上，请执行：
 
 </p><div class="codeblock"><pre>nmake /f makefile.msc dbhash.exe
 </pre></div>
 
-<p>The dbhash program is implemented by a single file of C-code
-called <a href="https://sqlite.org/src/artifact?ci=trunk&filename=tool/dbhash.c">dbhash.c</a>.
-To build the dbhash program manually, simply compile the dbhash.c source file
-and link it against the SQLite library.
-</p><p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p>dbhash 程序由一个名为 <a href="https://sqlite.org/src/artifact?ci=trunk&filename=tool/dbhash.c">dbhash.c</a> 的 C 代码文件实现。要手动构建 dbhash 程序，只需编译 dbhash.c 源文件并将其与 SQLite 库链接即可。
+</p><p align="center"><small><i>此页面最后更新于 2025-05-31 13:08:22Z </small></i></p>
 

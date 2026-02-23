@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,39 +14,42 @@
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+<div>由WaterRun使用gpt-5.1-codex-mini翻译</div>
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,60 +121,30 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_serialize -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Serialize a database</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>序列化数据库</h2>
 </div>
 <blockquote><pre>
 unsigned char *sqlite3_serialize(
-  sqlite3 *db,           /* The database connection */
-  const char *zSchema,   /* Which DB to serialize. ex: "main", "temp", ... */
-  sqlite3_int64 *piSize, /* Write size of the DB here, if not NULL */
-  unsigned int mFlags    /* Zero or more SQLITE_SERIALIZE_* flags */
+  sqlite3 *db,           /* 数据库连接 */
+  const char *zSchema,   /* 要序列化的数据库。比如："main"、"temp" 等 */
+  sqlite3_int64 *piSize, /* 如果不为 NULL，则在此写入数据库的大小 */
+  unsigned int mFlags    /* 零个或多个 SQLITE_SERIALIZE_* 标志 */
 );
 </pre></blockquote>
 <p>
-The sqlite3_serialize(D,S,P,F) interface returns a pointer to
-memory that is a serialization of the S database on
-<a href="../c3ref/sqlite3.html">database connection</a> D.  If S is a NULL pointer, the main database is used.
-If P is not a NULL pointer, then the size of the database in bytes
-is written into *P.</p>
+sqlite3_serialize(D,S,P,F) 接口返回一个指向内存的指针，该内存是数据库连接 D 上 S 数据库的序列化。如果 S 是 NULL 指针，则使用主数据库。如果 P 不是 NULL 指针，则数据库的字节大小会写入 *P。</p>
 
-<p>For an ordinary on-disk database file, the serialization is just a
-copy of the disk file.  For an in-memory database or a "TEMP" database,
-the serialization is the same sequence of bytes which would be written
-to disk if that database were backed up to disk.</p>
+<p>对于普通的磁盘数据库文件，序列化只是磁盘文件的副本。对于内存数据库或 “TEMP” 数据库，序列化是该数据库备份到磁盘时将被写入磁盘的相同字节序列。</p>
 
-<p>The usual case is that sqlite3_serialize() copies the serialization of
-the database into memory obtained from <a href="../c3ref/free.html">sqlite3_malloc64()</a> and returns
-a pointer to that memory.  The caller is responsible for freeing the
-returned value to avoid a memory leak.  However, if the F argument
-contains the SQLITE_SERIALIZE_NOCOPY bit, then no memory allocations
-are made, and the sqlite3_serialize() function will return a pointer
-to the contiguous memory representation of the database that SQLite
-is currently using for that database, or NULL if no such contiguous
-memory representation of the database exists.  A contiguous memory
-representation of the database will usually only exist if there has
-been a prior call to <a href="../c3ref/deserialize.html">sqlite3_deserialize(D,S,...)</a> with the same
-values of D and S.
-The size of the database is written into *P even if the
-SQLITE_SERIALIZE_NOCOPY bit is set but no contiguous copy
-of the database exists.</p>
+<p>通常情况下，sqlite3_serialize() 会将数据库的序列化复制到从 <a href="../c3ref/free.html">sqlite3_malloc64()</a> 获取的内存中，并返回该内存的指针。调用者负责释放返回值以避免内存泄漏。然而，如果 F 参数包含 SQLITE_SERIALIZE_NOCOPY 位，则不会进行任何内存分配，sqlite3_serialize() 函数将返回指向 SQLite 当前用于该数据库的连续内存表示的指针；如果不存在这样的连续内存表示，则返回 NULL。只有在先前曾使用相同的 D 和 S 值调用 <a href="../c3ref/deserialize.html">sqlite3_deserialize(D,S,...)</a> 的情况下，数据库的连续内存表示才通常存在。即使设置了 SQLITE_SERIALIZE_NOCOPY 位但没有数据库的连续副本，数据库的大小仍会写入 *P。</p>
 
-<p>After the call, if the SQLITE_SERIALIZE_NOCOPY bit had been set,
-the returned buffer content will remain accessible and unchanged
-until either the next write operation on the connection or when
-the connection is closed, and applications must not modify the
-buffer. If the bit had been clear, the returned buffer will not
-be accessed by SQLite after the call.</p>
+<p>调用结束后，如果设置了 SQLITE_SERIALIZE_NOCOPY 位，则返回的缓冲区内容在下一次对连接的写操作或关闭连接之前都保持可访问且不变，应用程序不得修改该缓冲区。如果该位未设置，调用后 SQLite 不会访问返回的缓冲区。</p>
 
-<p>A call to sqlite3_serialize(D,S,P,F) might return NULL even if the
-SQLITE_SERIALIZE_NOCOPY bit is omitted from argument F if a memory
-allocation error occurs.</p>
+<p>即使在参数 F 中省略了 SQLITE_SERIALIZE_NOCOPY 位，如果发生内存分配错误，调用 sqlite3_serialize(D,S,P,F) 也可能返回 NULL。</p>
 
-<p>This interface is omitted if SQLite is compiled with the
-<a href="../compile.html#omit_deserialize">SQLITE_OMIT_DESERIALIZE</a> option.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>如果 SQLite 使用 <a href="../compile.html#omit_deserialize">SQLITE_OMIT_DESERIALIZE</a> 选项进行编译，则不会包含此接口。</p><p>另请参见以下列表：
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a>，和
+  <a href="../c3ref/funclist.html">函数</a>。</p>
 

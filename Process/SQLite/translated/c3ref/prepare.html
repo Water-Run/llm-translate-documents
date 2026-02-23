@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Compiling An SQL Statement</title>
+<title>编译 SQL 语句</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其中三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: {SQL statement compiler} sqlite3_prepare sqlite3_prepare16 sqlite3_prepare16_v2 sqlite3_prepare16_v3 sqlite3_prepare_v2 sqlite3_prepare_v3 -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Compiling An SQL Statement</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>编译 SQL 语句</h2>
 </div>
 <blockquote><pre>
 int sqlite3_prepare(
@@ -167,105 +173,44 @@ int sqlite3_prepare16_v3(
 );
 </pre></blockquote>
 <p>
-To execute an SQL statement, it must first be compiled into a byte-code
-program using one of these routines.  Or, in other words, these routines
-are constructors for the <a href="../c3ref/stmt.html">prepared statement</a> object.</p>
+要执行 SQL 语句，必须首先使用这些例程之一将其编译为字节码程序。换句话说，这些例程是 <a href="../c3ref/stmt.html">预处理语句</a> 对象的构造函数。</p>
 
-<p>The preferred routine to use is <a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a>.  The
-<a href="../c3ref/prepare.html">sqlite3_prepare()</a> interface is legacy and should be avoided.
-<a href="../c3ref/prepare.html">sqlite3_prepare_v3()</a> has an extra "prepFlags" option that is used
-for special purposes.</p>
+<p>推荐使用的例程是 <a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a>。<a href="../c3ref/prepare.html">sqlite3_prepare()</a> 接口是旧版本的，应该避免使用。<a href="../c3ref/prepare.html">sqlite3_prepare_v3()</a> 提供了额外的 “prepFlags” 选项，用于特殊用途。</p>
 
-<p>The use of the UTF-8 interfaces is preferred, as SQLite currently
-does all parsing using UTF-8.  The UTF-16 interfaces are provided
-as a convenience.  The UTF-16 interfaces work by converting the
-input text into UTF-8, then invoking the corresponding UTF-8 interface.</p>
+<p>优先使用 UTF-8 接口，因为 SQLite 当前使用 UTF-8 执行所有解析。UTF-16 接口仅作为方便提供。UTF-16 接口通过将输入文本转换为 UTF-8，然后调用相应的 UTF-8 接口来工作。</p>
 
-<p>The first argument, "db", is a <a href="../c3ref/sqlite3.html">database connection</a> obtained from a
-prior successful call to <a href="../c3ref/open.html">sqlite3_open()</a>, <a href="../c3ref/open.html">sqlite3_open_v2()</a> or
-<a href="../c3ref/open.html">sqlite3_open16()</a>.  The database connection must not have been closed.</p>
+<p>第一个参数 “db” 是从先前成功调用 <a href="../c3ref/open.html">sqlite3_open()</a>、<a href="../c3ref/open.html">sqlite3_open_v2()</a> 或 <a href="../c3ref/open.html">sqlite3_open16()</a> 获得的 <a href="../c3ref/sqlite3.html">数据库连接</a>。该数据库连接不得已经关闭。</p>
 
-<p>The second argument, "zSql", is the statement to be compiled, encoded
-as either UTF-8 or UTF-16.  The sqlite3_prepare(), sqlite3_prepare_v2(),
-and sqlite3_prepare_v3()
-interfaces use UTF-8, and sqlite3_prepare16(), sqlite3_prepare16_v2(),
-and sqlite3_prepare16_v3() use UTF-16.</p>
+<p>第二个参数 “zSql” 是要编译的语句，以 UTF-8 或 UTF-16 编码。sqlite3_prepare()、sqlite3_prepare_v2() 和 sqlite3_prepare_v3() 接口使用 UTF-8，而 sqlite3_prepare16()、sqlite3_prepare16_v2() 和 sqlite3_prepare16_v3() 使用 UTF-16。</p>
 
-<p>If the nByte argument is negative, then zSql is read up to the
-first zero terminator. If nByte is positive, then it is the maximum
-number of bytes read from zSql.  When nByte is positive, zSql is read
-up to the first zero terminator or until the nByte bytes have been read,
-whichever comes first.  If nByte is zero, then no prepared
-statement is generated.
-If the caller knows that the supplied string is nul-terminated, then
-there is a small performance advantage to passing an nByte parameter that
-is the number of bytes in the input string <i>including</i>
-the nul-terminator.
-Note that nByte measures the length of the input in bytes, not
-characters, even for the UTF-16 interfaces.</p>
+<p>如果 nByte 参数为负，则 zSql 一直读到第一个空终止符。如果 nByte 为正，则它是从 zSql 中读取的最大字节数。当 nByte 为正时，zSql 一直读到第一个空终止符或读取到 nByte 字节为止，以先到者为准。如果 nByte 为零，则不会生成预处理语句。如果调用者知道提供的字符串以 null 结尾，那么传入包含 <i>包括</i> null 终止符的字节数的 nByte 参数可以略微提高性能。请注意，nByte 测量的是输入的字节长度，而不是字符长度，即使是 UTF-16 接口也是如此。</p>
 
-<p>If pzTail is not NULL then *pzTail is made to point to the first byte
-past the end of the first SQL statement in zSql.  These routines only
-compile the first statement in zSql, so *pzTail is left pointing to
-what remains uncompiled.</p>
+<p>如果 pzTail 不为 NULL，则 *pzTail 会指向 zSql 中第一条 SQL 语句末尾之后的第一个字节。这些例程只编译 zSql 中的第一条语句，因此 *pzTail 仍然指向未编译的剩余部分。</p>
 
-<p>*ppStmt is left pointing to a compiled <a href="../c3ref/stmt.html">prepared statement</a> that can be
-executed using <a href="../c3ref/step.html">sqlite3_step()</a>.  If there is an error, *ppStmt is set
-to NULL.  If the input text contains no SQL (if the input is an empty
-string or a comment) then *ppStmt is set to NULL.
-The calling procedure is responsible for deleting the compiled
-SQL statement using <a href="../c3ref/finalize.html">sqlite3_finalize()</a> after it has finished with it.
-ppStmt may not be NULL.</p>
+<p>*ppStmt 会指向一个可使用 <a href="../c3ref/step.html">sqlite3_step()</a> 执行的已编译 <a href="../c3ref/stmt.html">预处理语句</a>。如果发生错误，*ppStmt 会被设置为 NULL。如果输入文本不包含 SQL（例如输入为空串或仅为注释），则 *ppStmt 会被设置为 NULL。调用过程在使用完毕后负责调用 <a href="../c3ref/finalize.html">sqlite3_finalize()</a> 删除编译后的 SQL 语句。ppStmt 不得为 NULL。</p>
 
-<p>On success, the sqlite3_prepare() family of routines return <a href="../rescode.html#ok">SQLITE_OK</a>;
-otherwise an <a href="../rescode.html">error code</a> is returned.</p>
+<p>成功时，sqlite3_prepare() 系列例程返回 <a href="../rescode.html#ok">SQLITE_OK</a>；否则将返回一个 <a href="../rescode.html">错误代码</a>。</p>
 
-<p>The sqlite3_prepare_v2(), sqlite3_prepare_v3(), sqlite3_prepare16_v2(),
-and sqlite3_prepare16_v3() interfaces are recommended for all new programs.
-The older interfaces (sqlite3_prepare() and sqlite3_prepare16())
-are retained for backwards compatibility, but their use is discouraged.
-In the "vX" interfaces, the prepared statement
-that is returned (the <a href="../c3ref/stmt.html">sqlite3_stmt</a> object) contains a copy of the
-original SQL text. This causes the <a href="../c3ref/step.html">sqlite3_step()</a> interface to
-behave differently in three ways:</p>
+<p>推荐所有新程序使用 sqlite3_prepare_v2()、sqlite3_prepare_v3()、sqlite3_prepare16_v2() 和 sqlite3_prepare16_v3() 接口。旧接口（sqlite3_prepare() 和 sqlite3_prepare16()）仅为向后兼容而保留，但不建议使用。在 “vX” 接口中，返回的预处理语句（<a href="../c3ref/stmt.html">sqlite3_stmt</a> 对象）包含原始 SQL 文本的副本。这会导致 <a href="../c3ref/step.html">sqlite3_step()</a> 接口在三个方面表现不同：</p>
 
 <p><ol>
 <li>
-If the database schema changes, instead of returning <a href="../rescode.html#schema">SQLITE_SCHEMA</a> as it
-always used to do, <a href="../c3ref/step.html">sqlite3_step()</a> will automatically recompile the SQL
-statement and try to run it again. As many as <a href="../compile.html#max_schema_retry">SQLITE_MAX_SCHEMA_RETRY</a>
-retries will occur before sqlite3_step() gives up and returns an error.
+如果数据库模式发生变化，<a href="../c3ref/step.html">sqlite3_step()</a> 不再像以前一样仅返回 <a href="../rescode.html#schema">SQLITE_SCHEMA</a>，而是会自动重新编译 SQL 语句并再次尝试执行。在 sqlite3_step() 放弃并返回错误之前，最多会发生 <a href="../compile.html#max_schema_retry">SQLITE_MAX_SCHEMA_RETRY</a> 次重试。
 </li></p>
 
 <p><li>
-When an error occurs, <a href="../c3ref/step.html">sqlite3_step()</a> will return one of the detailed
-<a href="../rescode.html">error codes</a> or <a href="../rescode.html#extrc">extended error codes</a>.  The legacy behavior was that
-<a href="../c3ref/step.html">sqlite3_step()</a> would only return a generic <a href="../rescode.html#error">SQLITE_ERROR</a> result code
-and the application would have to make a second call to <a href="../c3ref/reset.html">sqlite3_reset()</a>
-in order to find the underlying cause of the problem. With the "v2" prepare
-interfaces, the underlying reason for the error is returned immediately.
+当发生错误时，<a href="../c3ref/step.html">sqlite3_step()</a> 会返回更详细的 <a href="../rescode.html">错误代码</a> 或 <a href="../rescode.html#extrc">扩展错误代码</a>。旧行为是在发生错误时仅返回通用的 <a href="../rescode.html#error">SQLITE_ERROR</a> 结果代码，应用程序必须再次调用 <a href="../c3ref/reset.html">sqlite3_reset()</a> 才能找出问题的根本原因。使用 “v2” prepare 接口，错误的底层原因会立即返回。
 </li></p>
 
 <p><li>
-If the specific value bound to a <a href="../lang_expr.html#varparam">host parameter</a> in the
-WHERE clause might influence the choice of query plan for a statement,
-then the statement will be automatically recompiled, as if there had been
-a schema change, on the first <a href="../c3ref/step.html">sqlite3_step()</a> call following any change
-to the <a href="../c3ref/bind_blob.html">bindings</a> of that <a href="../lang_expr.html#varparam">parameter</a>.
-The specific value of a WHERE-clause <a href="../lang_expr.html#varparam">parameter</a> might influence the
-choice of query plan if the parameter is the left-hand side of a <a href="../lang_expr.html#like">LIKE</a>
-or <a href="../lang_expr.html#glob">GLOB</a> operator or if the parameter is compared to an indexed column
-and the <a href="../compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> compile-time option is enabled.
+如果 WHERE 子句中绑定到 <a href="../lang_expr.html#varparam">宿主参数</a> 的具体值可能影响语句的查询计划选择，那么在修改该参数的 <a href="../c3ref/bind_blob.html">绑定</a> 后第一次调用 <a href="../c3ref/step.html">sqlite3_step()</a> 时，该语句会像发生模式更改一样自动重新编译。WHERE 子句参数的具体值可能影响查询计划，如果该参数是 <a href="../lang_expr.html#like">LIKE</a> 或 <a href="../lang_expr.html#glob">GLOB</a> 操作符的左侧，或者该参数与索引列比较，并且启用了 <a href="../compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> 编译时选项。
 </li>
 </ol></p>
 
-<p><p>sqlite3_prepare_v3() differs from sqlite3_prepare_v2() only in having
-the extra prepFlags parameter, which is a bit array consisting of zero or
-more of the <a href="../c3ref/c_prepare_dont_log.html#sqlitepreparepersistent">SQLITE_PREPARE_*</a> flags.  The
-sqlite3_prepare_v2() interface works exactly the same as
-sqlite3_prepare_v3() with a zero prepFlags parameter.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p><p>sqlite3_prepare_v3() 与 sqlite3_prepare_v2() 的区别仅在于增加了 prepFlags 参数，该参数是由零个或多个 <a href="../c3ref/c_prepare_dont_log.html#sqlitepreparepersistent">SQLITE_PREPARE_*</a> 标志组成的位数组。sqlite3_prepare_v2() 接口在 prepFlags 参数为零时与 sqlite3_prepare_v3() 的行为完全相同。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。
+</p>
 

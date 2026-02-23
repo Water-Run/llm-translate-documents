@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The Checksum VFS Shim</title>
+<title>校验和 VFS Shim</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,16 +124,16 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The Checksum VFS Shim
+校验和 VFS Shim
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. Overview</a></div>
-<div class="fancy-toc1"><a href="#compiling">2. Compiling</a></div>
-<div class="fancy-toc1"><a href="#loading">3. Loading</a></div>
-<div class="fancy-toc1"><a href="#usage">4. Usage</a></div>
-<div class="fancy-toc1"><a href="#verification_of_checksums">5. Verification Of Checksums</a></div>
-<div class="fancy-toc1"><a href="#controlling_checksum_verification">6. Controlling Checksum Verification</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. 概述</a></div>
+<div class="fancy-toc1"><a href="#compiling">2. 编译</a></div>
+<div class="fancy-toc1"><a href="#loading">3. 加载</a></div>
+<div class="fancy-toc1"><a href="#usage">4. 使用</a></div>
+<div class="fancy-toc1"><a href="#verification_of_checksums">5. 校验和验证</a></div>
+<div class="fancy-toc1"><a href="#controlling_checksum_verification">6. 控制校验和验证</a></div>
 </div>
 </details>
 </div>
@@ -136,53 +142,45 @@ The Checksum VFS Shim
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
-<p>The checksum VFS extension is a <a href="vfs.html#shim">VFS shim</a> that adds an 8-byte
-checksum to the end of every page in an SQLite database.  The checksum
-is added as each page is written and verified as each page is read.
-The checksum is intended to help detect database corruption caused by
-random bit-flips in the mass storage device.
+<p>校验和 VFS 扩展是一个<a href="vfs.html#shim">VFS shim</a>，它向 SQLite 数据库中每一页的末尾添加一个 8 字节的校验和。
+在每页写入时添加校验和，在每页读取时验证校验和。校验和的目的是帮助检测由
+大容量存储设备中的随机位翻转引起的数据库损坏。
 
-</p><p>The checksum VFS extension requires 
-SQLite version 3.32.0 (2020-05-22) or later.  It will not
-work with earlier versions of SQLite.
+</p><p>校验和 VFS 扩展需要
+SQLite 版本 3.32.0（2020-05-22）或更高版本。它无法
+与早期版本的 SQLite 一起使用。
 
-</p><h1 id="compiling"><span>2. </span>Compiling</h1>
+</p><h1 id="compiling"><span>2. </span>编译</h1>
 
-<p>The checksum VFS module is a <a href="loadext.html">loadable extension</a>.  It is not
-included in the <a href="amalgamation.html">amalgamation</a>.  It must be added to SQLite
-either at compile-time or at run-time.  The source code to
-the checksum VFS module is in the
-<a href="https://sqlite.org/src/file/ext/misc/cksumvfs.c">ext/misc/cksumvfs.c</a>
-source file in the
-<a href="https://sqlite.org/src">SQLite source tree</a>.
+<p>校验和 VFS 模块是一个<a href="loadext.html">可加载扩展</a>。它没有包含在<a href="amalgamation.html">合并源</a>中。
+必须在编译时或运行时将其添加到 SQLite。校验和 VFS 模块的源代码位于
+<a href="https://sqlite.org/src/file/ext/misc/cksumvfs.c">ext/misc/cksumvfs.c</a>源文件中，
+位于<a href="https://sqlite.org/src">SQLite 源树</a>中。
 
-</p><p>To build the checksum VFS module into a run-time loadable
-extension, use commands similar to the following:
+</p><p>要将校验和 VFS 模块构建为可在运行时加载的扩展，请使用类似以下的命令：
 
 </p><ul>
-<li>(linux) &rarr; <tt>gcc -fPIC -shared cksumvfs.c -o cksumvfs.so</tt>
-</li><li>(mac) &rarr; <tt>clang -fPIC -dynamiclib cksumvfs.c -o cksumvfs.dylib</tt>
-</li><li>(windows) &rarr; <tt>cl cksumvfs.c -link -dll -out:cksumvfs.dll</tt>
+<li>(linux) → <tt>gcc -fPIC -shared cksumvfs.c -o cksumvfs.so</tt>
+</li><li>(mac) → <tt>clang -fPIC -dynamiclib cksumvfs.c -o cksumvfs.dylib</tt>
+</li><li>(windows) → <tt>cl cksumvfs.c -link -dll -out:cksumvfs.dll</tt>
 </li></ul>
 
-<p>You may want to add additional compiler options, of course,
-according to the needs of your project.
+<p>当然，您可能需要根据项目需要添加其他编译器选项。
 
-</p><p>To statically link this extension with your product,
-compile it like any other C-language module but add the
-"-DSQLITE_CKSUMVFS_STATIC" option so that this module knows that
-it is being statically linked rather than dynamically linked.
+</p><p>要将此扩展静态链接到您的产品中，
+像编译其他 C 语言模块一样编译，但添加
+"-DSQLITE_CKSUMVFS_STATIC" 选项，使该模块知道
+它是静态链接而非动态链接。
 
-</p><h1 id="loading"><span>3. </span>Loading</h1>
+</p><h1 id="loading"><span>3. </span>加载</h1>
 
-<p>To load this extension as a shared library, you first have to
-bring up a dummy SQLite database connection to use as the argument
-to the <a href="c3ref/load_extension.html">sqlite3_load_extension()</a> API call.  Then you invoke the
-<a href="c3ref/load_extension.html">sqlite3_load_extension()</a> API and shutdown the dummy database
-connection.  All subsequent database connections that are opened
-will include this extension.  For example:
+<p>要将此扩展作为共享库加载，首先必须
+打开一个用于传递给<a href="c3ref/load_extension.html">sqlite3_load_extension()</a> API 调用的
+虚拟 SQLite 数据库连接。然后调用
+<a href="c3ref/load_extension.html">sqlite3_load_extension()</a> API 并关闭该虚拟数据库连接。
+之后打开的所有数据库连接都将包含此扩展。例如：
 
 </p><div class="codeblock"><pre>sqlite3 *db;
 sqlite3_open(":memory:", &db);
@@ -190,109 +188,91 @@ sqlite3_load_extension(db, "./cksumvfs");
 sqlite3_close(db);
 </pre></div>
 
-<p>If this extension is compiled with -DSQLITE_CKSUMVFS_STATIC and
-statically linked against the application, initialize it using
-a single API call as follows:
+<p>如果此扩展是使用 -DSQLITE_CKSUMVFS_STATIC 编译并
+与应用程序静态链接的，请使用以下单个 API 调用进行初始化：
 
 </p><div class="codeblock"><pre>sqlite3_cksumvfs_init();
 </pre></div>
 
-<p>Cksumvfs is a <a href="vfs.html#shim">VFS shim</a>. When loaded, "cksmvfs" becomes the new
-default VFS, and it uses the prior default VFS as the next VFS
-down in the stack.  This is normally what you want.  However, in
-complex situations where multiple VFS shims are being loaded,
-it might be important to ensure that cksumvfs is loaded in the
-correct order so that it sequences itself into the default VFS
-Shim stack in the right order.
+<p>Cksumvfs 是一个<a href="vfs.html#shim">VFS shim</a>。加载后，“cksmvfs” 成为新的
+默认 VFS，并将先前的默认 VFS 作为堆栈中的下一个 VFS。
+这通常是您所需要的。然而，在
+多个 VFS shim 同时加载的复杂情况下，
+确保 cksumvfs 以正确的顺序加载从而在默认 VFS
+Shim 堆栈中排在正确位置可能非常重要。
 
-</p><h1 id="usage"><span>4. </span>Usage</h1>
+</p><h1 id="usage"><span>4. </span>使用</h1>
 
-<p>Open database connections using the <a href="c3ref/open.html">sqlite3_open()</a> or 
-<a href="c3ref/open.html">sqlite3_open_v2()</a> interfaces, as normal.  Ordinary database files
-(without a checksum) will operate normally.  Databases with 
-checksums will return an SQLITE_IOERR_DATA error if a page is
-encountered that contains an invalid checksum.
+<p>使用<a href="c3ref/open.html">sqlite3_open()</a>或
+<a href="c3ref/open.html">sqlite3_open_v2()</a>接口按通常方式打开数据库连接。
+普通数据库文件（没有校验和）将照常工作。包含
+校验和的数据库在遇到包含无效校验和的页面时将返回 SQLITE_IOERR_DATA 错误。
 
-</p><p>Checksumming only works on databases that have a <a href="fileformat2.html#resbyte">reserve bytes</a>
-value of exactly 8.  The default value for reserve-bytes is 0.
-Hence, newly created database files will omit the checksum by
-default.  To create a database that includes a checksum, change
-the reserve-bytes value to 8 by running code similar to this:
+</p><p>只有当数据库的<a href="fileformat2.html#resbyte">保留字节</a>值精确为 8 时，
+校验和才有效。保留字节的默认值为 0。
+因此，新创建的数据库文件默认不会包含校验和。要创建包含校验和的数据库，请通过运行类似如下的代码将
+保留字节值更改为 8：
 
 </p><div class="codeblock"><pre>int n = 8;
 sqlite3_file_control(db, 0, SQLITE_FCNTL_RESERVE_BYTES, &n);
 </pre></div>
 
-<p>If you do this immediately after creating a new database file,
-before anything else has been written into the file, then that
-might be all that you need to do.  Otherwise, the API call
-above should be followed by:
+<p>如果您在创建新数据库文件后立即执行此操作，
+在写入其他内容之前，这可能就是您需要做的全部。
+否则，上述 API 调用之后应执行：
 
 </p><div class="codeblock"><pre>sqlite3_exec(db, "VACUUM", 0, 0, 0);
 </pre></div>
 
-<p>It never hurts to run the VACUUM, even if you don't need it.
-If the database is in WAL mode, you should shutdown and
-reopen all database connections before continuing.
+<p>即使您不需要，也运行 VACUUM 也无妨。
+如果数据库处于 WAL 模式，应关闭并重新打开所有数据库连接，然后再继续。
 
-</p><p>From the CLI, use the ".filectrl reserve_bytes 8" command, 
-followed by "VACUUM;".
+</p><p>在命令行中，使用“.filectrl reserve_bytes 8”命令，
+然后执行“VACUUM;”。
 
-</p><p>Note that SQLite allows the number of reserve-bytes to be
-increased but not decreased.  So if a database file already
-has a reserve-bytes value greater than 8, there is no way to
-activate checksumming on that database, other than to dump
-and restore the database file.  Note also that other extensions
-might also make use of the reserve-bytes.  Checksumming will
-be incompatible with those other extensions.
+</p><p>请注意，SQLite 允许增加保留字节的数量，但不允许减少。
+因此，如果数据库文件已有大于 8 的保留字节值，则无法
+在该数据库上激活校验和，除非导出并恢复数据库文件。
+还应注意，其他扩展可能也会使用保留字节。
+校验和将与这些其他扩展不兼容。
 
-</p><h1 id="verification_of_checksums"><span>5. </span>Verification Of Checksums</h1>
+</p><h1 id="verification_of_checksums"><span>5. </span>校验和验证</h1>
 
-<p>If any checksum is incorrect, the "PRAGMA quick_check" command
-will find it.  To verify that checksums are actually enabled
-and running, use SQL like the following:
+<p>如果任何校验和不正确，“PRAGMA quick_check”命令
+将发现它。要验证校验和确实已启用并正在运行，请使用如下 SQL：
 
 </p><div class="codeblock"><pre>SELECT count(*), verify_checksum(data)
   FROM sqlite_dbpage
  GROUP BY 2;
 </pre></div>
 
-<p>There are three possible outputs from the verify_checksum()
-function: 1, 0, and NULL.  1 is returned if the checksum is
-correct.  0 is returned if the checksum is incorrect.  NULL
-is returned if the page is unreadable.  If checksumming is
-enabled, the read will fail if the checksum is wrong, so the
-usual result from verify_checksum() on a bad checksum is NULL.
+<p>verify_checksum() 函数有三种可能的输出：1、0 和 NULL。
+如果校验和正确，返回 1。如果校验和不正确，返回 0。
+如果页面无法读取，返回 NULL。如果启用了校验和，
+当校验和错误时读取将失败，因此 verify_checksum()
+在出现错误校验和时的通常结果是 NULL。
 
-</p><p>If everything is OK, the query above should return a single
-row where the second column is 1.  Any other result indicates
-either that there is a checksum error, or checksum validation
-is disabled.
+</p><p>如果一切正常，上述查询应该只返回一行，其第二列为 1。
+任何其他结果都表明或是存在校验和错误，或是校验和验证已禁用。
 
-</p><h1 id="controlling_checksum_verification"><span>6. </span>Controlling Checksum Verification</h1>
+</p><h1 id="controlling_checksum_verification"><span>6. </span>控制校验和验证</h1>
 
-<p>The cksumvfs extension implements a new PRAGMA statement that can
-be used to disable, re-enable, or query the status of checksum
-verification:
+<p>cksumvfs 扩展实现了一个新的 PRAGMA 语句，可用于禁用、重新启用或查询校验和验证的状态：
 
-</p><div class="codeblock"><pre>PRAGMA checksum_verification;          -- query status
-PRAGMA checksum_verification=OFF;      -- disable verification
-PRAGMA checksum_verification=ON;       -- re-enable verification
+</p><div class="codeblock"><pre>PRAGMA checksum_verification;          -- 查询状态
+PRAGMA checksum_verification=OFF;      -- 禁用验证
+PRAGMA checksum_verification=ON;       -- 重新启用验证
 </pre></div>
 
-<p>The "checksum_verification" pragma will return "1" (true) or "0"
-(false) if checksum verification is enabled or disabled, respectively.
-"Verification" in this context means the feature that causes
-SQLITE_IOERR_DATA errors if a checksum mismatch is detected while
-reading.  Checksums are always kept up-to-date as long as the
-<a href="fileformat2.html#resbyte">reserve bytes</a> value of the database is 8, regardless of the setting
-of this pragma.  Checksum verification can be disabled (for example)
-to do forensic analysis of a database that has previously reported
-a checksum error.
+<p>"checksum_verification" pragma 如果启用校验和验证则返回 "1"（true），如果禁用则返回 "0"（false）。
+在此上下文中，“验证”指的是在读取时检测到校验和不匹配时
+引发 SQLITE_IOERR_DATA 错误的功能。只要数据库的<a href="fileformat2.html#resbyte">保留字节</a>值为 8，
+校验和始终会保持最新状态，无论此 pragma 的设置如何。
+可以禁用校验和验证（例如）以便对先前报告校验和错误的数据库执行取证分析。
 
-</p><p>The "checksum_verification" pragma will always respond with "0" if
-the database file does not have a <a href="fileformat2.html#resbyte">reserve bytes</a> value of 8.  The
-pragma will return no rows at all if the cksumvfs extension is
-not loaded.
+</p><p>如果数据库文件的<a href="fileformat2.html#resbyte">保留字节</a>值不是 8，
+则 "checksum_verification" pragma 始终返回 "0"。
+如果未加载 cksumvfs 扩展，则该 pragma 将不返回任何行。
 </p>
 
+</body></html>

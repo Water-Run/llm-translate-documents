@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Using SQLite In Multi-Threaded Applications</title>
+<title>在多线程应用程序中使用 SQLite</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note" style="text-align:right; font-size:0.85rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小。快。可靠。任选五项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,111 +124,55 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Using SQLite In Multi-Threaded Applications
+在多线程应用程序中使用 SQLite
 </div>
 </div>
 
+<h1 id="overview"><span>1. </span>概述</h1>
 
-
-
-
-<h1 id="overview"><span>1. </span>Overview</h1>
-
-<p>SQLite supports three different threading modes:</p>
+<p>SQLite 支持三种不同的线程模式：</p>
 
 <ol>
-<li><p><b>Single-thread</b>.
-In this mode, all mutexes are disabled and SQLite is unsafe to use in
-more than a single thread at once.</p></li>
+<li><p><b>单线程</b>。<br>在此模式下，所有互斥锁都被禁用，SQLite 不适合在多个线程中同时使用。</p></li>
 
-<li><p><b>Multi-thread</b>.
-In this mode, SQLite can be safely used by multiple threads provided that
-no single <a href="c3ref/sqlite3.html">database connection</a> nor any object derived from database connection,
-such as a <a href="c3ref/stmt.html">prepared statement</a>,
-is used in two or more threads at the same time.
-</p></li>
+<li><p><b>多线程</b>。<br>在此模式下，只要没有单个 <a href="c3ref/sqlite3.html">数据库连接</a> 或从数据库连接派生的任何对象（例如 <a href="c3ref/stmt.html">预处理语句</a>）在两个或更多线程中同时使用，就可以安全地由多个线程使用 SQLite。</p></li>
 
-<li><p><b>Serialized</b>.
-In serialized mode, API calls to affect or use any SQLite <a href="c3ref/sqlite3.html">database connection</a>
-or any object derived from such a database connection
-can be made safely from multiple threads.
-The effect on an individual object is the same as if the API calls had all
-been made in the same order from a single thread.  The name "serialized"
-arises from the fact that SQLite uses mutexes to serialize access to each
-object.</p></li>
+<li><p><b>序列化</b>。<br>在序列化模式中，对任何 SQLite <a href="c3ref/sqlite3.html">数据库连接</a> 或从该数据库连接派生的任何对象所做的 API 调用都可以安全地由多个线程执行。对单个对象的影响与在单个线程中按同样顺序执行 API 调用是一样的。“序列化”这个名称来自于 SQLite 使用互斥锁对每个对象的访问进行串行化处理。</p></li>
 </ol>
 
 <p>
-The threading mode can be selected at compile-time (when the SQLite
-library is being compiled from source code) or at start-time (when the
-application that intends to use SQLite is initializing) or at
-run-time (when a new SQLite database connection is being created).
-Generally speaking, run-time overrides start-time and start-time
-overrides compile-time.  Except, single-thread mode cannot be
-overridden once selected.
+线程模式可以在编译时（即从源代码编译 SQLite 库时）、启动时（即打算使用 SQLite 的应用初始化时）或运行时（即创建新的 SQLite 数据库连接时）进行选择。一般来说，运行时覆盖启动时，启动时覆盖编译时。不过，一旦选择了单线程模式，就无法再覆盖。
 </p>
 
 <p>
-The default mode is serialized.
+默认模式是序列化。
 </p>
 
-<h1 id="compile_time_selection_of_threading_mode"><span>2. </span>Compile-time selection of threading mode</h1>
+<h1 id="compile_time_selection_of_threading_mode"><span>2. </span>线程模式的编译时选择</h1>
 
 <p>
-Use the <a href="compile.html#threadsafe">SQLITE_THREADSAFE</a> compile-time parameter to select the
-threading mode.  If no <a href="compile.html#threadsafe">SQLITE_THREADSAFE</a> compile-time parameter is
-present, then serialized mode is used.
-This can be made explicit with 
-<a href="compile.html#threadsafe">-DSQLITE_THREADSAFE=1</a>.
-With
-<a href="compile.html#threadsafe">-DSQLITE_THREADSAFE=0</a> the threading mode is
-single-thread.  With
-<a href="compile.html#threadsafe">-DSQLITE_THREADSAFE=2</a> the threading mode is
-multi-thread.
+使用 <a href="compile.html#threadsafe">SQLITE_THREADSAFE</a> 编译时参数来选择线程模式。如果没有提供 <a href="compile.html#threadsafe">SQLITE_THREADSAFE</a> 编译时参数，则使用序列化模式。这可以通过 <a href="compile.html#threadsafe">-DSQLITE_THREADSAFE=1</a> 明确指定。使用 <a href="compile.html#threadsafe">-DSQLITE_THREADSAFE=0</a> 时，线程模式为单线程。使用 <a href="compile.html#threadsafe">-DSQLITE_THREADSAFE=2</a> 时，线程模式为多线程。
 </p>
 
 <p>
-The return value of the <a href="c3ref/threadsafe.html">sqlite3_threadsafe()</a> interface is the value
-of SQLITE_THREADSAFE set at compile-time. It does not reflect changes
-to the threading mode made at runtime via the <a href="c3ref/config.html">sqlite3_config()</a>
-interface or by flags given as the third argument to <a href="c3ref/open.html">sqlite3_open_v2()</a>.
+<a href="c3ref/threadsafe.html">sqlite3_threadsafe()</a> 接口的返回值是编译时设置的 SQLITE_THREADSAFE 的值。它不会反映通过 <a href="c3ref/config.html">sqlite3_config()</a> 接口或作为 <a href="c3ref/open.html">sqlite3_open_v2()</a> 第三个参数传入的标志在运行时对线程模式所做的更改。
 </p>
 
 <p>
-If single-thread mode is selected at compile-time, then critical
-mutexing logic is omitted from the build and it is impossible to
-enable either multi-thread or serialized modes at start-time or
-run-time.
+如果在编译时选择了单线程模式，则构建中会省略关键的互斥逻辑，并且在启动时或运行时无法启用多线程或序列化模式。
 </p>
 
-<h1 id="start_time_selection_of_threading_mode"><span>3. </span>Start-time selection of threading mode</h1>
+<h1 id="start_time_selection_of_threading_mode"><span>3. </span>线程模式的启动时选择</h1>
 
 <p>
-Assuming that the compile-time threading mode is not single-thread, then
-the threading mode can be changed during initialization using the
-<a href="c3ref/config.html">sqlite3_config()</a> interface.  The <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigsinglethread">SQLITE_CONFIG_SINGLETHREAD</a> verb
-puts SQLite into single-thread mode, the <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmultithread">SQLITE_CONFIG_MULTITHREAD</a>
-verb sets multi-thread mode, and the <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigserialized">SQLITE_CONFIG_SERIALIZED</a> verb
-sets serialized mode.
+假设编译时选择的线程模式不是单线程，那么可以在初始化期间使用 <a href="c3ref/config.html">sqlite3_config()</a> 接口来更改线程模式。<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigsinglethread">SQLITE_CONFIG_SINGLETHREAD</a> 动词会将 SQLite 设置为单线程模式，<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmultithread">SQLITE_CONFIG_MULTITHREAD</a> 动词设置为多线程模式，<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigserialized">SQLITE_CONFIG_SERIALIZED</a> 动词设置为序列化模式。
 </p>
 
-<h1 id="run_time_selection_of_threading_mode"><span>4. </span>Run-time selection of threading mode</h1>
+<h1 id="run_time_selection_of_threading_mode"><span>4. </span>线程模式的运行时选择</h1>
 
-<p>If single-thread mode has not been selected at compile-time or start-time,
-then individual database connections can be created as either multi-thread
-or serialized.  It is not possible to downgrade an individual database
-connection to single-thread mode.  Nor is it possible to escalate an
-individual database connection if the compile-time or start-time mode
-is single-thread.</p>
+<p>如果在编译时或启动时没有选择单线程模式，那么可以在运行时为各个数据库连接选择多线程或序列化。无法将单个数据库连接降级为单线程模式。也无法在编译时或启动时模式为单线程时将某个数据库连接提升为其他模式。</p>
 
-<p>The threading mode for an individual database connection is determined
-by flags given as the third argument to <a href="c3ref/open.html">sqlite3_open_v2()</a>.  The
-<a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOMUTEX</a> flag causes the database connection to be in the
-multi-thread mode and the <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_FULLMUTEX</a> flag causes the connection
-to be in serialized mode.  If neither flag is specified or if
-<a href="c3ref/open.html">sqlite3_open()</a> or <a href="c3ref/open.html">sqlite3_open16()</a> are used instead of 
-<a href="c3ref/open.html">sqlite3_open_v2()</a>, then the default
-mode determined by the compile-time and start-time settings is used.
-</p>
-<p align="center"><small><i>This page was last updated on 2023-12-05 14:43:20Z </small></i></p>
+<p>单个数据库连接的线程模式由作为 <a href="c3ref/open.html">sqlite3_open_v2()</a> 第三个参数传入的标志决定。<a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOMUTEX</a> 标志会使数据库连接处于多线程模式，<a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_FULLMUTEX</a> 标志会使连接处于序列化模式。如果既未指定这两个标志，或使用 <a href="c3ref/open.html">sqlite3_open()</a> 或 <a href="c3ref/open.html">sqlite3_open16()</a> 代替 <a href="c3ref/open.html">sqlite3_open_v2()</a>，则将使用由编译时和启动时设置决定的默认模式。</p>
+<p align="center"><small><i>本页面最后更新于 2023-12-05 14:43:20Z </i></small></p>
 
+</body></html>

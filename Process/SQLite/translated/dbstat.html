@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The DBSTAT Virtual Table</title>
+<title>DBSTAT 虚拟表</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.8rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The DBSTAT Virtual Table
+DBSTAT 虚拟表
 </div>
 </div>
 
@@ -126,60 +132,30 @@ The DBSTAT Virtual Table
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
 <p>
-The DBSTAT virtual table is a read-only <a href="vtab.html#epovtab">eponymous virtual table</a> that returns
-information about the amount of disk space used to store the content
-of an SQLite database.
-Example use cases for the
-DBSTAT virtual table include the <a href="sqlanalyze.html">sqlite3_analyzer.exe</a>
-utility program and the
-<a href="https://sqlite.org/src/repo-tabsize">table size pie-chart</a> in
-the <a href="https://www.fossil-scm.org/">Fossil-implemented</a> version control system
-for SQLite.
+DBSTAT 虚拟表是一个只读的<a href="vtab.html#epovtab">同名虚拟表</a>，用于返回有关用于存储 SQLite 数据库内容的磁盘空间量的信息。DBSTAT 虚拟表的示例用途包括 <a href="sqlanalyze.html">sqlite3_analyzer.exe</a> 实用程序以及 <a href="https://sqlite.org/src/repo-tabsize">表大小饼图</a>，该饼图位于 <a href="https://www.fossil-scm.org/">Fossil 实现的</a> SQLite 版本控制系统中。
 </p>
 
 <p>
-The DBSTAT virtual table is available on all 
-<a href="c3ref/sqlite3.html">database connections</a> when SQLite is built using the
-<a href="compile.html#enable_dbstat_vtab">SQLITE_ENABLE_DBSTAT_VTAB</a> compile-time option.
-
+当 SQLite 使用 <a href="compile.html#enable_dbstat_vtab">SQLITE_ENABLE_DBSTAT_VTAB</a> 编译时，所有 <a href="c3ref/sqlite3.html">数据库连接</a> 都可以使用 DBSTAT 虚拟表。
 </p><p>
-The DBSTAT virtual table is an <a href="vtab.html#epovtab">eponymous virtual table</a>, meaning
-that is not necessary to run <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> to create an
-instance of the dbstat virtual table before using it.  The "dbstat"
-module name can be used as if it were a table name to query the
-dbstat virtual table directly.  For example:
-
+DBSTAT 虚拟表是一个 <a href="vtab.html#epovtab">同名虚拟表</a>，这意味着在使用它之前不必运行 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 来创建 dbstat 虚拟表的实例。可以像使用表名一样直接使用 “dbstat” 模块名称来查询 dbstat 虚拟表。例如：
 </p><div class="codeblock"><pre>SELECT * FROM dbstat;
 </pre></div>
 
 <p>
-If a named virtual table that uses the dbstat module is desired,
-then the recommended way to create an instance of the dbstat
-virtual table is as follows:
-
+如果希望使用 dbstat 模块的命名虚拟表，推荐的创建方式如下：
 </p><div class="codeblock"><pre>CREATE VIRTUAL TABLE temp.stat USING dbstat(main);
 </pre></div>
 
 <p>
-Note the "temp." qualifier before the virtual table name ("stat").  This
-qualifier causes the virtual table to be temporary - to only exist for
-the duration of the current database connection.  This is the
-recommended approach.
-
+注意虚拟表名称（“stat”）前面的 “temp.” 限定符。该限定符会使虚拟表成为临时表 —— 仅在当前数据库连接期间存在。这是推荐做法。
 </p><p>
-The "main" argument to dbstat is default schema
-for which information is to be provided.  The default is "main", and
-so the use of "main" in the example above is redundant.  For any
-particular query, the schema can be changed by specifying the
-alternative schema as a function argument to the virtual table
-name in the FROM clause of the query.  (See further discussion of
-<a href="lang_select.html#tabfunc1">table-valued functions in the FROM clause</a> for more details.)
-
+传递给 dbstat 的 “main” 参数指定要提供信息的默认模式。默认是 “main”，所以上述示例中的 “main” 是多余的。对于某个特定查询，可以在查询的 FROM 子句中将替代模式作为函数参数传递给虚拟表名称，以改变模式。（有关详细信息，请参见 <a href="lang_select.html#tabfunc1">FROM 子句中的表值函数</a>。）
 </p><p>
-The schema for the DBSTAT virtual table looks like this:
+DBSTAT 虚拟表的模式如下：
 </p><div class="codeblock"><pre>CREATE TABLE dbstat(
   name       TEXT,        -- Name of table or index
   path       TEXT,        -- Path to page from root
@@ -197,158 +173,110 @@ The schema for the DBSTAT virtual table looks like this:
 </pre></div>
 
 <p>
-The DBSTAT table only reports on the content of btrees within the database file.
-Freelist pages, pointer-map pages, and the lock page are omitted from
-the analysis.
-
+DBSTAT 表只报告数据库文件中 btree 的内容。Freelist 页面、指针映射页面和锁页面不纳入分析。
 </p><p>
-By default, there is a single row in the DBSTAT table for each
-btree page the database file.  Each row provides
-information about the space utilization of that one page of the
-database.  However, if the hidden column "aggregate" is TRUE, then
-results are aggregated and there is a single row in the DBSTAT table
-for each btree in the database, providing information about space
-utilization across the entire btree.
+默认情况下，DBSTAT 表中对于数据库文件的每个 btree 页面都有一行。每行提供有关该页面空间利用率的信息。但是，如果隐藏列 “aggregate” 为 TRUE，则结果会被汇总，DBSTAT 表中每个 btree 只有一行，提供整棵 btree 的空间利用信息。
+</p>
 
 <a name="dbstatpath"></a>
-</p><h1 id="the_path_column_of_the_dbstat_virtual_table"><span>2. </span>The "path" column of the dbstat virtual table</h1>
+</p><h1 id="the_path_column_of_the_dbstat_virtual_table"><span>2. </span>dbstat 虚拟表的 “path” 列</h1>
 
 <p>
-The "path" column describes the path taken from the 
-root node of the btree structure to each page.  The
-"path" of the root node itself is '/'.
-The "path" is NULL when "aggregate" is TRUE.
+“path” 列描述了从 btree 结构的根节点到每个页面的路径。根节点本身的 “path” 为 '/'。当 “aggregate” 为 TRUE 时，“path”为 NULL。
+</p>
 
-The "path" for the left-most child page of the root of
-a btree page is '/000/'. (Btrees store content ordered from left to right
-so the pages to the left have smaller keys than the pages to the right.)
-The next to left-most child of the root page is '/001', and so on,
-each sibling page identified by a 3-digit hex  value.
-The children of the 451st left-most sibling have paths such
-as '/1c2/000/, '/1c2/001/' etc.
+<p>
+btree 页面根节点最左侧的子页面的 “path” 是 '/000/'。（Btree 以从左到右的顺序存储内容，因此左边的页面拥有比右边页面更小的键。）根页面的次左子页面是 '/001/'，依此类推，每个兄弟页面由一个三位十六进制值标识。第 451 个最左侧兄弟的子页面的路径类似 '/1c2/000/'、'/1c2/001/' 等。
+</p>
 
-Overflow pages are specified by appending a '+' character and a 
-six-digit hexadecimal value to the path to the cell they are linked
-from. For example, the three overflow pages in a chain linked from 
-the left-most cell of the 450th child of the root page are identified
-by the paths:
-
+<p>
+通过在路径后附加 '+' 字符和六位十六进制值，可以指定溢出页面，该值表示它们链接的单元格。例如，根页面第 450 个子页面的最左侧单元格链接的三个溢出页面的路径为：
 </p><div class="codeblock"><pre>'/1c2/000+000000'         // First page in overflow chain
 '/1c2/000+000001'         // Second page in overflow chain
 '/1c2/000+000002'         // Third page in overflow chain
 </pre></div>
 
 <p>
-If the paths are sorted using the BINARY collation sequence, then
-the overflow pages associated with a cell will appear earlier in the
-sort-order than its child page:
-
+如果使用 BINARY 校对序对路径进行排序，则与某个单元格关联的溢出页面会出现在其子页面之前：
 </p><div class="codeblock"><pre>'/1c2/000/'               // Left-most child of 451st child of root
 </pre></div>
 
 <a name="dbstatagg"></a>
 
-<h1 id="aggregated_data"><span>3. </span>Aggregated Data</h1>
+<h1 id="aggregated_data"><span>3. </span>聚合数据</h1>
 
 <p>
-Beginning with SQLite version 3.31.0 (2020-01-22), the DBSTAT table
-has a new <a href="vtab.html#hiddencol">hidden column</a> named "aggregate", which if constrained to be
-TRUE will cause DBSTAT to generate one row per btree in the database,
-rather than one row per page.  When running in aggregated mode, the 
-"path", "pagetype", and "pgoffset" columns are always NULL and the
-"pageno" column holds the number of pages in the entire btree, rather
-than the number of the page that corresponds to the row.
-
+从 SQLite 3.31.0（2020-01-22）开始，DBSTAT 表新增了一个名为 “aggregate” 的 <a href="vtab.html#hiddencol">隐藏列</a>，如果约束为 TRUE，将使 DBSTAT 为数据库中的每个 btree 生成一行，而不是每个页面一行。在聚合模式下，“path”、“pagetype”和“pgoffset” 列始终为 NULL，“pageno” 列保存整棵 btree 的页面数，而不是对应行的页面编号。
 </p><p>
-The following table shows the meanings of the (non-hidden) columns of
-DBSTAT in both normal and aggregated mode:
-
+下表展示了 DBSTAT 的（非隐藏）列在普通模式和聚合模式下的含义：
 </p><center><blockquote>
 <table border="1" cellpadding="5" cellspacing="0">
 <tr>
-<th>Column
-</th><th>Normal meaning
-</th><th>Aggregate-mode meaning
+<th>列
+</th><th>普通含义
+</th><th>聚合模式含义
 </th></tr>
 <tr>
 <th>name
 </th><td colspan="2">
-The name of the table or index that is implemented by
-the btree of the current row
+当前行所对应的 btree 所实现的表或索引的名称
 </td></tr><tr>
 <th>path
-</th><td>See <a href="#dbstatpath">description above</a>
-</td><td>Always NULL
+</th><td>见<a href="#dbstatpath">上文说明</a>
+</td><td>始终为 NULL
 </td></tr><tr>
 <th>pageno
-</th><td>The page number of the database page for the current row
-</td><td>The total number of pages in the btree for the current row
+</th><td>当前行所对应数据库页面的页面编号
+</td><td>当前行所对应 btree 的页面总数
 </td></tr><tr>
 <th>pagetype
-</th><td>'leaf' or 'interior'
-</td><td>Always NULL
+</th><td>'leaf' 或 'interior'
+</td><td>始终为 NULL
 </td></tr><tr>
 <th>ncell
-</th><td colspan="2">Number of cells on the current page or btree
+</th><td colspan="2">当前页面或 btree 上的单元格数量
 </td></tr><tr>
 <th>payload
-</th><td colspan="2">Bytes of useful payload on the current page or btree
+</th><td colspan="2">当前页面或 btree 上的有效负载字节数
 </td></tr><tr>
 <th>unused
-</th><td colspan="2">Unused bytes of on the current page or btree
+</th><td colspan="2">当前页面或 btree 上未使用的字节数
 </td></tr><tr>
 <th>mx_payload
-</th><td colspan="2">The largest payload found anywhere in the current page
-or btree.
+</th><td colspan="2">当前页面或 btree 中出现的最大负载大小
 </td></tr><tr>
 <th>pgoffset
-</th><td>Byte offset to the start of the page
-</td><td>Always NULL
+</th><td>页面起始位置的字节偏移
+</td><td>始终为 NULL
 </td></tr><tr>
 <th>pgsize
-</th><td colspan="2">Total storage space used by the current page or btree.
+</th><td colspan="2">当前页面或 btree 使用的总存储空间
 </td></tr></table>
 </blockquote></center>
 
-<h1 id="example_uses_of_the_dbstat_virtual_table"><span>4. </span>Example uses of the dbstat virtual table</h1>
+<h1 id="example_uses_of_the_dbstat_virtual_table"><span>4. </span>dbstat 虚拟表的示例用途</h1>
 
 <p>
-To find the total number of pages used to store table "xyz" in schema "aux1",
-use either of the following two queries (the first is the traditional way,
-and the second shows the use of the aggregated feature):
-
+要查找模式 “aux1” 中表 “xyz” 使用的页面总数，可运行以下两个查询（第一个是传统方式，第二个展示聚合特性的用法）：
 </p><div class="codeblock"><pre>SELECT count(*) FROM dbstat('aux1') WHERE name='xyz';
 SELECT pageno FROM dbstat('aux1',1) WHERE name='xyz';
 </pre></div>
 
 <p>
-To see how efficiently the content of a table is stored on disk,
-compute the amount of space used to hold actual content divided
-by the total amount of disk space used.  The closer this number
-is to 100%, the more efficient the packing.  (In this example, the
-'xyz' table is assumed to be in the 'main' schema.  Again, there
-are two different versions that show the use of DBSTAT both without
-and with the new aggregated feature, respectively.)
-
+要了解表的内容在磁盘上的存储效率，可计算实际内容所占空间除以占用的磁盘空间总量。这个数字越接近 100%，说明填充越高效。（在本例中，假设 “xyz” 表位于 “main” 模式中。下面分别给出了在没有和启用聚合特性时使用 DBSTAT 的两种写法。）
 </p><div class="codeblock"><pre>SELECT sum(pgsize-unused)*100.0/sum(pgsize) FROM dbstat WHERE name='xyz';
 SELECT (pgsize-unused)*100.0/pgsize FROM dbstat
  WHERE name='xyz' AND aggregate=TRUE;
 </pre></div>
 
 <p>
-To find the average fan-out for a table, run:
-
+要查找某个表的平均扇出，请运行：
 </p><div class="codeblock"><pre>SELECT avg(ncell) FROM dbstat WHERE name='xyz' AND pagetype='internal';
 </pre></div>
 
 
 <p>
-Modern filesystems operate faster when disk accesses are sequential.
-Hence, SQLite will run faster if the content of the database file
-is on sequential pages.  To find out what fraction of the pages in
-a database are sequential (and thus obtain a measurement that might
-be useful in determining when to <a href="lang_vacuum.html">VACUUM</a>), run a query like the following:
-
+现代文件系统在磁盘访问顺序时运行更快。因此，如果数据库文件的内容分布在顺序页面上，SQLite 会更快。要找出数据库中有多少页面是顺序排列的（从而获得一个可能用于判断何时执行 <a href="lang_vacuum.html">VACUUM</a> 的度量），可运行如下查询：
 </p><div class="codeblock"><pre>CREATE TEMP TABLE s(rowid INTEGER PRIMARY KEY, pageno INT);
 INSERT INTO s(pageno) SELECT pageno FROM dbstat ORDER BY path;
 SELECT sum(s1.pageno+1==s2.pageno)*1.0/count(*)
@@ -356,5 +284,6 @@ SELECT sum(s1.pageno+1==s2.pageno)*1.0/count(*)
  WHERE s1.rowid+1=s2.rowid;
 DROP TABLE s;
 </pre></div>
-<p align="center"><small><i>This page was last updated on 2025-04-16 13:13:29Z </small></i></p>
+<p align="center"><small><i>本页面最后更新于 2025-04-16 13:13:29Z </small></i></p>
 
+</body></html>

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Many Small Queries Are Efficient In SQLite</title>
+<title>SQLite 中的多个小查询依然高效</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translate-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Many Small Queries Are Efficient In SQLite
+SQLite 中的多个小查询依然高效
 </div>
 </div>
 
@@ -126,115 +132,61 @@ Many Small Queries Are Efficient In SQLite
 
 
 
-<h1 id="executive_summary"><span>1. </span>Executive Summary</h1>
+<h1 id="executive_summary"><span>1. </span>执行摘要</h1>
 
 <ul>
 <li><p>
-200 SQL statements per webpage is excessive for client/server database
-engines like MySQL, PostgreSQL, or SQL Server.
+对于像 MySQL、PostgreSQL 或 SQL Server 这样的客户端/服务器数据库引擎来说，每个网页 200 条 SQL 语句是过多的。
 
 </p></li><li><p>
-But with SQLite, 200 or more SQL statement per webpage is not a problem.
+但使用 SQLite，每个网页 200 条或更多 SQL 语句并非问题。
 
 </p></li><li><p>
-SQLite can also do large and complex queries efficiently, just like
-client/server databases.  But SQLite can do many smaller queries
-efficiently too.  Application developers can use whichever technique
-works best for the task at hand.
+SQLite 也可以像客户端/服务器数据库一样高效地执行大型复杂查询，同时也能高效地处理多个较小的查询。应用开发者可以根据当前任务所需，灵活选择最适合的方法。
      
 </p></li></ul>
 
-<h1 id="the_perceived_problem"><span>2. </span>The Perceived Problem</h1>
+<h1 id="the_perceived_problem"><span>2. </span>表面上的问题</h1>
 
 <p>
-The <a href="whentouse.html#website">Appropriate Uses For SQLite</a> page says that
-dynamic pages on the SQLite website typically do about 200 SQL
-statements each.
-This has provoked criticism from readers.  Examples:
+<a href="whentouse.html#website">SQLite 的适当用途</a> 页面指出，SQLite 网站上的动态页面通常每页执行大约 200 条 SQL 语句。该做法引来了读者的批评。例子如下：
 
 </p><ul>
 <li><p>
-<i>"200 SQL statements is a ridiculously high number for a single page"</i>
+<i>“每页 200 条 SQL 语句是一个荒谬的高数字”</i>
 </p></li><li><p>
-<i>"For most sites, 200 queries is way, way, way too much."</i>
+<i>“对于大多数网站来说，200 条查询远远超出需求。”</i>
 </p></li><li><p>
-<i>"&#91;This is&#93; bad design"</i>
+<i>“[这]是糟糕的设计”</i>
 </p></li></ul>
 
 <p>
-Such criticism would be well-founded for a traditional client/server
-database engine, such as MySQL, PostgreSQL, or SQL Server.  In
-a client/server database, each SQL statement requires a message
-round-trip from the application to the database server and back to
-the application.  Doing over 200 round-trip messages, sequentially,
-can be a serious performance drag.  This is sometimes called the
-"N+1 Query Problem" or the "N+1 Select Problem" and it is an anti-pattern.
+对于传统的客户端/服务器数据库引擎，如 MySQL、PostgreSQL 或 SQL Server，这种批评确实有根据。在客户端/服务器数据库中，每一条 SQL 语句都需要应用程序与数据库服务器之间来回传递消息。顺序执行超过 200 次这样的往返消息，会严重拖慢性能。这种情况有时被称为“N+1 查询问题”或“N+1 选择问题”，属于一种反模式。
 
-</p><h1 id="n_1_queries_are_not_a_problem_with_sqlite"><span>3. </span>N+1 Queries Are Not A Problem With SQLite</h1>
+</p><h1 id="n_1_queries_are_not_a_problem_with_sqlite"><span>3. </span>在 SQLite 中 N+1 查询不是问题</h1>
 
 <p>
-SQLite is <u>not</u> client/server, however.  The SQLite database runs
-in the same process address space as the application.  Queries do not
-involve message round-trips, only a function call.  The latency
-of a single SQL query is far less in SQLite.  Hence, using a large number
-of queries with SQLite is not the problem.
+然而，SQLite 并非客户端/服务器架构。SQLite 数据库与应用程序运行在同一进程地址空间内。查询并不涉及消息往返，只需一次函数调用。SQLite 单条 SQL 查询的延迟远低于客户端/服务器数据库。因此，在 SQLite 中使用大量查询并不会造成问题。
 
-</p><h1 id="the_need_for_over_200_sql_statements_per_webpage"><span>4. </span>The Need For Over 200 SQL Statements Per Webpage</h1>
+</p><h1 id="the_need_for_over_200_sql_statements_per_webpage"><span>4. </span>每个网页超过 200 条 SQL 语句的必要性</h1>
 
 <p>
-The dynamic webpages on the SQLite website are mostly generated by
-the <a href="https://www.fossil-scm.org/">Fossil version control system</a>.
-A typical dynamic
-page would be a timeline such as <a href="https://sqlite.org/src/timeline">https://sqlite.org/src/timeline</a>.
-A log of all SQL used by the timeline is shown below.
+SQLite 网站上的动态网页大多由 <a href="https://www.fossil-scm.org/">Fossil 版本控制系统</a> 生成。典型的动态页面是诸如 <a href="https://sqlite.org/src/timeline">https://sqlite.org/src/timeline</a> 这样的时间线。下面展示了生成该时间线所使用的全部 SQL 的日志。
 
 </p><p>
-The first group of queries in the log are extracting display options
-from the "config" and "global_config" tables of the Fossil database.
-Then there is a single complex query that extracts a list of all elements
-to be displayed on the timeline.
-This "timeline" query demonstrates that SQLite can easily process complex
-relational database queries involving multiple tables, subqueries, and
-complex WHERE clause constraints, and it can make effective use of indexes
-to solve the queries with minimal disk I/O.
+日志中的第一组查询是从 Fossil 数据库的“config”和“global_config”表中提取显示选项。随后有一个复杂的查询，用于提取将在时间线上展示的所有元素的列表。这个“时间线”查询表明，SQLite 能轻松处理涉及多张表、子查询和复杂 WHERE 子句约束的复杂关系型数据库查询，并能有效利用索引，以最小的磁盘 I/O 解决查询。
 
 </p><p>
-Following the single big "timeline" query, 
-there are additional queries for each timeline element.
-Fossil is using the "N+1 Query" pattern rather than trying
-to grab all the information in as few queries as possible.
-But that is ok because there is no unnecessary IPC overhead.
-At the bottom of
-each timeline page, Fossil shows approximately how long it took to generate
-the page.  For a 50-entry timeline, the latency is usually less than
-25 milliseconds.  Profiling shows that few of those milliseconds
-were spent inside the database engine.
+在这个大型“时间线”查询之后，接着是为每个时间线元素分别执行的查询。Fossil 采用的是“N+1 查询”的模式，而不是试图用尽可能少的查询获取全部信息。但这并无妨碍，因为并不存在不必要的 IPC 开销。在每个时间线页面的底部，Fossil 会展示生成该页面所花费的大致时间。对于包含 50 条记录的时间线，延迟通常少于 25 毫秒。分析表明，花在数据库引擎内部的时间仅占极少数毫秒。
 
 </p><p>
-Using the N+1 Query pattern in Fossil does not harm the application.  
-But the N+1 Query pattern does have benefits.  For one, the
-section of the code that creates the timeline query can be
-completely separate from the section that prepares each timeline
-entry for display.
-This provides a separation of responsibility that helps keep the code
-simple and easy to maintain.  Secondly, the information
-needed for display, and the queries needed to extract that information,
-vary according to what type of objects are to be shown.  Check-ins need one
-set of queries.  Tickets need another set of queries.  Wiki pages need a
-different query.  And so forth.  By implementing these queries on-demand
-and in the part of the code dealing with the various entities, there is
-further separation of responsibility and simplification of the overall 
-code base.
+在 Fossil 中使用 N+1 查询模式不会损害应用性能，并且该模式还具有优势。首先，构建时间线查询的那一部分代码可以与准备用于展示的每个时间线条目的部分完全分离。这种职责分离有助于保持代码简洁且易于维护。其次，展示所需的信息以及用于提取这些信息的查询依赖于将要显示的对象类型。检入记录需要一套查询，问题单需要另一套查询，Wiki 页面又需要不同的查询，依此类推。通过按需在处理不同实体的代码段中实现这些查询，就进一步实现了职责分离并简化了整体代码库。
 
 </p><p>
-So, SQLite is able to do one or two large and complex queries, or it can
-do many smaller and simpler queries.  Both are efficient.  An application
-can use either or both techniques, depending on what works best for the
-situation at hand.
+因此，SQLite 可以执行一两个大型复杂的查询，也可以执行多个较小更简单的查询，两者都高效。应用可以根据实际情况使用其中一种或两种技术。
 
 </p><p>
-The following is a log of all SQL used to generate one particular
-timeline (captured on 2016-09-16):
+下面是生成某个特定时间线所使用的全部 SQL 日志（2025-09-16 捕获）：
 
 </p><div class="codeblock"><pre>-- sqlite3_open: /home/drh/sqlite/sqlite/.fslckout
 PRAGMA foreign_keys=OFF;
@@ -512,5 +464,5 @@ PRAGMA database_list;
 PRAGMA localdb.freelist_count;
 PRAGMA localdb.page_count;
 </pre></div>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </small></i></p>
 

@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="开始">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_snapshot_open -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Start a read transaction on an historical snapshot</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>在历史快照上启动只读事务</h2>
 </div>
 <blockquote><pre>
 int sqlite3_snapshot_open(
@@ -128,46 +134,26 @@ int sqlite3_snapshot_open(
 );
 </pre></blockquote>
 <p>
-The <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open(D,S,P)</a> interface either starts a new read
-transaction or upgrades an existing one for schema S of
-<a href="../c3ref/sqlite3.html">database connection</a> D such that the read transaction refers to
-historical <a href="../c3ref/snapshot.html">snapshot</a> P, rather than the most recent change to the
-database. The <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> interface returns SQLITE_OK
-on success or an appropriate <a href="../rescode.html">error code</a> if it fails.</p>
+<a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open(D,S,P)</a> 接口会为数据库连接 D 的模式 S 启动一个新的只读事务或升级现有的只读事务，使该只读事务关联到历史的 <a href="../c3ref/snapshot.html">快照</a> P，而不是对数据库的最新更改。<a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> 接口在成功时返回 SQLITE_OK，失败时返回合适的 <a href="../rescode.html">错误代码</a>。
+</p>
 
-<p>In order to succeed, the database connection must not be in
-<a href="../c3ref/get_autocommit.html">autocommit mode</a> when <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open(D,S,P)</a> is called. If there
-is already a read transaction open on schema S, then the database handle
-must have no active statements (SELECT statements that have been passed
-to sqlite3_step() but not sqlite3_reset() or sqlite3_finalize()).
-SQLITE_ERROR is returned if either of these conditions is violated, or
-if schema S does not exist, or if the snapshot object is invalid.</p>
+<p>为了成功，当调用 <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open(D,S,P)</a> 时，数据库连接不能处于 <a href="../c3ref/get_autocommit.html">自动提交模式</a>。如果模式 S 上已经存在打开的只读事务，那么数据库句柄不能有活动的语句（即已经传递给 sqlite3_step() 但尚未 sqlite3_reset() 或 sqlite3_finalize() 的 SELECT 语句）。如果违反了上述任一条件、模式 S 不存在或快照对象无效，将返回 SQLITE_ERROR。
+</p>
 
-<p>A call to sqlite3_snapshot_open() will fail to open if the specified
-snapshot has been overwritten by a <a href="../wal.html#ckpt">checkpoint</a>. In this case
-SQLITE_ERROR_SNAPSHOT is returned.</p>
+<p>如果指定的快照已被 <a href="../wal.html#ckpt">检查点</a> 覆盖，则调用 sqlite3_snapshot_open() 会无法打开该快照。在这种情况下会返回 SQLITE_ERROR_SNAPSHOT。
+</p>
 
-<p>If there is already a read transaction open when this function is
-invoked, then the same read transaction remains open (on the same
-database snapshot) if SQLITE_ERROR, SQLITE_BUSY or SQLITE_ERROR_SNAPSHOT
-is returned. If another error code - for example SQLITE_PROTOCOL or an
-SQLITE_IOERR error code - is returned, then the final state of the
-read transaction is undefined. If SQLITE_OK is returned, then the
-read transaction is now open on database snapshot P.</p>
+<p>如果调用此函数时已经存在打开的只读事务，那么当返回 SQLITE_ERROR、SQLITE_BUSY 或 SQLITE_ERROR_SNAPSHOT 时，原来的只读事务仍然保持打开状态（在同一数据库快照上）。如果返回的是其他错误代码，例如 SQLITE_PROTOCOL 或 SQLITE_IOERR 错误代码，则只读事务的最终状态未定义。如果返回 SQLITE_OK，则只读事务现在已在数据库快照 P 上打开。
+</p>
 
-<p>A call to <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open(D,S,P)</a> will fail if the
-database connection D does not know that the database file for
-schema S is in <a href="../wal.html">WAL mode</a>.  A database connection might not know
-that the database file is in <a href="../wal.html">WAL mode</a> if there has been no prior
-I/O on that database connection, or if the database entered <a href="../wal.html">WAL mode</a>
-after the most recent I/O on the database connection.
-(Hint: Run "<a href="../pragma.html#pragma_application_id">PRAGMA application_id</a>" against a newly opened
-database connection in order to make it ready to use snapshots.)</p>
+<p>如果数据库连接 D 不知道模式 S 的数据库文件处于 <a href="../wal.html">WAL 模式</a>，则调用 <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open(D,S,P)</a> 会失败。如果该数据库连接以前没有对该数据库执行过 I/O，或者数据库在该连接最近一次 I/O 之后才进入 <a href="../wal.html">WAL 模式</a>，那么它可能不知道该文件处于 WAL 模式。（提示：针对新打开的数据库连接运行 "<a href="../pragma.html#pragma_application_id">PRAGMA application_id</a>"，以便让它准备好使用快照。）
+</p>
 
-<p>The <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> interface is only available when the
-<a href="../compile.html#enable_snapshot">SQLITE_ENABLE_SNAPSHOT</a> compile-time option is used.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p><a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> 接口仅在使用了 <a href="../compile.html#enable_snapshot">SQLITE_ENABLE_SNAPSHOT</a> 编译时选项时可用。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。
+</p>
 
+</body></html>

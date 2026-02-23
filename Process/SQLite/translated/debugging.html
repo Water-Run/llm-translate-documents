@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Hints for Debugging SQLite</title>
+<title>调试提示</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,38 +123,29 @@ antiRobotDefense();
 </script>
 
 
-<h1 align='center'>Debugging Hints</h1>
+<h1 align='center'>调试提示</h1>
 
 <p>
-The following is a random assortment of techniques used by the
-SQLite developers to trace, examine, and understand the behavior of the
-core SQLite library.
+以下是SQLite开发者用来追踪、检查并理解核心SQLite库行为的各种技巧的随意组合。
 
 <p>
-These techniques are designed to aid in understanding the
-core SQLite library itself, not applications that merely use SQLite.
+这些技巧旨在帮助理解核心SQLite库自身，而不是仅仅使用SQLite的应用程序。
 
 <ol>
 <li>
-<p><b>Use the ".eqp full" option on the <a href="cli.html">command-line shell</a></b>
+<p><b>在<a href="cli.html">命令行 shell</a>上使用 ".eqp full" 选项</b>
 
-<p>When you have a SQL script that you are debugging or trying
-to understand, it is often useful to run it in the <a href="cli.html">command-line shell</a>
-with the ".eqp full" setting.  When ".eqp" is set to FULL, the shell
-automatically shows the <a href="lang_explain.html">EXPLAIN</a> and <a href="eqp.html">EXPLAIN QUERY PLAN</a> output for
-each command prior to actually running that command.
+<p>当你在调试或试图理解一段SQL脚本时，通常有必要在<a href="cli.html">命令行 shell</a>中以 ".eqp full" 设置运行它。".eqp"设置为FULL时，shell会在真正执行每个命令之前自动显示该命令的<a href="lang_explain.html">EXPLAIN</a>与<a href="eqp.html">EXPLAIN QUERY PLAN</a>输出。
 
-<p>For added readability, also set ".echo on" so that the output contains
-the original SQL text.
+<p>为提高可读性，还可以设置 ".echo on"，使输出包含原始SQL文本。
 
-<p>The newer ".eqp trace" command does everything that ".eqp full" does
-and also turns on <a href="pragma.html#pragma_vdbe_trace">VDBE tracing</a>.
+<p>较新的 ".eqp trace" 命令完成 ".eqp full" 做的全部工作，同时还开启<a href="pragma.html#pragma_vdbe_trace">VDBE 跟踪</a>。
 </li>
 
 <li>
-<p><b>Use compile-time options to enable debugging features.</b>
+<p><b>使用编译时选项启用调试功能。</b>
 
-<p>Suggested compile-time options include:
+<p>建议的编译时选项包括：
 <ul>
 <li><a href="compile.html#debug">-DSQLITE_DEBUG</a>
 <li><a href="compile.html#enable_explain_comments">-DSQLITE_ENABLE_EXPLAIN_COMMENTS</a>
@@ -157,20 +154,13 @@ and also turns on <a href="pragma.html#pragma_vdbe_trace">VDBE tracing</a>.
 </ul>
 </li>
 
-<p>The SQLITE_ENABLE_TREETRACE and SQLITE_ENABLE_WHERETRACE options
-are not documented in the <a href="compile.html">compile-time options</a> document because they
-are not officially supported.  What they do is activate the
-".treetrace" and ".wheretrace" dot-commands in the command-line
-shell, which provide low-level tracing output for the logic that
-generates code for SELECT and DML statements and WHERE clauses, respectively.
+<p>由于不属于官方支持，<a href="compile.html">编译时选项</a>文档中未记录SQLITE_ENABLE_TREETRACE与SQLITE_ENABLE_WHERETRACE选项。它们的作用是在命令行 shell 中激活 ".treetrace" 与 ".wheretrace" 点命令，分别为生成SELECT与DML语句以及WHERE子句的逻辑提供低级跟踪输出。
+</li>
 
 <li>
-<p><b>Call sqlite3ShowExpr() and similar from the debugger.</b>
+<p><b>从调试器中调用 sqlite3ShowExpr() 等函数。</b>
 
-<p>When compiled with <a href="compile.html#debug">SQLITE_DEBUG</a>, SQLite includes routines that will
-print out various internal abstract syntax tree structures as ASCII-art graphs.
-These routines can be useful during debugging to understand the variables
-that SQLite is working with.  The following routines are available:
+<p>当使用<a href="compile.html#debug">SQLITE_DEBUG</a>编译时，SQLite会包含一些例程，可以将各种内部抽象语法树结构以ASCII艺术图的形式打印出来。这些例程在调试期间可用于了解SQLite所处理的变量。下列例程可用：
 
 <ul>
 <li>  void sqlite3ShowExpr(const Expr*);
@@ -188,66 +178,39 @@ that SQLite is working with.  The following routines are available:
 <li>  void sqlite3ShowWinFunc(const Window*);
 </ul>
 
-<p>These routines are not APIs and are subject to change.  They are
-for interactive debugging use only.</p>
+<p>这些例程不是API，可能随时变化，仅供交互式调试使用。</p>
 </li>
 
 <li>
-<p><b>Breakpoints on test_addoptrace</b>
+<p><b>在 test_addoptrace 上设置断点</b>
 
-<p>When debugging the <a href="opcode.html">bytecode</a> generator, it is often useful to know
-where a particular opcode is being generated.  To find this easily,
-run the script in a debugger.  Set a breakpoint on the "test_addoptrace"
-routine.  Then run the "PRAGMA vdbe_addoptrace=ON;" followed by the
-SQL statement in question.  Each opcode will be displayed as it is
-appended to the VDBE program, and the breakpoint will fire immediately
-thereafter.  Step until reaching the opcode then look backwards
-in the stack to see where and how it was generated.
+<p>在调试<a href="opcode.html">字节码</a>生成器时，了解某个操作码是在哪里生成的常常很有用。为便于查找，请在调试器中运行脚本。在 "test_addoptrace" 例程上设置断点，然后运行 "PRAGMA vdbe_addoptrace=ON;" 以及出问题的SQL语句。每个操作码在附加到VDBE程序时都会被显示，紧接着断点就会触发。继续逐步执行直至到达该操作码，然后向后查看调用栈以确定其生成位置与方式。
 
-<p>This only works when compiled with <a href="compile.html#debug">SQLITE_DEBUG</a>.
+<p>仅在使用<a href="compile.html#debug">SQLITE_DEBUG</a>编译时有效。
 </li>
 
 <li>
-<p><b>Using the ".treetrace" and ".wheretrace" shell commands</b>
+<p><b>使用 ".treetrace" 和 ".wheretrace" shell 命令</b>
 
-<p>When the command-line shell and the core SQLite library are
-both compiled with <a href="compile.html#debug">SQLITE_DEBUG</a> and
-SQLITE_ENABLE_TREETRACE and SQLITE_ENABLE_WHERETRACE, then the
-shell has two commands used to turn on debugging facilities for the
-most intricate parts of the code generator - the logic dealing with
-SELECT statements and WHERE clauses, respectively.
-The ".treetrace" and ".wheretrace" commands each take a numeric
-argument which can be expressed in hexadecimal.  Each bit turns on
-various parts of debugging.  Values of "0xfff" and "0xff" are commonly
-used.  Use an argument of "0" to turn all tracing output back off.
+<p>当命令行 shell 与核心SQLite库都使用<a href="compile.html#debug">SQLITE_DEBUG</a>以及SQLITE_ENABLE_TREETRACE与SQLITE_ENABLE_WHERETRACE编译后，shell会提供两个命令，用于为处理SELECT语句和WHERE子句的最复杂的代码生成部分开启调试功能。
+
+<p>".treetrace" 与 ".wheretrace" 命令都接受一个可以用十六进制表示的数字参数。每一位都会开启不同的调试部分。通常使用 "0xfff" 与 "0xff" 这样的值。使用参数 "0" 可以关闭所有跟踪输出。
 </li>
 
 <li>
-<p><b>Using the ".breakpoint" shell command</b>
+<p><b>使用 ".breakpoint" shell 命令</b>
 
-<p>The ".breakpoint" command in the CLI does nothing but invoke the
-procedure named "test_breakpoint()", which is a no-op.
+<p>CLI 中的 ".breakpoint" 命令只是调用名为 "test_breakpoint()" 的过程，该过程本身无任何操作。
 
-<p>If you have a script and you want to start debugging at some point
-half-way through that script, simply set a breakpoint in gdb (or whatever
-debugger you are using) on the test_breakpoint() function, and add a
-".breakpoint" command where you want to stop.  When you reach that first
-breakpoint, set whatever additional breakpoints or variable traces you
-need.
+<p>如果有一段脚本并希望在其中某处开始调试，只需在 gdb（或所用的其他调试器）中为 test_breakpoint() 函数设置断点，并在想要停止的位置添加 ".breakpoint" 命令。当到达那个第一个断点时，再设置所需的其他断点或变量跟踪。
+</li>
 
 <li>
-<p><b>Disable the <a href="malloc.html#lookaside">lookaside memory allocator</a></b>
+<p><b>禁用<a href="malloc.html#lookaside">旁路内存分配器</a></b>
 
-<p>When looking for memory allocation problems (memory leaks, use-after-free
-errors, buffer overflows, etc) it is sometimes useful to disable the
-<a href="malloc.html#lookaside">lookaside memory allocator</a> then run the test under valgrind or MSAN or
-some other heap memory debugging tool.
-The lookaside memory allocator can 
-be disabled at start-time using the <a href="c3ref/c_config_covering_index_scan.html#sqliteconfiglookaside">SQLITE_CONFIG_LOOKASIDE</a>
-interface.  The <a href="cli.html">command-line shell</a> will use that interface to
-disable lookaside if it is started with the "--lookaside 0 0"
-command line option.
+<p>在查找内存分配问题（内存泄漏、释放后使用错误、缓冲区溢出等）时，有时通过禁用<a href="malloc.html#lookaside">旁路内存分配器</a>然后在 valgrind、MSAN 或其他堆内存调试工具下运行测试会很有帮助。
+
+<p>启动时可以通过<a href="c3ref/c_config_covering_index_scan.html#sqliteconfiglookaside">SQLITE_CONFIG_LOOKASIDE</a> 接口禁用旁路内存分配器。<a href="cli.html">命令行 shell</a>如果以 "--lookaside 0 0" 命令行选项启动，也会使用该接口禁用旁路。
 </li>
 </ol>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
-
+<p align="center"><small><i>本页面最后更新时间：2025-05-31 13:08:22Z </small></i></p>

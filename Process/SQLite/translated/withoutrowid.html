@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Clustered Indexes and the WITHOUT ROWID Optimization</title>
+<title>聚集索引与 WITHOUT ROWID 优化</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note" style="text-align:right; font-size:0.75rem; margin-bottom:0.25rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,18 +124,18 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Clustered Indexes and the WITHOUT ROWID Optimization
+聚集索引与 WITHOUT ROWID 优化
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. Introduction</a></div>
-<div class="fancy-toc2"><a href="#syntax">1.1. Syntax</a></div>
-<div class="fancy-toc2"><a href="#compatibility">1.2. Compatibility</a></div>
-<div class="fancy-toc2"><a href="#quirks">1.3. Quirks</a></div>
-<div class="fancy-toc1"><a href="#differences_from_ordinary_rowid_tables">2. Differences From Ordinary Rowid Tables</a></div>
-<div class="fancy-toc1"><a href="#benefits_of_without_rowid_tables">3. Benefits Of WITHOUT ROWID Tables</a></div>
-<div class="fancy-toc1"><a href="#when_to_use_without_rowid">4. When To Use WITHOUT ROWID</a></div>
-<div class="fancy-toc1"><a href="#determining_if_an_existing_table_is_without_rowid">5. Determining If An Existing Table Is WITHOUT ROWID</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. 介绍</a></div>
+<div class="fancy-toc2"><a href="#syntax">1.1. 语法</a></div>
+<div class="fancy-toc2"><a href="#compatibility">1.2. 兼容性</a></div>
+<div class="fancy-toc2"><a href="#quirks">1.3. 特性</a></div>
+<div class="fancy-toc1"><a href="#differences_from_ordinary_rowid_tables">2. 与普通 rowid 表的差异</a></div>
+<div class="fancy-toc1"><a href="#benefits_of_without_rowid_tables">3. WITHOUT ROWID 表的优势</a></div>
+<div class="fancy-toc1"><a href="#when_to_use_without_rowid">4. 何时使用 WITHOUT ROWID</a></div>
+<div class="fancy-toc1"><a href="#determining_if_an_existing_table_is_without_rowid">5. 判断已有表是否为 WITHOUT ROWID</a></div>
 </div>
 </details>
 </div>
@@ -137,22 +143,15 @@ Clustered Indexes and the WITHOUT ROWID Optimization
 
 
 
-<h1 id="introduction"><span>1. </span>Introduction</h1>
+<h1 id="introduction"><span>1. </span>介绍</h1>
 
-<p>By default, every row in SQLite has a special column, usually called the
-"<a href="lang_createtable.html#rowid">rowid</a>", that uniquely identifies that row within the table.  However
-if the phrase "WITHOUT ROWID" is added to the end of a <a href="lang_createtable.html">CREATE TABLE</a> statement,
-then the special "rowid" column is omitted.  There are sometimes
-space and performance advantages to omitting the rowid.</p>
+<p>默认情况下，SQLite 中的每一行都有一个特殊列，通常称为“<a href="lang_createtable.html#rowid">rowid</a>”，该列在表内唯一标识该行。然而，如果在 <a href="lang_createtable.html">CREATE TABLE</a> 语句末尾添加 “WITHOUT ROWID” 片语，则会省略这个特殊的 “rowid” 列。省略 rowid 有时可以带来空间和性能优势。</p>
 
-<p>A WITHOUT ROWID table is a table that uses a
-<a href="https://en.wikipedia.org/wiki/Database_index#Clustered">Clustered Index</a>
-as the primary key.</p>
+<p>WITHOUT ROWID 表是使用<a href="https://en.wikipedia.org/wiki/Database_index#Clustered">聚集索引</a>作为主键的表。</p>
 
-<h2 id="syntax"><span>1.1. </span>Syntax</h2>
+<h2 id="syntax"><span>1.1. </span>语法</h2>
 
-<p>To create a WITHOUT ROWID table, simply add the keywords "WITHOUT ROWID"
-to the end of the <a href="lang_createtable.html">CREATE TABLE</a> statement.  For example:</p>
+<p>要创建 WITHOUT ROWID 表，只需在 <a href="lang_createtable.html">CREATE TABLE</a> 语句末尾添加关键字 “WITHOUT ROWID”。例如：</p>
 
 <blockquote><pre>
 CREATE TABLE IF NOT EXISTS wordcount(
@@ -161,248 +160,106 @@ CREATE TABLE IF NOT EXISTS wordcount(
 ) <b>WITHOUT ROWID</b>;
 </pre></blockquote>
 
-<p>As with all SQL syntax, the case of the keywords does not matter.
-One can write "WITHOUT rowid" or "without rowid" or "WiThOuT rOwId" and
-it will mean the same thing.</p>
+<p>与所有 SQL 语法一样，关键字的大小写无关。可以写成 “WITHOUT rowid” 或 “without rowid” 或 “WiThOuT rOwId”，它们代表相同含义。</p>
 
-<p>Every WITHOUT ROWID table must have a <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>.  An error is raised
-if a CREATE TABLE statement with the WITHOUT ROWID clause lacks a PRIMARY KEY.
+<p>每个 WITHOUT ROWID 表必须有一个 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>。如果带有 WITHOUT ROWID 子句的 CREATE TABLE 语句缺少 PRIMARY KEY，就会引发错误。
+</p><p>在大多数情况下，普通表的特殊 “rowid” 列也可以称为 “oid” 或 “_rowid_”。不过，在 CREATE TABLE 语句中只有 “rowid” 可以作为关键字。</p>
 
-</p><p>In most contexts, the special "rowid" column of normal tables can
-also be called "oid" or "_rowid_".  However, only "rowid" works as
-the keyword in the CREATE TABLE statement.</p>
+<h2 id="compatibility"><span>1.2. </span>兼容性</h2>
 
-<h2 id="compatibility"><span>1.2. </span>Compatibility</h2>
+<p>使用 WITHOUT ROWID 表需要 SQLite <a href="releaselog/3_8_2.html">3.8.2 版</a>（2013-12-06）或更高版本。如果用较旧版本的 SQLite 打开包含一个或多个 WITHOUT ROWID 表的数据库，就会出现 “malformed database schema” 错误。</p>
 
-<p>SQLite <a href="releaselog/3_8_2.html">version 3.8.2</a> (2013-12-06) or later
-is necessary in order to use a WITHOUT
-ROWID table.  An attempt to open a database that contains one or more WITHOUT
-ROWID tables using an earlier version of SQLite will result in a
-"malformed database schema" error.</p>
+<h2 id="quirks"><span>1.3. </span>特性</h2>
 
-<h2 id="quirks"><span>1.3. </span>Quirks</h2>
+<p>据我们所知，WITHOUT ROWID 只存在于 SQLite 中，无法与其他任何 SQL 数据库引擎兼容。一个优雅的系统中，所有表即使没有 WITHOUT ROWID 关键字也都应表现为 WITHOUT ROWID 表。然而在 SQLite 最初设计时，仅使用整数 <a href="lang_createtable.html#rowid">rowid</a> 作为行键，以简化实现。这个方法在多年里运行良好。但随着 SQLite 的应用需求增长，更需要让表的 PRIMARY KEY 真正对应底层行键。为了满足这一需求同时不破坏当时（约 2013 年）已存在的数十亿 SQLite 数据库的向后兼容性，引入了 WITHOUT ROWID 概念。
+</p><h1 id="differences_from_ordinary_rowid_tables"><span>2. </span>与普通 rowid 表的差异</h1>
 
-<p>WITHOUT ROWID is found only in SQLite and is not compatible
-with any other SQL database engine, as far as we know.
-In an elegant system, all tables would behave as WITHOUT ROWID
-tables even without the WITHOUT ROWID keyword.  However, when SQLite was
-first designed, it used only integer <a href="lang_createtable.html#rowid">rowids</a> for row keys
-to simplify the implementation.
-This approach worked well for many years.  But as the demands on
-SQLite grew, the need for tables in which the PRIMARY KEY really did
-correspond to the underlying row key grew more acute.  The WITHOUT ROWID
-concept was added
-in order to meet that need without breaking backwards
-compatibility with the billions of SQLite databases already in use at
-the time (circa 2013).
+<p>WITHOUT ROWID 语法是一种优化，并没有提供新的功能。使用 WITHOUT ROWID 表可以做到的事情，也可以在普通 rowid 表中使用完全相同的方法和语法完成。WITHOUT ROWID 表的唯一优势是，在某些情况下它可以比普通 rowid 表节省磁盘空间和/或稍微快一些。</p>
 
-</p><h1 id="differences_from_ordinary_rowid_tables"><span>2. </span>Differences From Ordinary Rowid Tables</h1>
-
-<p>The WITHOUT ROWID syntax is an optimization.  It provides no new
-capabilities.  Anything that can be done using a WITHOUT ROWID table
-can also be done in exactly the same way, and exactly the same syntax,
-using an ordinary rowid table.  The only advantage of a WITHOUT ROWID
-table is that it can sometimes use less disk space and/or perform a little
-faster than an ordinary rowid table.</p>
-
-<p>For the most part, ordinary rowid tables and WITHOUT ROWID tables
-are interchangeable.  But there are some additional restrictions on
-WITHOUT ROWID tables that do not apply to ordinary rowid tables:</p>
+<p>在大多数情况下，普通 rowid 表和 WITHOUT ROWID 表是可以互换的。但 WITHOUT ROWID 表有一些附加限制，而普通 rowid 表没有这些限制：</p>
 
 <ol>
 <li><p>
-<b>Every WITHOUT ROWID table must have a PRIMARY KEY.</b>
-An attempt to create a WITHOUT ROWID table without a PRIMARY KEY results
-in an error.
+<b>每个 WITHOUT ROWID 表必须有 PRIMARY KEY。</b>
+尝试创建没有 PRIMARY KEY 的 WITHOUT ROWID 表会导致错误。
 
 </p></li><li><p>
-<b>The special behaviors associated with "<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>" do not
-apply on WITHOUT ROWID tables.</b>
-In an ordinary table, "INTEGER PRIMARY KEY" means that the column is an
-alias for the rowid.  But since there is no rowid in a WITHOUT ROWID
-table, that special meaning no longer applies.  An "INTEGER PRIMARY KEY"
-column in a WITHOUT ROWID table works
-like an "INT PRIMARY KEY" column in an ordinary table: It is a PRIMARY KEY
-that has integer <a href="datatype3.html#affinity">affinity</a>.
+<b>与 “<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>” 相关的特殊行为不适用于 WITHOUT ROWID 表。</b>
+在普通表中，"INTEGER PRIMARY KEY" 表示该列是 rowid 的别名。但在 WITHOUT ROWID 表中不存在 rowid，因此该特殊含义不再适用。WITHOUT ROWID 表中的 "INTEGER PRIMARY KEY" 列与普通表中的 "INT PRIMARY KEY" 列表现相同：它是具有整数<a href="datatype3.html#affinity">亲和性</a>的主键。
 
 </p></li><li><p>
-<b><a href="autoinc.html">AUTOINCREMENT</a> does not work on WITHOUT ROWID tables.</b>
-The <a href="autoinc.html">AUTOINCREMENT</a> mechanism assumes the presence of a rowid and so it
-does not work on a WITHOUT ROWID table.  An error is raised if the
- "AUTOINCREMENT" keyword is used in the CREATE TABLE statement for
-a WITHOUT ROWID table.
+<b><a href="autoinc.html">AUTOINCREMENT</a> 不适用于 WITHOUT ROWID 表。</b>
+<a href="autoinc.html">AUTOINCREMENT</a> 机制假定存在 rowid，因此在 WITHOUT ROWID 表上无法工作。如果在 WITHOUT ROWID 表的 CREATE TABLE 语句中使用 “AUTOINCREMENT” 关键字，就会引发错误。
 
 </p></li><li><p>
-<b>NOT NULL is enforced on every column of the PRIMARY KEY in a WITHOUT
-ROWID table.</b>
-This is in accordance with the SQL standard.  Each column of a PRIMARY KEY
-is supposed to be individually NOT NULL.  However, NOT NULL was not enforced
-on PRIMARY KEY columns by early versions of SQLite due to a bug.  By the
-time that this bug was discovered, so many SQLite databases were already
-in circulation that the decision was made not to fix this bug for fear of
-breaking compatibility.  So, ordinary rowid tables in SQLite violate the
-SQL standard and allow NULL values in PRIMARY KEY fields.  But WITHOUT ROWID
-tables do follow the standard and will throw an error on any attempt to
-insert a NULL into a PRIMARY KEY column.
+<b>在 WITHOUT ROWID 表中，PRIMARY KEY 的每一列都必须强制 NOT NULL。</b>
+这是遵循 SQL 标准的要求。主键的每一列都应当单独施加 NOT NULL 约束。然而早期版本的 SQLite 因为一个 bug 并未在 PRIMARY KEY 列上强制 NOT NULL。等到这个 bug 被发现时，已经有大量 SQLite 数据库流通，出于兼容性考虑决定不修复该 bug。因此 SQLite 中的普通 rowid 表违反了 SQL 标准，允许在 PRIMARY KEY 字段中插入 NULL。但 WITHOUT ROWID 表遵循标准，任何试图将 NULL 插入 PRIMARY KEY 列的操作都会导致错误。
 
 </p></li><li><p>
-<b>The <a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> function
-does not work for WITHOUT ROWID tables.</b>
-Inserts into a WITHOUT ROWID do not change the value returned by the
-<a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> function.  The <a href="lang_corefunc.html#last_insert_rowid">last_insert_rowid()</a> SQL
-function is also unaffected since it is just a wrapper around
-<a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a>.
+<b><a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> 函数不适用于 WITHOUT ROWID 表。</b>
+向 WITHOUT ROWID 表插入数据不会改变 <a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> 返回的值。SQL 函数 <a href="lang_corefunc.html#last_insert_rowid">last_insert_rowid()</a> 也不会受到影响，因为它只是对 <a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> 的封装。
 
 </p></li><li><p>
-<b>The <a href="c3ref/blob_open.html">incremental blob I/O</a> mechanism does not work
-for WITHOUT ROWID tables.</b>
-Incremental BLOB I/O uses the rowid to create an <a href="c3ref/blob.html">sqlite3_blob</a> object for
-doing the direct I/O.  However, WITHOUT ROWID tables do not have a rowid,
-and so there is no way to create an <a href="c3ref/blob.html">sqlite3_blob</a> object for a WITHOUT
-ROWID table.
+<b><a href="c3ref/blob_open.html">递增 BLOB I/O</a> 机制不适用于 WITHOUT ROWID 表。</b>
+增量 BLOB I/O 使用 rowid 来创建用于直接 I/O 的 <a href="c3ref/blob.html">sqlite3_blob</a> 对象。然而 WITHOUT ROWID 表没有 rowid，因此无法为 WITHOUT ROWID 表创建 <a href="c3ref/blob.html">sqlite3_blob</a> 对象。
 
 </p></li><li><p>
-<b>The <a href="c3ref/update_hook.html">sqlite3_update_hook()</a> interface does not fire callbacks for changes
-to a WITHOUT ROWID table.</b>
-Part of the callback from <a href="c3ref/update_hook.html">sqlite3_update_hook()</a> is the rowid of the table
-row that has changed.  However, WITHOUT ROWID tables do not have a rowid.
-Hence, the update hook is not invoked when a WITHOUT ROWID table changes.
+<b><a href="c3ref/update_hook.html">sqlite3_update_hook()</a> 接口不会因 WITHOUT ROWID 表的变化而触发回调。</b>
+<a href="c3ref/update_hook.html">sqlite3_update_hook()</a> 的回调的一部分是发生变化的表行的 rowid。但 WITHOUT ROWID 表没有 rowid。因此，当 WITHOUT ROWID 表发生变化时，更新钩子不会被调用。
 </p></li></ol>
 
 <a name="bene"></a>
 
-<h1 id="benefits_of_without_rowid_tables"><span>3. </span>Benefits Of WITHOUT ROWID Tables</h1>
+<h1 id="benefits_of_without_rowid_tables"><span>3. </span>WITHOUT ROWID 表的优势</h1>
 
-<p>A WITHOUT ROWID table is an optimization that can reduce storage and
-processing requirements.
+<p>WITHOUT ROWID 表是一种可以降低存储和处理需求的优化。</p>
 
-</p><p>In an ordinary SQLite table, the PRIMARY KEY is really just a
-<a href="lang_createtable.html#uniqueconst">UNIQUE</a> index.  The key used to look up records on disk
-is the <a href="lang_createtable.html#rowid">rowid</a>.
-The special "<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>" column type in ordinary SQLite tables
-causes the column to be an alias for the rowid, and so an INTEGER PRIMARY
-KEY is a true PRIMARY KEY.  But any other kind of PRIMARY KEYs, including
-"INT PRIMARY KEY" are just unique indexes in an ordinary rowid table.</p>
+<p>在普通 SQLite 表中，PRIMARY KEY 实际上只是一个 <a href="lang_createtable.html#uniqueconst">UNIQUE</a> 索引。用于在磁盘上查找记录的关键字是 <a href="lang_createtable.html#rowid">rowid</a>。普通 SQLite 表中的特殊 “<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>” 列类型会导致该列成为 rowid 的别名，因此 INTEGER PRIMARY KEY 是一个真正的主键。但其他任何类型的 PRIMARY KEY，包括 “INT PRIMARY KEY”，在普通 rowid 表中仅仅是唯一索引。</p>
 
-<p>Consider a table (shown below) intended to store a
-vocabulary of words together with a count of the number of occurrences of
-each word in some text corpus:
-
-</p><blockquote><pre>
+<p>考虑如下表，用来存储单词词汇及其在某段语料中出现的次数：</p><blockquote><pre>
 CREATE TABLE IF NOT EXISTS wordcount(
   word TEXT PRIMARY KEY,
   cnt INTEGER
 );
 </pre></blockquote>
 
-<p>As an ordinary SQLite table, "wordcount" is implemented as two
-separate B-Trees.  The main table uses the hidden rowid value as the key
-and stores the "word" and "cnt" columns as data.  The "TEXT PRIMARY KEY"
-phrase of the CREATE TABLE statement
-causes the creation of an <a href="lang_createindex.html#uniqueidx">unique index</a> on the "word" column.  This index is a
-separate B-Tree that uses "word" and the "rowid" as the key and stores no
-data at all.  Note that the complete text of every "word" is stored twice:
-once in the main table and again in the index.
+<p>作为普通 SQLite 表，“wordcount” 由两个独立的 B 树实现。主表使用隐藏的 rowid 值作为键，并将 “word” 和 “cnt” 列作为数据存储。“TEXT PRIMARY KEY” 片语会在 “word” 列上创建一个 <a href="lang_createindex.html#uniqueidx">唯一索引</a>。该索引是一个独立的 B 树，使用 “word” 和 “rowid” 作为键，不存储任何数据。注意，每个 “word” 的完整文本被存储了两次：一次在主表中，一次在索引中。</p>
 
-</p><p>Consider querying this table to find the number of occurrences of the
-word "xsync":
-
-</p><blockquote><pre>
+<p>考虑如下查询，用来查找单词 “xsync” 的出现次数：</p><blockquote><pre>
 SELECT cnt FROM wordcount WHERE word='xsync';
 </pre></blockquote>
 
-<p>This query first has to search the index B-Tree looking for any entry
-that contains the matching value for "word".  When an entry is found in
-the index, the rowid is extracted and used to search the main table.
-Then the "cnt" value is read out of the main table and returned.  Hence, two
-separate binary searches are required to fulfill the request.
+<p>该查询首先在索引 B 树中查找与 “word” 匹配的条目。当在索引中找到条目时，会提取 rowid，并用它去搜索主表。然后从主表读取 “cnt” 值并返回。因此，需要进行两次独立的二叉搜索才能完成请求。</p>
 
-</p><p>A WITHOUT ROWID table uses a different data design for the equivalent
-table.
+<p>WITHOUT ROWID 表对等表采用不同的数据设计。</p>
 
-</p><blockquote><pre>
+<blockquote><pre>
 CREATE TABLE IF NOT EXISTS wordcount(
   word TEXT PRIMARY KEY,
   cnt INTEGER
 ) WITHOUT ROWID;
 </pre></blockquote>
 
-<p>In this latter table, there is only a single B-Tree which uses the "word"
-column as its key and the "cnt" column as its data.  (Technicality:  the
-low-level implementation actually stores both "word" and "cnt" in the "key"
-area of the B-Tree.  But unless you are looking at the low-level byte encoding
-of the database file, that fact is unimportant.)  Because there is only
-a single B-Tree, the text of the "word" column is only stored once in the
-database.  Furthermore, querying the "cnt" value for a specific "word"
-only involves a single binary search into the main B-Tree, since the "cnt"
-value can be retrieved directly from the record found by that first search
-and without the need to do a second binary search on the rowid.
+<p>在后者表中，只有一个 B 树，它使用 “word” 列作为键，将 “cnt” 列作为数据。（技术上：底层实现实际上在 B 树的 “键” 区域中同时存储 “word” 和 “cnt”。但除非你查看数据库文件的底层字节编码，否则该事实并不重要。）由于只有单个 B 树，“word” 列的文本只在数据库中存储一次。此外，查询某个具体 “word” 的 “cnt” 值只需对主 B 树进行一次二叉搜索，因为第一次搜索找到的记录就可以直接读取 “cnt” 值，而无需再对 rowid 执行第二次搜索。</p>
 
-</p><p>Thus, in some cases, a WITHOUT ROWID table can use about half the amount
-of disk space and can operate nearly twice as fast.  Of course, in a
-real-world schema, there will typically be secondary indices and/or
-UNIQUE constraints, and the situation is more complicated.  But even then,
-there can often be space and performance advantages to using WITHOUT ROWID
-on tables that have non-integer or composite PRIMARY KEYs.
+<p>因此，在某些情况下，WITHOUT ROWID 表可以使用大约一半的磁盘空间，并且运行速度几乎是普通表的两倍。当然，在真实的数据库模式中，通常会有辅助索引和/或 UNIQUE 约束，情况会更加复杂。但即便如此，对于具有非整数或复合 PRIMARY KEY 的表，使用 WITHOUT ROWID 也往往能带来空间和性能上的优势。</p>
 
 <a name="wtu"></a>
 
-</p><h1 id="when_to_use_without_rowid"><span>4. </span>When To Use WITHOUT ROWID</h1>
+</p><h1 id="when_to_use_without_rowid"><span>4. </span>何时使用 WITHOUT ROWID</h1>
 
-<p>The WITHOUT ROWID optimization is likely to be helpful for tables
-that have non-integer or composite (multi-column) PRIMARY KEYs and that do
-not store large strings or BLOBs.</p>
+<p>WITHOUT ROWID 优化通常对那些拥有非整数或复合（多列）PRIMARY KEY，并且不存储大字符串或 BLOB 的表特别有帮助。</p>
 
-<p>WITHOUT ROWID tables will work correctly (that is to say, they
-provide the correct answer) for tables with a single INTEGER PRIMARY KEY.
-However, ordinary rowid tables will run faster in that case.
-Hence, it is good design
-to avoid creating WITHOUT ROWID tables with single-column PRIMARY KEYs
-of type INTEGER.
+<p>对于具有单个 INTEGER PRIMARY KEY 的表，WITHOUT ROWID 表也能正确工作（也就是说，它们会返回正确结果）。然而，在这种情况下，普通 rowid 表的运行速度会更快。因此，从设计角度讲，最好避免为单列 INTEGER PRIMARY KEY 创建 WITHOUT ROWID 表。</p>
 
-</p><p>WITHOUT ROWID tables work best when individual rows are not too large.
-A good rule-of-thumb is that the average size of a single row in a
-WITHOUT ROWID table should be less than about 1/20th the size of
-a database page.  That means that rows should not contain more than about
-50 bytes each for a 1KiB page size or about 200 bytes each for 4KiB
-page size.  WITHOUT ROWID tables will work (in the sense that
-they get the correct answer) for arbitrarily large rows - up to 2GB in size -
-but traditional rowid tables tend to work faster for large row sizes.
-This is because rowid tables are implemented as <a href="fileformat2.html#btree">B*-Trees</a> where
-all content is stored in the leaves of the tree, whereas WITHOUT ROWID
-tables are implemented using ordinary B-Trees with content stored on both
-leaves and intermediate nodes.  Storing content in
-intermediate nodes causes each intermediate node entry to take up more
-space on the page and thus reduces the fan-out, increasing the search cost.
+<p>当每行的数据不是很大时，WITHOUT ROWID 表的表现最佳。一个实用的经验是，WITHOUT ROWID 表中单行的平均大小应该小于数据库页大小的 1/20。也就是说，对于 1KiB 页面，行大小不应超过约 50 字节；对于 4KiB 页面，行大小不应超过约 200 字节。WITHOUT ROWID 表仍然可以处理任意大的行（最多 2GB），但传统 rowid 表在行较大时往往更快。原因在于 rowid 表实现为<a href="fileformat2.html#btree">B* 树</a>，所有内容都存储在树叶上，而 WITHOUT ROWID 表使用普通 B 树，内容分别存储在叶子节点和中间节点中。将内容存储在中间节点会使每个中间节点条目在页面上占据更多空间，从而降低扇出，增加搜索成本。</p>
 
-</p><p>The "sqlite3_analyzer.exe" utility program, available as source code
-in the SQLite source tree or as a precompiled binary on the
-<a href="https://sqlite.org/download.html">SQLite Download page</a>, can be
-used to measure the average sizes of table rows in an existing SQLite
-database.</p>
+<p>“sqlite3_analyzer.exe” 工具程序（可以在 SQLite 源代码树中以源码形式获取，也可在<a href="https://sqlite.org/download.html">SQLite 下载页面</a>中找到预编译的二进制文件）可用于测量现有 SQLite 数据库中表行的平均大小。</p>
 
-<p>Note that except for a few corner-case differences detailed above,
-WITHOUT ROWID tables and rowid tables work the same.  They both generate
-the same answers given the same SQL statements.  So it is a simple matter
-to run experiments on an application, late in the development cycle,
-to test whether or not the use of WITHOUT ROWID tables will be helpful.
-A good strategy is to simply not worry about WITHOUT ROWID until near
-the end of product development, then go back and run tests to see
-if adding WITHOUT ROWID to tables with non-integer PRIMARY KEYs helps
-or hurts performance, and retaining the WITHOUT ROWID only in those cases
-where it helps.
+<p>请注意，除了上文详细介绍的一些特殊情况外，WITHOUT ROWID 表和 rowid 表的行为是相同的。它们在相同 SQL 语句下会产生相同答案。因此，在产品开发后期，对应用进行实验来测试是否使用 WITHOUT ROWID 表是很简单的。一个良好的策略是：在开发末期再考虑 WITHOUT ROWID，当需要时再回头进行测试，看看在具有非整数 PRIMARY KEY 的表上添加 WITHOUT ROWID 是否有益；仅在它带来优势的情况下保留 WITHOUT ROWID。</p>
 
-</p><h1 id="determining_if_an_existing_table_is_without_rowid"><span>5. </span>Determining If An Existing Table Is WITHOUT ROWID</h1>
+</p><h1 id="determining_if_an_existing_table_is_without_rowid"><span>5. </span>判断已有表是否为 WITHOUT ROWID</h1>
 
-<p>A WITHOUT ROWID table returns the same content for
-<a href="pragma.html#pragma_table_info">PRAGMA table_info</a> and <a href="pragma.html#pragma_table_xinfo">PRAGMA table_xinfo</a> as does an ordinary
-table.  But unlike an ordinary table, a WITHOUT ROWID also
-responds to the <a href="pragma.html#pragma_index_info">PRAGMA index_info</a> command.  The <a href="pragma.html#pragma_index_info">PRAGMA index_info</a>
-on a WITHOUT ROWID table returns information about the PRIMARY KEY
-for the table.  In this way, the <a href="pragma.html#pragma_index_info">PRAGMA index_info</a> command can be
-used to unambiguously determine whether a particular table is a
-WITHOUT ROWID table or an ordinary table - an ordinary table will
-always return no rows but a WITHOUT ROWID table will always return
-one or more rows.
-</p><p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p>WITHOUT ROWID 表对 <a href="pragma.html#pragma_table_info">PRAGMA table_info</a> 和 <a href="pragma.html#pragma_table_xinfo">PRAGMA table_xinfo</a> 返回与普通表相同的内容。但与普通表不同的是，WITHOUT ROWID 表还会响应 <a href="pragma.html#pragma_index_info">PRAGMA index_info</a> 命令。对 WITHOUT ROWID 表执行 <a href="pragma.html#pragma_index_info">PRAGMA index_info</a> 会返回有关该表 PRIMARY KEY 的信息。通过这种方式，<a href="pragma.html#pragma_index_info">PRAGMA index_info</a> 命令可以明确判断某个表是 WITHOUT ROWID 表还是普通表——普通表总是返回空结果，而 WITHOUT ROWID 表总是返回一行或多行。</p><p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </i></small></p>
 
+</body></html>

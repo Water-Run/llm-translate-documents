@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Built-In Mathematical SQL Functions</title>
+<title>内置数学 SQL 函数</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.85em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Built-In Mathematical SQL Functions
+内置数学 SQL 函数
 </div>
 </div>
 
@@ -126,27 +132,13 @@ Built-In Mathematical SQL Functions
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
-<p>The math functions shown below are a subgroup of
-<a href="lang_corefunc.html">scalar functions</a> that are built into the
-<a href="amalgamation.html">SQLite amalgamation source file</a> but are only active
-if the amalgamation is compiled using the
-<a href="compile.html#enable_math_functions">-DSQLITE_ENABLE_MATH_FUNCTIONS</a> compile-time option.
+<p>下面所示的数学函数是<a href="lang_corefunc.html">标量函数</a>的一个子集，这些函数内置于<a href="amalgamation.html">SQLite amalgamation 源文件</a>中，但只有在使用<a href="compile.html#enable_math_functions">-DSQLITE_ENABLE_MATH_FUNCTIONS</a>编译时才会激活。
 
-</p><p>The arguments to math functions can be integers, floating-point numbers,
-or strings or blobs that look like integers or real numbers.  If any argument
-is NULL or is a string or blob that is not readily converted into a number,
-then the function will return NULL.
-These functions also return NULL for domain errors, such as trying to
-take the square root of a negative number, or compute the arccosine of a
-value greater than 1.0 or less than -1.0.
+</p><p>数学函数的参数可以是整数、浮点数，或看起来像整数或实数的字符串或二进制数据。如果任一参数为 NULL，或是无法直接转换为数字的字符串或二进制数据，则该函数将返回 NULL。这些函数在遇到定义域错误时也会返回 NULL，例如尝试对负数取平方根，或计算大于 1.0 或小于 -1.0 的值的反余弦时。
 
-</p><p>The values returned by these functions are often approximations.
-For example, the <a href="lang_mathfunc.html#pi">pi()</a> function returns 
-3.141592653589793115997963468544185161590576171875 which 
-is about 1.22465e-16 too small, but it is the closest approximation available
-for IEEE754 doubles.
+</p><p>这些函数返回的值通常是近似值。例如，<a href="lang_mathfunc.html#pi">pi()</a> 函数返回的值为 3.141592653589793115997963468544185161590576171875，约比真实值少 1.22465e-16，但这是 IEEE754 双精度所能获得的最接近近似值。
 
 <p>
 <div class='columns' style='columns: 15em auto;'>
@@ -185,135 +177,116 @@ for IEEE754 doubles.
 </div>
 
 
-</p><h1 id="descriptions_of_built_in_scalar_sql_math_functions"><span>2. </span>Descriptions of built-in scalar SQL math functions</h1>
+</p><h1 id="descriptions_of_built_in_scalar_sql_math_functions"><span>2. </span>内置标量 SQL 数学函数的说明</h1>
 <dl>
 
 <a name="acos"></a>
 <dt><p><b>acos(<i>X</i>)</b></dt><dd><p>
-  Return the arccosine of X.  The result is in radians.
+  返回 X 的反余弦。结果以弧度表示。
 </dd>
 <a name="acosh"></a>
 <dt><p><b>acosh(<i>X</i>)</b></dt><dd><p>
-  Return the hyperbolic arccosine of X.
+  返回 X 的双曲反余弦。
 </dd>
 <a name="asin"></a>
 <dt><p><b>asin(<i>X</i>)</b></dt><dd><p>
-  Return the arcsine of X.  The result is in radians.
+  返回 X 的反正弦。结果以弧度表示。
 </dd>
 <a name="asinh"></a>
 <dt><p><b>asinh(<i>X</i>)</b></dt><dd><p>
-  Return the hyperbolic arcsine of X.
+  返回 X 的双曲反正弦。
 </dd>
 <a name="atan"></a>
 <dt><p><b>atan(<i>X</i>)</b></dt><dd><p>
-  Return the arctangent of X.  The result is in radians.
+  返回 X 的反正切。结果以弧度表示。
 </dd>
 <a name="atan2"></a>
 <dt><p><b>atan2(<i>Y</i>,<i>X</i>)</b></dt><dd><p>
-  Return the arctangent of Y/X.  The result is in radians.  The
-  result is placed into correct quadrant depending on the signs
-  of X and Y.
+  返回 Y/X 的反正切。结果以弧度表示。根据 X 和 Y 的符号，结果会被放置到正确的象限。
 </dd>
 <a name="atanh"></a>
 <dt><p><b>atanh(<i>X</i>)</b></dt><dd><p>
-  Return the hyperbolic arctangent of X.
+  返回 X 的双曲反正切。
 </dd>
 <a name="ceil"></a>
 <dt><p><b>ceil(<i>X</i>)<br />ceiling(<i>X</i>)</b></dt><dd><p>
-  Return the first representable integer value greater than or equal to X.
-  For positive values of X, this routine rounds away from zero.
-  For negative values of X, this routine rounds toward zero.
+  返回大于或等于 X 的第一个可表示整数。对于正数，该例程远离零取整；对于负数，该例程朝向零取整。
 </dd>
 <a name="cos"></a>
 <dt><p><b>cos(<i>X</i>)</b></dt><dd><p>
-  Return the cosine of X.  X is in radians.
+  返回 X 的余弦。X 以弧度表示。
 </dd>
 <a name="cosh"></a>
 <dt><p><b>cosh(<i>X</i>)</b></dt><dd><p>
-  Return the hyperbolic cosine of X.
+  返回 X 的双曲余弦。
 </dd>
 <a name="degrees"></a>
 <dt><p><b>degrees(<i>X</i>)</b></dt><dd><p>
-  Convert value X from radians into degrees.
+  将 X 从弧度转换为角度。
 </dd>
 <a name="exp"></a>
 <dt><p><b>exp(<i>X</i>)</b></dt><dd><p>
-  Compute <i>e</i> (Euler's number, approximately 2.71828182845905) raised
-  to the power X.
+  计算 <i>e</i>（欧拉常数，约为 2.71828182845905）对 X 的幂。
 </dd>
 <a name="floor"></a>
 <dt><p><b>floor(<i>X</i>)</b></dt><dd><p>
-  Return the first representable integer value less than or equal to X.
-  For positive numbers, this function rounds toward zero.
-  For negative numbers, this function rounds away from zero.
+  返回小于或等于 X 的第一个可表示整数。对于正数，该函数朝向零取整；对于负数，该函数远离零取整。
 </dd>
 <a name="ln"></a>
 <dt><p><b>ln(<i>X</i>)</b></dt><dd><p>
-  Return the natural logarithm of X.
+  返回 X 的自然对数。
 </dd>
 <a name="log"></a>
 <dt><p><b>log(<i>X</i>)<br />log10(<i>X</i>)<br />log(<i>B</i>,<i>X</i>)</b></dt><dd><p>
-  Return the base-10 logarithm for X.  Or, for the two-argument version,
-  return the base-B logarithm of X.
+  返回 X 的以 10 为底的对数。对于双参数版本，返回 X 的以 B 为底的对数。
   <p>
-  Compatibility note:  SQLite works like PostgreSQL in that the log() function
-  computes a base-10 logarithm.  Most other SQL database engines compute a
-  natural logarithm for log().  In the two-argument version of log(B,X), the
-  first argument is the base and the second argument is the operand.  This is
-  the same as in PostgreSQL and MySQL, but is reversed from SQL Server which
-  uses the second argument as the base and the first argument as the operand.
+  兼容性说明：SQLite 的行为与 PostgreSQL 相同，log() 函数计算以 10 为底的对数。大多数其他 SQL 数据库引擎对 log() 计算自然对数。对于双参数版本 log(B,X)，第一个参数是底数，第二个参数是运算对象。这与 PostgreSQL 和 MySQL 的行为一致，但与 SQL Server 相反，后者将第二个参数作为底数，第一个参数作为运算对象。
 </dd>
 <a name="log2"></a>
 <dt><p><b>log2(<i>X</i>)</b></dt><dd><p>
-  Return the logarithm base-2 for the number X.
+  返回数字 X 的以 2 为底的对数。
 </dd>
 <a name="mod"></a>
 <dt><p><b>mod(<i>X</i>,<i>Y</i>)</b></dt><dd><p>
-  Return the remainder after dividing X by Y.  This is similar to the '%'
-  operator, except that it works for non-integer arguments.
+  返回 X 除以 Y 的余数。这类似于 '%' 运算符，但适用于非整数参数。
 </dd>
 <a name="pi"></a>
 <dt><p><b>pi()</b></dt><dd><p>
-  Return an approximation for &pi;.
+  返回 π 的近似值。
 </dd>
 <a name="pow"></a>
 <dt><p><b>pow(<i>X</i>,<i>Y</i>)<br />power(<i>X</i>,<i>Y</i>)</b></dt><dd><p>
-  Compute X raised to the power Y.
+  计算 X 的 Y 次幂。
 </dd>
 <a name="radians"></a>
 <dt><p><b>radians(<i>X</i>)</b></dt><dd><p>
-  Convert X from degrees into radians.
+  将 X 从角度转换为弧度。
 </dd>
 <a name="sin"></a>
 <dt><p><b>sin(<i>X</i>)</b></dt><dd><p>
-  Return the sine of X.  X is in radians.
+  返回 X 的正弦。X 以弧度表示。
 </dd>
 <a name="sinh"></a>
 <dt><p><b>sinh(<i>X</i>)</b></dt><dd><p>
-  Return the hyperbolic sine of X.
+  返回 X 的双曲正弦。
 </dd>
 <a name="sqrt"></a>
 <dt><p><b>sqrt(<i>X</i>)</b></dt><dd><p>
-  Return the square root of X.  NULL is returned if X is negative.
+  返回 X 的平方根。如果 X 为负，则返回 NULL。
 </dd>
 <a name="tan"></a>
 <dt><p><b>tan(<i>X</i>)</b></dt><dd><p>
-  Return the tangent of X.  X is in radians.
+  返回 X 的正切。X 以弧度表示。
 </dd>
 <a name="tanh"></a>
 <dt><p><b>tanh(<i>X</i>)</b></dt><dd><p>
-  Return the hyperbolic tangent of X.
+  返回 X 的双曲正切。
 </dd>
 <a name="trunc"></a>
 <dt><p><b>trunc(<i>X</i>)</b></dt><dd><p>
-  Return the representable integer in between X and 0 (inclusive)
-  that is furthest away from zero.  Or, in other words, return the
-  integer part of X, rounding toward zero.
-  The trunc() function is similar to <a href="lang_mathfunc.html#ceil">ceiling(X)</a> and <a href="lang_mathfunc.html#floor">floor(X)</a> except
-  that it always rounds toward zero whereas ceiling(X) and floor(X) round
-  up and down, respectively.
+  返回位于 X 与 0（含）之间与零距离最远的可表示整数。换句话说，返回 X 的整数部分，向零方向取整。trunc() 函数类似于 <a href="lang_mathfunc.html#ceil">ceiling(X)</a> 和 <a href="lang_mathfunc.html#floor">floor(X)</a>，但它始终朝向零取整，而 ceiling(X) 和 floor(X) 则分别向上和向下取整。
 </dd>
 
 </dl>
-<p align="center"><small><i>This page was last updated on 2023-12-05 14:43:20Z </small></i></p>
+<p align="center"><small><i>本页面最后更新时间为 2023-12-05 14:43:20Z </small></i></p>
 

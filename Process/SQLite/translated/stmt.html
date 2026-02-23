@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The SQLITE_STMT Virtual Table</title>
+<title>SQLITE_STMT 虚拟表</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.85em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,149 +124,91 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The SQLITE_STMT Virtual Table
+SQLITE_STMT 虚拟表
 </div>
 </div>
 
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
 <p>
-The SQLITE_STMT extension implements an <a href="vtab.html#epoonlyvtab">eponymous-only virtual table</a> that
-provides information about all <a href="c3ref/stmt.html">prepared statements</a> associated with
-the <a href="c3ref/sqlite3.html">database connection</a>.
+SQLITE_STMT 扩展实现了一个<a href="vtab.html#epoonlyvtab">仅同名虚拟表</a>，用于提供与<a href="c3ref/sqlite3.html">数据库连接</a>关联的所有<a href="c3ref/stmt.html">已预编译语句</a>的信息。
 </p>
 
 <p>
-The SQLITE_STMT extension is included in the <a href="amalgamation.html">amalgamation</a> though 
-it is disabled
-by default.  Use the <a href="compile.html#enable_stmtvtab">SQLITE_ENABLE_STMTVTAB</a> compile-time option to enable
-the SQLITE_STMT extension.  The SQLITE_STMT extension can also be 
-loaded at run-time
-by compiling the extension into a shared library or DLL using the source
-code at <a href="https://sqlite.org/src/file/ext/misc/stmt.c">https://sqlite.org/src/file/ext/misc/stmt.c</a> and following the
-instructions for how to <a href="loadext.html#build">compile loadable extensions</a>.
+SQLITE_STMT 扩展包含在<a href="amalgamation.html">合并源</a>中，但默认情况被禁用。使用<a href="compile.html#enable_stmtvtab">SQLITE_ENABLE_STMTVTAB</a>编译时选项即可启用 SQLITE_STMT 扩展。
+SQLITE_STMT 扩展也可以在运行时加载，方法是使用位于 <a href="https://sqlite.org/src/file/ext/misc/stmt.c">https://sqlite.org/src/file/ext/misc/stmt.c</a> 的源代码将扩展编译为共享库或 DLL，并按照<a href="loadext.html#build">可加载扩展的编译说明</a>进行操作。
 </p>
 
 <p>
-The SQLITE_STMT extension is enabled in default builds
-of the <a href="cli.html">command-line shell</a>.
-
-</p><h1 id="usage"><span>2. </span>Usage</h1>
+在<a href="cli.html">命令行 shell</a>的默认构建中，SQLITE_STMT 扩展是启用的。
+</p><h1 id="usage"><span>2. </span>用法</h1>
 
 <p>
-The SQLITE_STMT virtual table is a read-only table that can be directly
-queried to access information about all prepared statements on the 
-current database connection.  For example:
-
+SQLITE_STMT 虚拟表是一个只读表，可直接查询以获取当前数据库连接上所有已预编译语句的信息。例如：
 </p><div class="codeblock"><pre>SELECT * FROM sqlite_stmt;
 </pre></div>
 
 <p>
-A statement such as the above can be run immediately prior to invoking
-<a href="c3ref/close.html">sqlite3_close()</a> to confirm that all prepared statements have been 
-<a href="c3ref/finalize.html">finalized</a> and to help identify and track down prepared
-statements that have "leaked" and missed finalization.
-
+如上所示的语句可以在调用<a href="c3ref/close.html">sqlite3_close()</a>之前立即运行，以确认所有已预编译语句都已被<a href="c3ref/finalize.html">终结</a>，并帮助识别和追踪那些“泄漏”而未被终结的语句。
 </p><p>
-The SQLITE_STMT virtual table can also be used to access performance
-information about prepared statements, to aid in optimizing an application.
-For example,
-to find out how much memory is being used by <a href="c3ref/stmt.html">prepared statements</a> that have
-never been used, one could run:
-
+SQLITE_STMT 虚拟表还可用于访问有关已预编译语句的性能信息，以便优化应用程序。
+例如，要确定从未运行过的<a href="c3ref/stmt.html">已预编译语句</a>正在使用多少内存，可以运行：
 </p><div class="codeblock"><pre>SELECT sum(mem) FROM sqlite_stmt WHERE run=0;
 </pre></div>
 
-<h2 id="columns"><span>2.1. </span>Columns</h2>
+<h2 id="columns"><span>2.1. </span>列</h2>
 
 <p>
-The columns provided by the SQLITE_STMT virtual table are summarized by
-the hypothetical CREATE TABLE statement show here:
-
+SQLITE_STMT 虚拟表提供的列可由下面展示的假想 CREATE TABLE 语句概括：
 </p><div class="codeblock"><pre>CREATE TABLE sqlite_stmt(
-  sql    TEXT,    -- Original SQL text
-  ncol   INT,     -- Number of output columns
-  ro     BOOLEAN, -- True for "read only" statements
-  busy   BOOLEAN, -- True if the statement is current running
-  nscan  INT,     -- Number of full-scan steps
-  nsort  INT,     -- Number of sort operations
-  naidx  INT,     -- Number of automatic index inserts
-  nstep  INT,     -- Number of byte-code engine steps
-  reprep INT,     -- Number of reprepare operations
-  run    INT,     -- Number of times this statement has been run
-  mem    INT      -- Heap memory used by this statement
+  sql    TEXT,    -- 原始 SQL 文本
+  ncol   INT,     -- 输出列数
+  ro     BOOLEAN, -- 对于“只读”语句为真
+  busy   BOOLEAN, -- 语句当前是否正在运行
+  nscan  INT,     -- 全表扫描步骤次数
+  nsort  INT,     -- 排序操作次数
+  naidx  INT,     -- 自动索引插入次数
+  nstep  INT,     -- 字节码引擎步骤次数
+  reprep INT,     -- 重新准备操作次数
+  run    INT,     -- 语句运行次数
+  mem    INT      -- 该语句使用的堆内存
 );
 </pre></div>
 
-<p>Future releases may add new output columns and may change the order
-of legacy columns.
-Further detail about the meaning of each column in the SQLITE_STMT virtual
-table is provided below:
-
+<p>未来版本可能会添加新的输出列，也可能更改旧列的顺序。
+下面提供了 SQLITE_STMT 虚拟表中每一列含义的详细说明：
 </p><ul>
-<li><p><b>sql</b>:
-The original SQL text of the prepared statement.  If the prepared
-statement is compiled using the <a href="c3ref/prepare.html">sqlite3_prepare()</a> interface, then
-the SQL text might not have been saved, in which case this column
-will be NULL.
-
-</p></li><li><p><b>ncol</b>:
-The number of columns in the result set of a query.
-For DML statements, this column has a value of 0.
-
-</p></li><li><p><b>ro</b>:
-The "read only" column.  This column is true (non-zero) if the
-SQL statement is a query and false (zero) if it is a DML statement.
-
-</p></li><li><p><b>busy</b>:
-This field is true if the prepared statement is currently running.
-In other words, this field is true if <a href="c3ref/step.html">sqlite3_step()</a> has been called
-on the <a href="c3ref/stmt.html">prepared statement</a> at least once but <a href="c3ref/reset.html">sqlite3_reset()</a> has
-not yet been called to reset it.
-
-</p></li><li><p><b>nscan</b>:
-This field is the number of times that the <a href="opcode.html">bytecode engine</a> has stepped
-through a table as part of a full-table scan.  A large number if this
-field may indicate an opportunity to improve performance by adding an
-index.  This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusfullscanstep">SQLITE_STMTSTATUS_FULLSCAN_STEP</a>
-value.
-
-</p></li><li><p><b>nsort</b>:
-This field is the number of times that the <a href="opcode.html">bytecode engine</a> had to sort.
-A positive value in this field may indicate an opportunity to improve
-performance by adding an index that will cause the query results to
-appear naturally in the desired order.  
-This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatussort">SQLITE_STMTSTATUS_SORT</a> value.
-
-</p></li><li><p><b>naidx</b>:
-This field is the number of rows that have been inserted into
-<a href="optoverview.html#autoindex">automatic indexes</a>.  A positive value in this field may indicate 
-an opportunity to improve performance by adding a named index that
-takes the place of the automatic index.
-This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusautoindex">SQLITE_STMTSTATUS_AUTOINDEX</a> value.
-
-</p></li><li><p><b>nstep</b>:
-This field is the number of <a href="opcode.html">bytecode engine</a> operations that have
-been performed for the prepared statement.  This field can be used
-as a proxy for how much CPU time a statement has used.
-This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusvmstep">SQLITE_STMTSTATUS_VM_STEP</a> value.
-
-</p></li><li><p><b>reprep</b>:
-This field is the number of times that the statement has had to be
-reprepared due to schema changes or changes to parameter bindings.
-This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusreprepare">SQLITE_STMTSTATUS_REPREPARE</a> value.
-
-</p></li><li><p><b>run</b>:
-This field is the number of times that the statement has been run.
-This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusrun">SQLITE_STMTSTATUS_RUN</a> value.
-
-</p></li><li><p><b>mem</b>:
-This field is the number of bytes of heap storage used by the
-prepared statement.
-This field is equivalent to the <a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusmemused">SQLITE_STMTSTATUS_MEMUSED</a> value.
+<li><p><b>sql</b>：
+预编译语句的原始 SQL 文本。如果该语句是通过<a href="c3ref/prepare.html">sqlite3_prepare()</a> 接口编译的，则 SQL 文本可能未被保存，此时该列为 NULL。
+</p></li><li><p><b>ncol</b>：
+查询结果集中的列数。对于 DML 语句，该列值为 0。
+</p></li><li><p><b>ro</b>：
+“只读”列。如果 SQL 语句是查询，则该列为真（非零）；如果是 DML 语句，则为假（零）。
+</p></li><li><p><b>busy</b>：
+如果预编译语句当前正在运行，则本字段为真。换句话说，如果已对该<a href="c3ref/stmt.html">预编译语句</a>调用过至少一次<a href="c3ref/step.html">sqlite3_step()</a>，但尚未调用<a href="c3ref/reset.html">sqlite3_reset()</a>对其进行重置，则本字段为真。
+</p></li><li><p><b>nscan</b>：
+该字段表示<a href="opcode.html">字节码引擎</a>作为全表扫描过程访问表的次数。该字段值较大可能表示可以通过添加索引来提升性能。该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusfullscanstep">SQLITE_STMTSTATUS_FULLSCAN_STEP</a>。
+</p></li><li><p><b>nsort</b>：
+该字段表示<a href="opcode.html">字节码引擎</a>进行排序操作的次数。该字段值为正可能表示可以通过增加索引使查询结果自然按期望顺序出现，从而提升性能。
+该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatussort">SQLITE_STMTSTATUS_SORT</a>。
+</p></li><li><p><b>naidx</b>：
+该字段表示已插入<a href="optoverview.html#autoindex">自动索引</a>的行数。该字段值为正可能表示可以创建一个命名索引来替代自动索引，以改善性能。
+该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusautoindex">SQLITE_STMTSTATUS_AUTOINDEX</a>。
+</p></li><li><p><b>nstep</b>：
+该字段表示为该预编译语句执行的<a href="opcode.html">字节码引擎</a>操作次数。该字段可用作语句所用 CPU 时间的近似指标。
+该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusvmstep">SQLITE_STMTSTATUS_VM_STEP</a>。
+</p></li><li><p><b>reprep</b>：
+该字段表示由于模式更改或参数绑定更改而需要重新准备语句的次数。
+该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusreprepare">SQLITE_STMTSTATUS_REPREPARE</a>。
+</p></li><li><p><b>run</b>：
+该字段表示语句的运行次数。
+该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusrun">SQLITE_STMTSTATUS_RUN</a>。
+</p></li><li><p><b>mem</b>：
+该字段表示预编译语句所占用的堆内存字节数。
+该字段等价于<a href="c3ref/c_stmtstatus_counter.html#sqlitestmtstatusmemused">SQLITE_STMTSTATUS_MEMUSED</a>。
 </p></li></ul>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </small></i></p>
 

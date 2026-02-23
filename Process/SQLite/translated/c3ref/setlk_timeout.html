@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Set the Setlk Timeout</title>
+<title>设置 Setlk 超时</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.85em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,41 +123,22 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_setlk_timeout -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Set the Setlk Timeout</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>设置 Setlk 超时</h2>
 </div>
 <blockquote><pre>
 int sqlite3_setlk_timeout(sqlite3*, int ms, int flags);
 </pre></blockquote>
 <p>
-This routine is only useful in SQLITE_ENABLE_SETLK_TIMEOUT builds. If
-the VFS supports blocking locks, it sets the timeout in ms used by
-eligible locks taken on wal mode databases by the specified database
-handle. In non-SQLITE_ENABLE_SETLK_TIMEOUT builds, or if the VFS does
-not support blocking locks, this function is a no-op.</p>
+此例程仅在 SQLITE_ENABLE_SETLK_TIMEOUT 构建中有用。如果 VFS 支持阻塞锁，它会为指定数据库句柄在 wal 模式数据库上获取的符合条件的锁设置以毫秒为单位的超时。在非 SQLITE_ENABLE_SETLK_TIMEOUT 构建中，或 VFS 不支持阻塞锁时，此函数不执行任何操作。</p>
 
-<p>Passing 0 to this function disables blocking locks altogether. Passing
--1 to this function requests that the VFS blocks for a long time -
-indefinitely if possible. The results of passing any other negative value
-are undefined.</p>
+<p>向此函数传入 0 会完全禁用阻塞锁。传入 -1 请求 VFS 尽可能长时间阻塞——如果可能则无限期阻塞。传入其他任何负值的结果未定义。</p>
 
-<p>Internally, each SQLite database handle stores two timeout values - the
-busy-timeout (used for rollback mode databases, or if the VFS does not
-support blocking locks) and the setlk-timeout (used for blocking locks
-on wal-mode databases). The sqlite3_busy_timeout() method sets both
-values, this function sets only the setlk-timeout value. Therefore,
-to configure separate busy-timeout and setlk-timeout values for a single
-database handle, call sqlite3_busy_timeout() followed by this function.</p>
+<p>在内部，每个 SQLite 数据库句柄存储两个超时值——忙等待超时（用于回滚模式数据库，或当 VFS 不支持阻塞锁时）和 setlk 超时（用于 wal 模式数据库上的阻塞锁）。sqlite3_busy_timeout() 方法设置两个值，而本函数仅设置 setlk 超时值。因此，要为单个数据库句柄配置不同的忙等待超时和 setlk 超时值，应先调用 sqlite3_busy_timeout()，然后再调用此函数。</p>
 
-<p>Whenever the number of connections to a wal mode database falls from
-1 to 0, the last connection takes an exclusive lock on the database,
-then checkpoints and deletes the wal file. While it is doing this, any
-new connection that tries to read from the database fails with an
-SQLITE_BUSY error. Or, if the SQLITE_SETLK_BLOCK_ON_CONNECT flag is
-passed to this API, the new connection blocks until the exclusive lock
-has been released.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>每当连接到 wal 模式数据库的连接数从 1 降到 0 时，最后一个连接会对数据库获取独占锁，然后进行检查点并删除 wal 文件。在执行这些操作期间，任何尝试从数据库读取的新连接都会以 SQLITE_BUSY 错误失败。或者，如果向此 API 传入 SQLITE_SETLK_BLOCK_ON_CONNECT 标志，则新连接会阻塞，直到独占锁被释放。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
 

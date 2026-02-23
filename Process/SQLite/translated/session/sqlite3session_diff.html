@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Load The Difference Between Tables Into A Session</title>
+<title>将表之间的差异加载到会话中</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,68 +121,44 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Load The Difference Between Tables Into A Session</h2><blockquote><pre>int sqlite3session_diff(
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>将表之间的差异加载到会话中</h2><blockquote><pre>int sqlite3session_diff(
   sqlite3_session *pSession,
   const char *zFromDb,
   const char *zTbl,
   char **pzErrMsg
 );
 </pre></blockquote><p>
-If it is not already attached to the session object passed as the first
-argument, this function attaches table zTbl in the same manner as the
-<a href="../session/sqlite3session_attach.html">sqlite3session_attach()</a> function. If zTbl does not exist, or if it
-does not have a primary key, this function is a no-op (but does not return
-an error).</p>
+如果该表尚未附加到作为第一个参数传入的会话对象，本函数会以与
+<a href="../session/sqlite3session_attach.html">sqlite3session_attach()</a> 函数相同的方式附加 zTbl 表。如果 zTbl 不存在，或它没有主键，本函数将不执行任何操作（但不会返回错误）。</p>
 
-<p>Argument zFromDb must be the name of a database ("main", "temp" etc.)
-attached to the same database handle as the session object that contains 
-a table compatible with the table attached to the session by this function.
-A table is considered compatible if it:</p>
+<p>参数 zFromDb 必须是附加到与包含与本函数附加到会话的表兼容的表的会话对象使用的同一数据库句柄的数据库的名称（例如 “main”、“temp” 等）。当满足下列条件时，一个表被视为兼容：</p>
 
 <p><ul>
-  <li> Has the same name,
-  <li> Has the same set of columns declared in the same order, and
-  <li> Has the same PRIMARY KEY definition.
+  <li> 具有相同的名称，
+  <li> 具有相同的列集合并以相同顺序声明，且
+  <li> 具有相同的 PRIMARY KEY 定义。
 </ul></p>
 
-<p>If the tables are not compatible, SQLITE_SCHEMA is returned. If the tables
-are compatible but do not have any PRIMARY KEY columns, it is not an error
-but no changes are added to the session object. As with other session
-APIs, tables without PRIMARY KEYs are simply ignored.</p>
+<p>如果这些表不兼容，将返回 SQLITE_SCHEMA。如果这些表兼容但没有任何 PRIMARY KEY 列，这并非错误，但不会向会话对象添加任何更改。与其他会话 API 相同，无主键的表会被忽略。</p>
 
-<p>This function adds a set of changes to the session object that could be
-used to update the table in database zFrom (call this the "from-table") 
-so that its content is the same as the table attached to the session 
-object (call this the "to-table"). Specifically:</p>
+<p>该函数向会话对象添加一组更改，可用于使数据库 zFrom 中的表（称为“源表”）与附加到会话对象的表（称为“目标表”）的内容一致。具体而言：</p>
 
 <p><ul>
-  <li> For each row (primary key) that exists in the to-table but not in 
-    the from-table, an INSERT record is added to the session object.</p>
-
-<p>  <li> For each row (primary key) that exists in the to-table but not in 
-    the from-table, a DELETE record is added to the session object.</p>
-
-<p>  <li> For each row (primary key) that exists in both tables, but features 
-    different non-PK values in each, an UPDATE record is added to the
-    session.  
+  <li> 对于存在于目标表但不存在于源表的每一行（主键），向会话对象添加一条 INSERT 记录。</li>
+  <li> 对于存在于目标表但不存在于源表的每一行（主键），向会话对象添加一条 DELETE 记录。</li>
+  <li> 对于在两个表中都存在但非主键值不同的每一行，向会话对象添加一条 UPDATE 记录。</li>
 </ul></p>
 
-<p>To clarify, if this function is called and then a changeset constructed
-using <a href="../session/sqlite3session_changeset.html">sqlite3session_changeset()</a>, then after applying that changeset to 
-database zFrom the contents of the two compatible tables would be 
-identical.</p>
+<p>为更清楚地说明，如果调用本函数后使用
+<a href="../session/sqlite3session_changeset.html">sqlite3session_changeset()</a> 构造更改集，
+那么在将该更改集应用于数据库 zFrom 后，这两个兼容表的内容将完全相同。</p>
 
-<p>Unless the call to this function is a no-op as described above, it is an
-error if database zFrom does not exist or does not contain the required 
-compatible table.</p>
+<p>除非如上所述该函数调用是无操作，否则如果数据库 zFrom 不存在或不包含所需兼容表，将会报错。</p>
 
-<p>If the operation is successful, SQLITE_OK is returned. Otherwise, an SQLite
-error code. In this case, if argument pzErrMsg is not NULL, *pzErrMsg
-may be set to point to a buffer containing an English language error 
-message. It is the responsibility of the caller to free this buffer using
-sqlite3_free().
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>如果操作成功，将返回 SQLITE_OK。否则将返回一个 SQLite 错误码。在这种情况下，如果参数 pzErrMsg 不为 NULL，则 *pzErrMsg 可能会被设置为指向一个包含英文错误信息的缓冲区。调用者有责任使用 sqlite3_free() 释放此缓冲区。
+</p><p>另请参阅
+  <a href="../session/objlist.html">对象</a>,
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a> 的列表。</p>
 
+</body></html>

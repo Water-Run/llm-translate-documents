@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>SQLite Version 3 Overview</title>
+<title>SQLite 第3版概述</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -120,65 +126,51 @@ antiRobotDefense();
 <p>
 <center><table border="1" cellpadding="10" width="75%">
 <tr><td bgcolor="#ffffbb">
-<b>Editorial Note:</b>
-This document was written in 2004 as a guide to programmers who were
-transitioning from SQLite2 to SQLite3.
-It is retained as part of the historical record of SQLite.
-Modern programmers should refer to
-more up-to-date documentation on SQLite available elsewhere
-on this website.
+<b>编辑说明：</b>
+本文档于2004年编写，作为从 SQLite2 过渡到 SQLite3 的程序员指南。
+它被保留为 SQLite 历史记录的一部分。
+现代程序员应参考本网站其他地方提供的更新版 SQLite 文档。
 </table></center>
 
-<h2>SQLite Version 3 Overview</h2>
+<h2>SQLite 第3版概述</h2>
 
 <p>
-SQLite version 3.0 introduces important changes to the library, including:
+SQLite 3.0 引入了重要变化，包括：
 </p>
 
 <ul>
-<li>A more compact format for database files.</li>
-<li>Manifest typing and BLOB support.</li>
-<li>Support for both UTF-8 and UTF-16 text.</li>
-<li>User-defined text collating sequences.</li>
-<li>64-bit ROWIDs.</li>
-<li>Improved Concurrency.</li>
+<li>数据库文件格式更加紧凑。</li>
+<li>明确类型系统和 BLOB 支持。</li>
+<li>支持 UTF-8 和 UTF-16 文本。</li>
+<li>用户定义的文本排序序列。</li>
+<li>64 位 ROWID。</li>
+<li>改进的并发能力。</li>
 </ul>
 
 <p>
-This document is a quick introduction to the changes for SQLite 3.0
-for users who are already familiar with SQLite version 2.8.
+本文档为已经熟悉 SQLite 2.8 的用户快速介绍 SQLite 3.0 的变化。
 </p>
 
-<h3>Naming Changes</h3>
+<h3>命名更改</h3>
 
 <p>
-SQLite version 2.8 will continue to be supported with bug fixes
-for the foreseeable future.  In order to allow SQLite version 2.8
-and SQLite version 3.0 to peacefully coexist, the names of key files
-and APIs in SQLite version 3.0 have been changed to include the
-character "3".  For example, the include file used by C programs
-has been changed from "sqlite.h" to "sqlite3.h".  And the name of
-the shell program used to interact with databases has been changed
-from "sqlite.exe" to "sqlite3.exe".  With these changes, it is possible
-to have both SQLite 2.8 and SQLite 3.0 installed on the same system at
-the same time.  And it is possible for the same C program to link
-against both SQLite 2.8 and SQLite 3.0 at the same time and to use
-both libraries at the same time.
+SQLite 2.8 版本在可预见的未来将持续获得错误修复。
+为了让 SQLite 2.8 和 SQLite 3.0 和平共存，SQLite 3.0 的关键文件和 API 的名称已更改为包含字符 "3"。
+例如，用于 C 程序的头文件已从 "sqlite.h" 变为 "sqlite3.h"。
+用于与数据库交互的 shell 程序名称已从 "sqlite.exe" 改为 "sqlite3.exe"。
+通过这些更改，可以在同一系统上同时安装 SQLite 2.8 和 SQLite 3.0，并且相同的 C 程序也可以同时链接这两个版本并同时使用它们。
 </p>
 
-<h3>New File Format</h3>
+<h3>新文件格式</h3>
 
 <p>
-The format used by SQLite database files has been completely revised.
-The old version 2.1 format and the new 3.0 format are incompatible with
-one another.  Version 2.8 of SQLite will not read a version 3.0 database
-files and version 3.0 of SQLite will not read a version 2.8 database file.
+SQLite 数据库文件使用的格式已被彻底修订。
+旧的 2.1 版本格式与新的 3.0 格式彼此不兼容。
+SQLite 2.8 版不能读取 3.0 版本的数据库文件，SQLite 3.0 也不能读取 2.8 版本的数据库文件。
 </p>
 
 <p>
-To convert an SQLite 2.8 database into an SQLite 3.0 database, have
-ready the command-line shells for both version 2.8 and 3.0.  Then
-enter a command like the following:
+要将 SQLite 2.8 数据库转换为 SQLite 3.0，请同时准备好 2.8 和 3.0 的命令行 Shell。然后输入如下命令：
 </p>
 
 <blockquote><pre>
@@ -186,233 +178,124 @@ sqlite OLD.DB .dump | sqlite3 NEW.DB
 </pre></blockquote>
 
 <p>
-The new database file format uses B+trees for tables.  In a B+tree, all
-data is stored in the leaves of the tree instead of in both the leaves and
-the intermediate branch nodes.  The use of B+trees for tables allows for
-better scalability and the storage of larger data fields without the use of
-overflow pages.  Traditional B-trees are still used for indices.</p>
-
-<p>
-The new file format also supports variable pages sizes between 512 and
-65536 bytes.  The size of a page is stored in the file header so the
-same library can read databases with different pages sizes, in theory,
-though this feature has not yet been implemented in practice.
+新数据库文件格式为表使用 B+ 树。在 B+ 树中，所有数据都存储在叶子结点，而不是叶子和中间分支结点都存储。
+表使用 B+ 树可以实现更好的可扩展性，并且在无需使用溢出页的情况下存储更大的数据字段。传统的 B 树仍然用于索引。
 </p>
 
 <p>
-The new file format omits unused fields from its disk images.  For example,
-indices use only the key part of a B-tree record and not the data.  So
-for indices, the field that records the length of the data is omitted.
-Integer values such as the length of key and data are stored using
-a variable-length encoding so that only one or two bytes are required to
-store the most common cases but up to 64-bits of information can be encoded
-if needed. 
-Integer and floating point data is stored on the disk in binary rather
-than being converted into ASCII as in SQLite version 2.8.
-These changes taken together result in database files that are typically
-25% to 35% smaller than the equivalent files in SQLite version 2.8.
+新文件格式还支持 512 到 65536 字节之间的可变页大小。页的大小记录在文件头中，因此理论上同一个库可以读取具有不同页大小的数据库，尽管这个特性尚未在实际中实现。
 </p>
 
 <p>
-Details of the low-level B-tree format used in SQLite version 3.0 can
-be found in header comments to the 
-<a href="https://sqlite.org/src/finfo?name=src/btreeInt.h">btreeInt.h</a>
-source file and in the <a href="fileformat2.html">file format</a> documentation.
-</p>
-
-<h3>Manifest Typing and BLOB Support</h3>
-
-<p>
-SQLite version 2.8 will deal with data in various formats internally,
-but when writing to the disk or interacting through its API, SQLite 2.8
-always converts data into ASCII text.  SQLite 3.0, in contrast, exposes 
-its internal data representations to the user and stores binary representations
-to disk when appropriate.  The exposing of non-ASCII representations was
-added in order to support BLOBs.
+新文件格式在磁盘映像中省略未使用的字段。例如，索引只使用 B 树记录的键部分而不使用数据。因此，对于索引，记录数据长度的字段被省略。
+键和数据的长度等整数值使用变长编码存储，这样常见情况只需要一到两字节，就算需要也可以编码高达 64 位的信息。
+整数和浮点数据在磁盘上以二进制形式存储，而不会像 SQLite 2.8 那样被转换为 ASCII。
+综合这些变化，数据库文件通常比 SQLite 2.8 中的同等文件小 25% 至 35%。
 </p>
 
 <p>
-SQLite version 2.8 had the feature that any type of data could be stored
-in any table column regardless of the declared type of that column.  This
-feature is retained in version 3.0, though in a slightly modified form.
-Each table column will store any type of data, though columns have an
-affinity for the format of data defined by their declared datatype.
-When data is inserted into a column, that column will make an attempt
-to convert the data format into the column's declared type.   All SQL
-database engines do this.  The difference is that SQLite 3.0 will 
-still store the data even if a format conversion is not possible.
+有关 SQLite 3.0 所使用的低级 B 树格式的详细信息，可在 <a href="https://sqlite.org/src/finfo?name=src/btreeInt.h">btreeInt.h</a> 源文件的头部注释中以及 <a href="fileformat2.html">文件格式</a> 文档中找到。
+</p>
+
+<h3>明确类型系统与 BLOB 支持</h3>
+
+<p>
+SQLite 2.8 在内部会以各种格式处理数据，但在写入磁盘或通过 API 交互时，总是将数据转换为 ASCII 文本。相比之下，SQLite 3.0 向用户暴露其内部数据表示，并在合适的时候以二进制形式存储到磁盘。添加非 ASCII 表示是为了支持 BLOB。
 </p>
 
 <p>
-For example, if you have a table column declared to be of type "INTEGER"
-and you try to insert a string, the column will look at the text string
-and see if it looks like a number.  If the string does look like a number
-it is converted into a number and into an integer if the number does not
-have a fractional part, and stored that way.  But if the string is not
-a well-formed number it is still stored as a string.  A column with a
-type of "TEXT" tries to convert numbers into an ASCII-Text representation
-before storing them.  But BLOBs are stored in TEXT columns as BLOBs because
-you cannot in general convert a BLOB into text.
+SQLite 2.8 的特点是，无论列的声明类型为何，各种类型的数据都可以存储在该列中。这个特性在 3.0 中继续保留，只是形式略有修改。每个表列仍可存储任何类型的数据，但列会对其声明的数据类型有一个偏好（affinity）。当数据插入某列时，该列会尝试将数据格式转换为其声明的类型。所有 SQL 数据库引擎都会这么做。不同之处在于，即便格式转换不可行，SQLite 3.0 仍会保存该数据。
 </p>
 
 <p>
-In most other SQL database engines the datatype is associated with
-the table column that holds the data - with the data container.
-In SQLite 3.0, the datatype is associated with the data itself, not
-with its container.
-<a href="http://www.paulgraham.com/">Paul Graham</a> in his book 
-<i><a href="http://www.paulgraham.com/acl.html">ANSI Common Lisp</a></i></a>
-calls this property "Manifest Typing".
-Other writers have other definitions for the term "manifest typing",
-so beware of confusion.  But by whatever name, that is the datatype
-model supported by SQLite 3.0.
+例如，如果某个表列声明类型为 "INTEGER"，而你尝试插入一个字符串，该列会查看该文本是否像数字。如果看起来像数字，就将其转换为数字，若该数字没有小数部分则存为整数。即便该字符串不是一个格式良好的数字，也仍作为字符串存储。类型为 "TEXT" 的列在存储前会尝试将数字转换为 ASCII 文本表示。但 BLOB 储存在 TEXT 列时仍以 BLOB 形式存储，因为通常无法将 BLOB 转换为文本。
 </p>
 
 <p>
-Additional information about datatypes in SQLite version 3.0 is
-available
-<a href="datatype3.html">separately</a>.
-</p>
-
-<h3>Support for UTF-8 and UTF-16</h3>
-
-<p>
-The new API for SQLite 3.0 contains routines that accept text as
-both UTF-8 and UTF-16 in the native byte order of the host machine.
-Each database file manages text as either UTF-8, UTF-16BE (big-endian),
-or UTF-16LE (little-endian).  Internally and in the disk file, the
-same text representation is used everywhere.  If the text representation
-specified by the database file (in the file header) does not match
-the text representation required by the interface routines, then text
-is converted on-the-fly.
-Constantly converting text from one representation to another can be
-computationally expensive, so it is suggested that programmers choose a
-single representation and stick with it throughout their application.
+在大多数其他 SQL 数据库引擎中，数据类型与存放数据的表列（即数据容器）相关联。而在 SQLite 3.0 中，数据类型与数据本身相关，而不是与容器相关。<a href="http://www.paulgraham.com/">Paul Graham</a> 在其著作 <i><a href="http://www.paulgraham.com/acl.html">ANSI Common Lisp</a></i></a> 中称这一特性为 "Manifest Typing"。其他作者对 "manifest typing" 一词有不同解释，因此注意区分。不过无论名称如何，这就是 SQLite 3.0 支持的数据类型模型。
 </p>
 
 <p>
-In the current implementation of SQLite, the SQL parser only works
-with UTF-8 text.  So if you supply UTF-16 text it will be converted.
-This is just an implementation issue and there is nothing to prevent
-future versions of SQLite from parsing UTF-16 encoded SQL natively.
+有关 SQLite 3.0 中数据类型的更多信息，<a href="datatype3.html">可另行参见</a>。
+</p>
+
+<h3>支持 UTF-8 与 UTF-16</h3>
+
+<p>
+SQLite 3.0 的新 API 提供了既接受 UTF-8 又接受主机机器字节顺序的 UTF-16 文本的例程。每个数据库文件以 UTF-8、UTF-16BE（大端）或 UTF-16LE（小端）形式管理文本。内部和磁盘文件中到处使用相同的文本表示。如果文件头指定的文本表示与接口例程所需的表示不一致，则会动态转换。
 </p>
 
 <p>
-When creating new user-defined SQL functions and collating sequences,
-each function or collating sequence can specify if it works with
-UTF-8, UTF-16be, or UTF-16le.  Separate implementations can be registered
-for each encoding.   If an SQL function or collating sequence is required
-but a version for the current text encoding is not available, then 
-the text is automatically converted.  As before, this conversion takes
-computation time, so programmers are advised to pick a single
-encoding and stick with it in order to minimize the amount of unnecessary
-format juggling.
+不断地在不同表示之间转换文本会消耗计算资源，因此建议程序员选择一个表示并在整个应用中保持一致。
 </p>
 
 <p>
-SQLite is not particular about the text it receives and is more than
-happy to process text strings that are not normalized or even
-well-formed UTF-8 or UTF-16.  Thus, programmers who want to store
-ISO8859 data can do so using the UTF-8 interfaces.  As long as no
-attempts are made to use a UTF-16 collating sequence or SQL function,
-the byte sequence of the text will not be modified in any way.
+在当前的 SQLite 实现中，SQL 解析器仅能处理 UTF-8 文本。因此，如果供应 UTF-16 文本，它会将其转换。这只是实现上的问题，并不妨碍未来版本的 SQLite 原生解析 UTF-16 编码的 SQL。
 </p>
 
-<h3>User-defined Collating Sequences</h3>
+<p>
+当创建新的用户定义 SQL 函数和排序序列时，每个函数或排序序列都可以指定它是否处理 UTF-8、UTF-16be 或 UTF-16le。可以为每种编码注册不同的实现。如果某个 SQL 函数或排序序列必需但当前文本编码版本不可用，则会自动转换文本。如前所述，这种转换会消耗计算时间，因此建议程序员选择一个编码并坚持使用，以尽量减少不必要的格式转换。
+</p>
 
 <p>
-A collating sequence is just a defined order for text.  When SQLite 3.0
-sorts (or uses a comparison operator like "&lt;" or "&gt;=") the sort
-order is first determined by the data type.
+SQLite 对接收到的文本并不挑剔，并且可以处理未正规化甚至不是格式良好的 UTF-8 或 UTF-16 文本。因此，希望存储 ISO8859 数据的程序员可以使用 UTF-8 接口。只要不尝试使用 UTF-16 排序序列或 SQL 函数，文本的字节序列就不会以任何方式被修改。
+</p>
+
+<h3>用户定义的排序序列</h3>
+
+<p>
+排序序列只是文本的一个定义顺序。当 SQLite 3.0 排序（或使用像 "&lt;" 或 "&gt;=" 这样的比较运算符）时，排序顺序首先由数据类型决定。
 </p>
 
 <ul>
-<li>NULLs sort first</li>
-<li>Numeric values sort next in numerical order</li>
-<li>Text values come after numerics</li>
-<li>BLOBs sort last</li>
+<li>NULL 值首先排序</li>
+<li>数值按数字顺序排序</li>
+<li>文本值排在数值之后</li>
+<li>BLOB 最后排序</li>
 </ul>
 
 <p>
-Collating sequences are used for comparing two text strings.
-The collating sequence does not change the ordering of NULLs, numbers,
-or BLOBs, only text.
+排序序列用于比较两个文本字符串。排序序列不会改变 NULL、数字或 BLOB 的顺序，只影响文本。
 </p>
 
 <p>
-A collating sequence is implemented as a function that takes the
-two strings being compared as inputs and returns negative, zero, or
-positive if the first string is less than, equal to, or greater than
-the second.
-SQLite 3.0 comes with a single built-in collating sequence named "BINARY"
-which is implemented using the memcmp() routine from the standard C library.
-The BINARY collating sequence works well for English text.  For other
-languages or locales, alternative collating sequences may be preferred.
+排序序列通过一个函数实现，该函数接受两个被比较的字符串作为输入，并根据第一个字符串小于、等于或大于第二个字符串返回负值、零或正值。SQLite 3.0 内置了一个名为 "BINARY" 的排序序列，它使用标准 C 库中的 memcmp() 例程实现。BINARY 排序序列对英文文本效果良好。对于其他语言或区域，可能更喜欢其他排序序列。
 </p>
 
 <p>
-The decision of which collating sequence to use is controlled by the
-COLLATE clause in SQL.  A COLLATE clause can occur on a table definition,
-to define a default collating sequence to a table column, or on a field
-of an index, or in the ORDER BY clause of a SELECT statement.
-Planned enhancements to SQLite are to include standard CAST() syntax
-to allow the collating sequence of an expression to be defined.
+选择使用哪个排序序列是由 SQL 中的 COLLATE 子句控制的。COLLATE 子句可以出现在表定义中，用于为表列定义默认排序序列，也可以出现在索引字段中，或出现在 SELECT 语句的 ORDER BY 子句中。SQLite 的计划增强功能包括标准的 CAST() 语法，以允许为表达式定义排序序列。
 </p>
 
-<h3>64-bit ROWIDs</h3>
+<h3>64 位 ROWID</h3>
 
 <p>
-Every row of a table has a unique rowid.
-If the table defines a column with the type "INTEGER PRIMARY KEY" then that
-column becomes an alias for the rowid.  But with or without an INTEGER PRIMARY
-KEY column, every row still has a rowid.
+表的每一行都有一个唯一的 rowid。如果表定义了类型为 "INTEGER PRIMARY KEY" 的列，那么该列就成为 rowid 的别名。但是无论是否存在 INTEGER PRIMARY KEY 列，每一行仍然有 rowid。
 </p>
 
 <p>
-In SQLite version 3.0, the rowid is a 64-bit signed integer.
-This is an expansion of SQLite version 2.8 which only permitted
-rowids of 32-bits.
+在 SQLite 3.0 中，rowid 是一个 64 位有符号整数。这是对 SQLite 2.8 的扩展，后者只允许 32 位的 rowid。
 </p>
 
 <p>
-To minimize storage space, the 64-bit rowid is stored as a variable length
-integer.  Rowids between 0 and 127 use only a single byte.  
-Rowids between 0 and 16383 use just 2 bytes.  Up to 2097152 uses three
-bytes.  And so forth.  Negative rowids are allowed but they always use
-nine bytes of storage and so their use is discouraged.  When rowids
-are generated automatically by SQLite, they will always be non-negative.
+为尽量减少存储空间，64 位 rowid 以变长整数形式存储。rowid 在 0 到 127 之间只使用一个字节；0 到 16383 之间只使用两个字节；最多 2097152 使用三个字节，依此类推。允许使用负 rowid，但它们总是使用九个字节，因此不建议使用。当 rowid 由 SQLite 自动生成时，它们总是非负的。
 </p>
 
-<h3>Improved Concurrency</h3>
+<h3>改进的并发能力</h3>
 
 <p>
-SQLite version 2.8 allowed multiple simultaneous readers or a single
-writer but not both.  SQLite version 3.0 allows one process to begin
-writing the database while other processes continue to read.  The
-writer must still obtain an exclusive lock on the database for a brief
-interval in order to commit its changes, but the exclusive lock is no
-longer required for the entire write operation.
-A <a href="lockingv3.html">more detailed report</a> on the locking
-behavior of SQLite version 3.0 is available separately.
+SQLite 2.8 允许多个读者同时读取或一个写者写入，但不能同时进行。SQLite 3.0 允许一个进程开始写数据库时，其他进程仍继续读取。写进程仍需在提交更改时在数据库上获取一次独占锁，但不再需要在整个写操作期间保持独占锁。有关 SQLite 3.0 锁行为的更详细报告，请参见 <a href="lockingv3.html">lockingv3.html</a>。
 </p>
 
 <p>
-A limited form of table-level locking is now also available in SQLite.
-If each table is stored in a separate database file, those separate
-files can be attached to the main database (using the ATTACH command)
-and the combined databases will function as one.  But locks will only
-be acquired on individual files as needed.  So if you redefine "database"
-to mean two or more database files, then it is entirely possible for
-two processes to be writing to the same database at the same time.
-To further support this capability, commits of transactions involving
-two or more ATTACHed database are now atomic.
+SQLite 现在也提供有限形式的表级锁定。如果每个表存储在一个单独的数据库文件中，这些独立文件可以通过 ATTACH 命令附加到主数据库，并且组合后的数据库将作为一个整体工作。但锁只会在需要时对单个文件加锁。因此，如果你将 "数据库" 重新定义为两个或更多数据库文件，那么两个进程完全可能在同一时间写入同一个数据库。为了进一步支持这种能力，涉及两个或更多 ATTACH 的数据库的事务提交现在是原子的。
 </p>
 
-<h3>Credits</h3>
+<h3>鸣谢</h3>
 
 <p>
-SQLite version 3.0 is made possible in part by AOL developers
-supporting and embracing great Open-Source Software.
+SQLite 3.0 的实现部分得益于 AOL 开发者对优秀开源软件的支持与拥抱。
 </p>
-<p align="center"><small><i>This page was last updated on 2025-06-12 09:10:23Z </small></i></p>
+<p align="center"><small><i>本页面最后更新于 2025-06-12 09:10:23Z </small></i></p>
 
+</body>
+</html>

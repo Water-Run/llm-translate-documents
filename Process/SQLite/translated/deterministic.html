@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Deterministic SQL Functions</title>
+<title>确定性 SQL 函数</title>
 <!-- path= -->
 </head>
 <body>
@@ -13,39 +14,42 @@
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+<div>由WaterRun使用gpt-5.1-codex-mini翻译</div>
+精巧。快速。可靠。<br>任选五项中的三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +122,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Deterministic SQL Functions
+确定性 SQL 函数
 </div>
 </div>
 
@@ -126,21 +130,16 @@ Deterministic SQL Functions
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
 <p>
-SQL functions in SQLite can be either "deterministic" or "non-deterministic".
+SQLite 中的 SQL 函数可以是“确定性”的，也可以是“非确定性”的。
 
 </p><p>
-A deterministic function always gives the same answer when it has
-the same inputs.  Most built-in SQL functions in SQLite are
-deterministic.  For example, the <a href="lang_corefunc.html#abs">abs(X)</a> function always returns
-the same answer as long as its input X is the same.
+确定性函数在输入相同的情况下总是返回相同的答案。SQLite 中的大多数内置 SQL 函数都是确定性的。例如，只要其输入 X 相同，<a href="lang_corefunc.html#abs">abs(X)</a> 函数就始终返回相同的结果。
 
 </p><p>
-Non-deterministic functions might give different answers on each
-invocation, even if the arguments are always the same.  The following
-are examples of non-deterministic functions:
+非确定性函数即使在参数始终相同的情况下，每次调用也可能返回不同的答案。以下是一些非确定性函数的示例：
 
 </p><ul>
 <li> <a href="lang_corefunc.html#random">random()</a>
@@ -150,106 +149,47 @@ are examples of non-deterministic functions:
 </li></ul>
 
 <p>
-The <a href="lang_corefunc.html#random">random()</a> function is obviously non-deterministic because it gives
-a different answer every time it is invoked.  The answers from <a href="lang_corefunc.html#changes">changes()</a>
-and <a href="lang_corefunc.html#last_insert_rowid">last_insert_rowid()</a> depend on prior SQL statements, and so they
-are also non-deterministic. The
-<a href="c3ref/libversion.html">sqlite3_version()</a> function is mostly constant, but it can change when
-SQLite is upgraded, and so even though it always returns the same answer
-for any particular session, because it can change answers across sessions
-it is still considered non-deterministic.
+<a href="lang_corefunc.html#random">random()</a> 函数显然是非确定性的，因为每次调用都会返回不同的答案。<a href="lang_corefunc.html#changes">changes()</a> 和 <a href="lang_corefunc.html#last_insert_rowid">last_insert_rowid()</a> 的结果取决于先前的 SQL 语句，因此它们也是非确定性的。<a href="c3ref/libversion.html">sqlite3_version()</a> 函数在大多数情况下是恒定的，但在 SQLite 升级时它可能会改变，因此即使在某个特定会话中它始终返回相同结果，由于跨会话答案可能发生变化，它仍然被视为非确定性。
 
-
-</p><h1 id="restrictions_on_the_use_of_non_deterministic_functions"><span>2. </span>Restrictions on the use of non-deterministic functions</h1>
+</p><h1 id="restrictions_on_the_use_of_non_deterministic_functions"><span>2. </span>使用非确定性函数的限制</h1>
 
 <p>
-There are some contexts in SQLite that do not allow the use of
-non-deterministic functions:
+SQLite 中有一些上下文不允许使用非确定性函数：
 
 </p><ul>
-<li>In the expression of a <a href="lang_createtable.html#ckconst">CHECK constraint</a>.
-</li><li>In the WHERE clause of a <a href="partialindex.html">partial index</a>.
-</li><li>In an expression used as part of an <a href="expridx.html">expression index</a>.
-</li><li>In the expression of a <a href="gencol.html">generated column</a>.
+<li>在 <a href="lang_createtable.html#ckconst">CHECK 约束</a> 的表达式中。
+</li><li>在 <a href="partialindex.html">部分索引</a> 的 WHERE 子句中。
+</li><li>在用作 <a href="expridx.html">表达式索引</a> 的一部分的表达式中。
+</li><li>在 <a href="gencol.html">生成列</a> 的表达式中。
 </li></ul>
 
 <p>
-In the cases above, the values returned by the function affects the
-information stored in the database file.  The values of functions
-in CHECK constraints determines which entries are valid for a table,
-and functions in the WHERE clause of a partial index or in an index on
-an expression compute values stored in the index b-tree.
-If any of these functions later returns a different
-value, then the database might no longer be well-formed.  
-Hence, to avoid database corruption,
-only deterministic functions can be used in the contexts
-above.
+在上述情况下，函数返回的值会影响数据库文件中存储的信息。CHECK 约束中的函数值决定了表中哪些条目是有效的，部分索引的 WHERE 子句或表达式索引中的函数会计算存储在索引 B 树中的值。如果其中任何一个函数后来返回了不同的值，那么数据库可能不再是良好结构。因此，为了避免数据库损坏，上述上下文中只能使用确定性函数。
 
 <a name="dtexception"></a>
 
-</p><h1 id="special_case_processing_for_date_time_functions"><span>3. </span>Special-case Processing For Date/Time Functions</h1>
+</p><h1 id="special_case_processing_for_date_time_functions"><span>3. </span>日期/时间函数的特殊处理</h1>
 
 <p>
-The built-in <a href="lang_datefunc.html">date and time functions</a> of SQLite are a special case.
-These functions are usually considered deterministic.  However, if
-these functions use the string "now" as the date, or if they use
-the <a href="lang_datefunc.html#localtime">localtime modifier</a> or the <a href="lang_datefunc.html#localtime">utc modifier</a>, then they are
-considered non-deterministic.  Because the function inputs are
-not necessarily known until run-time, the date/time functions will
-throw an exception if they encounter any of the non-deterministic
-features in a context where only deterministic functions are allowed.
+SQLite 的内置<a href="lang_datefunc.html">日期和时间函数</a>是一个特殊情况。这些函数通常被认为是确定性的。然而，如果这些函数使用字符串“now”作为日期，或者使用<a href="lang_datefunc.html#localtime">localtime 修饰符</a>或<a href="lang_datefunc.html#localtime">utc 修饰符</a>，那么它们就被视为非确定性的。因为函数的输入在运行时之前不一定已知，所以如果这些日期/时间函数在仅允许确定性函数的上下文中遇到任何非确定性特性，它们会抛出异常。
 
 </p><p>
-Prior to SQLite 3.20.0 (2017-08-01) all date/time functions were
-always considered non-deterministic.  The ability for date/time functions
-to be deterministic sometimes and non-deterministic at other times,
-depending on their arguments, was added for the 3.20.0 release.
+在 SQLite 3.20.0（2017-08-01）之前，所有日期/时间函数始终被视为非确定性的。根据其参数，日期/时间函数有时是确定性的、有时是非确定性的这一能力是在 3.20.0 版本中添加的。
 
-</p><h2 id="bug_fix_in_version_3_35_2"><span>3.1. </span>Bug fix in version 3.35.2</h2>
+</p><h2 id="bug_fix_in_version_3_35_2"><span>3.1. </span>版本 3.35.2 的错误修复</h2>
 
 <p>
-When the enhancement was made to SQLite 3.20.0 such that date/time
-functions would be considered deterministic as they do not depend
-on the current time, one case was overlooked:
-Many of the date/time functions can be called
-with no arguments at all.  These no-argument date/time functions
-behave as if they had a single "<tt>'now'</tt>" argument.
-Thus "<tt>datetime()</tt>" and
-"<tt>datetime('now')</tt>" both yield the current date and time.
-However, only the second form was recognized as non-deterministic.
-This meant that developers could sneak the non-deterministic
-"<tt>datetime()</tt>" form into CHECK constraints, index
-expressions, generated column expressions, and similar places
-where non-deterministic functions make no sense.
-This oversight was fixed in version 3.35.2 (2021-03-17).
-However, there may be legacy databases in circulation that were created
-by SQLite version 3.20.0 through 3.35.1 that have non-deterministic
-date/time functions in their schemas.
+当 SQLite 3.20.0 引入增强，使得日期/时间函数在不依赖当前时间的情况下被视为确定性时，一个情况被忽略了：许多日期/时间函数可以在完全没有参数的情况下调用。这些无参数的日期/时间函数表现得就像它们有一个单独的“<tt>'now'</tt>”参数。因此 “<tt>datetime()</tt>” 和 “<tt>datetime('now')</tt>” 都会返回当前的日期和时间。然而，只有第二种形式被视为非确定性的。这意味着开发者可以将非确定性的 “<tt>datetime()</tt>” 形式悄悄地插入到 CHECK 约束、索引表达式、生成列表达式以及其他不允许非确定性函数的地方。该漏洞在 3.35.2（2021-03-17）版本中修复。然而，可能仍有由 SQLite 3.20.0 到 3.35.1 创建的旧数据库，其模式中包含非确定性的日期/时间函数。
 
-</p><h1 id="application_defined_deterministic_functions"><span>4. </span>Application-defined deterministic functions</h1>
+</p><h1 id="application_defined_deterministic_functions"><span>4. </span>应用程序定义的确定性函数</h1>
 
 <p>
-By default, <a href="appfunc.html">application-defined SQL functions</a> are considered to
-be non-deterministic.  However, if the 4th parameter to
-<a href="c3ref/create_function.html">sqlite3_create_function_v2()</a> is OR-ed with 
-<a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a>, then SQLite will treat that function as if it
-were deterministic.
+默认情况下，<a href="appfunc.html">应用程序定义的 SQL 函数</a>被视为非确定性的。然而，如果将 <a href="c3ref/create_function.html">sqlite3_create_function_v2()</a> 的第四个参数与 <a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a> 进行按位或运算，那么 SQLite 会将该函数视为确定性函数。
 
 </p><p>
-Note that if a non-deterministic function is tagged with
-<a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a> and if that function ends up being used in
-the WHERE clause of a <a href="partialindex.html">partial index</a> or in an
-<a href="expridx.html">expression index</a>, then when the function begins to return different
-answers, the associated index may become corrupt.  If an SQL function
-is nearly deterministic (which is to say, if it only rarely changes,
-like <a href="lang_corefunc.html#sqlite_version">sqlite_version()</a>) and it is used in an index that becomes
-corrupt, the corruption can be fixed by running <a href="lang_reindex.html">REINDEX</a>.
+请注意，如果一个非确定性函数被标记为 <a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a>，并且该函数最终用于 <a href="partialindex.html">部分索引</a> 的 WHERE 子句或 <a href="expridx.html">表达式索引</a> 中，那么当该函数开始返回不同答案时，相关索引可能会损坏。如果某个 SQL 函数几乎是确定性的（也就是说，它很少变化，比如 <a href="lang_corefunc.html#sqlite_version">sqlite_version()</a>），并且它被用于导致索引损坏的索引中，则可以通过运行 <a href="lang_reindex.html">REINDEX</a> 来修复损坏。
 
 </p><p>
-The interfaces necessary to construct a function that is sometimes
-deterministic and sometimes non-deterministic depending on their
-inputs, such as the built-in date/time functions, are not published.
-Generic <a href="appfunc.html">application-defined SQL functions</a> must
-be always deterministic or always non-deterministic.
+构造一个根据输入有时是确定性、有时是非确定性的函数（如内置的日期/时间函数）所需的接口并未公开。通用的<a href="appfunc.html">应用程序定义的 SQL 函数</a>必须始终是确定性的或始终是非确定性的。
 </p>
 

@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translator-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,95 +121,88 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<h2>SQLite Release 3.21.0 On 2017-10-24</h2><p><ol class='lessindent'>
-<li> Take advantage of the atomic-write capabilities in the
-     <a href="https://en.wikipedia.org/wiki/F2FS">F2FS filesystem</a> when available, for
-     greatly reduced transaction overhead.  This currently requires the
-     <a href="../compile.html#enable_batch_atomic_write">SQLITE_ENABLE_BATCH_ATOMIC_WRITE</a> compile-time option.
-<li> Allow <a href="../lang_attach.html">ATTACH</a> and <a href="../lang_detach.html">DETACH</a> commands to work inside of a transaction.
-<li> Allow <a href="../vtab.html#worid">WITHOUT ROWID virtual tables</a> to be writable if the PRIMARY KEY
-     contains exactly one column.
-<li> The "fsync()" that occurs after the header is written in a WAL reset
-     now uses the sync settings for checkpoints.  This means it will use a
-     "fullfsync" on macs if <a href="../pragma.html#pragma_checkpoint_fullfsync">PRAGMA checkpoint_fullfsync</a> set on.
-<li> The <a href="../c3ref/libversion.html">sqlite3_sourceid()</a> function tries to detect if the source code has
-     been modified from what is checked into version control and if there are
-     modifications, the last four characters of the version hash are shown as
-     "alt1" or "alt2".  The objective is to detect accidental and/or careless
-     edits.  A forger can subvert this feature.
-<li> Improved de-quoting of column names for <a href="../lang_createtable.html#createtabas">CREATE TABLE AS</a> statements with
-     an aggregate query on the right-hand side.
-<li> Fewer "stat()" system calls issued by the unix VFS.
-<li> Enhanced the <a href="../optoverview.html#like_opt">LIKE optimization</a> so that it works with an <a href="../lang_expr.html#like">ESCAPE</a> clause.
-<li> Enhanced <a href="../pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> and <a href="../pragma.html#pragma_quick_check">PRAGMA quick_check</a> to detect obscure
-     row corruption that they were formerly missing.  Also update both pragmas
-     so that they return error text rather than SQLITE_CORRUPT when encountering
-     corruption in <a href="../fileformat2.html#record_format">records</a>.
-<li> The query planner now prefers to implement FROM-clause subqueries using
-     <a href="../optoverview.html#coroutines">co-routines</a> rather using the <a href="../optoverview.html#flattening">query flattener</a> optimization.  Support for
-     the use of co-routines for subqueries may no longer be disabled.
-<li> Pass information about !=, IS, IS NOT, NOT NULL, and IS NULL constraints
-     into the <a href="../vtab.html#xbestindex">xBestIndex</a> method of virtual tables.
-<li> Enhanced the <a href="../csv.html">CSV virtual table</a> so that it accepts the last row of
-     input if the final new-line character is missing.
-<li> Remove the rarely-used "scratch" memory allocator.  Replace it with the
-     <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigsmallmalloc">SQLITE_CONFIG_SMALL_MALLOC</a> configuration setting that gives SQLite
-     a hint that large memory allocations should be avoided when possible.
-<li> Added the
-     <a href="https://sqlite.org/src/file/ext/misc/unionvtab.c">swarm virtual table</a>
-     to the existing union virtual table extension.
-<li> Added the
-     <a href="https://sqlite.org/src/file/src/dbpage.c">sqlite_dbpage virtual table</a>
-     for providing direct access to pages
-     of the database file.  The source code is built into the <a href="../amalgamation.html">amalgamation</a> and
-     is activated using the <a href="../compile.html#enable_dbpage_vtab">-DSQLITE_ENABLE_DBPAGE_VTAB</a> compile-time option.
-<li> Add a new type of fts5vocab virtual table - "instance" - that provides
-     direct access to an FTS5 full-text index at the lowest possible level.
-<li> Remove a call to rand_s() in the Windows VFS since it was causing problems
-     in Firefox on some older laptops.
-<li> The <a href="https://sqlite.org/src/finfo?name=src/shell.c">src/shell.c</a> source code
-     to the <a href="../cli.html">command-line shell</a> is no longer under version control.  That file
-     is now generated as part of the build process.
-<li> Miscellaneous <a href="../cpu.html#microopt">microoptimizations</a> reduce CPU usage by about 2.1%.
-<li> Bug fixes:
+<h2>2017-10-24 发布的 SQLite 3.21.0</h2><p><ol class='lessindent'>
+<li> 在可用时利用
+     <a href="https://en.wikipedia.org/wiki/F2FS">F2FS 文件系统</a>的原子写能力，
+     可以大幅降低事务开销。目前这需要
+     <a href="../compile.html#enable_batch_atomic_write">SQLITE_ENABLE_BATCH_ATOMIC_WRITE</a> 编译时选项。
+<li> 允许 <a href="../lang_attach.html">ATTACH</a> 和 <a href="../lang_detach.html">DETACH</a> 命令在事务内部运行。
+<li> 如果 PRIMARY KEY 仅包含一列，则允许 <a href="../vtab.html#worid">WITHOUT ROWID 虚拟表</a> 可写。
+<li> 在 WAL 重置中写入头部后发生的 "fsync()" 现在使用检查点的同步设置。
+     这意味着如果在 mac 上启用了
+     <a href="../pragma.html#pragma_checkpoint_fullfsync">PRAGMA checkpoint_fullfsync</a>，
+     则会使用 "fullfsync"。
+<li> <a href="../c3ref/libversion.html">sqlite3_sourceid()</a> 函数尝试检测源代码是否
+     与版本控制中的内容不同，如果有修改，则在版本哈希的最后四个字符上显示
+     "alt1" 或 "alt2"。目的是检测意外或疏忽的编辑。
+     该机制可以被伪造。
+<li> 改进了在右侧包含聚合查询的
+     <a href="../lang_createtable.html#createtabas">CREATE TABLE AS</a> 语句中列名的去引号处理。
+<li> unix VFS 发出的 "stat()" 系统调用减少。
+<li> 增强了 <a href="../optoverview.html#like_opt">LIKE 优化</a>，使其可以与
+     <a href="../lang_expr.html#like">ESCAPE</a> 子句一起工作。
+<li> 增强了 <a href="../pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 和
+     <a href="../pragma.html#pragma_quick_check">PRAGMA quick_check</a>，以检测以前遗漏的隐蔽行损坏。
+     同时更新这两个 pragma，使其在遇到
+     <a href="../fileformat2.html#record_format">记录</a> 损坏时返回错误文本，而不是 SQLITE_CORRUPT。
+<li> 查询规划器现在更倾向于使用
+     <a href="../optoverview.html#coroutines">协程</a> 实现 FROM 子查询，而不是使用
+     <a href="../optoverview.html#flattening">查询扁平化</a> 优化。协程对子查询的支持不能再被禁用。
+<li> 传递 !=、IS、IS NOT、NOT NULL 以及 IS NULL 约束的信息到虚拟表的
+     <a href="../vtab.html#xbestindex">xBestIndex</a> 方法。
+<li> 强化了 <a href="../csv.html">CSV 虚拟表</a>，在最终换行符缺失时也接受最后一行输入。
+<li> 删除了很少使用的 "scratch" 内存分配器。改用
+     <a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigsmallmalloc">SQLITE_CONFIG_SMALL_MALLOC</a>
+     配置，提示 SQLite 尽量避免大内存分配。
+<li> 将
+     <a href="https://sqlite.org/src/file/ext/misc/unionvtab.c">群集虚拟表</a>
+     添加到现有的并集虚拟表扩展中。
+<li> 添加了
+     <a href="https://sqlite.org/src/file/src/dbpage.c">sqlite_dbpage 虚拟表</a>，
+     用于直接访问数据库文件的页面。
+     源代码已内置在 <a href="../amalgamation.html">合并源</a> 中，
+     可通过 <a href="../compile.html#enable_dbpage_vtab">-DSQLITE_ENABLE_DBPAGE_VTAB</a>
+     编译时选项激活。
+<li> 添加了一种新的 fts5vocab 虚拟表类型 - “instance” - 它在最低层级提供对 FTS5 全文索引的直接访问。
+<li> 在 Windows VFS 中删除了 rand_s() 的调用，因为它在某些旧款笔记本的 Firefox 中引发问题。
+<li> <a href="https://sqlite.org/src/finfo?name=src/shell.c">src/shell.c</a> 源代码
+     现在不再受版本控制。该文件现由构建过程生成。
+<li> 各种 <a href="../cpu.html#microopt">微优化</a> 将 CPU 使用率降低约 2.1%。
+<li> 错误修复：
 <ol type="a">
-  <li> Fix a faulty assert() statement discovered by OSSFuzz.
-       Ticket <a href="https://sqlite.org/src/info/cb91bf4290c211d">cb91bf4290c211d</a>
-  <li> Fix an obscure memory leak in <a href="../c3ref/result_blob.html">sqlite3_result_pointer()</a>.
-       Ticket <a href="https://sqlite.org/src/info/7486aa54b968e9b">7486aa54b968e9b</a>
-  <li> Avoid a possible use-after-free error by deferring schema resets until
-       after the query planner has finished running.
-       Ticket <a href="https://sqlite.org/src/info/be436a7f4587ce5">be436a7f4587ce5</a>
-  <li> Only use indexes-on-expressions to optimize ORDER BY or GROUP BY if
-       the COLLATE is correct.
-       Ticket <a href="https://sqlite.org/src/info/e20dd54ab0e4383">e20dd54ab0e4383</a>
-  <li> Fix an assertion fault that was coming up when the expression in an
-       index-on-expressions is really a constant.
-       Ticket <a href="https://sqlite.org/src/info/aa98619ad08ddca">aa98619ad08ddca</a>
-  <li> Fix an assertion fault that could occur following
-       <a href="../pragma.html#pragma_reverse_unordered_selects">PRAGMA reverse_unordered_selects</a>.
-       Ticket <a href="https://sqlite.org/src/info/cb91bf4290c211d">cb91bf4290c211d</a>
-  <li> Fix a segfault that can occur for queries that use table-valued functions
-       in an IN or EXISTS subquery.
-       Ticket <a href="https://sqlite.org/src/info/b899b6042f97f5">b899b6042f97f5</a>
-  <li> Fix a potential integer overflow problem when compiling a particular
-       horrendous common table expression.  This was another problem discovered
-       by OSSFuzz.  Check-in <a href="https://sqlite.org/src/info/6ee8cb6ae5">6ee8cb6ae5</a>.
-  <li> Fix a potential out-of-bound read when querying a corrupt database file,
-       a problem detected by Natalie Silvanovich of Google Project Zero.
-       Check-in <a href="https://sqlite.org/src/info/04925dee41a21f">04925dee41a21f</a>.
+  <li> 修复 OSSFuzz 发现的错误 assert() 语句。
+       票据 <a href="https://sqlite.org/src/info/cb91bf4290c211d">cb91bf4290c211d</a>
+  <li> 修复 <a href="../c3ref/result_blob.html">sqlite3_result_pointer()</a> 中一个隐蔽的内存泄漏。
+       票据 <a href="https://sqlite.org/src/info/7486aa54b968e9b">7486aa54b968e9b</a>
+  <li> 通过延迟模式重置直到查询规划器完成运行，避免可能的释放后使用错误。
+       票据 <a href="https://sqlite.org/src/info/be436a7f4587ce5">be436a7f4587ce5</a>
+  <li> 仅在 COLLATE 正确时使用表达式索引优化 ORDER BY 或 GROUP BY。
+       票据 <a href="https://sqlite.org/src/info/e20dd54ab0e4383">e20dd54ab0e4383</a>
+  <li> 修复在表达式索引中表达式为常量时出现的断言错误。
+       票据 <a href="https://sqlite.org/src/info/aa98619ad08ddca">aa98619ad08ddca</a>
+  <li> 修复在
+       <a href="../pragma.html#pragma_reverse_unordered_selects">PRAGMA reverse_unordered_selects</a>
+       后可能出现的断言错误。
+       票据 <a href="https://sqlite.org/src/info/cb91bf4290c211d">cb91bf4290c211d</a>
+  <li> 修复使用表值函数的 IN 或 EXISTS 子查询可能引发的段错误。
+       票据 <a href="https://sqlite.org/src/info/b899b6042f97f5">b899b6042f97f5</a>
+  <li> 修复编译某个复杂公共表表达式时可能发生的整数溢出问题。
+       这是 OSSFuzz 发现的另一问题。提交 <a href="https://sqlite.org/src/info/6ee8cb6ae5">6ee8cb6ae5</a>。
+  <li> 修复查询损坏数据库文件时可能出现的越界读取，
+       该问题由 Google Project Zero 的 Natalie Silvanovich 发现。
+       提交 <a href="https://sqlite.org/src/info/04925dee41a21f">04925dee41a21f</a>。
 </ol>
-<p><b>Hashes:</b>
-<li>SQLITE_SOURCE_ID: "2017-10-24 18:55:49 1a584e499906b5c87ec7d43d4abce641fdf017c42125b083109bc77c4de48827"
-<li>SHA3-256 for sqlite3.c: 84c181c0283d0320f488357fc8aab51898370c157601459ebee49d779036fe03
+<p><b>哈希值：</b>
+<li>SQLITE_SOURCE_ID：“2017-10-24 18:55:49 1a584e499906b5c87ec7d43d4abce641fdf017c42125b083109bc77c4de48827”
+<li>sqlite3.c 的 SHA3-256：84c181c0283d0320f488357fc8aab51898370c157601459ebee49d779036fe03
 
 </ol></p>
 
-      <p>A <a href="../changes.html">complete list of SQLite releases</a>
-      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
-      A detailed history of every
-      check-in is available at
+      <p>在一个页面上的
+      <a href="../changes.html">SQLite 发行版完整列表</a>
+      以及一个
+      <a href="../chronology.html">年表</a> 也都可用。
+      每次提交的详细历史可在
       <a href="https://sqlite.org/src/timeline">
-      SQLite version control site</a>.</p>
+      SQLite 版本控制站点</a> 查阅。</p>
     
-

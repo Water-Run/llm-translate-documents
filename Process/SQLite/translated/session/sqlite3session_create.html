@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note" style="text-align:right;font-size:12px;margin-bottom:4px;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
 Small. Fast. Reliable.<br>Choose any three.
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">文档搜索</option>
+<option value="c">变更日志搜索</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,40 +121,31 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Create A New Session Object</h2><blockquote><pre>int sqlite3session_create(
-  sqlite3 *db,                    /* Database handle */
-  const char *zDb,                /* Name of db (e.g. "main") */
-  sqlite3_session **ppSession     /* OUT: New session object */
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>创建一个新的会话对象</h2><blockquote><pre>int sqlite3session_create(
+  sqlite3 *db,                    /* 数据库句柄 */
+  const char *zDb,                /* 数据库名称（例如 “main”） */
+  sqlite3_session **ppSession     /* 输出：新的会话对象 */
 );
 </pre></blockquote><p>
-Create a new session object attached to database handle db. If successful,
-a pointer to the new object is written to *ppSession and SQLITE_OK is
-returned. If an error occurs, *ppSession is set to NULL and an SQLite
-error code (e.g. SQLITE_NOMEM) is returned.</p>
+创建一个附加到数据库句柄 db 的新会话对象。 如果成功，则会将新对象的指针写入 *ppSession 并返回 SQLITE_OK。
+如果发生错误，则 *ppSession 将设置为 NULL 并返回一个 SQLite 错误代码（例如 SQLITE_NOMEM）。</p>
 
-<p>It is possible to create multiple session objects attached to a single
-database handle.</p>
+<p>可以创建多个附加到同一个数据库句柄的会话对象。</p>
 
-<p>Session objects created using this function should be deleted using the
-<a href="../session/sqlite3session_delete.html">sqlite3session_delete()</a> function before the database handle that they
-are attached to is itself closed. If the database handle is closed before
-the session object is deleted, then the results of calling any session
-module function, including <a href="../session/sqlite3session_delete.html">sqlite3session_delete()</a> on the session object
-are undefined.</p>
+<p>使用此函数创建的会话对象应在其附加的数据库句柄自身关闭之前
+通过 <a href="../session/sqlite3session_delete.html">sqlite3session_delete()</a> 函数将其删除。
+如果在删除会话对象之前关闭数据库句柄，则对该会话对象调用任何会话模块函数的结果（包括
+<a href="../session/sqlite3session_delete.html">sqlite3session_delete()</a>）都是未定义的。</p>
 
-<p>Because the session module uses the <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> API, it
-is not possible for an application to register a pre-update hook on a
-database handle that has one or more session objects attached. Nor is
-it possible to create a session object attached to a database handle for
-which a pre-update hook is already defined. The results of attempting 
-either of these things are undefined.</p>
+<p>由于会话模块使用 <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> API，因此
+应用程序无法在附加了一个或多个会话对象的数据库句柄上注册预更新钩子。
+也无法创建附加到已经为其定义了预更新钩子的数据库句柄的会话对象。
+尝试执行上述任一操作的结果都是未定义的。</p>
 
-<p>The session object will be used to create changesets for tables in
-database zDb, where zDb is either "main", or "temp", or the name of an
-attached database. It is not an error if database zDb is not attached
-to the database when the session object is created.
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>会话对象将用于为数据库 zDb 中的表创建更改集，其中 zDb 可为 “main”、“temp” 或附加数据库的名称。
+在创建会话对象时，如果数据库 zDb 未附加到数据库，也不会被视为错误。
+</p><p>另请参见以下列表：
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a>。</p>
 

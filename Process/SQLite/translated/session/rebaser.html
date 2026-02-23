@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Rebasing changesets</title>
+<title>变更集重写基底</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,43 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">由WaterRun使用gpt-5.1-codex-mini翻译</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,103 +119,55 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Rebasing changesets</h2><blockquote><pre>typedef struct sqlite3_rebaser sqlite3_rebaser;
-</pre></blockquote><p><b>Important:</b> This interface is <a href="../c3ref/experimental.html">experimental</a> and is subject to change without notice.</p><p>
-Suppose there is a site hosting a database in state S0. And that
-modifications are made that move that database to state S1 and a
-changeset recorded (the "local" changeset). Then, a changeset based
-on S0 is received from another site (the "remote" changeset) and 
-applied to the database. The database is then in state 
-(S1+"remote"), where the exact state depends on any conflict
-resolution decisions (OMIT or REPLACE) made while applying "remote".
-Rebasing a changeset is to update it to take those conflict 
-resolution decisions into account, so that the same conflicts
-do not have to be resolved elsewhere in the network. </p>
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>变更集重写基底</h2><blockquote><pre>typedef struct sqlite3_rebaser sqlite3_rebaser;
+</pre></blockquote><p><b>重要提示：</b>此接口为<a href="../c3ref/experimental.html">实验性</a>，可能随时更改，恕不另行通知。</p><p>
+假设某站点托管的数据库处于状态 S0。然后对其进行修改，使数据库转为状态 S1，并记录一个变更集（“本地”变更集）。接着，从另一站点接收一个基于 S0 的变更集（“远程”变更集）并将其应用到数据库。数据库此时处于状态 (S1+"remote")，其精确状态取决于应用“远程”时所做的冲突解决决定（OMIT 或 REPLACE）。重写基底本地变更集即是更新它以反映这些冲突解决决定，从而使网络其他地方不必再次解决相同冲突。</p>
 
-<p>For example, if both the local and remote changesets contain an
-INSERT of the same key on "CREATE TABLE t1(a PRIMARY KEY, b)":</p>
+<p>例如，如果本地和远程变更集都包含在 "CREATE TABLE t1(a PRIMARY KEY, b)" 上插入相同键的 INSERT：</p>
 
-<p>  local:  INSERT INTO t1 VALUES(1, 'v1');
-  remote: INSERT INTO t1 VALUES(1, 'v2');</p>
+<p>  本地:  INSERT INTO t1 VALUES(1, 'v1');
+  远程: INSERT INTO t1 VALUES(1, 'v2');</p>
 
-<p>and the conflict resolution is REPLACE, then the INSERT change is
-removed from the local changeset (it was overridden). Or, if the
-conflict resolution was "OMIT", then the local changeset is modified
-to instead contain:</p>
+<p>且冲突解决为 REPLACE，则该 INSERT 更改将从本地变更集中删除（它被覆盖）。或者，如果冲突解决为 "OMIT"，则本地变更集改为包含：</p>
 
 <p>          UPDATE t1 SET b = 'v2' WHERE a=1;</p>
 
-<p>Changes within the local changeset are rebased as follows:</p>
+<p>本地变更集中的更改将按如下方式重写基底：</p>
 
 <p><dl>
-<dt>Local INSERT<dd>
-  This may only conflict with a remote INSERT. If the conflict 
-  resolution was OMIT, then add an UPDATE change to the rebased
-  changeset. Or, if the conflict resolution was REPLACE, add
-  nothing to the rebased changeset.</p>
+<dt>本地 INSERT<dd>
+  这只可能与远程 INSERT 冲突。如果冲突解决为 OMIT，则在重写基底后的变更集中添加一个 UPDATE 更改。或者，如果冲突解决为 REPLACE，则在重写后的变更集中不添加任何内容。</p>
 
-<p><dt>Local DELETE<dd>
-  This may conflict with a remote UPDATE or DELETE. In both cases the
-  only possible resolution is OMIT. If the remote operation was a
-  DELETE, then add no change to the rebased changeset. If the remote
-  operation was an UPDATE, then the old.* fields of change are updated
-  to reflect the new.* values in the UPDATE.</p>
+<p><dt>本地 DELETE<dd>
+  这可能与远程 UPDATE 或 DELETE 冲突。在两种情况下，唯一可能的解决方案都是 OMIT。如果远程操作是 DELETE，则在重写后的变更集中不添加任何更改。如果远程操作是 UPDATE，则 change 的 old.* 字段更新为该 UPDATE 中的 new.* 值。</p>
 
-<p><dt>Local UPDATE<dd>
-  This may conflict with a remote UPDATE or DELETE. If it conflicts
-  with a DELETE, and the conflict resolution was OMIT, then the update
-  is changed into an INSERT. Any undefined values in the new.* record
-  from the update change are filled in using the old.* values from
-  the conflicting DELETE. Or, if the conflict resolution was REPLACE,
-  the UPDATE change is simply omitted from the rebased changeset.</p>
+<p><dt>本地 UPDATE<dd>
+  这可能与远程 UPDATE 或 DELETE 冲突。如果与 DELETE 冲突，且冲突解决为 OMIT，则该 UPDATE 更改会变为 INSERT。UPDATE 更改中的 new.* 记录中任何未定义的值都用冲突 DELETE 的 old.* 值填充。或者，如果冲突解决为 REPLACE，则该 UPDATE 更改会从重写后的变更集中直接省略。</p>
 
-<p>  If conflict is with a remote UPDATE and the resolution is OMIT, then
-  the old.* values are rebased using the new.* values in the remote
-  change. Or, if the resolution is REPLACE, then the change is copied
-  into the rebased changeset with updates to columns also updated by
-  the conflicting remote UPDATE removed. If this means no columns would 
-  be updated, the change is omitted.
+<p>  若与远程 UPDATE 冲突且解决方案为 OMIT，则 old.* 值以远程更改中的 new.* 值重写。或者，如果解决方案为 REPLACE，则在重写后的变更集中复制该更改，但移除冲突远程 UPDATE 也已更新的列。如果这意味着不会更新任何列，则该更改被省略。
 </dl></p>
 
-<p>A local change may be rebased against multiple remote changes 
-simultaneously. If a single key is modified by multiple remote 
-changesets, they are combined as follows before the local changeset
-is rebased:</p>
+<p>本地更改可能同时针对多个远程更改进行重写基底。如果单个键被多个远程变更集修改，则在对本地变更集进行重写基底之前，先按以下方式合并它们：</p>
 
 <p><ul>
-   <li> If there has been one or more REPLACE resolutions on a
-        key, it is rebased according to a REPLACE.</p>
+   <li> 如果对某键已有一次或多次 REPLACE 解决，则按 REPLACE 重写基底该键。</li>
 
-<p>   <li> If there have been no REPLACE resolutions on a key, then
-        the local changeset is rebased according to the most recent
-        of the OMIT resolutions.
+<p>   <li> 如果某键没有任何 REPLACE 解决，则本地变更集按照最近一次 OMIT 解决重写基底。
 </ul></p>
 
-<p>Note that conflict resolutions from multiple remote changesets are 
-combined on a per-field basis, not per-row. This means that in the 
-case of multiple remote UPDATE operations, some fields of a single 
-local change may be rebased for REPLACE while others are rebased for 
-OMIT.</p>
+<p>注意，来自多个远程变更集的冲突解决是按字段逐个合并的，而不是按行合并。这意味着在多个远程 UPDATE 操作的情况下，单个本地更改的某些字段可能按照 REPLACE 重写，而其他字段则按照 OMIT 重写。</p>
 
-<p>In order to rebase a local changeset, the remote changeset must first
-be applied to the local database using sqlite3changeset_apply_v2() and
-the buffer of rebase information captured. Then:</p>
+<p>为了重写本地变更集，必须先使用 sqlite3changeset_apply_v2() 将远程变更集应用到本地数据库，并记录重写基底信息的缓冲区。然后：</p>
 
 <p><ol>
-  <li> An sqlite3_rebaser object is created by calling 
-       sqlite3rebaser_create().
-  <li> The new object is configured with the rebase buffer obtained from
-       sqlite3changeset_apply_v2() by calling sqlite3rebaser_configure().
-       If the local changeset is to be rebased against multiple remote
-       changesets, then sqlite3rebaser_configure() should be called
-       multiple times, in the same order that the multiple
-       sqlite3changeset_apply_v2() calls were made.
-  <li> Each local changeset is rebased by calling sqlite3rebaser_rebase().
-  <li> The sqlite3_rebaser object is deleted by calling
-       sqlite3rebaser_delete().
+  <li> 通过调用 sqlite3rebaser_create() 创建一个 sqlite3_rebaser 对象。
+  <li> 通过调用 sqlite3rebaser_configure() 使用从 sqlite3changeset_apply_v2() 获取的重写基底缓冲区配置新对象。如果要针对多个远程变更集重写本地变更集，则 sqlite3rebaser_configure() 应该按照执行多个 sqlite3changeset_apply_v2() 调用的顺序多次调用。
+  <li> 通过调用 sqlite3rebaser_rebase() 重写每个本地变更集。
+  <li> 通过调用 sqlite3rebaser_delete() 删除 sqlite3_rebaser 对象。
 </ol>
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+</p><p>另请参阅
+  <a href="../session/objlist.html">对象</a>列表、
+  <a href="../session/constlist.html">常量</a>列表以及
+  <a href="../session/funclist.html">函数</a>列表。</p>
 
+</body></html>

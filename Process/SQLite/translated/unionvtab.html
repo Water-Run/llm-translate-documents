@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The UNION Virtual Table</title>
+<title>UNION 虚拟表</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The UNION Virtual Table
+UNION 虚拟表
 </div>
 </div>
 
@@ -128,111 +134,75 @@ The UNION Virtual Table
 
 <ol>
 <li value="100"><p>
-The UNION virtual table (hereafter: "union-vtab")
-is a <a href="vtab.html">virtual table</a> that makes multiple independent
-<a href="rowidtable.html">rowid tables</a> tables look like a single large table.
+UNION 虚拟表（以下简称“union-vtab”）是一个 <a href="vtab.html">虚拟表</a>，它可让多个独立的 <a href="rowidtable.html">rowid 表</a> 看起来像一个大型表。
 
 </p></li><li value="110"><p>
-The tables that participate in a union-vtab can be in the same 
-database file, or they can be in separate databases files that
-are <a href="lang_attach.html">ATTACH</a>-ed to the same database connection.
+参与 union-vtab 的表可以在同一数据库文件中，或在通过 <a href="lang_attach.html">ATTACH</a> 附加到同一数据库连接的若干数据库文件中。
 
 </p></li><li value="120"><p>
-The union-vtab is not built into SQLite.
-Union-vtab is a <a href="loadext.html">loadable extension</a>.
-The source code for union-vtab is contained in a single file located at
-<a href="https://sqlite.org/src/file/ext/misc/unionvtab.c">ext/misc/unionvtab.c</a>
-in the SQLite source tree.
+union-vtab 并非内置于 SQLite。它是一个 <a href="loadext.html">可加载扩展</a>。union-vtab 的源代码位于 SQLite 源代码树中的单个文件 <a href="https://sqlite.org/src/file/ext/misc/unionvtab.c">ext/misc/unionvtab.c</a>。
 
 </p></li><li value="200"><p>
-A new union-vtab instance is created as follows:
+创建一个新的 union-vtab 实例如下：
 
 </p><blockquote>
 <b>CREATE VIRTUAL TABLE temp.</b><i>tabname</i> <b>USING unionvtab(</b><i>query</i><b>);</b>
 </blockquote>
 
 </li><li value="210"><p>
-Every union-vtab must be in the TEMP namespace.  Hence, the "<b>temp.</b>"
-prior to <i>tabname</i> is required.  Only the union-vtab itself is required
-to be in the TEMP namespace - the individual tables that are being unioned
-can be any <a href="lang_attach.html">ATTACH</a>-ed database.
+每个 union-vtab 都必须位于 TEMP 命名空间。因此在 <i>tabname</i> 前的 "<b>temp.</b>" 是必须的。只有 union-vtab 本身必须在 TEMP 命名空间中，参与 union 的各个表可以是任何 <a href="lang_attach.html">ATTACH</a> 的数据库。
 
 </p></li><li value="220"><p>
-The <i>query</i> in the CREATE VIRTUAL TABLE statement for a union-vtab 
-must be a well-formed SQL query that returns four columns and an 
-arbitrary number of rows.  Each row in the result of the <i>query</i>
-represents a single table that is to participate in the union.
+CREATE VIRTUAL TABLE 语句中的 <i>query</i> 必须是格式正确的 SQL 查询，返回四列且任意数量的行。<i>query</i> 结果中的每一行代表一个将参与 union 的表。
 </p><ol>
 <li value="221'">
-The first column is the schema name for the database that contains
-the tables.  Examples:  "main", "zone512".
+第一列是包含这些表的数据库的模式名。例如：“main”、“zone512”。
 </li><li value="222'">
-The second column is the name of the table.
+第二列是表名。
 </li><li value="223'">
-The third column  is the minimum value for any rowid in the table.
+第三列是该表中任意 rowid 的最小值。
 </li><li value="224'">
-The fourth column is the maximum value of any rowid in the table.
+第四列是该表中任意 rowid 的最大值。
 </li></ol>
 
 </li><li value="230"><p>
-The <i>query</i> for the CREATE VIRTUAL TABLE statement of a union-vtab
-can be either a <a href="lang_select.html">SELECT</a> statement or a <a href="lang_select.html#values">VALUES clause</a>.
+CREATE VIRTUAL TABLE 语句中的 <i>query</i> 可以是 <a href="lang_select.html">SELECT</a> 语句或 <a href="lang_select.html#values">VALUES 子句</a>。
 
 </p></li><li value="240"><p>
-The <i>query</i> is run once when the CREATE VIRTUAL TABLE statement is
-first encountered and the results of that one run are used for all subsequent
-access to the union-vtab.  If the results of <i>query</i> change, then
-the union-vtab should be <a href="lang_droptable.html">DROP</a>-ed and recreated in order
-to cause the <i>query</i> to be run again.
+当首次遇到 CREATE VIRTUAL TABLE 语句时，只执行一次 <i>query</i>，并将该次执行的结果用于之后对 union-vtab 的所有访问。如果 <i>query</i> 的结果发生变化，应该先 <a href="lang_droptable.html">DROP</a> 再重新创建 union-vtab，以便重新执行 <i>query</i>。
 
 </p></li><li value="250"><p>
-There must be no overlap in the bands of rowids for the various tables
-in a union-vtab.
+参与 union-vtab 的各个表的 rowid 区间不得重叠。
 
 </p></li><li value="260"><p>
-All tables that participate in a union-vtab must have identical
-CREATE TABLE definitions, except that the names of the tables can be different.
+参与 union-vtab 的所有表必须具有相同的 CREATE TABLE 定义，唯一区别可以是表名不同。
 
 </p></li><li value="270"><p>
-All tables that participate in a union-vtab must be <a href="rowidtable.html">rowid tables</a>.
+参与 union-vtab 的所有表必须是 <a href="rowidtable.html">rowid 表</a>。
 
 </p></li><li value="280"><p>
-The column names and definitions for <i>tabname</i> will be the same as
-the underlying tables.  An application can access <i>tabname</i> just like
-it was one of the real underlying tables.
+<i>tabname</i> 的列名和定义与基础表相同。应用程序可以像访问真实基础表一样访问 <i>tabname</i>。
 
 </p></li><li value="290"><p>
-No table in a union-vtab may contain entries that are outside of the
-rowid bounds established by the <i>query</i> in the CREATE VIRTUAL TABLE
-statement.
+union-vtab 中的任何表都不能包含超出 CREATE VIRTUAL TABLE 语句中 <i>query</i> 所规定的 rowid 范围的条目。
 
 </p></li><li value="300"><p>
-The union-vtab shall optimize access to the underlying real tables
-when the constraints on the query are among forms shown below.
-Other kinds of constraints may be optimized in the future, but only
-these constraints are optimized in the initial implementation.
+当查询约束满足下列形式时，union-vtab 会优化对底层真实表的访问。其他类型的约束可能在未来受到优化，但在初始实现中仅优化这些形式。
 </p><ul>
 <li> <b>rowid=$id</b>
 </li><li> <b>rowid IN</b> <i>query-or-list</i>
 </li><li> <b>rowid BETWEEN $lwr AND $upr</b>
 </li></ul>
 <p>
-Other kinds of constraints may be used and will work, but other
-constraints will be checked individually for each row and will not
-be optimized (at least not initially). 
-All constraint checking is completely automatic regardless of whether
-or not optimization occurs.  The optimization referred to in this bullet point
-is a performance consideration only.  The same result is obtained
-regardless of whether or not the query is optimized.
+其他类型的约束也可以使用并且可工作，但它们将逐行单独检查，并且（至少在初始阶段）不会被优化。所有约束检查都是完全自动的，无论是否进行了优化。此处提到的优化只是一个性能考虑。无论是否优化，最终结果都是相同的。
 
 </p></li><li value="310"><p>
-The union-vtab is read-only.  Support for writing may be added at a later
-time, but writing is not a part of the initial implementation.
+union-vtab 是只读的。写入支持可能在以后添加，但初始实现不包括写入功能。
 
 </p></li><li value="320"><p>
-<i>Nota bene:</i>
-The <a href="c3ref/blob_open.html">sqlite3_blob_open()</a> interface does <u>not</u> work for a union-vtab.
-BLOB content must be read from the union-vtab using ordinary SQL statements.
+<i>注意：</i>
+<a href="c3ref/blob_open.html">sqlite3_blob_open()</a> 接口 <u>不</u> 适用于 union-vtab。必须使用普通 SQL 语句从 union-vtab 读取 BLOB 内容。
 </p></li></ol>
 
 
+</body></html>

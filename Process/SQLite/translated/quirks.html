@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Quirks, Caveats, and Gotchas In SQLite</title>
+<title>SQLite 中的怪癖、注意事项和陷阱</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
 Small. Fast. Reliable.<br>Choose any three.
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,28 +124,27 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Quirks, Caveats, and Gotchas In SQLite
+SQLite 中的怪癖、注意事项和陷阱
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. Overview</a></div>
-<div class="fancy-toc1"><a href="#sqlite_is_embedded_not_client_server">2. SQLite Is Embedded, Not Client-Server</a></div>
-<div class="fancy-toc1"><a href="#flexible_typing">3. Flexible Typing</a></div>
-<div class="fancy-toc2"><a href="#no_separate_boolean_datatype">3.1. No Separate BOOLEAN Datatype</a></div>
-<div class="fancy-toc2"><a href="#no_separate_datetime_datatype">3.2. No Separate DATETIME Datatype</a></div>
-<div class="fancy-toc2"><a href="#the_datatype_is_optional">3.3. The datatype is optional</a></div>
-<div class="fancy-toc1"><a href="#foreign_key_enforcement_is_off_by_default">4. Foreign Key Enforcement Is Off By Default</a></div>
-<div class="fancy-toc1"><a href="#primary_keys_can_sometimes_contain_nulls">5. PRIMARY KEYs Can Sometimes Contain NULLs</a></div>
-<div class="fancy-toc1"><a href="#aggregate_queries_can_contain_non_aggregate_result_columns_that_are_not_in_the_group_by_clause">6. Aggregate Queries Can Contain Non-Aggregate Result Columns
-That Are Not In The GROUP BY Clause</a></div>
-<div class="fancy-toc1"><a href="#sqlite_does_not_do_full_unicode_case_folding_by_default">7. SQLite Does Not Do Full Unicode Case Folding By Default</a></div>
-<div class="fancy-toc1"><a href="#double_quoted_string_literals_are_accepted">8. Double-quoted String Literals Are Accepted</a></div>
-<div class="fancy-toc1"><a href="#keywords_can_often_be_used_as_identifiers">9. Keywords Can Often Be Used As Identifiers</a></div>
-<div class="fancy-toc1"><a href="#dubious_sql_is_allowed_without_any_error_or_warning">10. Dubious SQL Is Allowed Without Any Error Or Warning</a></div>
-<div class="fancy-toc1"><a href="#autoincrement_does_not_work_the_same_as_mysql">11. AUTOINCREMENT Does Not Work The Same As MySQL</a></div>
-<div class="fancy-toc1"><a href="#nul_characters_are_allowed_in_text_strings">12. NUL Characters Are Allowed In Text Strings</a></div>
-<div class="fancy-toc1"><a href="#sqlite_distinguishes_between_integer_and_text_literals">13. SQLite Distinguishes Between Integer And Text Literals</a></div>
-<div class="fancy-toc1"><a href="#sqlite_gets_the_precedence_of_comma_joins_wrong">14. SQLite Gets The Precedence Of Comma-Joins Wrong</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. 概述</a></div>
+<div class="fancy-toc1"><a href="#sqlite_is_embedded_not_client_server">2. SQLite 是嵌入式的，而非客户端-服务器</a></div>
+<div class="fancy-toc1"><a href="#flexible_typing">3. 灵活的数据类型</a></div>
+<div class="fancy-toc2"><a href="#no_separate_boolean_datatype">3.1. 没有单独的 BOOLEAN 数据类型</a></div>
+<div class="fancy-toc2"><a href="#no_separate_datetime_datatype">3.2. 没有单独的 DATETIME 数据类型</a></div>
+<div class="fancy-toc2"><a href="#the_datatype_is_optional">3.3. 数据类型是可选的</a></div>
+<div class="fancy-toc1"><a href="#foreign_key_enforcement_is_off_by_default">4. 外键约束默认未启用</a></div>
+<div class="fancy-toc1"><a href="#primary_keys_can_sometimes_contain_nulls">5. 主键有时可以包含 NULL</a></div>
+<div class="fancy-toc1"><a href="#aggregate_queries_can_contain_non_aggregate_result_columns_that_are_not_in_the_group_by_clause">6. 聚合查询可以包含未在 GROUP BY 子句中的非聚合结果列</a></div>
+<div class="fancy-toc1"><a href="#sqlite_does_not_do_full_unicode_case_folding_by_default">7. SQLite 默认不执行完整的 Unicode 大小写折叠</a></div>
+<div class="fancy-toc1"><a href="#double_quoted_string_literals_are_accepted">8. 接受双引号字符串字面量</a></div>
+<div class="fancy-toc1"><a href="#keywords_can_often_be_used_as_identifiers">9. 关键字常可用作标识符</a></div>
+<div class="fancy-toc1"><a href="#dubious_sql_is_allowed_without_any_error_or_warning">10. 可疑的 SQL 不会报错或警告</a></div>
+<div class="fancy-toc1"><a href="#autoincrement_does_not_work_the_same_as_mysql">11. AUTOINCREMENT 的行为与 MySQL 不同</a></div>
+<div class="fancy-toc1"><a href="#nul_characters_are_allowed_in_text_strings">12. 文本字符串中允许 NUL 字符</a></div>
+<div class="fancy-toc1"><a href="#sqlite_distinguishes_between_integer_and_text_literals">13. SQLite 区分整数和文本字面量</a></div>
+<div class="fancy-toc1"><a href="#sqlite_gets_the_precedence_of_comma_joins_wrong">14. SQLite 处理逗号连接的优先级错误</a></div>
 </div>
 </details>
 </div>
@@ -148,419 +153,271 @@ That Are Not In The GROUP BY Clause</a></div>
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
 <p>
-The SQL language is a "standard".
-Even so, no two SQL database engines work exactly alike.
-Every SQL implementation has its own peculiarities and oddities,
-and SQLite is no exception to this rule.
+SQL 语言是一个“标准”。即便如此，没有两个 SQL 数据库引擎的工作方式完全相同。
+每个 SQL 实现都有其自身的特殊性和奇怪之处，SQLite 也不例外。
 
 </p><p>
-This document strives to highlight the principal differences
-between SQLite and other SQL implementations, as an aid to developers
-that are porting to or from SQLite or who are trying to build a
-system that works across multiple database engines.
+本文档力求突显 SQLite 与其他 SQL 实现之间的主要差异，帮助那些正在将应用迁移到 SQLite 或从 SQLite 迁出的开发者，或者试图构建一个能够跨多个数据库引擎正常运行的系统。
 
 </p><p>
-If you are an SQLite user who has stumbled over some quirk of
-SQLite that is not mentioned here, please let the developers know
-by posting a brief message on the
-<a href="https://sqlite.org/forum/forum">SQLite Forum</a>.
+如果你是 SQLite 用户并遇到了本文未提及的某些 SQLite 特性，请通过在
+<a href="https://sqlite.org/forum/forum">SQLite 论坛</a>上发布简短留言让开发者知道。
 
-</p><h1 id="sqlite_is_embedded_not_client_server"><span>2. </span>SQLite Is Embedded, Not Client-Server</h1>
+</p><h1 id="sqlite_is_embedded_not_client_server"><span>2. </span>SQLite 是嵌入式的，而非客户端-服务器</h1>
 
 <p>
-Whenever comparing SQLite to other SQL database engines like
-SQL Server, PostgreSQL, MySQL, or Oracle, it is important first of all
-to realize that SQLite is not intended as a replacement or competitor to
-any of those systems.  SQLite is <a href="serverless.html">serverless</a>.  There is no separate
-server process that manages the database.  An application interacts
-with the database engine using function calls, not by sending messages
-to a separate process or thread.
+每当将 SQLite 与 SQL Server、PostgreSQL、MySQL 或 Oracle 等其他 SQL 数据库引擎进行比较时，首先需要认识到 SQLite 并不打算取代或与其中任何一个系统竞争。SQLite 是一个<a href="serverless.html">无服务器</a>的系统。它没有单独的服务器进程来管理数据库。一个应用通过函数调用与数据库引擎交互，而不是向独立的进程或线程发送消息。
 
 </p><p>
-The fact that SQLite is embedded and <a href="serverless.html">serverless</a> instead of being
-client/server is a feature, not a bug.
+SQLite 是嵌入式的并且<a href="serverless.html">无服务器</a>的这一事实是一个特性，而不是漏洞。
 
 </p><p>
-Client/server databases like MySQL, PostgreSQL, SQL Server, Oracle, and
-others are an important component of modern systems.
-These systems solve an important problem.
-But SQLite solves a different problem.
-Both SQLite and client/server databases have their role.
-Developers who are comparing SQLite against other SQL database engines need
-to clearly understand this distinction.
+像 MySQL、PostgreSQL、SQL Server、Oracle 等客户端/服务器数据库在现代系统中仍然扮演着重要角色。它们解决了一个重要的问题。但 SQLite 解决的是另一个问题。SQLite 与客户端/服务器数据库各有其定位。那些在比较 SQLite 与其他 SQL 数据库引擎的开发者必须清楚地区分这两者。
 
 </p><p>
-See the <a href="whentouse.html">Appropriate Uses For SQLite</a> document for additional information.
+请参见<a href="whentouse.html">SQLite 的适用情景</a>文档以获取更多信息。
 
-</p><h1 id="flexible_typing"><span>3. </span>Flexible Typing</h1>
+</p><h1 id="flexible_typing"><span>3. </span>灵活的数据类型</h1>
 
 <p>
-SQLite is flexible with regard to datatypes.  Datatypes are advisory
-rather than mandatory.
+在数据类型方面，SQLite 非常灵活。数据类型是建议性的，而非强制性的。
 
 </p><p>
-Some commentators say that SQLite is "weakly typed" and that other
-SQL databases are "strongly typed".  We consider these terms to be
-inaccurate and even pejorative.  We prefer to say that SQLite is
-"flexibly typed" and that other SQL database engines are
-"rigidly typed".
+一些评论者称 SQLite 为“弱类型”，而其他 SQL 数据库是“强类型”。我们认为这些术语既不准确又带有贬义。我们更愿意说 SQLite 是“灵活类型”，而其他 SQL 数据库引擎则“僵化类型”。
 
 </p><p>
-See the <a href="datatype3.html">Datatypes in SQLite</a> document for a detailed
-discussion of the type system in SQLite.
+请参见<a href="datatype3.html">SQLite 中的数据类型</a>文档，深入了解 SQLite 的类型系统。
 
 </p><p>
-The key point is that SQLite is very forgiving of the type of data that
-you put into the database.  For example, if a column has a datatype of
-"INTEGER" and the application inserts a text string into that column,
-SQLite will first try to convert the text string into an integer, just like
-every other SQL database engine.  Thus, if one inserts <b>'1234'</b> into
-an INTEGER column, that value is converted into an integer 1234 and stored.
-But, if you insert a non-numeric string like <b>'wxyz'</b> into an INTEGER
-column, unlike other SQL databases, SQLite does not throw an error.  Instead,
-SQLite stores the actual string value in the column.
+关键点在于 SQLite 对你插入数据库的数据类型非常宽容。例如，如果某列的数据类型声明为“INTEGER”，而应用向该列插入了文本字符串，SQLite 会像其他 SQL 引擎一样先尝试将文本转换为整数。因此，如果向 INTEGER 列插入 <b>'1234'</b>，该值会被转换为整数 1234 并存储。但如果向 INTEGER 列插入像 <b>'wxyz'</b> 这样的非数字字符串，SQLite 会与其他 SQL 数据库不同，它不会抛出错误，而是将实际的字符串值存入该列。
 
 </p><p>
-Similarly, SQLite allows you to store a 2000-character string into a
-column of type VARCHAR(50).  Other SQL implementations would either throw
-an error or truncate the string.  SQLite stores the entire 2000-character
-string with no loss of information and without complaint.
+类似地，SQLite 允许你将一个 2000 字符的字符串存入类型为 VARCHAR(50) 的列。其他 SQL 实现会报错或截断字符串。SQLite 会完整地存储这 2000 字符的字符串，不会丢失信息，也不会抱怨。
 
 </p><p>
-Where this ends up causing problems is when developers do some initial
-coding work using SQLite and get their application working, but then try
-to convert to another database like PostgreSQL or SQL Server for deployment.
-If the application is initially taking advantage of SQLite's flexible typing,
-then it will fail when moved to another database that is more judgmental
-about data types.
+问题的根源在于，当开发者使用 SQLite 进行初期编码并让应用运行起来，然后又尝试为部署转向 PostgreSQL 或 SQL Server 等其他对数据类型更严格的数据库时，会出现故障。如果应用最初利用了 SQLite 灵活的数据类型，那么迁移到一个对数据类型更挑剔的数据库时就会失败。
 
 </p><p>
-<a href="flextypegood.html">Flexible typing is a feature</a> of SQLite, not a bug.  Flexible typing
-is about freedom.
-Nevertheless, we recognize that this feature does sometimes cause
-confusion for developers who are accustomed to working with
-other databases that are more strict with regard to data type rules.
-In retrospect, perhaps it would have been less confusing if SQLite had merely
-implemented an ANY datatype so that developers could explicitly state
-when they wanted to use flexible typing, rather than making flexible
-typing the default.
-As an accommodation for those who expect rigid typing, SQLite version 3.37.0
-(2021-11-27) introduced the option of <a href="stricttables.html">STRICT tables</a>.
-These either impose
-the mandatory datatype constraints found in other SQL database engines,
-or allow the explicit ANY datatype to retain SQLite's flexible typing.
+<a href="flextypegood.html">灵活类型是 SQLite 的一个特性</a>，不是一个漏洞。灵活类型关乎自由。然而我们也理解，对于习惯了更严格数据类型规则的其他数据库的开发者来说，这个特性有时会令人困惑。回头看来，也许如果 SQLite 只是实现了一个 ANY 类型，让开发者在需要时显式声明使用灵活类型，而不是默认启用灵活类型，可能会少些迷惑。作为对那些期望僵化类型的开发者的体贴，SQLite 3.37.0（2021-11-27）引入了<a href="stricttables.html">STRICT 表</a>选项。STRICT 表要么强制执行其他 SQL 数据库引擎中存在的强制数据类型约束，要么允许显式的 ANY 类型来保留 SQLite 的灵活类型。
 
-</p><h2 id="no_separate_boolean_datatype"><span>3.1. </span>No Separate BOOLEAN Datatype</h2>
+</p><h2 id="no_separate_boolean_datatype"><span>3.1. </span>没有单独的 BOOLEAN 数据类型</h2>
 
 <p>
-Unlike most other SQL implementations,
-SQLite does not have a separate BOOLEAN data type.
-Instead, TRUE and FALSE are (normally) represented as integers 1 and 0,
-respectively.
-This does not seem to cause many problems, as we seldom get complaints
-about it.  But it is important to recognize.
+与大多数其他 SQL 实现不同，
+SQLite 没有单独的 BOOLEAN 数据类型。
+相反，TRUE 和 FALSE 通常表示为整数 1 和 0。
+这似乎并不会引起太多问题，我们很少收到相关投诉。
+但这点值得注意。
 
 </p><p>
-Beginning with SQLite <a href="releaselog/3_23_0.html">version 3.23.0</a> (2018-04-02), SQLite also
-recognizes TRUE and FALSE keywords as aliases for integer values 1 and 0,
-respectively.
-This provides better compatibility with other SQL implementations.
-But for backwards compatibility, if there are columns named TRUE or
-FALSE, then the keywords are treated as identifiers referencing those
-columns, rather than BOOLEAN literals.
+从 SQLite <a href="releaselog/3_23_0.html">3.23.0 版本</a>（2018-04-02）开始，SQLite 也将 TRUE 和 FALSE 关键字识别为分别等价于整数 1 和 0。
+这提升了与其他 SQL 实现的兼容性。
+但为了向后兼容，如果有名为 TRUE 或 FALSE 的列，那么这些关键字会被当作引用那列的标识符，而不是 BOOLEAN 字面量。
 
-</p><h2 id="no_separate_datetime_datatype"><span>3.2. </span>No Separate DATETIME Datatype</h2>
+</p><h2 id="no_separate_datetime_datatype"><span>3.2. </span>没有单独的 DATETIME 数据类型</h2>
 
 <p>
-SQLite has no DATETIME datatype.
-Instead, dates and times can be stored in any of these ways:
+SQLite 没有 DATETIME 数据类型。
+相反，日期和时间可以通过以下任意一种方式存储：
 
 </p><ul>
-<li> As a TEXT string in the ISO-8601 format.  Example: '2018-04-02 12:13:46'.
-</li><li> As an INTEGER number of seconds since 1970 (also known as "unix time").
-</li><li> As a REAL value that is the fractional
-     <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day number</a>.
+<li> 以 ISO-8601 格式的 TEXT 字符串。例如：'2018-04-02 12:13:46'。
+</li><li> 以自 1970 年以来的秒数表示的 INTEGER（也称为“unix 时间”）。
+</li><li> 以 REAL 值表示的分数<a href="https://en.wikipedia.org/wiki/Julian_day">朱利安日数</a>。
 </li></ul>
 
 <p>
-The built-in <a href="lang_datefunc.html">date and time functions</a> of SQLite understand date/times in
-all of the formats above, and can freely change between them.
-Which format you use, is entirely up to your application.
+SQLite 内置的<a href="lang_datefunc.html">日期与时间函数</a>理解以上所有格式，并可以自由地在它们之间转换。
+你选择使用哪种格式，完全由应用决定。
 
-</p><h2 id="the_datatype_is_optional"><span>3.3. </span>The datatype is optional</h2>
+</p><h2 id="the_datatype_is_optional"><span>3.3. </span>数据类型是可选的</h2>
 
 <p>
-Because SQLite is flexible and forgiving with regard to datatypes,
-table columns can be created that have no specified datatype at all.
-For example:
+由于 SQLite 在数据类型方面非常灵活且宽容，可以创建完全未指定数据类型的表列。
+例如：
 </p><div class="codeblock"><pre>CREATE TABLE t1(a,b,c,d);
 </pre></div>
-<p>The table "t1" has four columns "a", "b", "c", and "d" that have
-no particular datatype assigned.  You can store anything you want in
-any of those columns.</p>
+<p>“t1” 表有四个列 “a”、“b”、“c”和“d”，没有赋予它们任何特定的数据类型。
+你可以在这些列中存储任何内容。</p>
 
-<h1 id="foreign_key_enforcement_is_off_by_default"><span>4. </span>Foreign Key Enforcement Is Off By Default</h1>
+<h1 id="foreign_key_enforcement_is_off_by_default"><span>4. </span>外键约束默认未启用</h1>
 
-<p>SQLite has parsed foreign key constraints for time out of mind,
-but added the ability to actually enforce those constraints much later,
-with <a href="releaselog/3_6_19.html">version 3.6.19</a> (2009-10-14).  By the time foreign key constraint
-enforcement was added, there were already countless millions of databases
-in circulation that contained foreign key constraints, some of which
-were not correct.  To avoid breaking those legacy databases, foreign key
-constraint enforcement is turned off by default in SQLite.
+<p>SQLite 自诞生以来就能解析外键约束，但真正能够执行这些约束是后来才加的，在<a href="releaselog/3_6_19.html">3.6.19 版本</a>（2009-10-14）。到外键约束执行被引入时，已经有数以百万计的数据库在使用，这些数据库中有些外键约束并不正确。为了避免破坏那些遗留数据库，SQLite 默认关闭外键约束执行。
 
-</p><p>Applications can activate foreign key enforcement at run-time using
-the <a href="pragma.html#pragma_foreign_keys">PRAGMA foreign_keys</a> statement.  Or, foreign key enforcement can
-be activated at compile-time using the
-<a href="compile.html#default_foreign_keys">-DSQLITE_DEFAULT_FOREIGN_KEYS=1</a> compile-time option.
+</p><p>应用可以在运行时使用<a href="pragma.html#pragma_foreign_keys">PRAGMA foreign_keys</a>语句启用外键约束执行。或者也可以通过<a href="compile.html#default_foreign_keys">-DSQLITE_DEFAULT_FOREIGN_KEYS=1</a>编译选项在编译时启用。
 
-</p><h1 id="primary_keys_can_sometimes_contain_nulls"><span>5. </span>PRIMARY KEYs Can Sometimes Contain NULLs</h1>
+</p><h1 id="primary_keys_can_sometimes_contain_nulls"><span>5. </span>主键有时可以包含 NULL</h1>
 
 <p>
-A PRIMARY KEY in an SQLite table is usually just
-a UNIQUE constraint.  Due to an historical oversight,
-the column values of a PRIMARY KEY are allowed to be NULL.
-This is a bug, but by the time the problem was discovered there
-where so many databases in circulation that depended on the bug that
-the decision was made to support the buggy behavior moving forward.
-You can work around this problem by adding a NOT NULL constraint on
-each column of the PRIMARY KEY.
+SQLite 表中的 PRIMARY KEY 通常只是 UNIQUE 约束。由于历史上的一个疏忽，
+PRIMARY KEY 的列值被允许为 NULL。
+这是一个漏洞，但在问题被发现时，已经有大量数据库依赖于这种行为，因此决定继续支持该“有漏洞”的行为。
+你可以通过在 PRIMARY KEY 的每个列上添加 NOT NULL 约束来规避这个问题。
 </p><p>
-Exceptions:
+例外情况：
 </p><ul>
 <li><p>
-The value of an <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> column must always be a
-non-NULL integer because the INTEGER PRIMARY KEY is an alias for
-the <a href="lang_createtable.html#rowid">ROWID</a>.  If you try to insert a NULL into an INTEGER PRIMARY
-KEY column, SQLite automatically converts the NULL into a unique integer.
+<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> 列的值必须始终是非 NULL 的整数，因为 INTEGER PRIMARY KEY 是<a href="lang_createtable.html#rowid">ROWID</a>的别名。
+如果尝试向 INTEGER PRIMARY KEY 列插入 NULL，SQLite 会自动将其转换为一个唯一整数。
 
 </p></li><li><p>
-The <a href="withoutrowid.html">WITHOUT ROWID</a> and <a href="stricttables.html">STRICT</a> features was added after this bug was
-discovered, and so WITHOUT ROWID and STRICT tables work correctly:
-They disallow NULLs in the PRIMARY KEY.
+<a href="withoutrowid.html">WITHOUT ROWID</a> 和 <a href="stricttables.html">STRICT</a> 功能是在发现此漏洞之后加入的，因此 WITHOUT ROWID 和 STRICT 表可以正确运行：
+它们禁止 PRIMARY KEY 中出现 NULL。
 </p></li></ul>
 
-<h1 id="aggregate_queries_can_contain_non_aggregate_result_columns_that_are_not_in_the_group_by_clause"><span>6. </span>Aggregate Queries Can Contain Non-Aggregate Result Columns
-That Are Not In The GROUP BY Clause</h1>
+<h1 id="aggregate_queries_can_contain_non_aggregate_result_columns_that_are_not_in_the_group_by_clause"><span>6. </span>聚合查询可以包含未在 GROUP BY 子句中的非聚合结果列</h1>
 
 <p>
-In most SQL implementations, output columns of an aggregate query
-may only reference aggregate functions or columns named in the
-GROUP BY clause.  It does not make good sense to reference an ordinary
-column in an aggregate query because each output row might be composed
-from two or more rows in the input table(s).
+在大多数 SQL 实现中，聚合查询的输出列只能引用聚合函数或 GROUP BY 子句中列出的列。
+在聚合查询中引用普通列毫无意义，因为每个输出行可能由输入表中的两行或更多行组成。
 
 </p><p>
-SQLite does not enforce this restriction.
-The output columns from an aggregate query can be arbitrary expressions
-that include columns not found in the GROUP BY clause.
-This feature has two uses:
+SQLite 并不强制执行这一限制。
+聚合查询的输出列可以是包括 GROUP BY 子句中未出现的列在内的任意表达式。
+该特性有两个用途：
 
 </p><ol>
 <li><p>
-With SQLite (but not any other SQL implementation that we know of) if
-an aggregate query contains a single min() or max() function, then the
-values of columns used in the output are taken from the row where
-the min() or max() value was achieved.  If two or more rows have the
-same min() or max() value, then the columns values will be chosen arbitrarily
-from one of those rows.
+在 SQLite（但不是我们所知的任何其他 SQL 实现）中，如果聚合查询只包含一个 min() 或 max() 函数，
+那么输出列的值来自实现了该 min() 或 max() 值的行。
+如果有两行或更多行拥有相同的 min() 或 max() 值，那么列值将从其中任一行随意选取。
 </p><p>
-For example to find the highest paid employee:
+例如，查找工资最高的员工：
 </p><div class="codeblock"><pre>SELECT max(salary), first_name, last_name FROM employee;
 </pre></div>
 <p>
-In the query above, the values for the first_name and last_name columns
-will correspond to the row that satisfied the max(salary) condition.
+在上述查询中，first_name 与 last_name 的值对应于满足 max(salary) 条件的那一行。
 
 </p></li><li><p>
-If a query contains no aggregate functions at all, then a GROUP BY
-clause can be added as a substitute for the DISTINCT ON clause.  In other words,
-output rows are filtered so that only one row is shown for each distinct
-set of values in the GROUP BY clause.  If two or more output rows would
-have otherwise had the same set of values for the GROUP BY columns, then
-one of the rows is chosen arbitrarily.  (SQLite supports DISTINCT but not
-DISTINCT ON, whose functionality is provided instead by GROUP BY.)
+如果一个查询根本不包含任何聚合函数，则可以在 GROUP BY 子句中添加一个子句来代替 DISTINCT ON 子句。换句话说，输出行经过过滤后，每一组 GROUP BY 列的不同取值只显示一行。如果两行或更多行在 GROUP BY 列上原本会具有相同的取值集合，那么会任意选取其中一行。（SQLite 支持 DISTINCT，但不支持 DISTINCT ON，其功能可由 GROUP BY 代替。）
 </p></li></ol>
 
-<h1 id="sqlite_does_not_do_full_unicode_case_folding_by_default"><span>7. </span>SQLite Does Not Do Full Unicode Case Folding By Default</h1>
+<h1 id="sqlite_does_not_do_full_unicode_case_folding_by_default"><span>7. </span>SQLite 默认不执行完整的 Unicode 大小写折叠</h1>
 
 <p>
-SQLite does not know about the upper-case/lower-case distinction
-for all unicode characters.  SQL functions like
-upper() and lower() only work on ASCII characters.  There are two
-reasons for this:
+SQLite 并不识别所有 unicode 字符的大小写区分。像 upper() 与 lower() 这样的 SQL 函数只对 ASCII 字符有效。造成这一现象有两个原因：
 </p><ol>
-<li><p> Though stable now, when SQLite was first designed, the rules for
-     unicode case folding were still in flux.  That means that the
-     behavior might have changed with each new unicode release, disrupting
-     applications and corrupting indexes in the process.
-</p></li><li><p> The tables necessary to do full and proper unicode case folding are
-     larger than the whole SQLite library.
+<li><p> 虽然现在已经稳定，但在 SQLite 初期设计阶段，Unicode 大小写折叠的规则仍在不断变化。
+     这意味着行为可能随着每个新 Unicode 版本而改变，进而扰乱应用并破坏索引。
+</p></li><li><p> 完整且正确的 Unicode 大小写折叠所需的表格比整个 SQLite 库还要大。
 </p></li></ol>
 <p>
-Full unicode case folding is supported in SQLite if it is compiled
-with the <a href="compile.html#enable_icu">-DSQLITE_ENABLE_ICU</a> option and linked against the
-<a href="https://icu.unicode.org">International Components for Unicode</a>
-library.
+如果在编译时使用了<a href="compile.html#enable_icu">-DSQLITE_ENABLE_ICU</a>选项并链接了
+<a href="https://icu.unicode.org">国际 Unicode 组件</a>库，则 SQLite 支持完整的 Unicode 大小写折叠。
 
 <a name="dblquote"></a>
 
-</p><h1 id="double_quoted_string_literals_are_accepted"><span>8. </span>Double-quoted String Literals Are Accepted</h1>
+</p><h1 id="double_quoted_string_literals_are_accepted"><span>8. </span>接受双引号字符串字面量</h1>
 
 <p>
-The SQL standard requires double-quotes around identifiers
-and single-quotes around string literals.  For example:
+SQL 标准要求用双引号包围标识符，用单引号包围字符串字面量。例如：
 </p><ul>
 <li> <tt>"this is a legal SQL column name"</tt>
 </li><li> <tt>'this is an SQL string literal'</tt>
 </li></ul>
 <p>
-SQLite accepts both of the above.  But, in an effort to be compatible
-with MySQL 3.x (which was one of the most widely used RDBMSes
-when SQLite was first being designed) SQLite will also interpret
-a double-quotes string as
-string literal if it does not match any valid identifier.
+SQLite 接受以上两种写法。但是，为了兼容 MySQL 3.x（在 SQLite 初期设计时 MySQL 3.x 是最广泛使用的关系型数据库之一），SQLite 还会在双引号字符串不匹配任何有效标识符时，将其解释为字符串字面量。
 </p><p>
-This misfeature means that a misspelled double-quoted
-identifier will be interpreted as a string literal, rather than generating
-an error.
-It also lures developers who are new to the SQL language into the
-bad habit of using double-quoted string literals when they
-really need to learn to use the correct single-quoted string literal form.
+这一“错误特性”意味着拼写错误的双引号标识符会被当作字符串字面量，而不是报错。
+它也使得刚接触 SQL 语言的开发者养成错误习惯——在实际上应该使用单引号字符串字面量时，反而使用双引号。
 </p><p>
-In hindsight, we should not have tried to make SQLite accept MySQL 3.x
-syntax, and should have never allowed double-quoted string literals.
-However, there are countless applications that make use of
-double-quoted string literals and so we continue to support
-that capability to avoid breaking legacy.
+事后看来，我们不应该尝试让 SQLite 接受 MySQL 3.x 的语法，也不应该允许双引号字符串字面量。
+然而，有无数应用依赖双引号字符串字面量，因此为了不破坏遗留系统，我们继续保留这一能力。
 </p><p>
-As of SQLite 3.27.0 (2019-02-07) the use of a double-quoted
-string literal causes a warning message to be sent to the <a href="errlog.html">error log</a>.
+从 SQLite 3.27.0（2019-02-07）开始，使用双引号字符串字面量将向<a href="errlog.html">错误日志</a>发送警告信息。
 </p><p>
-As of SQLite 3.29.0 (2019-07-10) the use of double-quoted
-string literals can be disabled at run-time using the
-<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdqsddl">SQLITE_DBCONFIG_DQS_DDL</a> and <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdqsdml">SQLITE_DBCONFIG_DQS_DML</a> actions
-to <a href="c3ref/db_config.html">sqlite3_db_config()</a>.  The default settings can be altered
-at compile-time using the <a href="compile.html#dqs">-DSQLITE_DQS=<i>N</i></a> compile-time
-option.  Application developers are encouraged to compile using
--DSQLITE_DQS=0 in order to disable the double-quoted string literal
-misfeature by default.  If that is not possible, then disable
-double-quoted string literals for individual database connections
-using C-code like this:
+从 SQLite 3.29.0（2019-07-10）开始，可以在运行时通过
+<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdqsddl">SQLITE_DBCONFIG_DQS_DDL</a> 和 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdqsdml">SQLITE_DBCONFIG_DQS_DML</a> 操作，
+调用 <a href="c3ref/db_config.html">sqlite3_db_config()</a> 来禁用双引号字符串字面量。
+默认设置可以在编译时通过<a href="compile.html#dqs">-DSQLITE_DQS=<i>N</i></a>选项修改。
+我们鼓励应用开发者在编译时使用 -DSQLITE_DQS=0，以默认禁用双引号字符串字面量这个“错误特性”。
+如果无法做到这一点，也可以在 C 代码中对单个数据库连接禁用双引号字符串字面量，如下所示：
 </p><blockquote><pre>
 sqlite3_db_config(db, SQLITE_DBCONFIG_DQS_DDL, 0, (void*)0);
 sqlite3_db_config(db, SQLITE_DBCONFIG_DQS_DML, 0, (void*)0);
 </pre></blockquote>
-<p>Or, if double-quoted string literals are disabled by default, but need
-to be selectively enabled for some historical database connections,
-that can be done using the same C-code as shown above except with the
-third parameter changed from 0 to 1.
+<p>或者，如果默认禁用了双引号字符串字面量，但需要针对某些历史数据库连接选择性启用，可以使用与上面相同的 C 代码，只需将第三个参数从 0 改为 1。
 </p><p>
-As of SQLite 3.41.0 (2023-02-21) SQLITE_DBCONFIG_DQS_DDL and
-SQLITE_DBCONFIG_DQS_DML are disabled by default in the <a href="cli.html">CLI</a>.  Use
-the ".dbconfig" dot-command to reenable the legacy behavior if
-desired.
+从 SQLite 3.41.0（2023-02-21）开始，<a href="cli.html">命令行工具</a>默认禁用 SQLITE_DBCONFIG_DQS_DDL 与 SQLITE_DBCONFIG_DQS_DML。
+如果需要恢复旧行为，请使用“.dbconfig”点命令重新启用。
 
-</p><h1 id="keywords_can_often_be_used_as_identifiers"><span>9. </span>Keywords Can Often Be Used As Identifiers</h1>
+</p><h1 id="keywords_can_often_be_used_as_identifiers"><span>9. </span>关键字常可用作标识符</h1>
 
 <p>
-The SQL language is rich in keywords.
-Most SQL implementations do not allow keywords to be used as identifiers
-(names of tables or columns) unless they are enclosed in double-quotes.
-But SQLite is more flexible.  Many keywords can be used as identifiers without
-needing to be quoted, as long as those keywords are used in a context where
-it is clear that they are intended to be an identifier.
+SQL 语言关键字种类繁多。
+大多数 SQL 实现不允许在不使用双引号的情况下将关键字作为标识符（表名或列名）。
+然而 SQLite 更加灵活。只要上下文明确，许多关键字都可以在不用引号的情况下直接作为标识符使用。
 </p><p>
-For example, the following statement is valid in SQLite:
+例如，以下语句在 SQLite 中是合法的：
 </p><div class="codeblock"><pre>CREATE TABLE union(true INT, with BOOLEAN);
 </pre></div>
 <p>
-The same SQL statement will fail on every other SQL implementation that
-we know of due to the use of keywords "union", "true", and "with" as
-identifiers.
+我们所知的其他任何 SQL 实现都会因为使用关键字 “union”、“true” 和 “with” 作为标识符而报错。
 </p><p>
-The ability to use keywords as identifiers promotes backwards compatibility.
-As new keywords are added, legacy schemas that just happen to use those
-keywords as table or column names continue to work.  However, the ability
-to use a keyword as an identifier sometimes leads to surprising outcomes.
-For example:
+能够将关键字用作标识符有助于向后兼容。新增关键字时，如果旧的 schema 恰好用这些关键字作为表或列名，仍然能正常工作。
+不过，将关键字当作标识符也有可能导致意外结果。例如：
 </p><div class="codeblock"><pre>CREATE TRIGGER AFTER INSERT ON tableX BEGIN
   INSERT INTO tableY(b) VALUES(new.a);
 END;
 </pre></div>
-<p>The trigger created by the previous statement is named "AFTER"
-and it is a "BEFORE" trigger.  The "AFTER" token is used as an identifier
-instead of as a keyword, as that is the only way to parse the statement.
-Another example:
+<p>上一条语句创建的触发器名为 “AFTER”，但它是一个 “BEFORE” 触发器。因为必须把 “AFTER” 当作标识符来解析，无法把它当作关键字使用，这是唯一的解析方式。
+再比如：
 </p><div class="codeblock"><pre>CREATE TABLE tableZ(INTEGER PRIMARY KEY);
 </pre></div>
-<p>The tableZ table has a single column named "INTEGER".  That column
-has no datatype specified, but it is the PRIMARY KEY.
-The column is <em>not</em> the <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> for the table because
-it has no datatype.  The "INTEGER" token is used as an identifier for the
-column name, not as a datatype keyword.</p>
+<p>tableZ 表有一个名为 “INTEGER” 的列。该列未指定数据类型，但它是 PRIMARY KEY。
+该列不是表的<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>，因为它没有指定数据类型。
+“INTEGER” 词被用作列名标识符，而非数据类型关键字。</p>
 
-<h1 id="dubious_sql_is_allowed_without_any_error_or_warning"><span>10. </span>Dubious SQL Is Allowed Without Any Error Or Warning</h1>
+<h1 id="dubious_sql_is_allowed_without_any_error_or_warning"><span>10. </span>可疑的 SQL 不会报错或警告</h1>
 
 <p>
-The original implementation of SQLite sought to follow
-<a href="https://en.wikipedia.org/wiki/Robustness_principle">Postel's Law</a> which
-states in part "Be liberal in what you accept".
-This used to be considered good design - that a system would accept
-dodgy inputs and try to do the best it could without complaining too much.
-More recently, people have come to prefer software that is
-strict in what it accepts, so as to more easily find errors.
+SQLite 最初的实现遵循<a href="https://en.wikipedia.org/wiki/Robustness_principle">Postel 定律</a>，其中一条内容是“对接受的内容要宽容”。
+过去这种设计被视为良好：系统可以接受不规范的输入，并尽力在不频繁抱怨的前提下完成处理。
+然而近年来，人们更倾向于严格接受的输入，以便更容易发现错误。
 </p><p>
 
 </p><p>
-There are now millions of applications that take advantage of
-SQLite's flexible and forgiving design choices.
-We cannot change SQLite to follow the current preference toward
-strict and dogmatic behavior without breaking those legacy applications.
+如今有数以百万计的应用依赖 SQLite 灵活且宽容的设计选择。
+如果我们将 SQLite 改造成遵循当前对于严格行为的偏好，就会破坏那些遗留应用。
 </p>
 
 
-<h1 id="autoincrement_does_not_work_the_same_as_mysql"><span>11. </span>AUTOINCREMENT Does Not Work The Same As MySQL</h1>
+<h1 id="autoincrement_does_not_work_the_same_as_mysql"><span>11. </span>AUTOINCREMENT 的行为与 MySQL 不同</h1>
 
-<p>The <a href="autoinc.html">AUTOINCREMENT</a> feature in SQLite works differently than
-it does in MySQL.  This often causes confusion for people who
-initially learned SQL on MySQL and then start using SQLite, and
-expect the two systems to work identically.
+<p><a href="autoinc.html">AUTOINCREMENT</a> 在 SQLite 中的工作方式与 MySQL 不同。
+这常常令最初在 MySQL 上学习 SQL 然后开始使用 SQLite 的人迷惑，
+他们期望两个系统的行为完全一致。
 
-</p><p>See the <a href="autoinc.html">SQLite AUTOINCREMENT documentation</a> for
-detailed instructions on what AUTOINCREMENT does and does not do
-in SQLite.
+</p><p>请参阅<a href="autoinc.html">SQLite AUTOINCREMENT 文档</a>，了解 AUTOINCREMENT 在 SQLite 中的具体行为和限制。
 
-</p><h1 id="nul_characters_are_allowed_in_text_strings"><span>12. </span>NUL Characters Are Allowed In Text Strings</h1>
+</p><h1 id="nul_characters_are_allowed_in_text_strings"><span>12. </span>文本字符串中允许 NUL 字符</h1>
 
-<p>NUL characters (ASCII code 0x00 and Unicode \u0000) may appear in
-the middle of strings in SQLite.  This can lead to unexpected behavior.
-See the "<a href="nulinstr.html">NUL characters in strings</a>" document for further information.
+<p>NUL 字符（ASCII 代码 0x00 以及 Unicode \u0000）可以出现在 SQLite 字符串的中间。
+这可能导致预期之外的行为。
+有关更多信息，请参见“<a href="nulinstr.html">字符串中的 NUL 字符</a>”文档。
 
-</p><h1 id="sqlite_distinguishes_between_integer_and_text_literals"><span>13. </span>SQLite Distinguishes Between Integer And Text Literals</h1>
+</p><h1 id="sqlite_distinguishes_between_integer_and_text_literals"><span>13. </span>SQLite 区分整数和文本字面量</h1>
 
-<p>SQLite says that the following query returns false:
+<p>SQLite 声称以下查询返回假：
 </p><div class="codeblock"><pre>SELECT 1='1';
 </pre></div>
-<p>It does this because an integer is not a string.  
-Every other major SQL database engine says this is true, for reasons
-that the creator of SQLite does not understand.
+<p>它这么做的原因是整数并不是字符串。
+其他所有主流 SQL 数据库引擎都说这是真，至于原因，SQLite 的创建者也不理解。
 
-</p><h1 id="sqlite_gets_the_precedence_of_comma_joins_wrong"><span>14. </span>SQLite Gets The Precedence Of Comma-Joins Wrong</h1>
+</p><h1 id="sqlite_gets_the_precedence_of_comma_joins_wrong"><span>14. </span>SQLite 处理逗号连接的优先级错误</h1>
 
-<p>SQLite gives all join operators equal precedence and processes them
-from left to right.  But this is not quite correct.  It should be that
-comma-joins have lower precedence than all others join operators.
-In other words, a FROM clause like this:
+<p>SQLite 赋予所有连接运算符相同的优先级，并从左向右处理它们。
+但这并不完全正确。逗号连接的优先级应该低于所有其他连接运算符。
+换句话说，像这样的 FROM 子句：
 
 </p><blockquote><p>
 ... FROM a, b RIGHT JOIN c, d ...
 </p></blockquote>
 
-<p>Should be parsed as follows:
+<p>应该被解析为：
 
 </p><div class="imgcontainer">
 <div style="max-width:153px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 153.328 245.544" data-pikchr-date="20250319161943">
@@ -594,7 +451,7 @@ In other words, a FROM clause like this:
 </div>
 </div>
 
-<p>But SQLite instead parses the FROM clause like this:
+<p>但 SQLite 实际上是这样解析该 FROM 子句的：
 
 </p><div class="imgcontainer">
 <div style="max-width:188px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 188.691 245.544" data-pikchr-date="20250319161943">
@@ -628,13 +485,12 @@ In other words, a FROM clause like this:
 </div>
 </div>
 
-<p>The problem can only makes a difference in the result when using
-RIGHT OUTER JOIN or FULL OUTER JOIN in the same FROM clause with
-comma-joins, which rarely happens in practice.  And
-the problem can be easily overcome using parentheses in the FROM clause:
+<p>只有在同一个 FROM 子句中同时使用 RIGHT OUTER JOIN 或 FULL OUTER JOIN 与逗号连接时，这个问题才会影响结果，不过这种情况在实践中很少遇到。
+而且可以通过在 FROM 子句中使用括号轻松解决：
 
 </p><blockquote><p>
 ... FROM a, (b RIGHT JOIN c), d ...
 </p></blockquote>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </small></i></p>
 
+</body></html>

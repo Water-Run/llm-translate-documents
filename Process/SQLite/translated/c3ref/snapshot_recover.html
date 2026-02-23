@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly" style="text-align:right; padding-right:1rem; font-size:0.85em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
 Small. Fast. Reliable.<br>Choose any three.
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
+<li><a href="../index.html">首页</a>
 <li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,33 +123,22 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_snapshot_recover -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Recover snapshots from a wal file</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>从 wal 文件恢复快照</h2>
 </div>
 <blockquote><pre>
 int sqlite3_snapshot_recover(sqlite3 *db, const char *zDb);
 </pre></blockquote>
 <p>
-If a <a href="../wal.html#walfile">WAL file</a> remains on disk after all database connections close
-(either through the use of the <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpersistwal">SQLITE_FCNTL_PERSIST_WAL</a> <a href="../c3ref/file_control.html">file control</a>
-or because the last process to have the database opened exited without
-calling <a href="../c3ref/close.html">sqlite3_close()</a>) and a new connection is subsequently opened
-on that database and <a href="../wal.html#walfile">WAL file</a>, the <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> interface
-will only be able to open the last transaction added to the WAL file
-even though the WAL file contains other valid transactions.</p>
+如果在所有数据库连接关闭后（无论是通过使用 <a href="../c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpersistwal">SQLITE_FCNTL_PERSIST_WAL</a> <a href="../c3ref/file_control.html">文件控制</a>，还是因为最后一个打开数据库的进程在未调用 <a href="../c3ref/close.html">sqlite3_close()</a> 的情况下退出）WAL 文件仍然留在磁盘上，并且随即对该数据库和 <a href="../wal.html#walfile">WAL 文件</a> 打开了一个新连接，那么 <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> 接口只能打开 WAL 文件中最后添加的事务，尽管 WAL 文件中还包含其他有效事务。
+</p>
 
-<p>This function attempts to scan the WAL file associated with database zDb
-of database handle db and make all valid snapshots available to
-sqlite3_snapshot_open(). It is an error if there is already a read
-transaction open on the database, or if the database is not a WAL mode
-database.</p>
+<p>此函数尝试扫描与数据库句柄 db 的数据库 zDb 关联的 WAL 文件，并使所有有效快照可由 sqlite3_snapshot_open() 获取。如果数据库上已经打开了读取事务，或者该数据库不是 WAL 模式数据库，则会报错。</p>
 
-<p>SQLITE_OK is returned if successful, or an SQLite error code otherwise.</p>
+<p>成功时返回 SQLITE_OK，否则返回 SQLite 错误代码。</p>
 
-<p>This interface is only available if SQLite is compiled with the
-<a href="../compile.html#enable_snapshot">SQLITE_ENABLE_SNAPSHOT</a> option.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>仅当 SQLite 使用 <a href="../compile.html#enable_snapshot">SQLITE_ENABLE_SNAPSHOT</a> 选项编译时才提供此接口。</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 以及
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
 

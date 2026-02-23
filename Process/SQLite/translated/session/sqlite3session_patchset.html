@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Generate A Patchset From A Session Object</title>
+<title>从会话对象生成补丁集</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。三者任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -115,38 +121,25 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Generate A Patchset From A Session Object</h2><blockquote><pre>int sqlite3session_patchset(
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>从会话对象生成补丁集</h2><blockquote><pre>int sqlite3session_patchset(
   sqlite3_session *pSession,      /* Session object */
   int *pnPatchset,                /* OUT: Size of buffer at *ppPatchset */
   void **ppPatchset               /* OUT: Buffer containing patchset */
 );
 </pre></blockquote><p>
-The differences between a patchset and a changeset are that:</p>
+补丁集与更改集之间的区别在于：</p>
 
 <p><ul>
-  <li> DELETE records consist of the primary key fields only. The 
-       original values of other fields are omitted.
-  <li> The original values of any modified fields are omitted from 
-       UPDATE records.
+  <li> DELETE 记录仅包含主键字段。其他字段的原始值会被省略。
+  <li> 任何被修改字段的原始值会从 UPDATE 记录中省略。
 </ul></p>
 
-<p>A patchset blob may be used with up to date versions of all 
-sqlite3changeset_xxx API functions except for sqlite3changeset_invert(), 
-which returns SQLITE_CORRUPT if it is passed a patchset. Similarly,
-attempting to use a patchset blob with old versions of the
-sqlite3changeset_xxx APIs also provokes an SQLITE_CORRUPT error. </p>
+<p>补丁集 blob 可以与所有最新版本的 sqlite3changeset_xxx API 函数一起使用，除了 sqlite3changeset_invert() —— 如果给它传入补丁集，它会返回 SQLITE_CORRUPT。类似地，尝试将补丁集 blob 与旧版本的 sqlite3changeset_xxx API 一起使用也会引发 SQLITE_CORRUPT 错误。</p>
 
-<p>Because the non-primary key "old.*" fields are omitted, no 
-SQLITE_CHANGESET_DATA conflicts can be detected or reported if a patchset
-is passed to the sqlite3changeset_apply() API. Other conflict types work
-in the same way as for changesets.</p>
+<p>由于非主键的 “old.*” 字段被省略，当补丁集被传递给 sqlite3changeset_apply() API 时，无法检测或报告 SQLITE_CHANGESET_DATA 冲突。其他类型的冲突与更改集中一样处理。</p>
 
-<p>Changes within a patchset are ordered in the same way as for changesets
-generated by the sqlite3session_changeset() function (i.e. all changes for
-a single table are grouped together, tables appear in the order in which
-they were attached to the session object).
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>补丁集中的更改顺序与 sqlite3session_changeset() 函数生成的更改集相同（即针对单个表的所有更改会聚在一起，表的顺序与它们附加到会话对象的顺序一致）。</p><p>另请参见
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a> 的列表。</p>
 

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Add A Changeset To A Changegroup</title>
+<title>向变更组添加更改集</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translationinfo desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -115,86 +121,48 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Add A Changeset To A Changegroup</h2><blockquote><pre>int sqlite3changegroup_add(sqlite3_changegroup*, int nData, void *pData);
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>向变更组添加更改集</h2><blockquote><pre>int sqlite3changegroup_add(sqlite3_changegroup*, int nData, void *pData);
 </pre></blockquote><p>
-Add all changes within the changeset (or patchset) in buffer pData (size
-nData bytes) to the changegroup. </p>
+将缓冲区 pData（大小为 nData 字节）中的整个更改集（或补丁集）中的所有更改添加到变更组中。 </p>
 
-<p>If the buffer contains a patchset, then all prior calls to this function
-on the same changegroup object must also have specified patchsets. Or, if
-the buffer contains a changeset, so must have the earlier calls to this
-function. Otherwise, SQLITE_ERROR is returned and no changes are added
-to the changegroup.</p>
+<p>如果缓冲区包含补丁集，则对同一变更组对象的早期调用也必须指定补丁集。或者，如果缓冲区包含更改集，则这些早期调用也必须包含更改集。否则，将返回 SQLITE_ERROR，并且不会向变更组添加任何更改。</p>
 
-<p>Rows within the changeset and changegroup are identified by the values in
-their PRIMARY KEY columns. A change in the changeset is considered to
-apply to the same row as a change already present in the changegroup if
-the two rows have the same primary key.</p>
+<p>更改集和变更组中的行通过其主键列的值进行标识。如果更改集中的一条更改与变更组中已有更改具有相同的主键，则该更改被视为作用于相同的行。</p>
 
-<p>Changes to rows that do not already appear in the changegroup are
-simply copied into it. Or, if both the new changeset and the changegroup
-contain changes that apply to a single row, the final contents of the
-changegroup depends on the type of each change, as follows:</p>
+<p>对于尚未出现在变更组中的行，其更改会直接复制进去。或者，如果新的更改集和变更组都包含适用于同一行的更改，则变更组的最终内容取决于各自更改的类型，具体如下：</p>
 
 <p><table border=1 style="margin-left:8ex;margin-right:8ex">
-  <tr><th style="white-space:pre">Existing Change  </th>
-      <th style="white-space:pre">New Change       </th>
-      <th>Output Change
+  <tr><th style="white-space:pre">已有更改      </th>
+      <th style="white-space:pre">新更改        </th>
+      <th>输出更改
   <tr><td>INSERT <td>INSERT <td>
-      The new change is ignored. This case does not occur if the new
-      changeset was recorded immediately after the changesets already
-      added to the changegroup.
+      忽略新更改。如果新更改集紧接着已经添加到变更组的更改集被记录，则不会发生这种情况。
   <tr><td>INSERT <td>UPDATE <td>
-      The INSERT change remains in the changegroup. The values in the 
-      INSERT change are modified as if the row was inserted by the
-      existing change and then updated according to the new change.
+      INSERT 更改保留在变更组中。INSERT 更改中的值会被修改，仿佛先由现有更改插入该行，然后再根据新更改进行更新。
   <tr><td>INSERT <td>DELETE <td>
-      The existing INSERT is removed from the changegroup. The DELETE is
-      not added.
+      现有的 INSERT 会从变更组中移除。DELETE 不会被添加。
   <tr><td>UPDATE <td>INSERT <td>
-      The new change is ignored. This case does not occur if the new
-      changeset was recorded immediately after the changesets already
-      added to the changegroup.
+      忽略新更改。如果新更改集紧接着已经添加到变更组的更改集被记录，则不会发生这种情况。
   <tr><td>UPDATE <td>UPDATE <td>
-      The existing UPDATE remains within the changegroup. It is amended 
-      so that the accompanying values are as if the row was updated once 
-      by the existing change and then again by the new change.
+      现有的 UPDATE 保留在变更组中。它会被修改，使其随附的值等同于先由现有更改更新该行，然后再由新更改更新一次。
   <tr><td>UPDATE <td>DELETE <td>
-      The existing UPDATE is replaced by the new DELETE within the
-      changegroup.
+      现有的 UPDATE 会被新的 DELETE 替换到变更组中。
   <tr><td>DELETE <td>INSERT <td>
-      If one or more of the column values in the row inserted by the
-      new change differ from those in the row deleted by the existing 
-      change, the existing DELETE is replaced by an UPDATE within the
-      changegroup. Otherwise, if the inserted row is exactly the same 
-      as the deleted row, the existing DELETE is simply discarded.
+      如果新更改插入的行中的一个或多个列值与现有更改删除的行不同，则现有的 DELETE 会被变更组中的 UPDATE 替换。否则，如果插入的行与删除的行完全相同，则现有的 DELETE 会被直接丢弃。
   <tr><td>DELETE <td>UPDATE <td>
-      The new change is ignored. This case does not occur if the new
-      changeset was recorded immediately after the changesets already
-      added to the changegroup.
+      忽略新更改。如果新更改集紧接着已经添加到变更组的更改集被记录，则不会发生这种情况。
   <tr><td>DELETE <td>DELETE <td>
-      The new change is ignored. This case does not occur if the new
-      changeset was recorded immediately after the changesets already
-      added to the changegroup.
+      忽略新更改。如果新更改集紧接着已经添加到变更组的更改集被记录，则不会发生这种情况。
 </table></p>
 
-<p>If the new changeset contains changes to a table that is already present
-in the changegroup, then the number of columns and the position of the
-primary key columns for the table must be consistent. If this is not the
-case, this function fails with SQLITE_SCHEMA. Except, if the changegroup
-object has been configured with a database schema using the
-sqlite3changegroup_schema() API, then it is possible to combine changesets
-with different numbers of columns for a single table, provided that
-they are otherwise compatible.</p>
+<p>如果新的更改集包含对变更组中已存在表的更改，则该表的列数和主键列的位置必须保持一致。如果不一致，则该函数会返回 SQLITE_SCHEMA。除非已经使用 sqlite3changegroup_schema() API 为变更组对象配置了数据库模式，在这种情况下，只要它们在其他方面兼容，就可以将具有不同列数的更改集合并到同一表。</p>
 
-<p>If the input changeset appears to be corrupt and the corruption is
-detected, SQLITE_CORRUPT is returned. Or, if an out-of-memory condition
-occurs during processing, this function returns SQLITE_NOMEM. </p>
+<p>如果输入的更改集看起来被损坏并且检测到了损坏，则返回 SQLITE_CORRUPT。或者，在处理过程中发生内存不足，则该函数返回 SQLITE_NOMEM。 </p>
 
-<p>In all cases, if an error occurs the state of the final contents of the
-changegroup is undefined. If no error occurs, SQLITE_OK is returned.
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>在所有情况下，如果发生错误，则变更组最终内容的状态未定义。如果没有错误，则返回 SQLITE_OK。
+</p><p>另请参见
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a>。</p>
 
+</body></html>

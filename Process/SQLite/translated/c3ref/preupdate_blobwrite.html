@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>The pre-update hook.</title>
+<title>预更新钩子。</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小。快。可靠。<br>任意挑选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_preupdate_blobwrite sqlite3_preupdate_count sqlite3_preupdate_depth sqlite3_preupdate_hook sqlite3_preupdate_new sqlite3_preupdate_old -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>The pre-update hook.</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>预更新钩子。</h2>
 </div>
 <blockquote><pre>
 #if defined(SQLITE_ENABLE_PREUPDATE_HOOK)
@@ -143,99 +149,67 @@ int sqlite3_preupdate_blobwrite(sqlite3 *);
 #endif
 </pre></blockquote>
 <p>
-These interfaces are only available if SQLite is compiled using the
-<a href="../compile.html#enable_preupdate_hook">SQLITE_ENABLE_PREUPDATE_HOOK</a> compile-time option.</p>
+只有在使用
+<a href="../compile.html#enable_preupdate_hook">SQLITE_ENABLE_PREUPDATE_HOOK</a> 编译选项编译 SQLite 时，这些接口才可用。</p>
 
-<p>The <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> interface registers a callback function
-that is invoked prior to each <a href="../lang_insert.html">INSERT</a>, <a href="../lang_update.html">UPDATE</a>, and <a href="../lang_delete.html">DELETE</a> operation
-on a database table.
-At most one preupdate hook may be registered at a time on a single
-<a href="../c3ref/sqlite3.html">database connection</a>; each call to <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> overrides
-the previous setting.
-The preupdate hook is disabled by invoking <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a>
-with a NULL pointer as the second parameter.
-The third parameter to <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> is passed through as
-the first parameter to callbacks.</p>
+<p><a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> 接口注册一个回调函数，
+该函数会在对数据库表执行每次
+<a href="../lang_insert.html">INSERT</a>、<a href="../lang_update.html">UPDATE</a> 和 <a href="../lang_delete.html">DELETE</a> 操作之前被调用。
+在单个
+<a href="../c3ref/sqlite3.html">数据库连接</a> 上最多只能注册一个预更新钩子；每次调用 <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> 都会覆盖之前的设置。
+通过将第二个参数设为 NULL 调用 <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> 可禁用预更新钩子。
+第三个参数会被传递给回调函数作为第一个参数。</p>
 
-<p>The preupdate hook only fires for changes to real database tables; the
-preupdate hook is not invoked for changes to <a href="../vtab.html">virtual tables</a> or to
-system tables like sqlite_sequence or sqlite_stat1.</p>
+<p>预更新钩子仅在对真实数据库表进行更改时激活；对于
+<a href="../vtab.html">虚拟表</a> 或 sqlite_sequence、sqlite_stat1 等系统表的更改不会触发预更新钩子。</p>
 
-<p>The second parameter to the preupdate callback is a pointer to
-the <a href="../c3ref/sqlite3.html">database connection</a> that registered the preupdate hook.
-The third parameter to the preupdate callback is one of the constants
-<a href="../c3ref/c_alter_table.html">SQLITE_INSERT</a>, <a href="../c3ref/c_alter_table.html">SQLITE_DELETE</a>, or <a href="../c3ref/c_alter_table.html">SQLITE_UPDATE</a> to identify the
-kind of update operation that is about to occur.
-The fourth parameter to the preupdate callback is the name of the
-database within the database connection that is being modified.  This
-will be "main" for the main database or "temp" for TEMP tables or
-the name given after the AS keyword in the <a href="../lang_attach.html">ATTACH</a> statement for attached
-databases.
-The fifth parameter to the preupdate callback is the name of the
-table that is being modified.</p>
+<p>预更新回调的第二个参数是注册该钩子的
+<a href="../c3ref/sqlite3.html">数据库连接</a> 指针。
+第三个参数是常量
+<a href="../c3ref/c_alter_table.html">SQLITE_INSERT</a>、<a href="../c3ref/c_alter_table.html">SQLITE_DELETE</a> 或 <a href="../c3ref/c_alter_table.html">SQLITE_UPDATE</a> 之一，用于标识即将执行的更新操作类型。
+第四个参数是正在被修改的数据库连接中数据库的名称。主数据库是 “main”，TEMP 表是 “temp”，或者是 <a href="../lang_attach.html">ATTACH</a> 语句中 AS 关键字后指定的附加数据库别名。
+第五个参数是正在被修改的表的名称。</p>
 
-<p>For an UPDATE or DELETE operation on a <a href="../rowidtable.html">rowid table</a>, the sixth
-parameter passed to the preupdate callback is the initial <a href="../lang_createtable.html#rowid">rowid</a> of the
-row being modified or deleted. For an INSERT operation on a rowid table,
-or any operation on a WITHOUT ROWID table, the value of the sixth
-parameter is undefined. For an INSERT or UPDATE on a rowid table the
-seventh parameter is the final rowid value of the row being inserted
-or updated. The value of the seventh parameter passed to the callback
-function is not defined for operations on WITHOUT ROWID tables, or for
-DELETE operations on rowid tables.</p>
+<p>对于 <a href="../rowidtable.html">rowid 表</a> 的 UPDATE 或 DELETE 操作，传递给预更新回调的第六个参数是正在被修改或删除的行的初始 <a href="../lang_createtable.html#rowid">rowid</a>。
+对于 rowid 表上的 INSERT 操作或任何 WITHOUT ROWID 表上的操作，第六个参数的值未定义。
+对于 rowid 表上的 INSERT 或 UPDATE 操作，第七个参数是正在插入或更新的行的最终 rowid 值。
+对于 WITHOUT ROWID 表或 rowid 表上的 DELETE 操作，第七个参数的值未定义。</p>
 
-<p>The sqlite3_preupdate_hook(D,C,P) function returns the P argument from
-the previous call on the same <a href="../c3ref/sqlite3.html">database connection</a> D, or NULL for
-the first call on D.</p>
+<p>函数 sqlite3_preupdate_hook(D,C,P) 返回在同一
+<a href="../c3ref/sqlite3.html">数据库连接</a> D 上的上一次调用中传入的 P 参数；对 D 的第一次调用返回 NULL。</p>
 
-<p>The <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_old()</a>, <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_new()</a>,
-<a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_count()</a>, and <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_depth()</a> interfaces
-provide additional information about a preupdate event. These routines
-may only be called from within a preupdate callback.  Invoking any of
-these routines from outside of a preupdate callback or with a
-<a href="../c3ref/sqlite3.html">database connection</a> pointer that is different from the one supplied
-to the preupdate callback results in undefined and probably undesirable
-behavior.</p>
+<p><a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_old()</a>、<a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_new()</a>、
+<a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_count()</a> 和 <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_depth()</a> 接口提供有关预更新事件的附加信息。
+这些例程只能在预更新回调中调用。
+在预更新回调之外或使用与回调提供的不同的
+<a href="../c3ref/sqlite3.html">数据库连接</a> 指针调用这些例程会导致未定义且可能不可取的行为。</p>
 
-<p>The <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_count(D)</a> interface returns the number of columns
-in the row that is being inserted, updated, or deleted.</p>
+<p><a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_count(D)</a> 接口返回正在插入、更新或删除的行的列数。</p>
 
-<p>The <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_old(D,N,P)</a> interface writes into P a pointer to
-a <a href="../c3ref/value.html">protected sqlite3_value</a> that contains the value of the Nth column of
-the table row before it is updated.  The N parameter must be between 0
-and one less than the number of columns or the behavior will be
-undefined. This must only be used within SQLITE_UPDATE and SQLITE_DELETE
-preupdate callbacks; if it is used by an SQLITE_INSERT callback then the
-behavior is undefined.  The <a href="../c3ref/value.html">sqlite3_value</a> that P points to
-will be destroyed when the preupdate callback returns.</p>
+<p><a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_old(D,N,P)</a> 接口在 P 中写入一个指针，指向包含被更新前指定行第 N 列值的
+<a href="../c3ref/value.html">受保护 sqlite3_value</a>。参数 N 必须介于 0 到列数减一之间，否则行为未定义。
+该接口只能在 SQLITE_UPDATE 和 SQLITE_DELETE 预更新回调中使用；若在 SQLITE_INSERT 回调中使用，则行为未定义。
+P 指向的 <a href="../c3ref/value.html">sqlite3_value</a> 会在预更新回调返回时被销毁。</p>
 
-<p>The <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_new(D,N,P)</a> interface writes into P a pointer to
-a <a href="../c3ref/value.html">protected sqlite3_value</a> that contains the value of the Nth column of
-the table row after it is updated.  The N parameter must be between 0
-and one less than the number of columns or the behavior will be
-undefined. This must only be used within SQLITE_INSERT and SQLITE_UPDATE
-preupdate callbacks; if it is used by an SQLITE_DELETE callback then the
-behavior is undefined.  The <a href="../c3ref/value.html">sqlite3_value</a> that P points to
-will be destroyed when the preupdate callback returns.</p>
+<p><a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_new(D,N,P)</a> 接口在 P 中写入一个指针，指向包含被更新后指定行第 N 列值的
+<a href="../c3ref/value.html">受保护 sqlite3_value</a>。参数 N 必须介于 0 到列数减一之间，否则行为未定义。
+该接口只能在 SQLITE_INSERT 和 SQLITE_UPDATE 预更新回调中使用；若在 SQLITE_DELETE 回调中使用，则行为未定义。
+P 指向的 <a href="../c3ref/value.html">sqlite3_value</a> 会在预更新回调返回时被销毁。</p>
 
-<p>The <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_depth(D)</a> interface returns 0 if the preupdate
-callback was invoked as a result of a direct insert, update, or delete
-operation; or 1 for inserts, updates, or deletes invoked by top-level
-triggers; or 2 for changes resulting from triggers called by top-level
-triggers; and so forth.</p>
+<p><a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_depth(D)</a> 接口在预更新回调是由直接的插入、更新或删除操作触发时返回 0；
+由顶层触发器调用的插入、更新或删除返回 1；
+由顶层触发器调用的触发器所造成的更改返回 2；依此类推。</p>
 
-<p>When the <a href="../c3ref/blob_write.html">sqlite3_blob_write()</a> API is used to update a blob column,
-the pre-update hook is invoked with SQLITE_DELETE, because
-the new values are not yet available. In this case, when a
-callback made with op==SQLITE_DELETE is actually a write using the
-sqlite3_blob_write() API, the <a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_blobwrite()</a> returns
-the index of the column being written. In other cases, where the
-pre-update hook is being invoked for some other reason, including a
-regular DELETE, sqlite3_preupdate_blobwrite() returns -1.</p>
+<p>当使用 <a href="../c3ref/blob_write.html">sqlite3_blob_write()</a> API 更新 blob 列时，预更新钩子会以 SQLITE_DELETE 调用，因为新值尚不可用。
+在 op==SQLITE_DELETE 的回调实际通过 sqlite3_blob_write() API 进行写入时，
+<a href="../c3ref/preupdate_blobwrite.html">sqlite3_preupdate_blobwrite()</a> 返回正在写入的列的索引。
+在其他情况（包括普通的 DELETE）中，预更新钩子由于其他原因被调用时，sqlite3_preupdate_blobwrite() 返回 -1。</p>
 
-<p>See also:  <a href="../c3ref/update_hook.html">sqlite3_update_hook()</a>
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>另见：  <a href="../c3ref/update_hook.html">sqlite3_update_hook()</a>
+</p><p>另见以下列表：
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 以及
+  <a href="../c3ref/funclist.html">函数</a>。
+</p>
 
+</body></html>

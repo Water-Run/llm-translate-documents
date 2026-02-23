@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Generate A Changeset From A Session Object</title>
+<title>生成会话对象的变更集</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,115 +121,42 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Generate A Changeset From A Session Object</h2><blockquote><pre>int sqlite3session_changeset(
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>从会话对象生成变更集</h2><blockquote><pre>int sqlite3session_changeset(
   sqlite3_session *pSession,      /* Session object */
   int *pnChangeset,               /* OUT: Size of buffer at *ppChangeset */
   void **ppChangeset              /* OUT: Buffer containing changeset */
 );
 </pre></blockquote><p>
-Obtain a changeset containing changes to the tables attached to the 
-session object passed as the first argument. If successful, 
-set *ppChangeset to point to a buffer containing the changeset 
-and *pnChangeset to the size of the changeset in bytes before returning
-SQLITE_OK. If an error occurs, set both *ppChangeset and *pnChangeset to
-zero and return an SQLite error code.</p>
+获取包含传入会话对象所附表更改的变更集。如果成功，请在返回 SQLITE_OK 之前将 *ppChangeset 指向包含变更集的缓冲区，并将 *pnChangeset 设置为变更集的字节长度。如果发生错误，将 *ppChangeset 和 *pnChangeset 都设为零，并返回 SQLite 错误代码。</p>
 
-<p>A changeset consists of zero or more INSERT, UPDATE and/or DELETE changes,
-each representing a change to a single row of an attached table. An INSERT
-change contains the values of each field of a new database row. A DELETE
-contains the original values of each field of a deleted database row. An
-UPDATE change contains the original values of each field of an updated
-database row along with the updated values for each updated non-primary-key
-column. It is not possible for an UPDATE change to represent a change that
-modifies the values of primary key columns. If such a change is made, it
-is represented in a changeset as a DELETE followed by an INSERT.</p>
+<p>变更集由零个或多个 INSERT、UPDATE 和/或 DELETE 更改组成，每个更改表示附加表中单行的变更。INSERT 更改包含新数据库行每个字段的值。DELETE 更改包含被删除数据库行每个字段的原始值。UPDATE 更改包含被更新数据库行每个字段的原始值，以及每个已更新的非主键列的更新值。UPDATE 更改不能表示修改主键列值的变更。如果发生此类更改，在变更集中它将被表示为 DELETE 后跟 INSERT。</p>
 
-<p>Changes are not recorded for rows that have NULL values stored in one or 
-more of their PRIMARY KEY columns. If such a row is inserted or deleted,
-no corresponding change is present in the changesets returned by this
-function. If an existing row with one or more NULL values stored in
-PRIMARY KEY columns is updated so that all PRIMARY KEY columns are non-NULL,
-only an INSERT is appears in the changeset. Similarly, if an existing row
-with non-NULL PRIMARY KEY values is updated so that one or more of its
-PRIMARY KEY columns are set to NULL, the resulting changeset contains a
-DELETE change only.</p>
+<p>对于在一个或多个主键列中保存了 NULL 值的行，不会记录变更。如果这样的行被插入或删除，在本函数返回的变更集中不会有相应的更改。如果具有一个或多个 NULL 主键列的现有行被更新，使得所有主键列都变为非 NULL，则变更集中只出现 INSERT。同样地，如果原本主键值非 NULL 的现有行被更新，使得一个或多个主键列被设为 NULL，则结果变更集中只包含 DELETE 更改。</p>
 
-<p>The contents of a changeset may be traversed using an iterator created
-using the <a href="../session/sqlite3changeset_start.html">sqlite3changeset_start()</a> API. A changeset may be applied to
-a database with a compatible schema using the <a href="../session/sqlite3changeset_apply.html">sqlite3changeset_apply()</a>
-API.</p>
+<p>可以使用 <a href="../session/sqlite3changeset_start.html">sqlite3changeset_start()</a> API 创建迭代器遍历变更集。可以使用 <a href="../session/sqlite3changeset_apply.html">sqlite3changeset_apply()</a> API 将变更集应用于具有兼容模式的数据库。</p>
 
-<p>Within a changeset generated by this function, all changes related to a
-single table are grouped together. In other words, when iterating through
-a changeset or when applying a changeset to a database, all changes related
-to a single table are processed before moving on to the next table. Tables
-are sorted in the same order in which they were attached (or auto-attached)
-to the sqlite3_session object. The order in which the changes related to
-a single table are stored is undefined.</p>
+<p>在此函数生成的变更集中，属于同一张表的所有更改会集中在一起。换言之，在遍历变更集或将其应用到数据库时，与同一张表相关的所有更改会在继续处理下一张表之前先处理完。表的顺序与它们附加（或自动附加）到 sqlite3_session 对象的顺序相同。属于同一张表的更改的存储顺序未定义。</p>
 
-<p>Following a successful call to this function, it is the responsibility of
-the caller to eventually free the buffer that *ppChangeset points to using
-<a href="../c3ref/free.html">sqlite3_free()</a>.</p>
+<p>在成功调用本函数后，调用者需要最终使用 <a href="../c3ref/free.html">sqlite3_free()</a> 释放 *ppChangeset 指向的缓冲区。</p>
 
-<p><h3>Changeset Generation</h3></p>
+<p><h3>变更集生成</h3></p>
 
-<p>Once a table has been attached to a session object, the session object
-records the primary key values of all new rows inserted into the table.
-It also records the original primary key and other column values of any
-deleted or updated rows. For each unique primary key value, data is only
-recorded once - the first time a row with said primary key is inserted,
-updated or deleted in the lifetime of the session.</p>
+<p>一旦某张表被附加到会话对象，会话对象会记录插入到该表的新行的主键值。它还会记录被删除或更新行的原始主键及其他列的值。对于每个唯一的主键值，数据只记录一次 —— 即在会话生命周期中首次插入、更新或删除具有该主键的行时记录。</p>
 
-<p>There is one exception to the previous paragraph: when a row is inserted,
-updated or deleted, if one or more of its primary key columns contain a
-NULL value, no record of the change is made.</p>
+<p>上段描述有一个例外：当某行被插入、更新或删除时，如果其一个或多个主键列包含 NULL 值，则不会记录该变更。</p>
 
-<p>The session object therefore accumulates two types of records - those
-that consist of primary key values only (created when the user inserts
-a new record) and those that consist of the primary key values and the
-original values of other table columns (created when the users deletes
-or updates a record).</p>
+<p>因此，会话对象累积两类记录 —— 仅包含主键值的记录（在用户插入新记录时创建）以及包含主键值和其他列原始值的记录（在用户删除或更新记录时创建）。</p>
 
-<p>When this function is called, the requested changeset is created using
-both the accumulated records and the current contents of the database
-file. Specifically:</p>
+<p>调用本函数时，请求的变更集会结合累积记录和数据库文件的当前内容生成。具体而言：</p>
 
 <p><ul>
-  <li> For each record generated by an insert, the database is queried
-       for a row with a matching primary key. If one is found, an INSERT
-       change is added to the changeset. If no such row is found, no change 
-       is added to the changeset.</p>
+  <li> 对于每个由插入生成的记录，数据库会查询是否存在具有匹配主键的行。如果找到，则在变更集中添加一个 INSERT 更改。如果未找到，则不添加任何更改。</li>
 
-<p>  <li> For each record generated by an update or delete, the database is 
-       queried for a row with a matching primary key. If such a row is
-       found and one or more of the non-primary key fields have been
-       modified from their original values, an UPDATE change is added to 
-       the changeset. Or, if no such row is found in the table, a DELETE 
-       change is added to the changeset. If there is a row with a matching
-       primary key in the database, but all fields contain their original
-       values, no change is added to the changeset.
+<p>  <li> 对于每个由更新或删除生成的记录，数据库会查询是否存在具有匹配主键的行。如果找到这样的行，且一个或多个非主键字段已从原始值发生变化，则在变更集中添加 UPDATE 更改。否则，如果在表中找不到这样的行，则添加 DELETE 更改。如果数据库中存在匹配主键的行，但所有字段仍保留原始值，则不会向变更集添加任何更改。</li>
 </ul></p>
 
-<p>This means, amongst other things, that if a row is inserted and then later
-deleted while a session object is active, neither the insert nor the delete
-will be present in the changeset. Or if a row is deleted and then later a 
-row with the same primary key values inserted while a session object is
-active, the resulting changeset will contain an UPDATE change instead of
-a DELETE and an INSERT.</p>
+<p>这意味着，例如在会话对象处于活动状态时插入一行后又删除该行，则变更集中既不会包含插入也不会包含删除。或者，在会话对象活动期间删除一行后又插入具有相同主键值的行，则最终的变更集中会包含一个 UPDATE 更改，而不是 DELETE 和 INSERT。</p>
 
-<p>When a session object is disabled (see the <a href="../session/sqlite3session_enable.html">sqlite3session_enable()</a> API),
-it does not accumulate records when rows are inserted, updated or deleted.
-This may appear to have some counter-intuitive effects if a single row
-is written to more than once during a session. For example, if a row
-is inserted while a session object is enabled, then later deleted while 
-the same session object is disabled, no INSERT record will appear in the
-changeset, even though the delete took place while the session was disabled.
-Or, if one field of a row is updated while a session is enabled, and 
-then another field of the same row is updated while the session is disabled,
-the resulting changeset will contain an UPDATE change that updates both
-fields.
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>当会话对象被禁用（参见 <a href="../session/sqlite3session_enable.html">sqlite3session_enable()</a> API）时，在插入、更新或删除行时不会积累记录。如果在一个会话内某行被写入多次，可能会出现一些反直觉的现象。例如，如果会话对象处于启用状态时插入一个行，然后在同一会话对象被禁用时又删除该行，则变更集中不会出现 INSERT 记录，即使在禁用期间执行了删除。又例如，如果在启用状态下更新行的一个字段，而在禁用状态下更新同一行的另一字段，则生成的变更集中将包含一个 UPDATE 更改，该更改同时更新两个字段。</p>
+<p>另请参见以下列表：<a href="../session/objlist.html">对象</a>、<a href="../session/constlist.html">常量</a>和<a href="../session/funclist.html">函数</a>。</p>
 

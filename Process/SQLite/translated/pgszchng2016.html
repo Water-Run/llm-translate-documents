@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -118,51 +124,45 @@ antiRobotDefense();
 
 
 
-<h1 align="center">The Default Page Size Change of SQLite 3.12.0</h1>
+<h1 align="center">SQLite 3.12.0 的默认页面大小变更</h1>
 
-<h2>1.0 Introduction</h2>
+<h2>1.0 引言</h2>
 
 <p>
-An SQLite database file consists of one or more "pages".
-For a single database file, all pages are the same size, though
-for different database files, the page size can be any power of
-two between 512 and 65536, inclusive.
+一个 SQLite 数据库文件由一个或多个“页面”组成。
+对于单个数据库文件，所有页面尺寸相同，但
+不同的数据库文件的页面大小可以是 512 到 65536（包含）之间的任意 2 的幂。
 </p>
 
 <p>
-Since the SQLite database file format was designed (in 2003) the
-default <a href="pragma.html#pragma_page_size">page size</a> for new databases has been 1024 bytes.  
-This was a reasonable choice in 2003.  But on modern hardware, 
-a 4096 byte page is a faster and better choice.
-So, beginning with SQLite <a href="releaselog/3_12_0.html">version 3.12.0</a> (2016-03-29)) the default 
-page size for new database files has been increased to 4096 bytes.
+自从 SQLite 数据库文件格式在 2003 年设计以来，
+新数据库的默认<a href="pragma.html#pragma_page_size">页面大小</a> 为 1024 字节。  
+这在 2003 年是一个合理的选择。但在现代硬件上，
+4096 字节的页面是更快也更好的选择。
+因此，从 SQLite <a href="releaselog/3_12_0.html">版本 3.12.0</a>（2016-03-29）开始，
+新数据库文件的默认页面大小已增长到 4096 字节。
 </p>
 
 <p>
-The upper bound on the database <a href="pragma.html#pragma_cache_size">cache size</a> has 
-traditionally defaulted to 2000 pages.  SQLite <a href="releaselog/3_12_0.html">version 3.12.0</a> also
-changes this default setting to be "-2000" which means 2000*1024
-bytes, regardless of page size.  So, the upper bound on the amount
-of memory used for the page cache is unchanged.
+数据库<a href="pragma.html#pragma_cache_size">缓存大小</a>的上限传统上默认为 2000 页。SQLite <a href="releaselog/3_12_0.html">版本 3.12.0</a> 也
+将此默认设置更改为“-2000”，意味着 2000*1024
+字节，与页面大小无关。因此，用于页面缓存的内存上限保持不变。
 </p>
 
-<h2>2.0 <u>Not</u> a Compatibility Break</h2>
+<h2>2.0 <u>不是</u> 兼容性断裂</h2>
 
 <p>
-These changes in the default behavior of SQLite are not
-a compatibility break.  All legacy database files continue to be
-readable and writable by newer versions of SQLite, and all newly
-created database files continue to be readable and writable by
-legacy versions of the SQLite library.  The only thing that is changing
-is some default settings.  This should result in a performance
-increase for many applications.
+SQLite 默认行为的这些更改并不是
+兼容性断裂。所有旧有的数据库文件仍然可以被
+较新版本的 SQLite 阅读和写入，所有新创建的数据库文件仍然可以被
+旧版本的 SQLite 库阅读和写入。唯一变更的是一些默认设置。
+这应当为许多应用带来性能提升。
 </p>
 
 <p>
-Though most applications should not notice any change (except that
-they run a little faster), if problems arise then the
-legacy behavior can be restored at compile-time by using the
-following options to the C-compiler:
+虽然大多数应用不会注意到任何变化（除了运行速度略快），
+如果出现问题，可以通过以下编译器选项在编译时恢复
+旧有行为：
 
 <blockquote><pre>
 -DSQLITE_DEFAULT_PAGE_SIZE=1024 
@@ -170,20 +170,20 @@ following options to the C-compiler:
 </pre></blockquote>
 
 <p>
-The page size and cache size can also be set or changed at run-time using the
-<a href="pragma.html#pragma_page_size">page_size pragma</a> and <a href="pragma.html#pragma_cache_size">cache_size pragma</a>, respectively.
+页面大小和缓存大小也可以在运行时通过
+<a href="pragma.html#pragma_page_size">page_size pragma</a> 和 <a href="pragma.html#pragma_cache_size">cache_size pragma</a> 进行设置或更改。
 
-<h2>3.0 Possible Negative Consequences Of This Change</h2>
+<h2>3.0 此更改可能带来的负面影响</h2>
 
 <p>
-The minimum size of an SQLite database is one page for each table and
-each index.  With a larger page size, the size of an empty database
-for a given schema will grow by a factor of four, therefore.  However,
-once the database begins to fill with content the size of the older
-1024-byte page databases and the newer 4096-byte page databases will
-quickly converge.  Due to relaxed bin-packing constraints, the 
-4096-byte page size might actually result in a smaller file, once
-substantial content is added.
+一个 SQLite 数据库的最小大小是每个表和
+每个索引各占一页。由于页面大小变大，空数据库
+在给定架构下的大小将扩大四倍。但
+一旦数据库开始填充内容，旧的
+1024 字节页面数据库和新的 4096 字节页面数据库的大小将
+快速趋于一致。由于松散的二进制打包约束，
+4096 字节页面在内容较多时可能实际上结果是更小的文件。
 </p>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p align="center"><small><i>此页最后更新于 2025-05-31 13:08:22Z </small></i></p>
 
+</body></html>

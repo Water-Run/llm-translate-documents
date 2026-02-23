@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Powersafe Overwrite</title>
+<title>Powersafe 覆盖写入</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -116,171 +122,62 @@ antiRobotGo();
 antiRobotDefense();
 </script>
 
+<h1 align="center">Powersafe 覆盖写入</h1>
 
+<p>“Powersafe overwrite” 是 SQLite 团队用来描述某些文件系统和磁盘控制器在断电期间与数据保护相关行为的术语。Powersafe overwrite 是一个布尔属性：存储系统要么具备它，要么不具备。</p>
 
-<h1 align="center">Powersafe Overwrite</h1>
-
-<p>"Powersafe overwrite" is a term used by the SQLite team to describe
-a behavior of some filesystems and disk-controllers related to
-data preservation during a power loss.  Powersafe overwrite
-is a boolean property: either the storage system has it or it does not.
-
-<p>We say that a system has the powersafe overwrite property if the following
-statement is true:
+<p>我们说某个系统具有 powersafe overwrite 属性，当下述陈述为真：</p>
 
 <blockquote>
-  <b>When an application writes a range of bytes in a file, no
-  bytes outside of that range will change, even if the write occurs
-  just before a crash or power failure.</b>
+  <b>当一个应用程序在文件中写入一段字节时，即使写入恰好发生在崩溃或断电之前，该范围之外的字节也不会改变。</b>
 </blockquote>
 
-<p>The powersafe overwrite property says nothing about the state of the
-bytes that were written.  Those bytes might contain their old values,
-their new values, random values, or some combination of these.  The powersafe
-overwrite property merely states that writes cannot change bytes outside
-of the range of bytes written.
+<p>powersafe overwrite 属性并不说明被写入的字节的状态。那些字节可能保留旧值、使用新值、包含随机值，或其中的某种组合。powersafe overwrite 属性仅表示写入不会改变写入范围之外的字节。</p>
 
-<p>In other words, powersafe overwrite means that there is no "collateral
-damage" when a power loss occurs while writing.  Only those bytes actually
-being written might be damaged.
+<p>换句话说，powersafe overwrite 表示在写入过程中发生断电时不会造成“连带损坏”。只有正在写入的那些字节可能会受到损害。</p>
 
-<p>In practical terms, what the powersafe write property means is that when
-the disk controller detects an impending power loss, it finishes writing
-whatever sector it is working on prior to parking the heads.  It means that
-individual sector writes will complete once started, even if
-there is a power loss.
+<p>从实际角度看，powersafe write 属性意味着当磁盘控制器检测到即将断电时，它会在停靠磁头之前将正在处理的扇区写完。这意味着一旦单个扇区的写入开始，即使发生断电，该扇区也会完成写入。</p>
 
-<p>Consider what would happen if disk sector writes are interrupted
-by a power loss.  If an application writes two or three bytes in the middle
-of some file, the operating system will implement this by first reading
-the entire sector containing those bytes, making the change to the
-sector in memory, then writing the entire sector back to the disk.  If a power
-loss occurs during the writeback and the sector was not completely written,
-then on the next read after reboot, error correcting codes
-in the sector will probably detect irreparable damage and the disk 
-controller will read out the sector as all zeros or all ones.  Thus
-values will have changed outside of the range of the two or three bytes 
-that were written at the application level - a violation of the powersafe
-overwrite property.
+<p>考虑如果磁盘扇区写入被断电打断会发生什么。如果一个应用程序在某个文件的中间写入两三个字节，操作系统会先读取包含这些字节的整个扇区，在内存中修改该扇区，然后再将整个扇区写回磁盘。如果在写回过程中断电并且扇区未完全写入，那么在重启后的下一次读取时，扇区内的纠错码很可能检测到无法修复的损坏，磁盘控制器会将该扇区以全 0 或全 1 的形式读取出来。因此，在应用层写入的两三个字节范围之外的值也会改变——这就违反了 powersafe overwrite 属性。</p>
 
-<h2>SQLite Assumptions About Powersafe Overwrite</h2>
+<h2>SQLite 关于 Powersafe 覆写的假设</h2>
 
-<p>All versions of SQLite up to and including <a href="releaselog/3_7_9.html">version 3.7.9</a>
-(2011-11-01) assume that
-the filesystem does <u>not</u> provide powersafe overwrite.  SQLite 
-has traditionally assumed that when any one byte of a file changes, all
-other bytes within the same sector of that byte have the potential of
-being corrupted on a power loss.  When writing, SQLite has made sure
-to journal all bytes in the same sector of any modifications
-and it pads journal files out to the next sector boundary so that
-subsequent appends to that journal cannot damage prior records.
-SQLite understands the sector size to be the value returned by the
-xSectorSize method in the <a href="vfs.html">VFS</a>.  The SQLite team has often referred
-to the value returned by xSectorSize as the "blast radius" of a write,
-since it expresses the range of bytes that might be damaged if a power
-loss occurs during the write.
-The default <a href="vfs.html">VFSes</a> for unix and windows have always returned 512 as 
-the sector size (or blast radius) for all versions of SQLite up to
-and including version 3.7.9.
+<p>直到（包括）<a href="releaselog/3_7_9.html">版本 3.7.9</a>（2011-11-01），所有 SQLite 版本都假设文件系统<u>不提供</u> powersafe overwrite。SQLite 传统上认为，只要文件中的任何一个字节发生变化，该字节所在扇区的所有其他字节在断电时都有可能损坏。在写入时，SQLite 确保对任何修改所在扇区内的所有字节进行日志记录，并将日志文件填充到下一个扇区边界，以便随后对该日志的追加不会损坏先前的记录。SQLite 理解的扇区大小是由 <a href="vfs.html">VFS</a> 中的 xSectorSize 方法返回的值。SQLite 团队经常将 xSectorSize 返回的值称为写入的“爆炸半径”，因为它表示在写入过程中断电时可能遭到损坏的字节范围。直到并包括版本 3.7.9，Unix 和 Windows 的默认 <a href="vfs.html">VFSes</a> 一直返回 512 作为扇区大小（或爆炸半径）。</p>
 
-<p>Newer disk drives have begun using 4096 byte sectors however.  Beginning
-with SQLite <a href="releaselog/3_7_10.html">version 3.7.10</a> (2012-01-16), 
-the SQLite development team experimented with 
-changes to xSectorSize to report 4096 bytes as the blast radius.
-This had the effect of increasing write overhead on
-many databases.  For a database with a <a href="pragma.html#pragma_page_size">PRAGMA page_size</a> of 1024
-(a very common choice) making a change to a single page in the database
-now requires SQLite to backup three other adjacent pages to the rollback
-journal, whereas formerly it only had to backup the one page that was
-changing.  In <a href="wal.html">WAL mode</a>, each transaction had to be padded out to the
-next 4096-byte boundary in the WAL file, rather than the next 512-byte
-boundary, resulting in thousands of extra bytes being written
-per transaction.
+<p>不过，较新的磁盘驱动器已经开始使用 4096 字节的扇区。从 SQLite <a href="releaselog/3_7_10.html">版本 3.7.10</a>（2012-01-16）开始，开发团队试验性地修改 xSectorSize，以报告 4096 字节作为爆炸半径。这导致许多数据库的写入开销增加。对于具有 <a href="pragma.html#pragma_page_size">PRAGMA page_size</a> 为 1024（一个非常常见的选择）的数据库来说，对数据库中的单页进行修改时，如今需要 SQLite 将另外三个相邻页面备份到回滚日志，而过去只需备份正在修改的那一页。在 <a href="wal.html">WAL 模式</a> 下，每个事务必须填充到 WAL 文件中的下一个 4096 字节边界，而不是 512 字节边界，导致每个事务多写入数千个字节。</p>
 
-<p>The extra write overhead prompted a reexamination of assumptions about
-powersafe overwrite.  With modern disk drives, the capacity has become
-so large and the data density so great that a single sector is very
-small and writing a single sector takes very little time.  We know that
-disk drives can detect an impending power loss and continue
-to operate for some small amount of time on residual energy because those
-drives are able to park their heads before spinning down.  And
-so if an impending power loss is detectable by the disk controller, it
-seems reasonable that the controller will finish writing
-whatever sector it is current working on when the imminent power loss 
-is first detected, prior to parking the heads, as long as doing so
-does not take too long, which it should not with
-small and dense sectors.  Hence it seems reasonable
-to assume powersafe overwrite for modern disks.  Indeed, BerkeleyDB has
-made this assumption for decades, we are told.  Caution is advised
-though. As Roger Binns noted on the SQLite developers mailing list:
-"'poorly written' should be the main assumption about drive firmware."
+<p>额外的写入开销促使我们重新审视关于 powersafe overwrite 的假设。随着现代磁盘容量变得越来越大、数据密度越来越高，单个扇区变得非常小，写入单个扇区所需时间也非常短。我们知道磁盘驱动器可以检测到即将到来的断电，并能够利用剩余能量在磁头停止旋转之前将磁头停靠。因此，如果磁盘控制器可以检测到即将断电，那么当首次检测到断电临近时，控制器很可能会在停靠磁头之前把当前正在写入的扇区写完，只要这样做不会花费过多时间——对于小而密集的扇区而言，通常不会。鉴于此，假设现代磁盘具备 powersafe overwrite 属性似乎是合理的。事实上，据说 BerkeleyDB 多年来一直这么做。不过仍需谨慎。正如 Roger Binns 在 SQLite 开发者邮件列表中指出的：“对驱动固件的主要假设应该是‘写得很糟糕’。”</p>
 
 <a name="tornpage"></a>
 
-<h2>Torn Pages</h2>
+<h2>撕裂页面</h2>
 
-<p>A torn page occurs when a database page is larger than a disk sector,
-the database page is written to disk, but a power loss occurs prior to
-all sectors of the database page being written.  Then, upon recovery, part of
-the database page will have the old content while some other parts of the
-page will have the new content.  Some database engines assume that 
-page writes are atomic and hence a torn page is an unrecoverable error.
-</p>
+<p>当数据库页面大于磁盘扇区、数据库页面已写入磁盘，但断电发生在页面的所有扇区写入完成之前时，就会出现撕裂页面。恢复时，页面的某些部分会保留旧内容，而其他部分则拥有新内容。有些数据库引擎假设页面写入是原子的，因此认为撕裂页面是不可恢复的错误。</p>
 
-<p>SQLite never assumes that database page writes are atomic,
-regardless of the PSOW setting.<sup>(1)</sup>
-And hence SQLite is always able to automatically recover from torn pages
-induced by a crash.  Enabling PSOW does not decrease SQLite's ability
-to recover from a torn page.</p>
+<p>SQLite 从不假设数据库页面写入是原子的，无论 PSOW 设置如何。<sup>(1)</sup>因此 SQLite 总能自动从因崩溃引起的撕裂页面中恢复。启用 PSOW 并不会降低 SQLite 从撕裂页面中恢复的能力。</p>
 
-<h2>Changes In SQLite Version 3.7.10</h2>
+<h2>SQLite 3.7.10 版本的变更</h2>
 
-<p>The <a href="vfs.html">VFS</a> for SQLite <a href="releaselog/3_7_10.html">version 3.7.10</a> (2012-01-16)
-adds a new device characteristic 
-named <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_POWERSAFE_OVERWRITE</a>.  Database files that report this
-characteristic are assumed to reside on storage systems that have the
-powersafe overwrite property.
-The default unix and windows <a href="vfs.html">VFSes</a> now report
-<a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_POWERSAFE_OVERWRITE</a> if SQLite is compiled with
-<a href="compile.html#powersafe_overwrite">-DSQLITE_POWERSAFE_OVERWRITE=1</a> or they
-make the legacy assumption that storage does not have the powersafe
-overwrite property if compiled with
-<a href="compile.html#powersafe_overwrite">-DSQLITE_POWERSAFE_OVERWRITE=0</a>.
-For now, the default is for powersafe overwrite to be turned on, though
-we may revisit this in the future and default it off.
+<p>SQLite 的 <a href="vfs.html">VFS</a> 在<a href="releaselog/3_7_10.html">版本 3.7.10</a>（2012-01-16）中新增了一个名为 <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_POWERSAFE_OVERWRITE</a> 的设备特性。报告该特性的数据库文件被假设托管在具有 powersafe overwrite 属性的存储系统上。默认的 Unix 和 Windows <a href="vfs.html">VFSes</a> 在 SQLite 使用 <a href="compile.html#powersafe_overwrite">-DSQLITE_POWERSAFE_OVERWRITE=1</a> 编译时会报告 <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_POWERSAFE_OVERWRITE</a>，若使用 <a href="compile.html#powersafe_overwrite">-DSQLITE_POWERSAFE_OVERWRITE=0</a> 编译，则会沿用传统假设：存储系统不具备 powersafe overwrite 属性。目前默认启用了 powersafe overwrite，尽管未来我们可能重新评估并将其默认关闭。</p>
 
-<p>The powersafe overwrite property for individual databases can be
-specified as the database is opened using the "psow" query parameter
-with a <a href="uri.html">URI filename</a>.  For example, to always assume powersafe
-overwrite for a file (perhaps to ensure maximum write performance), 
-open it as
+<p>可以在打开单个数据库时通过 URI 文件名的 “psow” 查询参数来指定 powersafe overwrite 属性。例如，为了始终假设某个文件具有 powersafe overwrite（也许是为了确保最大的写入性能），可以这样打开：</p>
 
 <blockquote>
    file:somefile.db?psow=1
 </blockquote>
 
-<p>Or to be extra safe with a database and to force SQLite to assume the
-database lacks powersafe overwrite, open it using
+<p>或者为了对某个数据库更加谨慎，并强制 SQLite 假设该数据库不具备 powersafe overwrite，可以这样打开：</p>
 
 <blockquote>
    file:somefile.db?psow=0
 </blockquote>
 
-<p>There is also a new <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpowersafeoverwrite">SQLITE_FCNTL_POWERSAFE_OVERWRITE</a> opcode for
-the <a href="c3ref/file_control.html">sqlite3_file_control()</a> that allows
-an application to query the powersafe overwrite property for a database
-file.
+<p>还有一个新的 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpowersafeoverwrite">SQLITE_FCNTL_POWERSAFE_OVERWRITE</a> 操作码，可用于 <a href="c3ref/file_control.html">sqlite3_file_control()</a>，允许应用程序查询数据库文件的 powersafe overwrite 属性。</p>
 
 <hr>
-<h2>Notes:</h2>
+<h2>附注：</h2>
 <ol><li value=1><p>
-SQLite never assumes atomic page writes <em>in its default configurations</em>.
-But a custom <a href="vfs.html">VFS</a> can set one of the 
-<a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC</a> bits in the result of the xDeviceCharacteristic()
-method and then SQLite will assume that page writes are atomic.  The
-application must supply a custom VFS to accomplish this, however, since
-none of the standard VFSes will ever set any of the atomic bits in the
-xDeviceCharacteristics() vector.
-</ol>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+在其默认配置中，SQLite 从不假设页面写入是原子的。但一个自定义的 <a href="vfs.html">VFS</a> 可以在 xDeviceCharacteristic() 方法的结果中设置某一个 <a href="c3ref/c_iocap_atomic.html">SQLITE_IOCAP_ATOMIC</a> 位，然后 SQLite 会假设页面写入是原子的。不过，应用程序必须提供一个自定义的 VFS 来实现这一点，因为标准 VFSes 中没有任何一个会在 xDeviceCharacteristics() 向量中设置任何一个原子位。
+</p></ol>
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z</i></small></p>
 

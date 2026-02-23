@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The Carray() Table-Valued Function</title>
+<title>Carray() 表值函数</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,62 +124,45 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The Carray() Table-Valued Function
+Carray() 表值函数
 </div>
 </div>
 
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概览</h1>
 
-<p>Carray() is a <a href="vtab.html#tabfunc2">table-valued function</a> with a single column (named
-"value") and zero or more rows.
-The "value" of each row in the carray() is taken from a C-language array
-supplied by the application via <a href="c3ref/bind_blob.html">parameter binding</a>.
-In this way, the carray() function provides a convenient mechanism to
-bind C-language arrays to SQL queries.
+<p>Carray() 是一个 <a href="vtab.html#tabfunc2">表值函数</a>，具有单列（命名为“value”）和零行或多行。Carray() 中每一行的“value”来自应用通过 <a href="c3ref/bind_blob.html">参数绑定</a> 提供的 C 语言数组。通过这种方式，carray() 函数为将 C 语言数组绑定到 SQL 查询提供了便捷机制。
 
-</p><h1 id="availability"><span>2. </span>Availability</h1>
+</p><h1 id="availability"><span>2. </span>可用性</h1>
 
-<p>Since SQLite version 3.51.0 (2025-11-04), the carray() extension
-has been built into <a href="amalgamation.html">the amalgamation</a>, though it is disabled by default
-and does not function unless SQLite is compiled with
-<a href="compile.html#enable_carray">-DSQLITE_ENABLE_CARRAY</a>.  Prior to version 3.51.0, carray() was in a
-separate source file that needed to be compiled independently and then
-added to SQLite as a <a href="loadext.html">loadable extension</a>.
+<p>自 SQLite 3.51.0 版（2025-11-04）起，carray() 扩展已被集成到 <a href="amalgamation.html">合并源码</a> 中，尽管默认是禁用的，只有在用 <a href="compile.html#enable_carray">-DSQLITE_ENABLE_CARRAY</a> 编译 SQLite 时才会起作用。 在 3.51.0 版本之前，carray() 位于一个需要单独编译并通过 <a href="loadext.html">可加载扩展</a> 添加到 SQLite 的独立源文件中。
 
-</p><p>The carray() function was first added to SQLite in version 3.14
-(2016-08-08).  The sqlite3_carray_bind() interface and the
-single-argument variant of carray() was added in SQLite version 3.34.0
-(2020-12-01).  The ability to bind an array of <tt>struct iovec</tt>
-objects that are interpreted as BLOBs was added in SQLite version 3.41.0
-(2023-02-21).
+</p><p>carray() 函数最初在 SQLite 3.14 版（2016-08-08）中引入。sqlite3_carray_bind() 接口和 carray() 的单参数变体在 SQLite 3.34.0 版（2020-12-01）中加入。支持将被视为 BLOB 的 <tt>struct iovec</tt> 对象数组绑定的能力在 SQLite 3.41.0 版（2023-02-21）中加入。
 
-</p><h1 id="details"><span>3. </span>Details</h1>
+</p><h1 id="details"><span>3. </span>详细信息</h1>
 
-<p>The carray() function takes one, two, or three arguments.
-The one-argument variant is recommended.
+<p>carray() 函数可接受一、二或三参数。推荐使用单参数变体。
 
 <a name="onearg"></a>
 
-</p><h2 id="single_argument_carray"><span>3.1. </span>Single-Argument CARRAY</h2>
+</p><h2 id="single_argument_carray"><span>3.1. </span>单参数 CARRAY</h2>
 
-<p>The single-argument form of carray() requires a special C-language
-interface named "sqlite3_carray_bind()" in order to attach values:
+<p>单参数形式的 carray() 需要一个名为 “sqlite3_carray_bind()” 的特殊 C 语言接口来附加值：
 
 </p><blockquote><pre>
   int sqlite3_carray_bind(
-    sqlite3_stmt *pStmt,         /* Statement containing the CARRAY */
-    int idx,                     /* Parameter number for CARRAY argument */
-    void *aData,                 /* Data array */
-    int nData,                   /* Number of entries in the array */
-    int mFlags,                  /* Datatype flag */
-    void (*xDestroy)(void*)      /* Destructor for aData */
+    sqlite3_stmt *pStmt,         /* 包含 CARRAY 的语句 */
+    int idx,                     /* CARRAY 参数的参数号 */
+    void *aData,                 /* 数据数组 */
+    int nData,                   /* 数组中的条目数 */
+    int mFlags,                  /* 数据类型标志 */
+    void (*xDestroy)(void*)      /* aData 的析构器 */
   );
 </pre></blockquote>
 
-<p>The mFlags parameter to sqlite3_carray_bind() must be one of:
+<p>传递给 sqlite3_carray_bind() 的 mFlags 参数必须是以下之一：
 
 </p><blockquote><pre>
   #define SQLITE_CARRAY_INT32   0
@@ -183,65 +172,36 @@ interface named "sqlite3_carray_bind()" in order to attach values:
   #define SQLITE_CARRAY_BLOB    4
 </pre></blockquote>
 
-<p>The SQLITE_CARRAY_INT32 type means that the array is an array of "int".
-The SQLITE_CARRAY_INT64 means the array is an array of "<a href="c3ref/int64.html">sqlite3_int64</a>".
-The SQLITE_CARRAY_DOUBLE argument means the array is an array of "double".
-The SQLITE_CARRAY_TEXT means the array is an array of "char*" where each
-element of the array is either a NULL pointer or a pointer to a
-zero-terminated string.
+<p>SQLITE_CARRAY_INT32 类型表示该数组由 “int” 构成。SQLITE_CARRAY_INT64 表示数组由 “<a href="c3ref/int64.html">sqlite3_int64</a>” 构成。SQLITE_CARRAY_DOUBLE 表示数组由 “double” 构成。SQLITE_CARRAY_TEXT 表示数组由 “char*” 构成，其中数组的每个元素要么是 NULL 指针，要么是指向以零结尾字符串的指针。
 
-</p><p>The SQLITE_CARRAY_BLOB argument means that the array is an array of
-"struct iovec" objects.
-The 'struct iovec' type is a standard Posix data
-structure, normally declared using "<tt>#include &lt;sys/uio.h&gt;</tt>".
-The format is:
+</p><p>SQLITE_CARRAY_BLOB 参数表示该数组由 “struct iovec” 对象构成。“struct iovec” 类型是标准的 Posix 数据结构，通常通过 “<tt>#include &lt;sys/uio.h&gt;</tt>” 声明。其格式为：
 
 </p><blockquote><pre>
 struct iovec {
-  void  *iov_base; /* Starting address */
-  size_t iov_len;  /* Number of bytes to transfer */
+  void  *iov_base; /* 起始地址 */
+  size_t iov_len;  /* 要传输的字节数 */
 };
 </pre></blockquote>
 
-<p>Higher order bits of the mFlags parameter must all be zero for now,
-though they may be used in future enhancements.
+<p>目前 mFlags 参数的高位必须都为零，尽管未来的扩展可能会使用这些位。
 
-</p><p>The xDestroy argument to sqlite3_carray_bind() routine is a pointer
-to a function that frees the input array.  SQLite will invoke this
-function after it has finished with the data.  The xDestroy argument
-may optionally be one of the following constants defined in
-"sqlite3.h":
+</p><p>传递给 sqlite3_carray_bind() 的 xDestroy 参数是一个函数指针，用于释放输入数组。SQLite 在使用完数据后会调用该函数。xDestroy 参数也可以是 <a href="c3ref/c_static.html">sqlite3.h</a> 中定义的以下常量之一：
 
 </p><ul>
 <li><p>
-     <a href="c3ref/c_static.html">SQLITE_STATIC</a> &rarr;  This means that the application that invokes
-     sqlite3_carray_bind() maintains ownership of the data array and that
-     the application promises SQLite that it will not change or deallocate
-     the data until after the prepared statement is finialized.
+     <a href="c3ref/c_static.html">SQLITE_STATIC</a> &rarr; 这意味着调用 sqlite3_carray_bind() 的应用保留该数据数组的所有权，并承诺在预处理语句完成之前不会修改或释放这些数据。
 
 </p></li><li><p>
-     <a href="c3ref/c_static.html">SQLITE_TRANSIENT</a> &rarr;  This special value instructs SQLite to make
-     its own private copy of the data before the 
-     sqlite3_carray_bind() interface returns.
+     <a href="c3ref/c_static.html">SQLITE_TRANSIENT</a> &rarr; 该特殊值指示 SQLite 在 sqlite3_carray_bind() 接口返回之前会自行制作一份私有副本。
 </p></li></ul>
 
 <a name="twoarg"></a>
 
-<h2 id="multi_argument_carray"><span>3.2. </span>Multi-Argument CARRAY</h2>
+<h2 id="multi_argument_carray"><span>3.2. </span>多参数 CARRAY</h2>
 
-<p>The original carray() design used two or three arguments.  This
-method is still supported for backwards compatibility, however new
-applications are encouraged to use the single-argument carray() design
-described above.
+<p>最初的 carray() 设计使用两个或三个参数。该方式仍然为了向后兼容而被支持，不过我们鼓励新的应用使用上述的单参数 carray() 设计。
 
-</p><p>For the two- and three-argument versions of carray(),
-the first argument is a pointer to an array.  Since pointer values cannot
-be specified directly in SQL, the first argument must be a <a href="lang_expr.html#varparam">parameter</a> that
-is bound to a pointer value using the <a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a> interface
-using a pointer-type of "carray".
-The second argument is the number of elements in the array.  The optional
-third argument is a string that determines the datatype of the elements
-in the C-language array.  Allowed values for the third argument are:
+</p><p>对于 carray() 的二参数和三参数版本，第一个参数是指向数组的指针。由于 SQL 无法直接指定指针值，因此第一个参数必须是一个通过 <a href="lang_expr.html#varparam">参数</a> 来绑定的指针值，并使用 <a href="c3ref/bind_blob.html">sqlite3_bind_pointer()</a> 接口绑定，指针类型为 “carray”。第二个参数是数组的元素个数。可选的第三个参数是一个字符串，用于确定 C 语言数组元素的数据类型。第三个参数允许的值为：
 
 </p><ol>
 <li> 'int32'
@@ -251,22 +211,20 @@ in the C-language array.  Allowed values for the third argument are:
 </li><li> 'struct iovec'
 </li></ol>
 
-<p>The default datatype is 'int32'.  The 'int32' datatype is assumed if
-the carray() function has only two arguments.
+<p>默认数据类型为 'int32'。当 carray() 函数仅有两个参数时，假定数据类型为 'int32'。
 
-</p><h1 id="usage"><span>4. </span>Usage</h1>
+</p><h1 id="usage"><span>4. </span>用法</h1>
 
-<p>The carray() function can be used in the FROM clause of a query.
-For example, to query two entries from the OBJ table using rowids
-taken from a C-language array at address $PTR.
+<p>carray() 函数可以在查询的 FROM 子句中使用。例如，使用位于地址 \(PTR\) 的 C 语言数组中的 rowid 查询 OBJ 表中的两条记录。
 
 </p><div class="codeblock"><pre>SELECT obj.* FROM obj, carray($PTR) AS x
  WHERE obj.rowid=x.value;
 </pre></div>
 
-<p>This query gives the same result:
+<p>该查询等价于：
 
 </p><div class="codeblock"><pre>SELECT * FROM obj WHERE rowid IN carray($PTR);
 </pre></div>
-<p align="center"><small><i>This page was last updated on 2025-11-13 07:12:58Z </small></i></p>
+<p align="center"><small><i>本页最后更新于 2025-11-13 07:12:58Z </i></small></p>
 
+</body></html>

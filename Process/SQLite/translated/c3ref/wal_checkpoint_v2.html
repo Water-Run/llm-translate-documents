@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_wal_checkpoint_v2 -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Checkpoint a database</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>对数据库进行检查点</h2>
 </div>
 <blockquote><pre>
 int sqlite3_wal_checkpoint_v2(
@@ -130,100 +136,41 @@ int sqlite3_wal_checkpoint_v2(
 );
 </pre></blockquote>
 <p>
-The sqlite3_wal_checkpoint_v2(D,X,M,L,C) interface runs a checkpoint
-operation on database X of <a href="../c3ref/sqlite3.html">database connection</a> D in mode M.  Status
-information is written back into integers pointed to by L and C.
-The M parameter must be a valid <a href="../c3ref/c_checkpoint_full.html">checkpoint mode</a>:</p>
+sqlite3_wal_checkpoint_v2(D,X,M,L,C) 接口在模式 M 下对数据库连接 D 的数据库 X 运行检查点操作。状态信息写入 L 和 C 指向的整数。M 参数必须是有效的 <a href="../c3ref/c_checkpoint_full.html">检查点模式</a>：</p>
 
 <p><dl>
 <dt>SQLITE_CHECKPOINT_PASSIVE<dd>
-Checkpoint as many frames as possible without waiting for any database
-readers or writers to finish, then sync the database file if all frames
-in the log were checkpointed. The <a href="../c3ref/busy_handler.html">busy-handler callback</a>
-is never invoked in the SQLITE_CHECKPOINT_PASSIVE mode.
-On the other hand, passive mode might leave the checkpoint unfinished
-if there are concurrent readers or writers.</p>
+尽可能多地检查点帧而无需等待任何数据库读取者或写入者完成，然后在日志中的所有帧都已完成检查点后同步数据库文件。<a href="../c3ref/busy_handler.html">忙等待处理程序回调</a>在 SQLITE_CHECKPOINT_PASSIVE 模式下从不调用。另一方面，如果存在并发的读取者或写入者，消极模式可能会使检查点未完成。</p>
 
 <p><dt>SQLITE_CHECKPOINT_FULL<dd>
-This mode blocks (it invokes the
-<a href="../c3ref/busy_handler.html">busy-handler callback</a>) until there is no
-database writer and all readers are reading from the most recent database
-snapshot. It then checkpoints all frames in the log file and syncs the
-database file. This mode blocks new database writers while it is pending,
-but new database readers are allowed to continue unimpeded.</p>
+此模式会阻塞（调用 <a href="../c3ref/busy_handler.html">忙等待处理程序回调</a>），直到没有数据库写入者并且所有读取者都从最新的数据库快照读取。然后它会检查点日志文件中的所有帧并同步数据库文件。该模式在等待期间阻止新的数据库写入者，但允许新的数据库读取者继续运行而不受影响。</p>
 
 <p><dt>SQLITE_CHECKPOINT_RESTART<dd>
-This mode works the same way as SQLITE_CHECKPOINT_FULL with the addition
-that after checkpointing the log file it blocks (calls the
-<a href="../c3ref/busy_handler.html">busy-handler callback</a>)
-until all readers are reading from the database file only. This ensures
-that the next writer will restart the log file from the beginning.
-Like SQLITE_CHECKPOINT_FULL, this mode blocks new
-database writer attempts while it is pending, but does not impede readers.</p>
+此模式的工作方式与 SQLITE_CHECKPOINT_FULL 相同，另外在检查点日志文件之后，它会阻塞（调用 <a href="../c3ref/busy_handler.html">忙等待处理程序回调</a>）直到所有读取者仅从数据库文件读取。这样可以确保下一个写入者将从日志文件开头重新启动。与 SQLITE_CHECKPOINT_FULL 一样，该模式在等待期间阻止新的数据库写入尝试，但不会阻碍读取者。</p>
 
 <p><dt>SQLITE_CHECKPOINT_TRUNCATE<dd>
-This mode works the same way as SQLITE_CHECKPOINT_RESTART with the
-addition that it also truncates the log file to zero bytes just prior
-to a successful return.</p>
+此模式的工作方式与 SQLITE_CHECKPOINT_RESTART 相同，另外它还在成功返回之前将日志文件截断为零字节。</p>
 
 <p><dt>SQLITE_CHECKPOINT_NOOP<dd>
-This mode always checkpoints zero frames. The only reason to invoke
-a NOOP checkpoint is to access the values returned by
-sqlite3_wal_checkpoint_v2() via output parameters *pnLog and *pnCkpt.
+此模式始终检查点零帧。调用 NOOP 检查点的唯一原因是通过输出参数 *pnLog 和 *pnCkpt 访问 sqlite3_wal_checkpoint_v2() 返回的值。
 </dl></p>
 
-<p>If pnLog is not NULL, then *pnLog is set to the total number of frames in
-the log file or to -1 if the checkpoint could not run because
-of an error or because the database is not in <a href="../wal.html">WAL mode</a>. If pnCkpt is not
-NULL,then *pnCkpt is set to the total number of checkpointed frames in the
-log file (including any that were already checkpointed before the function
-was called) or to -1 if the checkpoint could not run due to an error or
-because the database is not in WAL mode. Note that upon successful
-completion of an SQLITE_CHECKPOINT_TRUNCATE, the log file will have been
-truncated to zero bytes and so both *pnLog and *pnCkpt will be set to zero.</p>
+<p>如果 pnLog 不为 NULL，则 *pnLog 设置为日志文件中的帧总数，或者在因错误或数据库未处于 <a href="../wal.html">WAL 模式</a> 而无法运行检查点时设置为 -1。如果 pnCkpt 不为 NULL，则 *pnCkpt 设置为日志文件中已检查点的帧总数（包括在调用该函数之前已检查点的帧），或者在因错误或数据库未处于 WAL 模式而无法运行检查点时设置为 -1。请注意，在成功完成 SQLITE_CHECKPOINT_TRUNCATE 之后，日志文件将被截断为零字节，因此 *pnLog 和 *pnCkpt 都将被设置为零。</p>
 
-<p>All calls obtain an exclusive "checkpoint" lock on the database file. If
-any other process is running a checkpoint operation at the same time, the
-lock cannot be obtained and SQLITE_BUSY is returned. Even if there is a
-busy-handler configured, it will not be invoked in this case.</p>
+<p>所有调用都会在数据库文件上获取独占的“检查点”锁。如果任何其他进程同时正在运行检查点操作，则无法获取锁并返回 SQLITE_BUSY。即使配置了忙等待处理程序，在这种情况下也不会调用它。</p>
 
-<p>The SQLITE_CHECKPOINT_FULL, RESTART and TRUNCATE modes also obtain the
-exclusive "writer" lock on the database file. If the writer lock cannot be
-obtained immediately, and a busy-handler is configured, it is invoked and
-the writer lock retried until either the busy-handler returns 0 or the lock
-is successfully obtained. The busy-handler is also invoked while waiting for
-database readers as described above. If the busy-handler returns 0 before
-the writer lock is obtained or while waiting for database readers, the
-checkpoint operation proceeds from that point in the same way as
-SQLITE_CHECKPOINT_PASSIVE - checkpointing as many frames as possible
-without blocking any further. SQLITE_BUSY is returned in this case.</p>
+<p>SQLITE_CHECKPOINT_FULL、RESTART 和 TRUNCATE 模式也会在数据库文件上获取独占的“写入者”锁。如果写入者锁无法立即获取，并且配置了忙等待处理程序，则在调用并在忙等待处理程序返回 0 之前会重试写入者锁，直到锁被成功获取。在等待数据库读取者时也会调用忙等待处理程序，如上所述。如果在获取写入者锁之前或在等待数据库读取者时忙等待处理程序返回 0，检查点操作将从该点继续，方式与 SQLITE_CHECKPOINT_PASSIVE 相同——尽可能在不再阻塞的情况下检查点帧。在这种情况下返回 SQLITE_BUSY。</p>
 
-<p>If parameter zDb is NULL or points to a zero length string, then the
-specified operation is attempted on all WAL databases <a href="../lang_attach.html">attached</a> to
-<a href="../c3ref/sqlite3.html">database connection</a> db.  In this case the
-values written to output parameters *pnLog and *pnCkpt are undefined. If
-an SQLITE_BUSY error is encountered when processing one or more of the
-attached WAL databases, the operation is still attempted on any remaining
-attached databases and SQLITE_BUSY is returned at the end. If any other
-error occurs while processing an attached database, processing is abandoned
-and the error code is returned to the caller immediately. If no error
-(SQLITE_BUSY or otherwise) is encountered while processing the attached
-databases, SQLITE_OK is returned.</p>
+<p>如果参数 zDb 为 NULL 或指向零长度字符串，则尝试对附加到 <a href="../c3ref/sqlite3.html">数据库连接</a> db 的所有 WAL 数据库执行指定操作。在这种情况下写入到输出参数 *pnLog 和 *pnCkpt 的值是不确定的。如果在处理一个或多个附加的 WAL 数据库时遇到 SQLITE_BUSY 错误，则仍尝试处理剩余附加数据库并在结束时返回 SQLITE_BUSY。如果在处理附加数据库时发生任何其他错误，则立即放弃处理并将错误代码返回给调用方。如果在处理附加数据库时没有遇到任何错误（无论是否为 SQLITE_BUSY），则返回 SQLITE_OK。</p>
 
-<p>If database zDb is the name of an attached database that is not in WAL
-mode, SQLITE_OK is returned and both *pnLog and *pnCkpt set to -1. If
-zDb is not NULL (or a zero length string) and is not the name of any
-attached database, SQLITE_ERROR is returned to the caller.</p>
+<p>如果数据库 zDb 是附加数据库的名称但不处于 WAL 模式，则返回 SQLITE_OK，并将 *pnLog 和 *pnCkpt 都设置为 -1。如果 zDb 不为 NULL（或零长度字符串）且不是任何附加数据库的名称，则向调用方返回 SQLITE_ERROR。</p>
 
-<p>Unless it returns SQLITE_MISUSE,
-the sqlite3_wal_checkpoint_v2() interface
-sets the error information that is queried by
-<a href="../c3ref/errcode.html">sqlite3_errcode()</a> and <a href="../c3ref/errcode.html">sqlite3_errmsg()</a>.</p>
+<p>除非它返回 SQLITE_MISUSE，否则 sqlite3_wal_checkpoint_v2() 接口会设置可由 <a href="../c3ref/errcode.html">sqlite3_errcode()</a> 和 <a href="../c3ref/errcode.html">sqlite3_errmsg()</a> 查询的错误信息。</p>
 
-<p>The <a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint</a> command can be used to invoke this interface
-from SQL.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p><a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint</a> 命令可用于从 SQL 调用此接口。</p><p>另见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
 
+</body>
+</html>

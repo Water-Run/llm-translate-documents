@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The CSV Virtual Table</title>
+<title>CSV 虚拟表</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly text-right text-sm">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -118,37 +124,32 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The CSV Virtual Table
+CSV 虚拟表
 </div>
 </div>
 
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
 <p>
-The CSV virtual table reads
-<a href="https://www.ietf.org/rfc/rfc4180.txt">RFC 4180</a> formatted comma-separated
-values, and returns that content as if it were rows and columns of an SQL
-table.
+CSV 虚拟表读取
+<a href="https://www.ietf.org/rfc/rfc4180.txt">RFC 4180</a> 格式的逗号分隔值，并将其内容当作 SQL 表的行和列返回。
 </p>
 
 <p>
-The CSV virtual table is useful to applications that need to bulk-load
-large amounts of comma-separated value content.
-The CSV virtual table is also useful as a template source file for
-implementing other virtual tables.
+CSV 虚拟表对需要批量加载大量逗号分隔值内容的应用程序非常有用。
+CSV 虚拟表也可作为实现其他虚拟表的模板源文件。
 </p>
 
 
 <p>
-The CSV virtual table is not built into the SQLite amalgamation.
-It is available as a
-<a href="https://sqlite.org/src/artifact?ci=trunk&filename=ext/misc/csv.c">separate source file</a>
-that can be compiled into a <a href="loadext.html">loadable extension</a>.
-Typical usage of the CSV virtual table from the
-<a href="cli.html">command-line shell</a> would be something like this:
+CSV 虚拟表未内置于 SQLite 混合体中。
+它可通过
+<a href="https://sqlite.org/src/artifact?ci=trunk&filename=ext/misc/csv.c">单独的源文件</a>
+提供，可编译为<a href="loadext.html">可加载扩展</a>。
+从<a href="cli.html">命令行 shell</a> 使用 CSV 虚拟表的典型示例可能如下所示：
 
 </p><div class="codeblock"><pre>.load ./csv
 CREATE VIRTUAL TABLE temp.t1 USING csv(filename='thefile.csv');
@@ -156,85 +157,49 @@ SELECT * FROM t1;
 </pre></div>
 
 <p>
-The first line of the script above causes the <a href="cli.html">command-line shell</a> to
-read and activate the run-time loadable extension for CSV.  For an
-application, the equivalent C-language API is
-<a href="c3ref/load_extension.html">sqlite3_load_extension()</a>.
-Observe that the filename extension (ex: ".dll" or ".so" or ".dylib") is
-omitted from the extension filename.  Omitting the filename extension is
-not required, but it helps in making the script cross-platform.  SQLite
-will automatically append the appropriate extension.
-
+上面脚本的第一行让<a href="cli.html">命令行 shell</a>读取并激活用于 CSV 的运行时可加载扩展。对于应用程序，等效的 C 语言 API 为
+<a href="c3ref/load_extension.html">sqlite3_load_extension()</a>。
+请注意扩展文件名中省略了文件扩展名（例如 ".dll"、".so" 或 ".dylib"）。
+省略文件扩展名并非必须，但有助于使脚本跨平台。SQLite 会自动追加适当的扩展名。
 </p><p>
-The second line above creates a virtual table named "t1" that reads
-the content of the file named in the argument.  The number and names of
-the columns is determined automatically by reading the first line of
-content.  Other options to the CSV virtual table provide the ability to
-take the CSV content from a string rather than a separate file, and give 
-the programmer more control over the number and names of the columns.
-The options are detailed below.  The CSV virtual table is usually
-created as a TEMP table so that it exists only for the current database
-connection and does not become a permanent part of the database schema.
-Note that there is no "CREATE TEMP VIRTUAL TABLE" command in SQLite.
-Instead, prepend the "temp." schema prefix to the name of the virtual
-table.
-
+上面的第二行创建了名为 "t1" 的虚拟表，用于读取参数中指定的文件内容。列的数量和名称通过读取内容的第一行自动确定。
+CSV 虚拟表的其他选项允许从字符串而非单独文件获取 CSV 内容，并让程序员更好地控制列的数量和名称。
+这些选项在下文中详细说明。CSV 虚拟表通常创建为 TEMP 表，使其仅在当前数据库连接中存在，而不会成为数据库模式的永久部分。
+请注意 SQLite 中不存在 "CREATE TEMP VIRTUAL TABLE" 命令。
+相反，应在虚拟表名称前加上 "temp." 模式前缀。
 </p><p>
-The third line of the example shows the virtual table being used, to read
-all content of the CSV file.  This is perhaps the simplest possible use
-of the virtual table.  The CSV virtual table can be used anywhere an ordinary
-virtual table can be used.  One can use the CSV virtual table inside subqueries,
-or <a href="lang_with.html">common table expressions</a> or add WHERE, GROUP BY, HAVING, ORDER BY,
-and LIMIT clauses as required.
-
-</p><h1 id="arguments"><span>2. </span>Arguments</h1>
+示例的第三行展示了如何使用虚拟表来读取 CSV 文件的所有内容。
+这可能是虚拟表最简单的用法。CSV 虚拟表可以像普通虚拟表一样在任何地方使用。
+可以在子查询中使用 CSV 虚拟表，或使用<a href="lang_with.html">公用表表达式</a>，也可以根据需要添加 WHERE、GROUP BY、HAVING、ORDER BY 和 LIMIT 子句。
+</p><h1 id="arguments"><span>2. </span>参数</h1>
 
 <p>
-The example above showed a single <b>filename='thefile.csv'</b> argument
-for the CSV virtual table.  But other arguments are also possible.
-
+上面的示例展示了 CSV 虚拟表的单个 <b>filename='thefile.csv'</b> 参数。但也可以使用其他参数。
 </p><ul>
 <li><p><b>filename=</b><i>FILENAME</i>
-</p><p>The <b>filename=</b> argument specifies an external file from which
-CSV content is read.  Every CSV virtual table must have either a 
-<b>filename=</b> argument or a <b>data=</b> argument and not both.
-
+</p><p><b>filename=</b> 参数指定了 CSV 内容所在的外部文件。每个 CSV 虚拟表必须同时具有 <b>filename=</b> 参数或 <b>data=</b> 参数中的一个，且不能两者兼有。
 </p></li><li><p><b>data=</b><i>TEXT</i>
-</p><p>The <b>data=</b> argument specifies that <i>TEXT</i> is the literal
-content of the CSV file.
-
+</p><p><b>data=</b> 参数指定 <i>TEXT</i> 是 CSV 文件的字面内容。
 </p></li><li><p><b>schema=</b><i>SCHEMA</i>
-</p><p> The <b>schema=</b> argument specifies a <a href="lang_createtable.html">CREATE TABLE</a> statement that
-the CSV virtual table passes to the <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> interface in
-order to define the names of the columns in the virtual table.
-
+</p><p><b>schema=</b> 参数指定一个<a href="lang_createtable.html">CREATE TABLE</a> 语句，CSV 虚拟表将该语句传递给
+<a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> 接口，以定义虚拟表中各列的名称。
 </p></li><li><p><b>columns=</b><i>N</i>
-</p><p>The <b>columns=</b><i>N</i> argument specifies the number of columns
-in the CSV file.
-If the input data contains more columns than this,
-then the excess columns are ignored.  If the input data contains fewer columns,
-then extra columns are filled with NULL.
-If the <b>columns=</b><i>N</i> argument is omitted, the first line of the
-CSV file is read to determine the number of columns.
-
+</p><p><b>columns=</b><i>N</i> 参数指定 CSV 文件中的列数。
+如果输入数据包含多于此数量的列，则多余列将被忽略。若输入数据包含列数少于指定值，则会用 NULL 填充额外的列。
+如果省略 <b>columns=</b><i>N</i> 参数，则会读取 CSV 文件的第一行，以确定列数。
 </p></li><li><p><b>header=</b><i>BOOLEAN</i><br>
-or just<br>
+或仅<br>
 <b>header</b>
-</p><p>If the <b>header</b> argument is true then the first row of the CSV file
-to be treated as a header rather than as data.  The second line of the CSV
-file becomes the first row of content.
-If the <b>schema=</b> options is omitted, then the first line of the CSV
-file determines the names of the columns.
+</p><p>如果 <b>header</b> 参数为 true，则 CSV 文件的第一行将被视为表头而非数据。CSV 文件的第二行将成为第一行数据。
+如果省略 <b>schema=</b> 选项，那么 CSV 文件的第一行会决定列名。
 </p></li></ul>
 
-<h1 id="column_names"><span>3. </span>Column Names</h1>
+<h1 id="column_names"><span>3. </span>列名</h1>
 
 <p>
-The column names of the virtual table are determined primarily by the
-<b>schema=</b> argument.
-If the <b>schema=</b> argument is omitted, but <b>header</b> is true, then
-the values found in the first line of the CSV file become the column names.
-If the <b>schema=</b> argument is omitted and <b>header</b> is false, then
-the columns are named "c0", "c1", "c2", and so forth.
-</p><p align="center"><small><i>This page was last updated on 2025-04-16 13:13:29Z </small></i></p>
+虚拟表的列名主要由 <b>schema=</b> 参数决定。
+如果省略了 <b>schema=</b> 参数，但 <b>header</b> 为 true，则 CSV 文件第一行中的值将成为列名。
+如果省略了 <b>schema=</b> 参数且 <b>header</b> 为 false，则列名依次为 “c0”、“c1”、“c2”，依此类推。
+</p><p align="center"><small><i>本页最近更新于 2025-04-16 13:13:29Z </small></i></p>
 
+</body></html>

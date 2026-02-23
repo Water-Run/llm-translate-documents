@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Determine If An SQL Statement Writes The Database</title>
+<title>确定 SQL 语句是否写入数据库</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,57 +123,39 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_stmt_readonly -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Determine If An SQL Statement Writes The Database</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>确定 SQL 语句是否写入数据库</h2>
 </div>
 <blockquote><pre>
 int sqlite3_stmt_readonly(sqlite3_stmt *pStmt);
 </pre></blockquote>
 <p>
-The sqlite3_stmt_readonly(X) interface returns true (non-zero) if
-and only if the <a href="../c3ref/stmt.html">prepared statement</a> X makes no direct changes to
-the content of the database file.</p>
+sqlite3_stmt_readonly(X) 接口仅在 <a href="../c3ref/stmt.html">预处理语句</a> X 未对数据库文件内容做出任何直接更改时才返回 true（非零）。
+</p>
 
-<p>Note that <a href="../appfunc.html">application-defined SQL functions</a> or
-<a href="../vtab.html">virtual tables</a> might change the database indirectly as a side effect.
-For example, if an application defines a function "eval()" that
-calls <a href="../c3ref/exec.html">sqlite3_exec()</a>, then the following SQL statement would
-change the database file through side-effects:</p>
+<p>请注意，<a href="../appfunc.html">应用程序自定义的 SQL 函数</a> 或 <a href="../vtab.html">虚拟表</a> 可能作为副作用间接修改数据库。例如，如果应用程序定义了一个调用 <a href="../c3ref/exec.html">sqlite3_exec()</a> 的函数 “eval()”，那么以下 SQL 语句将通过副作用修改数据库文件：</p>
 
 <p><blockquote><pre>
 SELECT eval('DELETE FROM t1') FROM t2;
 </pre></blockquote></p>
 
-<p>But because the <a href="../lang_select.html">SELECT</a> statement does not change the database file
-directly, sqlite3_stmt_readonly() would still return true.</p>
+<p>但因为 <a href="../lang_select.html">SELECT 语句</a> 本身没有直接更改数据库文件，sqlite3_stmt_readonly() 仍然会返回 true。</p>
 
-<p>Transaction control statements such as <a href="../lang_transaction.html">BEGIN</a>, <a href="../lang_transaction.html">COMMIT</a>, <a href="../lang_transaction.html">ROLLBACK</a>,
-<a href="../lang_savepoint.html">SAVEPOINT</a>, and <a href="../lang_savepoint.html">RELEASE</a> cause sqlite3_stmt_readonly() to return true,
-since the statements themselves do not actually modify the database but
-rather they control the timing of when other statements modify the
-database.  The <a href="../lang_attach.html">ATTACH</a> and <a href="../lang_detach.html">DETACH</a> statements also cause
-sqlite3_stmt_readonly() to return true since, while those statements
-change the configuration of a database connection, they do not make
-changes to the content of the database files on disk.
-The sqlite3_stmt_readonly() interface returns true for <a href="../lang_transaction.html">BEGIN</a> since
-<a href="../lang_transaction.html">BEGIN</a> merely sets internal flags, but the <a href="../lang_transaction.html">BEGIN IMMEDIATE</a> and
-<a href="../lang_transaction.html">BEGIN EXCLUSIVE</a> commands do touch the database and so
-sqlite3_stmt_readonly() returns false for those commands.</p>
+<p>诸如 <a href="../lang_transaction.html">BEGIN 语句</a>、<a href="../lang_transaction.html">COMMIT 语句</a>、<a href="../lang_transaction.html">ROLLBACK 语句</a>、
+<a href="../lang_savepoint.html">SAVEPOINT 语句</a> 和 <a href="../lang_savepoint.html">RELEASE 语句</a> 之类的事务控制语句会导致 sqlite3_stmt_readonly() 返回 true，
+因为它们本身并不真正修改数据库，而是控制其他语句何时修改数据库。<a href="../lang_attach.html">ATTACH 语句</a> 和 <a href="../lang_detach.html">DETACH 语句</a> 也会导致 sqlite3_stmt_readonly() 返回 true，
+因为这些语句虽然更改了数据库连接的配置，却不会更改磁盘上数据库文件的内容。
+sqlite3_stmt_readonly() 接口对 <a href="../lang_transaction.html">BEGIN 语句</a> 返回 true，因为 <a href="../lang_transaction.html">BEGIN 语句</a> 只设置内部标志，
+但 <a href="../lang_transaction.html">BEGIN IMMEDIATE 命令</a> 与 <a href="../lang_transaction.html">BEGIN EXCLUSIVE 命令</a> 会触及数据库，因此 sqlite3_stmt_readonly() 对这些命令返回 false。</p>
 
-<p>This routine returns false if there is any possibility that the
-statement might change the database file.  A false return does
-not guarantee that the statement will change the database file.
-For example, an UPDATE statement might have a WHERE clause that
-makes it a no-op, but the sqlite3_stmt_readonly() result would still
-be false.  Similarly, a CREATE TABLE IF NOT EXISTS statement is a
-read-only no-op if the table already exists, but
-sqlite3_stmt_readonly() still returns false for such a statement.</p>
+<p>如果语句可能更改数据库文件，即便只是存在这种可能性，该例程也会返回 false。false 的返回值并不保证语句一定修改数据库文件。
+例如，一个 UPDATE 语句可能带有使其变成无操作的 WHERE 子句，但 sqlite3_stmt_readonly() 的结果仍然为 false。同样，如果表已经存在，<a href="../lang_create.html">CREATE TABLE IF NOT EXISTS</a> 语句虽然在事实上是只读的无操作，但 sqlite3_stmt_readonly() 对此类语句仍然返回 false。</p>
 
-<p>If prepared statement X is an <a href="../lang_explain.html">EXPLAIN</a> or <a href="../eqp.html">EXPLAIN QUERY PLAN</a>
-statement, then sqlite3_stmt_readonly(X) returns the same value as
-if the EXPLAIN or EXPLAIN QUERY PLAN prefix were omitted.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>如果预处理语句 X 是一个 <a href="../lang_explain.html">EXPLAIN</a> 或 <a href="../eqp.html">EXPLAIN QUERY PLAN</a> 语句，那么 sqlite3_stmt_readonly(X) 会返回与省略 EXPLAIN 或 EXPLAIN QUERY PLAN 前缀时相同的值。</p>
+<p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。
+</p>
 
+</body></html>

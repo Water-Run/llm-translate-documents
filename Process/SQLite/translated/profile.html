@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Profiling SQL Queries</title>
+<title>SQL 查询分析</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,43 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">由WaterRun使用gpt-5.1-codex-mini翻译</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其中三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,15 +122,15 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Profiling SQL Queries
+SQL 查询分析
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#_overview_">1.  Overview </a></div>
-<div class="fancy-toc1"><a href="#simple_cases_rows_loops_and_cycles">2. Simple Cases - Rows, Loops and Cycles</a></div>
-<div class="fancy-toc1"><a href="#complex_cases_rows_loops_and_cycles">3. Complex Cases - Rows, Loops and Cycles</a></div>
-<div class="fancy-toc1"><a href="#planner_estimates">4. Planner Estimates</a></div>
-<div class="fancy-toc1"><a href="#low_level_profiling_data">5. Low-Level Profiling Data</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#_overview_">1. 概述 </a></div>
+<div class="fancy-toc1"><a href="#simple_cases_rows_loops_and_cycles">2. 简单情况 - 行、循环与周期</a></div>
+<div class="fancy-toc1"><a href="#complex_cases_rows_loops_and_cycles">3. 复杂情况 - 行、循环与周期</a></div>
+<div class="fancy-toc1"><a href="#planner_estimates">4. 规划器估算</a></div>
+<div class="fancy-toc1"><a href="#low_level_profiling_data">5. 低级分析数据</a></div>
 </div>
 </details>
 </div>
@@ -134,33 +138,23 @@ Profiling SQL Queries
 
 
 
-<h1 id="_overview_"><span>1. </span> Overview </h1>
+<h1 id="_overview_"><span>1. </span> 概述 </h1>
 
-<p>SQLite contains built-in support for profiling SQL queries, but it is not
-enabled by default. In order to enable support for query profiling, SQLite must
-be compiled with the <a href="compile.html#enable_stmt_scanstatus">following option</a>:
+<p>SQLite 内置支持 SQL 查询分析，但默认未启用。要启用查询分析支持，必须使用 <a href="compile.html#enable_stmt_scanstatus">以下选项</a> 编译 SQLite：
 
 </p><div class="codeblock"><pre>-DSQLITE_ENABLE_STMT_SCANSTATUS
 </pre></div>
 
-<p>Building SQLite with this option enables the <a href="c3ref/stmt_scanstatus.html">sqlite3_stmt_scanstatus_v2()</a>
-API, which provides access to the various profiling metrics. The remainder of
-this page discusses the profiling reports generated by the SQLite 
-<a href="cli.html">command-line shell</a> using these metrics, rather than the API directly. 
+<p>使用此选项构建 SQLite 会启用 <a href="c3ref/stmt_scanstatus.html">sqlite3_stmt_scanstatus_v2()</a> API，它提供访问各种分析指标的能力。页面剩余部分讨论 SQLite <a href="cli.html">命令行 shell</a> 基于这些指标生成的分析报告，而非直接使用该 API。
 
-</p><p>The profiling reports generated by the shell are very similar to the query
-plan reports generated by the <a href="eqp.html">EXPLAIN QUERY PLAN</a> command. This page assumes 
-that the reader is familiar with this format.
+</p><p>shell 生成的分析报告与 <a href="eqp.html">EXPLAIN QUERY PLAN</a> 命令生成的查询计划报告非常相似。本文假定读者熟悉此格式。
 
-</p><p>Within a command-line shell compiled with the option above, query profiling
-is enabled using the ".scanstats on" command:
+</p><p>在使用上述选项构建的命令行 shell 中，可用“.scanstats on”命令启用查询分析：
 
 </p><div class="codeblock"><pre>sqlite> .scanstats on
 </pre></div>
 
-<p>Once enabled, the shell automatically outputs a query profile after each 
-SQL query executed. Query profiling can be disabled using ".scanstats off".
-For example:
+<p>启用后，shell 会在每次执行 SQL 查询后自动输出查询分析。可以使用“.scanstats off”禁用。例如：
 
 </p><div class="codeblock"><pre>sqlite> .scanstats on
 sqlite> SELECT a FROM t1, t2 WHERE a IN (1,2,3) AND a=d+e;
@@ -169,16 +163,16 @@ QUERY PLAN (cycles=255831538 &#91;100%&#93;)
 `--SCAN t2                                           (cycles=133558052 &#91;52%&#93; loops=3 rows=150000)
 </pre></div>
 
-<h1 id="simple_cases_rows_loops_and_cycles"><span>2. </span>Simple Cases - Rows, Loops and Cycles</h1>
+<h1 id="simple_cases_rows_loops_and_cycles"><span>2. </span>简单情况 - 行、循环与周期</h1>
 
-<p>Consider a database with the following schema:
+<p>考虑下列模式的数据库：
 
 </p><div class="codeblock"><pre>CREATE VIRTUAL TABLE ft USING fts5(text);
 CREATE TABLE t1(a, b);
 CREATE TABLE t2(c INTEGER PRIMARY KEY, d);
 </pre></div>
 
-<p>Then, after first executing ".scanstats on":
+<p>然后，在首次执行“.scanstats on”之后：
 
 </p><div class="codeblock"><pre>sqlite3> SELECT * FROM t1, t2 WHERE t2.c=t1.a;
 &lt;...query results...&gt;
@@ -187,27 +181,13 @@ QUERY PLAN (cycles=1140768 &#91;100%&#93;)
 `--SEARCH t2 USING INTEGER PRIMARY KEY (rowid=?)     (cycles=619820 &#91;54%&#93; loops=500 rows=250)
 </pre></div>
 
-<p>The text in the example above following the snipped 
-"&lt;...query results...&gt;" is the profile report for the join query just
-executed. The parts of the profile report that are similar to the 
-<a href="eqp.html">EXPLAIN QUERY PLAN</a> output indicate that the query is implemented by doing a
-full table-scan of table "t1", with a lookup by INTEGER PRIMARY KEY on table
-"t2" for each row visited.
+<p>上述示例中“&lt;...query results...&gt;”之后的文本就是刚执行的连接查询的分析报告。与 <a href="eqp.html">EXPLAIN QUERY PLAN</a> 输出相似的部分表明，该查询是通过对表 “t1” 做全表扫描，并针对每个访问的行在表 “t2” 上执行整数主键查找来实现的。
 
-</p><p>The "loops=1" notation on the "SCAN t1" line indicates that this loop - the
-full-table scan of table "t1" - ran exactly once. "rows=500" indicates that
-that single scan visited 500 rows.
+</p><p>“SCAN t1” 行上的 “loops=1” 表示该循环 —— 即对表 “t1” 的全表扫描 —— 只运行了一次。“rows=500” 表示该单次扫描访问了 500 行。
 
-</p><p>The "SEARCH t2 USING ..." line contains the annotation "loops=500" to indicate
-that this "loop" (really a lookup by INTEGER PRIMARY KEY) ran 500 times.
-Which makes sense - it ran once for each row visited by the full-table scan
-of "t1". "rows=250" means that, altogether, those 500 loops visited 250 rows.
-In other words, only half of the INTEGER PRIMARY KEY lookups on table t2 were
-successful, for the other half of the lookups there was no row to find.
+</p><p>“SEARCH t2 USING ...” 行包含注释 “loops=500”，表示该 “循环” （实际上是整数主键查找）执行了 500 次。这是合理的 —— 每访问表 “t1” 的一行就执行一次查找。“rows=250” 表示这 500 次循环总共访问了 250 行。换言之，对表 t2 的整数主键查找只在一半的情况下成功，另半数查找未找到对应行。
 
-</p><p>The loop-count for a SEARCH or SCAN entry is not necessarily the same as the
-number of rows output by the outer loop. For example, if the query above
-were modified as follows:
+</p><p>SEARCH 或 SCAN 条目的循环计数不一定等于外层循环输出的行数。例如，如果将上述查询修改为：
 
 </p><div class="codeblock"><pre>sqlite3> SELECT * FROM t1, t2 WHERE t1.b&lt;=100 AND t2.c=t1.a;
 &lt;...query results...&gt;
@@ -216,30 +196,13 @@ QUERY PLAN (cycles=561002 &#91;100%&#93;)
 `--SEARCH t2 USING INTEGER PRIMARY KEY (rowid=?)     (cycles=128690 &#91;23%&#93; loops=100 rows=50)
 </pre></div>
 
-<p>This time, even though the "SCAN t1" loop still visits 500 rows, the 
-"SEARCH t2" lookup is only performed 100 times. This is because SQLite
-was able to discard rows from t1 that did not match the "t1.b&lt;=100" 
-constraint.
+<p>这次虽然 “SCAN t1” 仍然访问 500 行，但 “SEARCH t2” 仅执行 100 次。这是因为 SQLite 能够丢弃不满足 “t1.b&lt;=100” 约束的 t1 行。
 
-</p><p>The "cycles" measurements are based on the 
-<a href="https://en.wikipedia.org/wiki/Time_Stamp_Counter">CPU time-stamp counter
-</a>, and so are a good proxy for wall-clock time. For the query above, the
-total number of cycles was 561002. For each of the two loops ("SCAN t1..." and
-"SEARCH t2..."), the cycles count represents the time spent in operations that
-can be directly attributed to that loop only. Specifically, this is the time
-spent navigating and extracting data from the database b-trees for that loop.
-These values never quite add up to the total cycles for the query, as there are
-other internal operations performed by SQLite that are not directly
-attributable to either loop.
+</p><p>“cycles” 测量基于 <a href="https://en.wikipedia.org/wiki/Time_Stamp_Counter">CPU 时间戳计数器</a>，因此是墙钟时间的良好近似。上述查询的总周期数为 561002。对于两个循环（“SCAN t1...” 和 “SEARCH t2...”），周期计数表示可直接归因于该循环的时间消耗。具体来说，这是在该循环中导航和从数据库 B 树中抽取数据所耗费的时间。这些值的总和通常略低于查询的总周期，因为 SQLite 还执行了其他无法直接归因于任一循环的内部操作。
 
-</p><p>The cycles count for the "SCAN t1" loop was 345950 - 62% of the total for the
-query. The 100 lookups peformed by the "SEARCH t1" loop took 128690 cycles, 23%
-of the total.
+</p><p>“SCAN t1” 循环的周期计数为 345950 —— 占查询总量的 62%。“SEARCH t2” 循环的 100 次查找消耗了 128690 个周期，占总量的 23%。
 
-</p><p>When a virtual table is used, the "rows" and "loops" metrics have the same 
-meaning as for loops on regular SQLite tables. The "cycles" meaurement is the
-total cycles consumed within virtual table methods associated with the loop.
-For example:
+</p><p>使用虚拟表时，“rows” 和 “loops” 指标的含义与常规 SQLite 表中的循环相同。“cycles” 测量表示与该循环相关联的虚拟表方法所消耗的总周期数。例如：
 
 </p><div class="codeblock"><pre>sqlite3> SELECT * FROM ft('sqlite'), t2 WHERE t2.c=ft.rowid;
 &lt;...query results...&gt;
@@ -248,14 +211,11 @@ QUERY PLAN (cycles=836434 &#91;100%&#93;
 `--SEARCH t2 USING INTEGER PRIMARY KEY (rowid=?)     (cycles=62866 &#91;8%&#93; loops=48 rows=25)
 </pre></div>
 
-<p>In this case the single query (loops=1) on fts5 table "ft" returned 48 rows
-(rows=48) and consumed 739602 cycles (cycles=739602), which was roughly 88% of
-the total query time.
+<p>在此示例中，对 fts5 表 “ft” 的单个查询（loops=1）返回 48 行（rows=48），消耗了 739602 个周期（cycles=739602），约占查询总时间的 88%。
 
-</p><h1 id="complex_cases_rows_loops_and_cycles"><span>3. </span>Complex Cases - Rows, Loops and Cycles</h1>
+</p><h1 id="complex_cases_rows_loops_and_cycles"><span>3. </span>复杂情况 - 行、循环与周期</h1>
 
-<p>Using the same schema as in the previous section, consider this more
-complicated example:
+<p>使用上一节中的相同模式，考虑下列更复杂的示例：
 
 </p><div class="codeblock"><pre>sqlite3&gt; WITH cnt(i) AS (
   SELECT 1 UNION SELECT i+1 FROM cnt WHERE i&lt;100
@@ -284,41 +244,19 @@ QUERY PLAN (cycles=177665334 &#91;100%&#93;)
    `--SEARCH t2 USING INTEGER PRIMARY KEY (rowid=?)     (cycles=94724 &#91;0%&#93; loops=37 rows=21)
 </pre></div>
 
-<p>The most complicated part of the example above is understanding the query 
-plan - the portion of the report that would also be generated by an
-<a href="eqp.html">EXPLAIN QUERY PLAN</a> command. Other points of interest are:
+<p>上述示例中最复杂的部分是理解查询计划 —— 也就是该报告中与 <a href="eqp.html">EXPLAIN QUERY PLAN</a> 命令所生成的内容一致的部分。其他值得关注的点包括：
 
 </p><ul>
-  <li><p> Sub-query "v1" is implemented as a <a href="optoverview.html#coroutines">co-routine</a>.
-  In this case the sub-query is reported on separately, and a "cycles"
-  count is available for the entire sub-query. There is also a "SCAN v1"
-  line - this represents the invocation of the sub-query co-routine
-  from the main query. This entry has no cycles associated with it, as
-  the entire cost of the sub-query is attributed to the co-routine.
-  It does have "loops" and "rows" values - the sub-query is scanned
-  once and returns 500 rows.
+  <li><p> 子查询 “v1” 作为<a href="optoverview.html#coroutines">协程</a>实现。在此情况下，子查询会单独报告，并为整个子查询提供一个 “cycles” 计数。还有一行 “SCAN v1” —— 它表示主查询调用子查询协程。此项不关联任何周期计数，因为子查询的全部开销都归因于协程自身。但它依然有 “loops” 与 “rows” 值 —— 子查询被扫描一次并返回 500 行。
 
-  </p></li><li><p>Recursive sub-query "cnt" is materialized (cached in a temp
-  table) before the main query is run. The entire cost of the materialization
-  is attributed to the "MATERIALIZE cnt" element. There is also a 
-  "SCAN cnt" item representing the scans of the materialized sub-query.
-  The cycles value associated with this item represents the time taken
-  to scan the temp-table containing the materialized sub-query, which is 
-  separate from the cycles used to populate it.
+  </p></li><li><p> 递归子查询 “cnt” 在主查询运行前被物化（缓存到临时表）。物化的全部开销归因于 “MATERIALIZE cnt” 元素。此外还有一个 “SCAN cnt” 项，表示对物化子查询的扫描。该项关联的周期数代表扫描包含物化子查询的临时表所需的时间，独立于用来填充临时表的周期。
 
-  </p></li><li><p>There are cycles and loops measurements for the scalar sub-query
-  as well. These represent the total cycles consumed while executing the
-  sub-query and the number of times it was executed, respectively.
+  </p></li><li><p> 标量子查询也有周期与循环计数。这些值分别表示执行该子查询所消耗的总周期数与执行次数。
 
-  </p></li><li><p>Where one item is a parent of another, as in "CORRELATED SCALAR
-  SUBQUERY 3" and "SEARCH t2 USING...", then the cycles value associated
-  with the parent includes those cycles associated with all child elements.
-  In all cases, the percentage values relate to the total cycles used by
-  the query, not the cycles used by the parent.
+  </p></li><li><p> 当某个条目是另一个条目的父项时（例如 “CORRELATED SCALAR SUBQUERY 3” 与 “SEARCH t2 USING...”），与父项关联的周期值包括所有子元素所消耗的周期。在所有情况下，百分比值是相对于整个查询的总周期，而非父项所对应的周期。
 </p></li></ul>
 
-<p>The following query uses an <a href="optoverview.html#autoindex">automatic index</a> and
-an external sort:
+<p>以下查询使用了<a href="optoverview.html#autoindex">自动索引</a>以及外部排序：
 
 </p><div class="codeblock"><pre>sqlite> SELECT * FROM
   t2,
@@ -336,46 +274,26 @@ QUERY PLAN (cycles=6234376 &#91;100%&#93;)
 `--USE TEMP B-TREE FOR ORDER BY                       (cycles=662456 &#91;11%&#93; loops=1 rows=200)
 </pre></div>
 
-<p>Points of interest are:
+<p>值得关注的点包括：
 
 </p><ul>
-  <li><p> This query materializes the sub-query into a temp table, then creates
-  an automatic (i.e. transient) index on it, then uses that index to optimize
-  the join. All three of these steps - "MATERIALIZE v2", "CREATE AUTOMATIC
-  INDEX" and "SEARCH ... USING AUTOMATIC INDEX" have separate cycle counts.
-  The "rows" associated with the "CREATE AUTOMATIC INDEX" line represents the
-  total number of rows included in the index. The "loops" and "rows" associated
-  with the "SEARCH ... USING AUTOMATIC INDEX" line represent the number of
-  lookups the index was used for and the total number of rows found by those
-  lookups.
+  <li><p> 该查询先将子查询物化到临时表，然后在其上创建自动（即临时）索引，接着使用该索引优化连接。这三步 —— “MATERIALIZE v2”、“CREATE AUTOMATIC INDEX” 与 “SEARCH ... USING AUTOMATIC INDEX” —— 都有独立的周期计数。“CREATE AUTOMATIC INDEX” 行的 “rows” 表示索引包含的总行数。“SEARCH ... USING AUTOMATIC INDEX” 行的 “loops” 与 “rows” 表示索引被用于多少次查找以及这些查找返回的总行数。
 
-  </p></li><li><p> The external sort "USE TEMP B-TREE FOR ORDER BY" is also accounted
-  for separately. The cycles count represents the extra cycles consumed by
-  sorting the returned rows, above those that would have been used if the rows
-  were returned in arbitrary order. The rows count represents the number of
-  rows sorted.
+  </p></li><li><p> 外部排序 “USE TEMP B-TREE FOR ORDER BY” 也单独列出。该项的周期计数表示排序所消耗的额外周期，相对于若返回行顺序随意时所需的周期。“rows” 表示被排序的行数。
 </p></li></ul>
 
-<h1 id="planner_estimates"><span>4. </span>Planner Estimates</h1>
+<h1 id="planner_estimates"><span>4. </span>规划器估算</h1>
 
-<p>As well as ".scanstats on" to enable profiling and ".scanstats off" to
-disable it, the shell also accepts ".scanstats est":
+<p>除了用“.scanstats on”启用分析与“.scanstats off”禁用之外，shell 还有一个“.scanstats est”命令：
 
 </p><div class="codeblock"><pre>sqlite> .scanstats est
 </pre></div>
 
-<p>This enables a special kind of profiling report that includes two extra
-values associated with each "SCAN..." and "SEARCH..." element of a query
-profile:
+<p>此命令启用一种特殊的分析报告，报告中每个 “SCAN...” 与 “SEARCH...” 元素会附带两个额外值：
 
 </p><ul>
-  <li> <b>rpl</b> (rows per loop): This is the value of the "rows" metric
-       divided by that of the "loops" metric.
-  </li><li> <b>est</b> (estimate): This is the number of rows per loop that the
-       query planner estimated would be returned by the current query
-       element. If this value is radically different from the actual
-       rows per loop value and query performance is unsatisfactory, 
-       the quality of this estimate may be improved by running ANALYZE.
+  <li> <b>rpl</b>（每循环行数）：该值等于“rows”指标除以“loops”指标。
+  </li><li> <b>est</b>（估算值）：这是查询规划器估算当前查询元素每个循环将返回的行数。如果该值与实际每循环行数差别很大且查询性能不佳，可通过运行 ANALYZE 来改进估算质量。
 </li></ul>
     
 <div class="codeblock"><pre>sqlite> SELECT a FROM t1, t2 WHERE a IN (1,2,3) AND a=d+e ORDER BY a;
@@ -385,18 +303,16 @@ QUERY PLAN (cycles=264725190 &#91;100%&#93;
 `--SCAN t2                                           (cycles=139461608 &#91;53%&#93; loops=3 rows=150000 rpl=50000.0 est=1048576.0)
 </pre></div>
 
-<h1 id="low_level_profiling_data"><span>5. </span>Low-Level Profiling Data</h1>
+<h1 id="low_level_profiling_data"><span>5. </span>低级分析数据</h1>
 
 
 
-<p> Also supported is the ".scanstats vm" command. This enables a lower-level
-profiling report showing the number of times each VM instruction was executed
-and the percentage of clock-cycles that passed while it was executing:
+<p>另一个可用命令是“.scanstats vm”。它启用一个更低级的分析报告，显示每条虚拟机指令的执行次数以及执行期间所占的时钟周期百分比：
 
 </p><div class="codeblock"><pre>sqlite> .scanstats vm
 </pre></div>
 
-<p>Then:
+<p>然后：
 
 </p><div class="codeblock"><pre>sqlite> SELECT count(*) FROM t2 WHERE (d % 5) = 0;
 &lt;query results...&gt;

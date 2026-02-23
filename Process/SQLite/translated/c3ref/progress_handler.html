@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>三者任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,49 +123,27 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_progress_handler -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Query Progress Callbacks</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>查询进度回调</h2>
 </div>
 <blockquote><pre>
 void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 </pre></blockquote>
 <p>
-The sqlite3_progress_handler(D,N,X,P) interface causes the callback
-function X to be invoked periodically during long running calls to
-<a href="../c3ref/step.html">sqlite3_step()</a> and <a href="../c3ref/prepare.html">sqlite3_prepare()</a> and similar for
-database connection D.  An example use for this
-interface is to keep a GUI updated during a large query.</p>
+sqlite3_progress_handler(D,N,X,P) 接口会在针对数据库连接 D 的 <a href="../c3ref/step.html">sqlite3_step()</a>、<a href="../c3ref/prepare.html">sqlite3_prepare()</a> 以及类似的长时间运行调用中定期调用回调函数 X。这个接口的一个示例用途是在大型查询期间保持 GUI 更新。</p>
 
-<p>The parameter P is passed through as the only parameter to the
-callback function X.  The parameter N is the approximate number of
-<a href="../opcode.html">virtual machine instructions</a> that are evaluated between successive
-invocations of the callback X.  If N is less than one then the progress
-handler is disabled.</p>
+<p>参数 P 会作为唯一参数传递给回调函数 X。参数 N 是在连续调用回调 X 之间评估的大致 <a href="../opcode.html">虚拟机指令</a> 数量。如果 N 小于 1，则会禁用进度处理器。</p>
 
-<p>Only a single progress handler may be defined at one time per
-<a href="../c3ref/sqlite3.html">database connection</a>; setting a new progress handler cancels the
-old one.  Setting parameter X to NULL disables the progress handler.
-The progress handler is also disabled by setting N to a value less
-than 1.</p>
+<p>每个<a href="../c3ref/sqlite3.html">数据库连接</a>在任意时间内只能定义一个进度处理器；设置新的进度处理器会取消旧的。将参数 X 设置为 NULL 可禁用进度处理器。将 N 设置为小于 1 的值也会禁用该处理器。</p>
 
-<p>If the progress callback returns non-zero, the operation is
-interrupted.  This feature can be used to implement a
-"Cancel" button on a GUI progress dialog box.</p>
+<p>如果进度回调返回非零值，则当前操作会被中断。此功能可用于在 GUI 进度对话框上实现“取消”按钮。</p>
 
-<p>The progress handler callback must not do anything that will modify
-the database connection that invoked the progress handler.
-Note that <a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a> and <a href="../c3ref/step.html">sqlite3_step()</a> both modify their
-database connections for the meaning of "modify" in this paragraph.</p>
+<p>进度处理器的回调不得对调用该处理器的数据库连接做任何修改。请注意，就本段“修改”的含义而言，<a href="../c3ref/prepare.html">sqlite3_prepare_v2()</a> 与 <a href="../c3ref/step.html">sqlite3_step()</a> 都会修改它们的数据库连接。</p>
 
-<p>The progress handler callback would originally only be invoked from the
-bytecode engine.  It still might be invoked during <a href="../c3ref/prepare.html">sqlite3_prepare()</a>
-and similar because those routines might force a reparse of the schema
-which involves running the bytecode engine.  However, beginning with
-SQLite version 3.41.0, the progress handler callback might also be
-invoked directly from <a href="../c3ref/prepare.html">sqlite3_prepare()</a> while analyzing and generating
-code for complex queries.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>进度处理器回调最初仅由字节码引擎调用。由于那些例程可能会强制重新解析模式（这涉及运行字节码引擎），因而在 <a href="../c3ref/prepare.html">sqlite3_prepare()</a> 等过程中仍可能调用。不过，从 SQLite 3.41.0 版本开始，进度处理器回调也可能在分析并生成复杂查询的代码时直接从 <a href="../c3ref/prepare.html">sqlite3_prepare()</a> 调用。</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象</a>、
+  <a href="../c3ref/constlist.html">常量</a> 和
+  <a href="../c3ref/funclist.html">函数</a> 的列表。</p>
 
+</body>
+</html>

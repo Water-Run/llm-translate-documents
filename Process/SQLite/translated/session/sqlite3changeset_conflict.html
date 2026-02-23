@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Obtain Conflicting Row Values From A Changeset Iterator</title>
+<title>从更改集迭代器获取冲突行的值</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,31 +121,23 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Obtain Conflicting Row Values From A Changeset Iterator</h2><blockquote><pre>int sqlite3changeset_conflict(
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>从更改集迭代器获取冲突行的值</h2><blockquote><pre>int sqlite3changeset_conflict(
   sqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Column number */
   sqlite3_value **ppValue         /* OUT: Value from conflicting row */
 );
 </pre></blockquote><p>
-This function should only be used with iterator objects passed to a
-conflict-handler callback by <a href="../session/sqlite3changeset_apply.html">sqlite3changeset_apply()</a> with either
-<a href="../session/c_changeset_conflict.html">SQLITE_CHANGESET_DATA</a> or <a href="../session/c_changeset_conflict.html">SQLITE_CHANGESET_CONFLICT</a>. If this function
-is called on any other iterator, <a href="../rescode.html#misuse">SQLITE_MISUSE</a> is returned and *ppValue
-is set to NULL.</p>
+该函数只能与通过 <a href="../session/sqlite3changeset_apply.html">sqlite3changeset_apply()</a> 并使用 <a href="../session/c_changeset_conflict.html">SQLITE_CHANGESET_DATA</a> 或 <a href="../session/c_changeset_conflict.html">SQLITE_CHANGESET_CONFLICT</a> 将迭代器对象传递到冲突处理器回调时一起使用。如果对任何其他迭代器调用此函数，将返回 <a href="../rescode.html#misuse">SQLITE_MISUSE</a>，并将 *ppValue 置为 NULL。</p>
 
-<p>Argument iVal must be greater than or equal to 0, and less than the number
-of columns in the table affected by the current change. Otherwise,
-<a href="../rescode.html#range">SQLITE_RANGE</a> is returned and *ppValue is set to NULL.</p>
+<p>参数 iVal 必须大于等于 0，并小于当前变更影响的表中的列数。否则，将返回 <a href="../rescode.html#range">SQLITE_RANGE</a>，并将 *ppValue 置为 NULL。</p>
 
-<p>If successful, this function sets *ppValue to point to a protected
-sqlite3_value object containing the iVal'th value from the 
-"conflicting row" associated with the current conflict-handler callback
-and returns SQLITE_OK.</p>
+<p>如果成功，此函数会将 *ppValue 设置为指向受保护的 sqlite3_value 对象，该对象包含与当前冲突处理器回调关联的“冲突行”中的第 iVal 个值，并返回 SQLITE_OK。</p>
 
-<p>If some other error occurs (e.g. an OOM condition), an SQLite error code
-is returned and *ppValue is set to NULL.
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>如果发生其他错误（例如内存不足），将返回 SQLite 错误代码，并将 *ppValue 置为 NULL。
+</p><p>另请参阅
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a> 的列表。</p>
 
+</body>
+</html>

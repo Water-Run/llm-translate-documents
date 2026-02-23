@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Measuring and Reducing CPU Usage in SQLite</title>
+<title>SQLite 中 CPU 使用率的测量与降低</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,20 +124,20 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Measuring and Reducing CPU Usage in SQLite
+SQLite 中 CPU 使用率的测量与降低
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. Overview</a></div>
-<div class="fancy-toc1"><a href="#measuring_performance">2. Measuring Performance</a></div>
-<div class="fancy-toc2"><a href="#compile_options">2.1. Compile Options</a></div>
-<div class="fancy-toc2"><a href="#workload">2.2. Workload</a></div>
-<div class="fancy-toc3"><a href="#update_as_of_2026_01_06">2.2.1. Update As Of 2026-01-06</a></div>
-<div class="fancy-toc2"><a href="#performance_measurement">2.3. Performance Measurement</a></div>
-<div class="fancy-toc2"><a href="#microoptimizations">2.4. Microoptimizations</a></div>
-<div class="fancy-toc1"><a href="#performance_measurement_workflow">3. Performance Measurement Workflow</a></div>
-<div class="fancy-toc1"><a href="#limitations">4. Limitations</a></div>
-<div class="fancy-toc1"><a href="#why_does_the_graph_end_in_2025_">5. Why Does The Graph End In 2025?</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. 概述</a></div>
+<div class="fancy-toc1"><a href="#measuring_performance">2. 性能测量</a></div>
+<div class="fancy-toc2"><a href="#compile_options">2.1. 编译选项</a></div>
+<div class="fancy-toc2"><a href="#workload">2.2. 工作负载</a></div>
+<div class="fancy-toc3"><a href="#update_as_of_2026_01_06">2.2.1. 2026-01-06 更新</a></div>
+<div class="fancy-toc2"><a href="#performance_measurement">2.3. 性能度量</a></div>
+<div class="fancy-toc2"><a href="#microoptimizations">2.4. 微观优化</a></div>
+<div class="fancy-toc1"><a href="#performance_measurement_workflow">3. 性能测量工作流程</a></div>
+<div class="fancy-toc1"><a href="#limitations">4. 限制</a></div>
+<div class="fancy-toc1"><a href="#why_does_the_graph_end_in_2025_">5. 为什么图表在2025年结束？</a></div>
 </div>
 </details>
 </div>
@@ -140,135 +146,87 @@ Measuring and Reducing CPU Usage in SQLite
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
-<p>The graph below shows the number of CPU cycles used by SQLite on a
-standard workload, for versions of SQLite between 3.6.1 (2008-08-06)
-and 3.48.0 (2025-01-14), a span of about 16.4 years.
-Over this interval, the number of CPU cycles used dropped from about
-3.376 million down to 0.965 million.  So by 2025, SQLite required only
-about 29% as many CPU cycles as it did in 2008.
+<p>下方图表展示了在标准工作负载下，SQLite 在 3.6.1（2008-08-06）到 3.48.0（2025-01-14）版本之间（跨度约 16.4 年）所使用的 CPU 周期数。
+在此期间，所使用的 CPU 周期数从大约 337.6 万下降到 96.5 万。因此到了 2025 年，SQLite 仅需 2008 年时约 29% 的 CPU 周期数。
 
 </p><p>
-This article describes how the SQLite developers measure CPU usage,
-what those measurements actually mean, and the techniques used by
-SQLite developers on their continuing quest to further reduce the
-CPU usage of the SQLite library.
+本文描述了 SQLite 开发者如何测量 CPU 使用率、这些测量实际意味着什么，以及开发者在持续减少 SQLite 库 CPU 使用率过程中采用的技术。
 </p>
 
 <center>
 <hr>
 <div class="imgcontainer">
 <img src="./images/cpuusage.png"></div><br>
-Measured using cachegrind on Ubuntu 16.04 on x64 with gcc 5.4.0 and -Os.<br>
+使用 cachegrind 在 Ubuntu 16.04 x64 上、搭配 gcc 5.4.0 和 -Os 优化进行测量。<br>
 <hr>
 </center>
 
-<h1 id="measuring_performance"><span>2. </span>Measuring Performance</h1>
+<h1 id="measuring_performance"><span>2. </span>性能测量</h1>
 
-<p>In brief, the CPU performance of SQLite is measured as follows:
+<p>简而言之，SQLite 的 CPU 性能测量方法如下：
 
 </p><p></p><ol>
-<li> Compile SQLite in an as-delivered configuration, without any special
-     telemetry or debugging options.
-</li><li> Link SQLite against a test program that runs approximately 30,000
-     SQL statements representing a typical workload.
-</li><li> Count the number of CPU cycles consumed using
-     <a href="http://valgrind.org/docs/manual/cg-manual.html">cachegrind</a>.
+<li> 以交付状态编译 SQLite，不使用任何特殊遥测或调试选项。
+</li><li> 将 SQLite 链接到运行约 30,000 条 SQL 语句代表典型工作负载的测试程序。
+</li><li> 使用
+     <a href="http://valgrind.org/docs/manual/cg-manual.html">cachegrind</a> 统计使用的 CPU 周期数。
 </li></ol>
 
-<h2 id="compile_options"><span>2.1. </span>Compile Options</h2>
+<h2 id="compile_options"><span>2.1. </span>编译选项</h2>
 
-<p>For performance measurement, SQLite is compiled in approximately the same
-way as it would be for use in production systems.  The compile-time configuration
-is "approximate" in the sense that every production use of SQLite is 
-different. Compile-time options used by one system are not necessarily
-the same as those used by others.  The key point is that options that 
-significantly impact the generated machine code are avoided.  For example,
-the -DSQLITE_DEBUG option is omitted because that option inserts thousands
-of assert() statements in the middle of performance critical sections of the
-SQLite library.  The -pg option (on GCC) is omitted because it causes the
-compiler to emit extra probabilistic performance measuring code which interferes
-with actual performance measurements.
+<p>在性能测量时，SQLite 的编译方式与在生产系统中使用时大致相同。所谓“近似”，是因为每一个生产环境都不尽相同。一个系统所使用的编译时选项不一定与其他系统一致。关键点是会避免那些显著影响生成机器代码的选项。例如省略 -DSQLITE_DEBUG，因为该选项会在性能关键的 SQLite 库代码段中插入成千上万个 assert() 语句。省略 -pg（在 GCC 中）是因为它会让编译器生成额外的概率性能测量代码，从而干扰实际性能测量。
 
 </p><p>
-For performance measurements,
-the -Os option is used (optimize for size) rather than -O2 because the
--O2 option creates so much code movement that it is difficult to associate
-specific CPU instructions to C source code lines.
+为了性能测量，采用 -Os（以体积为目标的优化）而不是 -O2，因为 -O2 会导致过多代码移动，难以将具体的 CPU 指令和 C 源代码行对应起来。
 
-</p><h2 id="workload"><span>2.2. </span>Workload</h2>
+</p><h2 id="workload"><span>2.2. </span>工作负载</h2>
 
 <p>
-The "typical" workload is generated by the
+“典型”工作负载由官方 SQLite 源码树中的
 <a href="https://sqlite.org/src/file/test/speedtest1.c">speedtest1.c</a>
-program in the canonical SQLite source tree.  This program strives to
-exercise the SQLite library in a way that is typical of real-world
-applications.  Of course, every application is different, and so
-no test program can exactly mirror the behavior of all applications.
+程序生成。该程序努力以真实世界应用的典型方式锻炼 SQLite 库。当然，每个应用都不同，因此没有任何测试程序可以完全复制所有应用的行为。
 
 </p><p>
-The speedtest1.c program is updated from time to time as the SQLite
-developers' understanding of what constitutes "typical" usage evolves.
+随着 SQLite 开发者对“典型”用法理解的演进，speedtest1.c 程序也会不时更新。
 
 </p><p>
-The 
-<a href="https://sqlite.org/src/file/tool/speed-check.sh">speed-check.sh</a> shell
-script, also in the canonical source tree, is used to run the speedtest1.c
-program.  To replicate the performance measurements, collect the following
-files into a single directory:
+同样位于官方源码树中的
+<a href="https://sqlite.org/src/file/tool/speed-check.sh">speed-check.sh</a> shell 脚本用于运行 speedtest1.c 程序。要复制性能测量结果，请将以下文件收集到同一目录中：
 </p><ul>
-<li> the "speed-check.sh" script,
-</li><li> the "speedtest1.c" test program, and
-</li><li> the <a href="amalgamation.html">SQLite amalgamation</a> source files "sqlite3.c" and
-     "sqlite3.h"
+<li> “speed-check.sh” 脚本，
+</li><li> “speedtest1.c” 测试程序，
+</li><li> <a href="amalgamation.html">SQLite 合并源码</a> 文件 “sqlite3.c” 和 “sqlite3.h”
 </li></ul>
 <p>
-Then run "sh speed-check.sh trunk".
+然后运行 "sh speed-check.sh trunk"。
 
-</p><h3 id="update_as_of_2026_01_06"><span>2.2.1. </span>Update As Of 2026-01-06</h3>
+</p><h3 id="update_as_of_2026_01_06"><span>2.2.1. </span>2026-01-06 更新</h3>
 
-<p>This article was originally written on 2016-12-08.
-The speed-check.sh script is no longer used.  A new script named
-<a href="https://sqlite.org/src/file/test/speedtest.tcl">speedtest.tcl</a> has
-been devised and has been used since early 2025.  See the
-<a href="https://sqlite.org/src/file/test/speedtest.md">speedtest.md</a>
-documentation file for details.  This article continues to
-reference the older performance measurement script, as part of
-the historical record.
+<p>本文最初撰写于 2016-12-08。speed-check.sh 脚本已不再使用。自 2025 年初起改用名为
+<a href="https://sqlite.org/src/file/test/speedtest.tcl">speedtest.tcl</a> 的新脚本。详见
+<a href="https://sqlite.org/src/file/test/speedtest.md">speedtest.md</a> 文档。本文仍然引用旧的性能测量脚本，作为历史记录的一部分。
 
-</p><h2 id="performance_measurement"><span>2.3. </span>Performance Measurement</h2>
+</p><h2 id="performance_measurement"><span>2.3. </span>性能度量</h2>
 
 <p>
-<a href="http://valgrind.org/docs/manual/cg-manual.html">Cachegrind</a> is used to
-measure performance because it gives answers that are repeatable to 
-7 or more significant digits.  In comparison, actual (wall-clock)
-run times are scarcely repeatable beyond one significant digit.
+<a href="http://valgrind.org/docs/manual/cg-manual.html">Cachegrind</a> 被用来测量性能，因为它能够提供 7 位甚至更多有效数字的可重复答案。相比之下，实际（实时时钟）运行时间在超过一个有效数字后几乎无法重复。
 
 <a name="microopt"></a>
 
-</p><h2 id="microoptimizations"><span>2.4. </span>Microoptimizations</h2>
+</p><h2 id="microoptimizations"><span>2.4. </span>微观优化</h2>
 
 <p>
-The high repeatability of cachegrind allows the SQLite developers to
-implement and measure "microoptimizations".  A microoptimization is
-a change to the code that results in a very small performance increase.
-Typical micro-optimizations reduce the number of CPU cycles by 0.1% or
-0.05% or even less.  Such improvements are impossible to measure with
-real-world timings.  But hundreds or thousands of microoptimizations
-add up, resulting in measurable real-world performance gains.
+cachegrind 的高可重复性让 SQLite 开发者能够实现并衡量“微观优化”。微观优化是指对代码做出的可以带来非常小性能提升的改动。典型的微观优化只会减少 0.1%、0.05% 甚至更少的 CPU 周期数。此类改进无法通过真实世界时序测量。但成百上千个微观优化累积起来，最终会带来可观的真实世界性能提升。
 
-</p><h1 id="performance_measurement_workflow"><span>3. </span>Performance Measurement Workflow</h1>
+</p><h1 id="performance_measurement_workflow"><span>3. </span>性能测量工作流程</h1>
 
 <p>
-As SQLite developers edit the SQLite source code, they run the
-<a href="https://sqlite.org/src/file/tool/speed-check.sh">speed-check.sh</a>
-shell script to track the performance impact of changes.  This
-script compiles the speedtest1.c program, runs it under cachegrind,
-processes the cachegrind output using the
-<a href="https://sqlite.org/src/file/tool/cg_anno.tcl">cg_anno.tcl</a> TCL
-script, then saves the results in a series of text files.
-Typical output from the speed-check.sh script looks like this:
+当 SQLite 开发者编辑 SQLite 源码时，他们会运行
+<a href="https://sqlite.org/src/file/tool/speed-check.sh">speed-check.sh</a> shell 脚本，以跟踪变更对性能的影响。该脚本会编译 speedtest1.c 程序，在 cachegrind 下运行它，使用
+<a href="https://sqlite.org/src/file/tool/cg_anno.tcl">cg_anno.tcl</a> TCL 脚本处理 cachegrind 输出，然后将结果保存到一系列文本文件中。
+speed-check.sh 脚本的典型输出如下：
 
 </p><blockquote><pre>
 ==8683== 
@@ -292,16 +250,9 @@ Typical output from the speed-check.sh script looks like this:
  220507 1007870 7769352 sqlite3.c
 </pre></blockquote>
 
-<p>The important parts of the output (the parts that the developers pay
-the most attention to) are shown in red.
-Basically, the developers want to know the size of the compiled SQLite
-library and how many CPU cycles were needed to run the performance test.
-
-</p><p>The output from the 
-<a href="https://sqlite.org/src/file/tool/cg_anno.tcl">cg_anno.tcl</a> script
-shows the number of CPU cycles spent on each line of code.
-The report is approximately 80,000 lines long.  The following is a brief
-snippet taken from the middle of the report to show what it looks like:
+<p>输出中最重要的部分（开发者最关注的）以红色显示。基本上开发者想知道编译后的 SQLite 库大小以及运行性能测试所需的 CPU 周期数。
+</p><p>来自
+<a href="https://sqlite.org/src/file/tool/cg_anno.tcl">cg_anno.tcl</a> 脚本的输出展示了每行代码所消耗的 CPU 周期数。报告长度大约 80,000 行。以下是报告中部的简短片段，以示其样式：
 
 </p><blockquote><pre>
          .  SQLITE_PRIVATE int sqlite3BtreeNext(BtCursor *pCur, int *pRes){
@@ -328,79 +279,37 @@ snippet taken from the middle of the report to show what it looks like:
 </pre></blockquote>
 
 <p>
-The numbers on the left are the CPU cycle counts for that line of code,
-of course.
-
+左边的数字当然是那行代码的 CPU 周期计数。
 </p><p>
-The cg_anno.tcl script removes extraneous details from the default 
-cachegrind annotation
-output so that before-and-after reports can be compared using a 
-side-by-side diff to view specific details of how a
-micro-optimization attempt affected performance.
+cg_anno.tcl 脚本从默认的 cachegrind 注释输出中去除冗余细节，以便可以通过并排 diff 比较前后报告，查看某次微优化尝试是如何影响性能的。
+</p><h1 id="limitations"><span>4. </span>限制</h1>
 
-
-</p><h1 id="limitations"><span>4. </span>Limitations</h1>
-
-<p>The use of the standardized speedtest1.c workload and cachegrind has
-enabled significant performance improvement.
-However, it is important to recognize the limitations of this approach:
+<p>采用标准化的 speedtest1.c 工作负载和 cachegrind 使大型性能改进成为可能。然而必须认识到此方法的局限性：
 
 </p><ul>
 <li><p>
-Performance measurements are done with a single compiler (gcc 5.4.0),
-optimization setting (-Os), and
-on a single platform (Ubuntu 16.04 LTS on x64).  The performance of
-other compilers and processors may vary.
+性能测量仅在单一编译器（gcc 5.4.0）、优化设置（-Os）以及单一平台（Ubuntu 16.04 LTS x64）上进行。其他编译器和处理器的性能可能不同。
 
 </p></li><li><p>
-The speedtest1.c workload that is being measured tries to be representative
-of a wide range of typical uses of SQLite.  But every application is
-different.  The speedtest1.c workload might not be a good proxy for the
-kinds of activities performed by some applications.  The SQLite developers
-are constantly working to improve the speedtest1.c program, to make it
-a better proxy for actual SQLite usage.  Community feedback is welcomed.
+正在测量的 speedtest1.c 工作负载试图代表 SQLite 的广泛典型用法。但每个应用都不同。speedtest1.c 工作负载可能并不是某些应用活动的良好代理。SQLite 开发者持续改进 speedtest1.c，使其更贴近真实 SQLite 使用，欢迎社区反馈。
 
 </p></li><li><p>
-The cycle counts provided by cachegrind are a good proxy for actual
-performance, but they are not 100% accurate.
+cachegrind 提供的周期计数是实际性能的良好代理，但并非 100% 精确。
 
 </p></li><li><p>
-Only CPU cycle counts are being measured here. 
-CPU cycle counts are a good proxy for energy consumption,
-but do not necessary correlate well with real-world timings.
-Time spent doing I/O is not reflected in the CPU cycle counts,
-and I/O time predominates in many SQLite usage scenarios.
+这里只测量 CPU 周期计数。CPU 周期计数是能量消耗的良好代理，但不一定与真实世界时长相关。执行 I/O 所花时间不会体现在 CPU 周期计数中，而在许多 SQLite 使用场景中，I/O 时间占主导。
+
 </p></li></ul>
 
-<h1 id="why_does_the_graph_end_in_2025_"><span>5. </span>Why Does The Graph End In 2025?</h1>
+<h1 id="why_does_the_graph_end_in_2025_"><span>5. </span>为什么图表在2025年结束？</h1>
 
 <p>
-The CPU cycle counts depend a lot on the particular compiler
-used, and also to some extent on the operating system.  All of
-the measurements in the graph above were made using GCC 5.4.0
-on Ubuntu 16.04.  That machine was powered down in early 2025,
-and so it is no longer available to do additional measurements.
+CPU 周期计数在很大程度上取决于所用的编译器，并在一定程度上受操作系统影响。上图中的所有测量均使用 GCC 5.4.0 在 Ubuntu 16.04 上完成。那台机器在 2025 年初被关闭，因此无法再用于额外测量。
 
 </p><p>
-We could redo all 61 measurements shown in the graph using
-a more recent compiler.  (This update is being entered in early
-2026 using Linux Mint 2.22 that hosts GCC 13.3.0.)  But that
-would be a lot of work for no noticable gain.  Most of the
-performance gains occurred in years 2013 through 2017, when
-the microoptimization techniques described above were
-first being applied to SQLite.  You can clearly see in the
-graph that the performance curve leveled out in about 2018.
-Since then, there has been a slow increase in performance, but
-nothing as dramatic as in prior years.  We expect this trend
-to continue.
+我们本可以使用更新的编译器重新做图中展示的 61 项测量。（此更新在 2026 年初使用搭载 GCC 13.3.0 的 Linux Mint 2.22 录入。）不过那将是一项大量工作，却不会带来显著收益。大多数性能提升出现在 2013 至 2017 年，当时上述的微观优化技术首次被应用到 SQLite。图中清晰地显示出性能曲线在 2018 年左右趋于平缓。此后性能缓慢提升，但远不如之前那样剧烈。我们预计这一趋势会继续。
 
 </p><p>
-The developers continue measure performance regularly,
-certainly at every release, but also after every significant
-change.  We continue to work toward optimizing SQLite to use
-as few CPU cycles as possible.  However, no dramatic
-performance increases are expected.  Note that SQLite
-is already <a href="fasterthanfs.html">35% Faster Than The Filesystem</a>.  How much faster
-can it get?
-</p><p align="center"><small><i>This page was last updated on 2026-01-06 14:40:07Z </small></i></p>
+开发者仍然会定期测量性能，肯定是在每个版本发布时，也会在每次重大变更后进行。我们继续致力于让 SQLite 尽量少地使用 CPU 周期。不过预计不会出现显著的性能飞跃。请注意 SQLite 已经比文件系统快 35%。还能再快多少呢？
+</p><p align="center"><small><i>此页面最后更新于 2026-01-06 14:40:07Z </small></i></p>
 

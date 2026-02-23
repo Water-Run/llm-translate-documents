@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Internal Versus External BLOBs</title>
+<title>内部与外部 BLOB</title>
 <!-- path= -->
 </head>
 <body>
@@ -13,39 +14,42 @@
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+由WaterRun使用gpt-5.1-codex-mini翻译<br>
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -119,53 +123,32 @@ antiRobotDefense();
 
 <body>
 <h1 align="center">
-Internal Versus External BLOBs in SQLite
+SQLite 中内部与外部 BLOB 的比较
 </h1>
 
 <p>
-If you have a database of large BLOBs, do you get better read performance
-when you store the complete
-BLOB content directly in the database or is it faster to store each BLOB
-in a separate file and store just the corresponding filename in the database?
+如果你的数据库中包含大量 BLOB，把整个 BLOB 内容直接存储在数据库中会获得更好的读取性能吗？还是将每个 BLOB 存储在独立的文件中，并在数据库中仅保存相应文件名会更快？
 </p>
 
 <p>
-To try to answer this, we ran 49 test cases with various BLOB sizes and
-SQLite page sizes on a Linux workstation (Ubuntu circa 2011 with the
-Ext4 filesystem on a fast SATA disk).
-For each test case, a database was created containing 100MB of BLOB
-content.  The sizes of the BLOBs ranged from 10KB to 1MB.  The number
-of BLOBs varied in order to keep the total BLOB content at about 100MB.
-(Hence, 100 BLOBs for the 1MB size and 10000 BLOBs for the 10K size and
-so forth.)  SQLite <a href="releaselog/3_7_8.html">version 3.7.8</a> (2011-09-19) was used.
+为了尝试解答这个问题，我们在一台 Linux 工作站上（大约 2011 年的 Ubuntu，Ext4 文件系统，快速 SATA 磁盘）运行了 49 个测试用例，涵盖不同的 BLOB 大小和 SQLite 页面大小。每个测试用例都创建了一个包含 100MB BLOB 内容的数据库。BLOB 的大小从 10KB 到 1MB 不等。BLOB 的数量随之变化，以便总 BLOB 内容保持在大约 100MB。（因此，1MB 大小的情况为 100 个 BLOB，而 10KB 的情况为 10000 个 BLOB，依此类推。）所使用的是 SQLite <a href="releaselog/3_7_8.html">3.7.8 版</a>（2011-09-19）。
 </p>
 
 <blockquote><i>
-Update: New measurements for SQLite version 3.19.0
-(2017-05-22) show that SQLite is about 
-<a href="fasterthanfs.html">35% faster</a> than direct disk I/O for 
-both reads and writes of 10KB blobs.
+更新：针对 SQLite 3.19.0 版（2017-05-22）的新测量显示，对于 10KB BLOB 的读写，SQLite 比直接磁盘 I/O 快约 <a href="fasterthanfs.html">35%</a>。
 </i></blockquote>
 
 <p>
-The matrix below shows the time needed to read BLOBs stored in separate files
-divided by the time needed to read BLOBs stored entirely in the database.  
-Hence, for numbers larger than 1.0, it is faster to store the BLOBs directly 
-in the database.  For numbers smaller than 1.0, it is faster to store the BLOBs
-in separate files.
+下表显示分别将 BLOB 存储在独立文件中所需的读取时间与将 BLOB 完全存储在数据库中所需读取时间的比值。因此，对应数值大于 1.0 时，将 BLOB 直接存储在数据库中更快；小于 1.0 时，将 BLOB 存储在独立文件中更快。
 </p>
 
 <p>
-In every case, the pager cache size was adjusted to keep the amount of
-cache memory at about 2MB.  
-For example, a 2000 page cache was used for 1024 byte pages
-and a 31 page cache was used for 65536 byte pages.
-The BLOB values were read in a random order.
+在所有情况下，页缓存的大小都进行了调整，以将缓存内存控制在大约 2MB。例如，对于 1024 字节页面，使用了 2000 页缓存；对于 65536 字节页面，使用了 31 页缓存。BLOB 值以随机顺序读取。
 </p>
 
 <table border="1" cellpadding="5" cellspacing="0" align="center">
 <tr>
-<th rowspan="2">Database Page Size<th colspan="7">BLOB size
+<th rowspan="2">数据库页大小<th colspan="7">BLOB 大小
 <tr>
 <th>10k<th>20k<th>50k<th>100k<th>200k<th>500k<th>1m
 
@@ -193,20 +176,15 @@ The BLOB values were read in a random order.
 </table>
 
 
-<p>We deduce the following rules of thumb from the matrix above:</p>
+<p>我们从上述矩阵中得出以下经验规则：</p>
 
 <ul>
 <li><p>
-A database page size of 8192 or 16384 gives the best performance
-for large BLOB I/O.
-
-<li><p>For BLOBs smaller than 100KB, reads are faster when
-the BLOBs are stored directly in the database file.  For BLOBs larger than
-100KB, reads from a separate file are faster.
+对于大型 BLOB I/O，使用 8192 或 16384 页大小的数据库页可以获得最佳性能。
+<li><p>
+对于小于 100KB 的 BLOB，直接将 BLOB 存储在数据库文件中读取更快。对于大于 100KB 的 BLOB，从独立文件读取更快。
 </ul>
 
-<p>Of course, your mileage may vary depending on hardware, filesystem,
-and operating system.  Double-check these figures on target hardware
-before committing to a particular design.
-<p align="center"><small><i>This page was last updated on 2022-04-18 02:55:50Z </small></i></p>
+<p>当然，根据硬件、文件系统和操作系统的不同，实际情况可能有所不同。在确定某种设计前，请在目标硬件上再次核实这些数据。</p>
+<p align="center"><small><i>本页最后更新于 2022-04-18 02:55:50Z</i></small></p>
 

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>NUL Characters In Strings</title>
+<title>字符串中的 NUL 字符</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-NUL Characters In Strings
+字符串中的 NUL 字符
 </div>
 </div>
 
@@ -126,36 +132,30 @@ NUL Characters In Strings
 
 
 
-<h1 id="introduction"><span>1. </span>Introduction</h1>
+<h1 id="introduction"><span>1. </span>介绍</h1>
 
 <p>
-SQLite allows NUL characters (ASCII 0x00, Unicode \u0000) in the middle
-of string values stored in the database.  However, the use of NUL within
-strings can lead to surprising behaviors:
+SQLite 允许在存储于数据库中的字符串值中包含 NUL 字符（ASCII 0x00，Unicode \u0000）。不过，在字符串中使用 NUL 可能会导致令人意外的行为：
 
 </p><ol>
 <li><p>
-The <a href="lang_corefunc.html#length">length() SQL function</a> only counts characters up to and excluding
-the first NUL.
+<a href="lang_corefunc.html#length">length() SQL 函数</a> 仅计算直到第一个 NUL 之前（不含）的字符。
 
 
 </p></li><li><p>
-The <a href="lang_corefunc.html#quote">quote() SQL function</a> only shows characters up to and excluding
-the first NUL.
+<a href="lang_corefunc.html#quote">quote() SQL 函数</a> 仅显示直到第一个 NUL 之前（不含）的字符。
 
 </p></li><li><p>
-The <a href="cli.html#dump">.dump</a> command in the <a href="cli.html">CLI</a> omits the first NUL character and all
-subsequent text in the SQL output that it generates.  In fact, the
-<a href="cli.html">CLI</a> omits everything past the first NUL character in all contexts.
+<a href="cli.html#dump">.dump</a> 命令在 <a href="cli.html">命令行界面</a> 中的输出会省略第一个 NUL 字符以及它之后的所有文本。事实上，<a href="cli.html">命令行界面</a> 在所有情况下都会省略第一个 NUL 字符之后的所有内容。
 </p></li></ol>
 
 <p>
-The use of NUL characters in SQL text strings is not recommended.
+不建议在 SQL 文本字符串中使用 NUL 字符。
 
-</p><h1 id="unexpected_behavior"><span>2. </span>Unexpected Behavior</h1>
+</p><h1 id="unexpected_behavior"><span>2. </span>意外行为</h1>
 
 <p>
-Consider the following SQL:
+请考虑如下 SQL：
 
 </p><div class="codeblock"><pre>CREATE TABLE t1(
   a INTEGER PRIMARY KEY,
@@ -167,71 +167,56 @@ SELECT a, b, length(b) FROM t1;
 </pre></div>
 
 <p>
-The SELECT statement above shows output of:
+上述 SELECT 语句的输出为：
 
 </p><div class="codeblock"><pre>1,'abc',3
 </pre></div>
 
 <p>
-(Through this document, we assume that the <a href="cli.html">CLI</a> has "<a href="cli.html#dotmodequote">.mode quote</a>" set.)
-But if you run:
+（本文假设 <a href="cli.html">命令行界面</a> 设置了 "<a href="cli.html#dotmodequote">.mode quote</a>"。）但如果你运行：
 
 </p><div class="codeblock"><pre>SELECT * FROM t1 WHERE b='abc';
 </pre></div>
 
 <p>
-Then no rows are returned.  SQLite knows that the t1.b column actually
-holds a 7-character string, and the 7-character string 'abc'||char(0)||'xyz'
-is not equal to the 3-character string 'abc', and so no rows are returned.
-But a user might be easily confused by this because the <a href="cli.html">CLI</a> output
-seems to show that the string has only 3 characters.  This seems like
-a bug.  But it is how SQLite works.
+那么不会返回任何行。SQLite 知道 t1.b 列实际上包含一个 7 字符长度的字符串，而 7 字符字符串 'abc'||char(0)||'xyz' 与 3 字符字符串 'abc' 不相等，因此不会返回任何行。但是用户可能会被误导，因为 <a href="cli.html">命令行界面</a> 的输出似乎显示该字符串只有 3 个字符。这看起来像是一个 bug，但这就是 SQLite 的行为方式。
 
-</p><h1 id="how_to_tell_if_you_have_nul_characters_in_your_strings"><span>3. </span>How To Tell If You Have NUL Characters In Your Strings</h1>
+</p><h1 id="how_to_tell_if_you_have_nul_characters_in_your_strings"><span>3. </span>如何判断字符串中是否包含 NUL 字符</h1>
 
 <p>
-If you <a href="lang_expr.html#castexpr">CAST</a> a string into a BLOB, then the entire length of the
-string is shown.  For example:
+如果你将字符串 <a href="lang_expr.html#castexpr">CAST</a> 为 BLOB，则会显示字符串的完整长度。例如：
 
 </p><div class="codeblock"><pre>SELECT a, CAST(b AS BLOB) FROM t1;
 </pre></div>
 
 <p>
-Gives this result:
+输出如下：
 
 </p><div class="codeblock"><pre>1,X'6162630078797a'
 </pre></div>
 
 <p>
-In the BLOB output, you can clearly see the NUL character as the 4th
-character in the 7-character string.
+在 BLOB 输出中，你可以清楚地看到 NUL 字符作为该 7 字符字符串的第 4 个字符。
 
 </p><p>
-Another, more automated, way
-to tell if a string value X contains embedded NUL characters is to
-use an expression like this:
+另一种更自动化的方式来判断字符串值 X 是否包含嵌入的 NUL 字符是使用如下表达式：
 
 </p><div class="codeblock"><pre>instr(X,char(0))
 </pre></div>
 
 <p>
-If this expression returns a non-zero value N, then there exists an 
-embedded NUL at the N-th character position.  Thus to count the number
-of rows that contain embedded NUL characters:
+如果该表达式返回非零值 N，则表示在第 N 个字符位置存在嵌入的 NUL。因此，要统计包含嵌入 NUL 字符的行数：
 
 </p><div class="codeblock"><pre>SELECT count(*) FROM t1 WHERE instr(b,char(0))>0;
 </pre></div>
 
-<h1 id="removing_nul_characters_from_a_text_field"><span>4. </span>Removing NUL Characters From A Text Field</h1>
+<h1 id="removing_nul_characters_from_a_text_field"><span>4. </span>从文本字段中移除 NUL 字符</h1>
 
 <p>
-The following example shows how to remove NUL character, and all text
-that follows, from a column of a table.  So if you have a database file
-that contains embedded NULs and you would like to remove them, running
-UPDATE statements similar to the following might help:
+以下示例展示如何从表的列中移除 NUL 字符以及其后所有文本。因此，如果你的数据库文件中包含嵌入 NUL 字符并希望将其删除，可以运行类似如下的 UPDATE 语句：
 
 </p><div class="codeblock"><pre>UPDATE t1 SET b=substr(b,1,instr(b,char(0)))
  WHERE instr(b,char(0));
 </pre></div>
-<p align="center"><small><i>This page was last updated on 2022-05-23 22:21:54Z </small></i></p>
+<p align="center"><small><i>本页最后更新于 2022-05-23 22:21:54Z </small></i></p>
 

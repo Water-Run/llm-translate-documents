@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>选择任意三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href='github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: snapshot sqlite3_snapshot -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Database Snapshot</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>数据库快照</h2>
 </div>
 <blockquote><pre>
 typedef struct sqlite3_snapshot {
@@ -126,29 +132,19 @@ typedef struct sqlite3_snapshot {
 } sqlite3_snapshot;
 </pre></blockquote>
 <p>
-An instance of the snapshot object records the state of a <a href="../wal.html">WAL mode</a>
-database for some specific point in history.</p>
+snapshot 对象的实例记录了 <a href="../wal.html">WAL 模式</a> 数据库在某个特定历史时刻的状态。</p>
 
-<p>In <a href="../wal.html">WAL mode</a>, multiple <a href="../c3ref/sqlite3.html">database connections</a> that are open on the
-same database file can each be reading a different historical version
-of the database file.  When a <a href="../c3ref/sqlite3.html">database connection</a> begins a read
-transaction, that connection sees an unchanging copy of the database
-as it existed for the point in time when the transaction first started.
-Subsequent changes to the database from other connections are not seen
-by the reader until a new read transaction is started.</p>
+<p>在 <a href="../wal.html">WAL 模式</a> 下，多个 <a href="../c3ref/sqlite3.html">数据库连接</a> 打开同一数据库文件时，每个连接都可能在读取数据库文件的不同历史版本。当一个 <a href="../c3ref/sqlite3.html">数据库连接</a> 开始一个读事务时，该连接看到的是事务最初开始时数据库在那个时间点的不变副本。其他连接对数据库的后续更改在启动新的读事务之前对读取者不可见。</p>
 
-<p>The sqlite3_snapshot object records state information about an historical
-version of the database file so that it is possible to later open a new read
-transaction that sees that historical version of the database rather than
-the most recent version.
-</p><p>1 Constructor using this object: <a href="../c3ref/snapshot_get.html">sqlite3_snapshot_get()</a></p>
-<p>1 Destructor using this object: <a href="../c3ref/snapshot_free.html">sqlite3_snapshot_free()</a></p>
-<p>3 Methods using this object:
+<p>sqlite3_snapshot 对象记录数据库文件某一历史版本的状态信息，以便之后可以打开一个新的读事务，从而查看该历史版本而不是最新版本。
+</p><p>使用该对象的构造函数：<a href="../c3ref/snapshot_get.html">sqlite3_snapshot_get()</a></p>
+<p>使用该对象的析构函数：<a href="../c3ref/snapshot_free.html">sqlite3_snapshot_free()</a></p>
+<p>使用该对象的 3 个方法：
  <a href="../c3ref/snapshot_cmp.html">sqlite3_snapshot_cmp()</a>,
 <a href="../c3ref/snapshot_open.html">sqlite3_snapshot_open()</a>,
 <a href="../c3ref/snapshot_recover.html">sqlite3_snapshot_recover()</a></p>
-<p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>,
+  <a href="../c3ref/constlist.html">常量</a>, 以及
+  <a href="../c3ref/funclist.html">函数</a> 列表。</p>
 

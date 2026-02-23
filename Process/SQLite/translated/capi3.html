@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>C/C++ Interface For SQLite Version 3 (old)</title>
+<title>SQLite 3版本的C/C++接口（旧版）</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;margin-right:1rem;font-size:0.9rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -116,88 +122,49 @@ antiRobotGo();
 antiRobotDefense();
 </script>
 
-
-
 <font color="#7f001f"><p>
-<b>Note:</b>
-This document was written in 2004 as a guide to helping programmers
-move from using SQLite version 2 to SQLite version 3.  The information
-in this document is still essentially correct, however there have been
-many changes and enhancements over the years.  We recommend that the
-following documents be used instead:
+<b>注意：</b>
+这份文档撰写于2004年，用于指导程序员从 SQLite 2 迁移到 SQLite 3。文档中的信息仍然基本正确，但这些年已经有诸多变化与增强。我们建议改为使用以下文档：
 <ul>
-<li><a href="cintro.html">An Introduction To The SQLite C/C++ Interface</a></li>
-<li><a href="c3ref/intro.html">SQLite C/C++ Reference Guide</a></li>
+<li><a href="cintro.html">SQLite C/C++接口介绍</a></li>
+<li><a href="c3ref/intro.html">SQLite C/C++参考指南</a></li>
 </ul>
 </p>
 </font>
 
-<h2>C/C++ Interface For SQLite Version 3</h2>
+<h2>SQLite 3版本的C/C++接口</h2>
 
-<h3>1.0 Overview</h3>
+<h3>1.0 概述</h3>
 
 <p>
-SQLite version 3.0 is a new version of SQLite, derived from
-the SQLite 2.8.13 code base, but with an incompatible file format
-and API.
-SQLite version 3.0 was created to answer demand for the following features:
+SQLite 3.0 是基于 SQLite 2.8.13 代码库的全新版本，但它采用了不兼容的文件格式和 API。SQLite 3.0 的推出是为了满足以下功能需求：
 </p>
 
 <ul>
-<li>Support for UTF-16.</li>
-<li>User-definable text collating sequences.</li>
-<li>The ability to store BLOBs in indexed columns.</li>
+<li>支持 UTF-16。</li>
+<li>支持用户自定义文本排序序列。</li>
+<li>支持在索引列中存储 BLOB。</li>
 </ul>
 
 <p>
-It was necessary to move to version 3.0 to implement these features because
-each requires incompatible changes to the database file format.  Other
-incompatible changes, such as a cleanup of the API, were introduced at the
-same time under the theory that it is best to get your incompatible changes
-out of the way all at once.  
+必须迁移到 3.0 版本才能实现这些功能，因为每一项都需要对数据库文件格式进行不兼容的更改。其他不兼容的更改，比如对 API 的整理，也是同时引入的，其理念是“一次性完成所有不兼容的改动”。
 </p>
 
 <p>
-The API for version 3.0 is similar to the version 2.X API,
-but with some important changes.  Most noticeably, the "<tt>sqlite_</tt>"
-prefix that occurs on the beginning of all API functions and data
-structures are changed to "<tt>sqlite3_</tt>".  
-This avoids confusion between the two APIs and allows linking against both
-SQLite 2.X and SQLite 3.0 at the same time.
+3.0 版的 API 与 2.X 版类似，但也有一些重要变化。最明显的是所有 API 函数和数据结构前缀由 "<tt>sqlite_</tt>" 变为 "<tt>sqlite3_</tt>"。这样可以避免两套 API 之间的混淆，并允许同时链接 SQLite 2.X 与 SQLite 3.0。
 </p>
 
 <p>
-There is no agreement on what the C datatype for a UTF-16
-string should be.  Therefore, SQLite uses a generic type of void*
-to refer to UTF-16 strings.  Client software can cast the void* 
-to whatever datatype is appropriate for their system.
+尚未统一 UTF-16 字符串在 C 中应使用的数据类型。因此，SQLite 使用通用类型 void* 来表示 UTF-16 字符串。客户端软件可以将 void* 强制转换为其系统所需的任何数据类型。
 </p>
 
-<h3>2.0 C/C++ Interface</h3>
+<h3>2.0 C/C++接口</h3>
 
 <p>
-The API for SQLite 3.0 includes 83 separate functions in addition
-to several data structures and #defines.  (A complete
-<a href="c3ref/intro.html">API reference</a> is provided as a separate 
-document.)
-Fortunately, the interface is not nearly as complex as its size implies.
-Simple programs can still make do with only 3 functions:
-<a href="c3ref/open.html">sqlite3_open()</a>, <a href="c3ref/exec.html">sqlite3_exec()</a>, and <a href="c3ref/close.html">sqlite3_close()</a>.
-More control over the execution of the database engine is provided
-using <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>
-to compile an SQLite statement into byte code and
-<a href="c3ref/step.html">sqlite3_step()</a> to execute that bytecode.
-A family of routines with names beginning with 
-<a href="c3ref/column_blob.html">sqlite3_column_</a>
-is used to extract information about the result set of a query.
-Many interface functions come in pairs, with both a UTF-8 and
-UTF-16 version.  And there is a collection of routines
-used to implement user-defined SQL functions and user-defined
-text collating sequences.
+SQLite 3.0 的 API 包含 83 个独立函数，以及若干数据结构和 #define。（完整的<a href="c3ref/intro.html">API 参考</a>作为独立文档提供。）幸运的是，接口远不像看起来那么复杂。简单程序仍然仅需三个函数：<a href="c3ref/open.html">sqlite3_open()</a>、<a href="c3ref/exec.html">sqlite3_exec()</a> 和 <a href="c3ref/close.html">sqlite3_close()</a>。如需对数据库引擎的执行进行更多控制，可以使用 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 将 SQLite 语句编译为字节码，并使用 <a href="c3ref/step.html">sqlite3_step()</a> 来执行该字节码。以 <a href="c3ref/column_blob.html">sqlite3_column_</a> 为前缀的一系列例程用于提取查询结果集的信息。许多接口函数成对出现，分别提供 UTF-8 与 UTF-16 版本。此外，还有一些例程用于实现用户自定义的 SQL 函数与文本排序序列。
 </p>
 
-
-<h4>2.1 Opening and closing a database</h4>
+<h4>2.1 打开与关闭数据库</h4>
 
 <blockquote><pre>
    typedef struct sqlite3 sqlite3;
@@ -210,68 +177,51 @@ text collating sequences.
 </pre></blockquote>
 
 <p>
-The sqlite3_open() routine returns an integer error code rather than
-a pointer to the sqlite3 structure as the version 2 interface did.
-The difference between sqlite3_open()
-and sqlite3_open16() is that sqlite3_open16() takes UTF-16 (in host native
-byte order) for the name of the database file.  If a new database file
-needs to be created, then sqlite3_open16() sets the internal text
-representation to UTF-16 whereas sqlite3_open() sets the text
-representation to UTF-8.
+sqlite3_open() 返回的是整数错误码，而不是像 2.x 接口那样直接返回 sqlite3 结构的指针。sqlite3_open() 与 sqlite3_open16() 的区别在于 sqlite3_open16() 接受 UTF-16（宿主本机字节序）的数据库文件名。如果需要创建新数据库文件，sqlite3_open16() 会将内部文本表示设为 UTF-16，而 sqlite3_open() 则设置为 UTF-8。
 </p>
 
 <p>
-The opening and/or creating of the database file is deferred until the
-file is actually needed.  This allows options and parameters, such
-as the native text representation and default page size, to be
-set using PRAGMA statements.
+数据库文件的打开或创建被推迟至实际需要该文件时才进行。这样就可以使用 PRAGMA 语句设置诸如本机文本表示与默认页大小之类的选项与参数。
 </p>
 
 <p>
-The sqlite3_errcode() routine returns a result code for the most
-recent major API call.  sqlite3_errmsg() returns an English-language
-text error message for the most recent error.  The error message is
-represented in UTF-8 and will be ephemeral - it could disappear on
-the next call to any SQLite API function.  sqlite3_errmsg16() works like
-sqlite3_errmsg() except that it returns the error message represented
-as UTF-16 in host native byte order.
+sqlite3_errcode() 返回最近一次主要 API 调用的结果码。sqlite3_errmsg() 返回最近一次错误的英文错误消息。错误消息以 UTF-8 表示，且是临时的——在下一次调用任何 SQLite API 函数之后可能就不存在了。sqlite3_errmsg16() 的作用与 sqlite3_errmsg() 相同，只不过它返回的是以宿主本机字节序表示的 UTF-16 错误消息。
 </p>
 
 <p>
-The error codes for SQLite version 3 are unchanged from version 2.
-They are as follows:
+SQLite 3 版本的错误码与 2 版本保持不变，具体如下：
 </p>
 
 <blockquote><pre>
-#define SQLITE_OK           0   /* Successful result */
-#define SQLITE_ERROR        1   /* SQL error or missing database */
-#define SQLITE_INTERNAL     2   /* An internal logic error in SQLite */
-#define SQLITE_PERM         3   /* Access permission denied */
-#define SQLITE_ABORT        4   /* Callback routine requested an abort */
-#define SQLITE_BUSY         5   /* The database file is locked */
-#define SQLITE_LOCKED       6   /* A table in the database is locked */
-#define SQLITE_NOMEM        7   /* A malloc() failed */
-#define SQLITE_READONLY     8   /* Attempt to write a readonly database */
-#define SQLITE_INTERRUPT    9   /* Operation terminated by sqlite_interrupt() */
-#define SQLITE_IOERR       10   /* Some kind of disk I/O error occurred */
-#define SQLITE_CORRUPT     11   /* The database disk image is malformed */
-#define SQLITE_NOTFOUND    12   /* (Internal Only) Table or record not found */
-#define SQLITE_FULL        13   /* Insertion failed because database is full */
-#define SQLITE_CANTOPEN    14   /* Unable to open the database file */
-#define SQLITE_PROTOCOL    15   /* Database lock protocol error */
-#define SQLITE_EMPTY       16   /* (Internal Only) Database table is empty */
-#define SQLITE_SCHEMA      17   /* The database schema changed */
-#define SQLITE_TOOBIG      18   /* Too much data for one row of a table */
-#define SQLITE_CONSTRAINT  19   /* Abort due to contraint violation */
-#define SQLITE_MISMATCH    20   /* Data type mismatch */
-#define SQLITE_MISUSE      21   /* Library used incorrectly */
-#define SQLITE_NOLFS       22   /* Uses OS features not supported on host */
-#define SQLITE_AUTH        23   /* Authorization denied */
-#define SQLITE_ROW         100  /* sqlite_step() has another row ready */
-#define SQLITE_DONE        101  /* sqlite_step() has finished executing */
+#define SQLITE_OK           0   /* 成功结果 */
+#define SQLITE_ERROR        1   /* SQL 错误或数据库缺失 */
+#define SQLITE_INTERNAL     2   /* SQLite 中的内部逻辑错误 */
+#define SQLITE_PERM         3   /* 访问权限被拒 */
+#define SQLITE_ABORT        4   /* 回调例程请求中止 */
+#define SQLITE_BUSY         5   /* 数据库文件被锁定 */
+#define SQLITE_LOCKED       6   /* 数据库中的某个表被锁定 */
+#define SQLITE_NOMEM        7   /* malloc() 分配失败 */
+#define SQLITE_READONLY     8   /* 尝试写入只读数据库 */
+#define SQLITE_INTERRUPT    9   /* sqlite_interrupt() 中断了操作 */
+#define SQLITE_IOERR       10   /* 发生某种磁盘 I/O 错误 */
+#define SQLITE_CORRUPT     11   /* 数据库磁盘映像损坏 */
+#define SQLITE_NOTFOUND    12   /* （仅供内部使用）表或记录未找到 */
+#define SQLITE_FULL        13   /* 插入失败，因为数据库已满 */
+#define SQLITE_CANTOPEN    14   /* 无法打开数据库文件 */
+#define SQLITE_PROTOCOL    15   /* 数据库锁协议错误 */
+#define SQLITE_EMPTY       16   /* （仅供内部使用）数据库表为空 */
+#define SQLITE_SCHEMA      17   /* 数据库模式发生变化 */
+#define SQLITE_TOOBIG      18   /* 单条记录的数据过多 */
+#define SQLITE_CONSTRAINT  19   /* 由于违反约束而中止 */
+#define SQLITE_MISMATCH    20   /* 数据类型不匹配 */
+#define SQLITE_MISUSE      21   /* 库使用不当 */
+#define SQLITE_NOLFS       22   /* 使用了宿主系统不支持的操作系统特性 */
+#define SQLITE_AUTH        23   /* 授权被拒 */
+#define SQLITE_ROW         100  /* sqlite_step() 有另一行可用 */
+#define SQLITE_DONE        101  /* sqlite_step() 执行完毕 */
 </pre></blockquote>
 
-<h4>2.2 Executing SQL statements</h4>
+<h4>2.2 执行 SQL 语句</h4>
 
 <blockquote><pre>
    typedef int (*sqlite_callback)(void*,int,char**, char**);
@@ -279,14 +229,11 @@ They are as follows:
 </pre></blockquote>
 
 <p>
-The <a href="c3ref/exec.html">sqlite3_exec()</a> function works much as it did in SQLite version 2.
-Zero or more SQL statements specified in the second parameter are compiled
-and executed.  Query results are returned to a callback routine.
+<a href="c3ref/exec.html">sqlite3_exec()</a> 的工作方式与 SQLite 2 中大致相同。传入的第二个参数中可以包含零条或多条 SQL 语句，这些语句会被编译并执行。查询结果会通过回调例程返回。
 </p>
 
 <p>
-In SQLite version 3, the sqlite3_exec routine is just a wrapper around
-calls to the prepared statement interface.
+在 SQLite 3 中，sqlite3_exec 仅是对预处理语句接口的一个包装。
 </p>
 
 <blockquote><pre>
@@ -298,37 +245,15 @@ calls to the prepared statement interface.
 </pre></blockquote>
 
 <p>
-The sqlite3_prepare interface compiles a single SQL statement into byte code
-for later execution.  This interface is now the preferred way of accessing
-the database.
+sqlite3_prepare 接口将单条 SQL 语句编译成字节码以供后续执行。现在该接口是访问数据库的首选方式。
 </p>
 
 <p>
-The SQL statement is a UTF-8 string for sqlite3_prepare().
-The sqlite3_prepare16() works the same way except
-that it expects a UTF-16 string as SQL input.
-Only the first SQL statement in the input string is compiled.
-The fifth parameter is filled in with a pointer to the next (uncompiled)
-SQLite statement in the input string, if any.
-The sqlite3_finalize() routine deallocates a prepared SQL statement.
-All prepared statements must be finalized before the database can be
-closed.
-The sqlite3_reset() routine resets a prepared SQL statement so that it
-can be executed again.
+对于 sqlite3_prepare()，SQL 语句应以 UTF-8 字符串传入。sqlite3_prepare16() 的工作方式相同，只不过它期望 SQL 输入是 UTF-16 字符串。输入字符串中仅编译第一条 SQL 语句。若还存在未编译的 SQL 语句，第五个参数会被填充为指向下一条语句的指针。sqlite3_finalize() 用于释放已经准备好的 SQL 语句，所有准备好的语句在关闭数据库前都必须被 finalize。sqlite3_reset() 会将预处理语句复位，使其可以再次执行。
 </p>
 
 <p>
-The SQL statement may contain tokens of the form "?" or "?nnn" or ":aaa"
-where "nnn" is an integer and "aaa" is an identifier.
-Such tokens represent unspecified literal values (or "wildcards")
-to be filled in later by the 
-<a href="c3ref/bind_blob.html">sqlite3_bind</a> interface.
-Each wildcard has an associated number which is its sequence in the
-statement or the "nnn" in the case of a "?nnn" form. 
-It is allowed for the same wildcard
-to occur more than once in the same SQL statement, in which case
-all instance of that wildcard will be filled in with the same value.
-Unbound wildcards have a value of NULL.
+SQL 语句中可以包含形如 "?"、"?nnn" 或 ":aaa" 的标记，其中 "nnn" 是整数，而 "aaa" 是标识符。这些标记表示待填充的字面值（或“通配符”），可通过 <a href="c3ref/bind_blob.html">sqlite3_bind</a> 接口在之后赋值。每个通配符都有一个编号，编号就是它在语句中的顺序，或在 "?nnn" 形式中的 "nnn"。同一个语句中可以多次出现相同的通配符，这时所有实例都会被赋予相同值。未绑定的通配符默认值为 NULL。
 </p>
 
 <blockquote><pre>
@@ -343,15 +268,11 @@ Unbound wildcards have a value of NULL.
 </pre></blockquote>
 
 <p>
-There is an assortment of sqlite3_bind routines used to assign values
-to wildcards in a prepared SQL statement.  Unbound wildcards
-are interpreted as NULLs.  Bindings are not reset by sqlite3_reset().
-But wildcards can be rebound to new values after an sqlite3_reset().
+有若干 sqlite3_bind 系列函数用于给预处理 SQL 语句中的通配符赋值。未绑定的通配符会被当作 NULL。sqlite3_reset() 不会重置绑定值，但在 sqlite3_reset() 之后可以再次绑定新的值。
 </p>
 
 <p>
-After an SQL statement has been prepared (and optionally bound), it
-is executed using:
+在 SQL 语句准备完成（并可选地绑定参数）后，使用以下函数执行：
 </p>
 
 <blockquote><pre>
@@ -359,12 +280,7 @@ is executed using:
 </pre></blockquote>
 
 <p>
-The sqlite3_step() routine returns SQLITE_ROW if it is returning a single
-row of the result set, or SQLITE_DONE if execution has completed, either
-normally or due to an error.  It might also return SQLITE_BUSY if it is
-unable to open the database file.  If the return value is SQLITE_ROW, then
-the following routines can be used to extract information about that row
-of the result set:
+sqlite3_step() 在返回结果集中的单行数据时会返回 SQLITE_ROW，在执行完成（无论成功还是出错）后返回 SQLITE_DONE。若无法打开数据库文件，可能会返回 SQLITE_BUSY。如果返回值是 SQLITE_ROW，下面的例程可用来提取该结果集行的信息：
 </p>
 
 <blockquote><pre>
@@ -385,27 +301,14 @@ of the result set:
 </pre></blockquote>
 
 <p>
-The <a href="c3ref/column_count.html">sqlite3_column_count()</a>
-function returns the number of columns in
-the results set.  sqlite3_column_count() can be called at any time after
-<a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>.  <a href="c3ref/data_count.html">sqlite3_data_count()</a> works similarly to
-<a href="c3ref/column_count.html">sqlite3_column_count()</a> except that it only works following <a href="c3ref/step.html">sqlite3_step()</a>.
-If the previous call to <a href="c3ref/step.html">sqlite3_step()</a> returned SQLITE_DONE or an error code,
-then <a href="c3ref/data_count.html">sqlite3_data_count()</a> will return 0 whereas <a href="c3ref/column_count.html">sqlite3_column_count()</a> will
-continue to return the number of columns in the result set.
+<a href="c3ref/column_count.html">sqlite3_column_count()</a> 返回结果集中的列数。该函数可在 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 之后任何时间调用。<a href="c3ref/data_count.html">sqlite3_data_count()</a> 的行为类似于 <a href="c3ref/column_count.html">sqlite3_column_count()</a>，但它仅在 <a href="c3ref/step.html">sqlite3_step()</a> 之后有效。如果前一次的 <a href="c3ref/step.html">sqlite3_step()</a> 返回 SQLITE_DONE 或错误码，那么 <a href="c3ref/data_count.html">sqlite3_data_count()</a> 会返回 0，而 <a href="c3ref/column_count.html">sqlite3_column_count()</a> 仍会继续返回结果集的列数。
 </p>
 
-<p>Returned data is examined using the other 
-<a href="c3ref/column_blob.html">sqlite3_column_***()</a> functions, 
-all of which take a column number as their second parameter. Columns are
-zero-indexed from left to right. Note that this is different to parameters,
-which are indexed starting at one.
+<p>返回的数据可以通过其他 <a href="c3ref/column_blob.html">sqlite3_column_***()</a> 函数进行检查，它们都以列号为第二个参数。列号从左至右以 0 为起始。注意，这与参数不同，参数的索引从 1 开始。
 </p>
 
 <p>
-The <a href="c3ref/column_blob.html">sqlite3_column_type()</a> function returns the
-datatype for the value in the Nth column.  The return value is one
-of these:
+<a href="c3ref/column_blob.html">sqlite3_column_type()</a> 返回第 N 列值所使用的数据类型。返回值为下列之一：
 </p>
 
 <blockquote><pre>
@@ -417,85 +320,60 @@ of these:
 </pre></blockquote>
 
 <p>
-The sqlite3_column_decltype() routine returns text which is the
-declared type of the column in the CREATE TABLE statement.  For an
-expression, the return type is an empty string.  sqlite3_column_name()
-returns the name of the Nth column.  sqlite3_column_bytes() returns
-the number of bytes in a column that has type BLOB or the number of bytes
-in a TEXT string with UTF-8 encoding.  sqlite3_column_bytes16() returns
-the same value for BLOBs but for TEXT strings returns the number of bytes
-in a UTF-16 encoding.
+sqlite3_column_decltype() 返回在 CREATE TABLE 语句中声明的列类型。对于表达式，返回空字符串。sqlite3_column_name() 返回第 N 列的名称。sqlite3_column_bytes() 返回 BLOB 类型列所占字节数，或以 UTF-8 编码的 TEXT 字符串所占字节数。sqlite3_column_bytes16() 对 BLOB 返回相同字节数，但对于 TEXT 字符串返回 UTF-16 编码所占的字节数。
 <ul>
-<li>sqlite3_column_blob() return BLOB data.  
-<li>sqlite3_column_text() return TEXT data as UTF-8.
-<li>sqlite3_column_text16() return TEXT data as UTF-16.
-<li>sqlite3_column_int() return INTEGER data in the host machines native
-    integer format.
-<li>sqlite3_column_int64() returns 64-bit INTEGER data.
-<li>Finally, sqlite3_column_double() return floating point data.
+<li>sqlite3_column_blob() 返回 BLOB 数据。  
+<li>sqlite3_column_text() 以 UTF-8 返回 TEXT 数据。  
+<li>sqlite3_column_text16() 以 UTF-16 返回 TEXT 数据。  
+<li>sqlite3_column_int() 以宿主机本机整数格式返回 INTEGER 数据。  
+<li>sqlite3_column_int64() 返回 64 位 INTEGER 数据。  
+<li>最后，sqlite3_column_double() 返回浮点数数据。
 </ul>
 </p>
 
 <p>
-It is not necessary to retrieve data in the format specified by
-sqlite3_column_type().  If a different format is requested, the data
-is converted automatically.
+无需非得以 sqlite3_column_type() 指定的格式获取数据。如果请求了其他格式，数据会自动转换。
 </p>
 
 <p>
-Data format conversions can invalidate the pointer returned by
-prior calls to sqlite3_column_blob(), sqlite3_column_text(), and/or
-sqlite3_column_text16().  Pointers might be invalided in the following
-cases:
+数据格式转换可能导致先前调用 sqlite3_column_blob()、sqlite3_column_text() 和/或 sqlite3_column_text16() 返回的指针失效。指针可能在以下情况中失效：
 </p>
 <ul>
 <li><p>
-The initial content is a BLOB and sqlite3_column_text() 
-or sqlite3_column_text16()
-is called.  A zero-terminator might need to be added to the string.
+原始内容为 BLOB，随后调用 sqlite3_column_text() 或 sqlite3_column_text16()。可能需要在字符串末尾添加终止符。
 </p></li>
 <li><p>
-The initial content is UTF-8 text and sqlite3_column_bytes16() or
-sqlite3_column_text16() is called.  The content must be converted to UTF-16.
+原始内容为 UTF-8 文本，随后调用 sqlite3_column_bytes16() 或 sqlite3_column_text16()。必须将内容转换为 UTF-16。
 </p></li>
 <li><p>
-The initial content is UTF-16 text and sqlite3_column_bytes() or
-sqlite3_column_text() is called.  The content must be converted to UTF-8.
+原始内容为 UTF-16 文本，随后调用 sqlite3_column_bytes() 或 sqlite3_column_text()。必须将内容转换为 UTF-8。
 </p></li>
 </ul>
 <p>
-Note that conversions between UTF-16be and UTF-16le 
-are always done in place and do
-not invalidate a prior pointer, though of course the content of the buffer
-that the prior pointer points to will have been modified.  Other kinds
-of conversion are done in place when it is possible, but sometime it is
-not possible and in those cases prior pointers are invalidated.  
+注意：UTF-16BE 与 UTF-16LE 之间的转换总是在原地进行，因此不会使先前的指针失效，尽管指针指向的缓冲区内容会因此被修改。其他类型的转换在可能的情况下也会尝试原地进行，但有时无法做到，在这种情况下先前的指针会失效。
 </p>
 
 <p>
-The safest and easiest to remember policy is this: assume that any
-result from
+最安全、最容易记住的策略是：假设任何
 <ul>
-<li>sqlite3_column_blob(),</li>
-<li>sqlite3_column_text(), or</li>
+<li>sqlite3_column_blob() 的返回值，</li>
+<li>sqlite3_column_text() 的返回值，或</li>
+<li>sqlite3_column_text16() 的返回值，
+</ul>
+都可能在随后的
+<ul>
+<li>sqlite3_column_bytes()</li>
+<li>sqlite3_column_bytes16()</li>
+<li>sqlite3_column_text()</li>
 <li>sqlite3_column_text16()</li>
 </ul>
-is invalided by subsequent calls to 
-<ul>
-<li>sqlite3_column_bytes(),</li>
-<li>sqlite3_column_bytes16(),</li>
-<li>sqlite3_column_text(), or</li>
-<li>sqlite3_column_text16().</li>
-</ul>
-This means that you should always call sqlite3_column_bytes() or
-sqlite3_column_bytes16() <u>before</u> calling sqlite3_column_blob(),
-sqlite3_column_text(), or sqlite3_column_text16().
+调用中被使得失效。也就是说，你应当总是在调用 sqlite3_column_blob()、sqlite3_column_text() 或 sqlite3_column_text16() 之前先调用 sqlite3_column_bytes() 或 sqlite3_column_bytes16()。
 </p>
 
-<h4>2.3 User-defined functions</h4>
+<h4>2.3 用户自定义函数</h4>
 
 <p>
-User defined functions can be created using the following routine:
+可以使用如下例程创建用户自定义函数：
 </p>
 
 <blockquote><pre>
@@ -528,33 +406,19 @@ User defined functions can be created using the following routine:
 </pre></blockquote>
 
 <p>
-The nArg parameter specifies the number of arguments to the function.
-A value of 0 indicates that any number of arguments is allowed.  The
-eTextRep parameter specifies what representation text values are expected
-to be in for arguments to this function.  The value of this parameter should
-be one of the parameters defined above.  SQLite version 3 allows multiple
-implementations of the same function using different text representations.
-The database engine chooses the function that minimizes the number
-of text conversions required.
+nArg 参数指定函数的参数个数。值为 0 表示允许任意数量的参数。eTextRep 参数指定该函数期望文本参数使用的表示形式，该参数的值应该是上面定义的几种之一。SQLite 3 允许针对同一函数提供多个实现，分别使用不同的文本表示形式。数据库引擎会选择需要最少文本转换次数的实现。
 </p>
 
 <p>
-Normal functions specify only xFunc and leave xStep and xFinal set to NULL.
-Aggregate functions specify xStep and xFinal and leave xFunc set to NULL.
-There is no separate sqlite3_create_aggregate() API.
+普通函数只指定 xFunc，并将 xStep 和 xFinal 设为 NULL。聚合函数指定 xStep 与 xFinal，并将 xFunc 设为 NULL。没有单独的 sqlite3_create_aggregate() API。
 </p>
 
 <p>
-The function name is specified in UTF-8.  A separate sqlite3_create_function16()
-API works the same as sqlite_create_function()
-except that the function name is specified in UTF-16 host byte order.
+函数名以 UTF-8 指定。另一个 sqlite3_create_function16() API 与 sqlite3_create_function() 完全相同，只是函数名采用 UTF-16 宿主字节序表示。
 </p>
 
 <p>
-Notice that the parameters to functions are now pointers to sqlite3_value
-structures instead of pointers to strings as in SQLite version 2.X.
-The following routines are used to extract useful information from these
-"values":
+注意：函数的参数现在是指向 sqlite3_value 结构的指针，而不是 SQLite 2.X 中的字符串指针。下面的例程用于从这些“值”中提取有用的信息：
 </p>
 
 <blockquote><pre>
@@ -570,8 +434,7 @@ The following routines are used to extract useful information from these
 </pre></blockquote>
 
 <p>
-Function implementations use the following APIs to acquire context and
-to report results:
+函数实现使用如下 API 获取上下文并返回结果：
 </p>
 
 <blockquote><pre>
@@ -591,11 +454,10 @@ to report results:
    void sqlite3_set_auxdata(sqlite3_context*, int, void*, void (*)(void*));
 </pre></blockquote>
 
-<h4>2.4 User-defined collating sequences</h4>
+<h4>2.4 用户自定义排序序列</h4>
 
 <p>
-The following routines are used to implement user-defined
-collating sequences:
+以下例程用于实现用户自定义的排序序列：
 </p>
 
 <blockquote><pre>
@@ -610,25 +472,11 @@ collating sequences:
 </pre></blockquote>
 
 <p>
-The sqlite3_create_collation() function specifies a collating sequence name
-and a comparison function to implement that collating sequence.  The
-comparison function is only used for comparing text values.  The eTextRep
-parameter is one of SQLITE_UTF8, SQLITE_UTF16LE, SQLITE_UTF16BE, or
-SQLITE_ANY to specify which text representation the comparison function works
-with.  Separate comparison functions can exist for the same collating
-sequence for each of the UTF-8, UTF-16LE and UTF-16BE text representations.
-The sqlite3_create_collation16() works like sqlite3_create_collation() except
-that the collation name is specified in UTF-16 host byte order instead of
-in UTF-8.
+sqlite3_create_collation() 指定排序序列名称以及实现该排序序列的比较函数。比较函数仅用于比较文本值。eTextRep 参数必须是 SQLITE_UTF8、SQLITE_UTF16LE、SQLITE_UTF16BE 或 SQLITE_ANY 中的一种，用来说明比较函数所适用的文本表示形式。对于同一排序序列，可以分别为 UTF-8、UTF-16LE 和 UTF-16BE 提供不同的比较函数。sqlite3_create_collation16() 与 sqlite3_create_collation() 的作用相同，只不过排序名称以 UTF-16 宿主字节序指定，而非 UTF-8。
 </p>
 
 <p>
-The sqlite3_collation_needed() routine registers a callback which the
-database engine will invoke if it encounters an unknown collating sequence.
-The callback can lookup an appropriate comparison function and invoke
-sqlite_3_create_collation() as needed.  The fourth parameter to the callback
-is the name of the collating sequence in UTF-8.  For sqlite3_collation_need16()
-the callback sends the collating sequence name in UTF-16 host byte order.
+sqlite3_collation_needed() 注册一个回调，当数据库引擎遇到未知的排序序列时会调用该回调。回调可以查找合适的比较函数并在需要时调用 sqlite_3_create_collation()。回调的第四个参数是排序序列的 UTF-8 名称。对于 sqlite3_collation_need16()，回调会传入 UTF-16 宿主字节序的排序名称。
 </p>
-<p align="center"><small><i>This page was last updated on 2025-07-12 15:11:36Z </small></i></p>
-
+<p align="center"><small><i>本页最后更新于 2025-07-12 15:11:36Z </i></small></p>
+</body></html>

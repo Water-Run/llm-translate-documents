@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The COMPLETION() Table-Valued Function</title>
+<title>COMPLETION() 表值函数</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小。快速。可靠。<br>选择其中任意三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,70 +124,27 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The COMPLETION() Table-Valued Function
+COMPLETION() 表值函数
 </div>
 </div>
 
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
-<p>The COMPLETION extension implements a <a href="vtab.html#tabfunc2">table-valued function</a> named
-"completion" that can be used to suggest completions of partially entered
-words during interactive SQL input.  The completion table can be
-used to help implement tab-completion, for example.
+<p>COMPLETION 扩展实现了一个名为“completion”的<a href="vtab.html#tabfunc2">表值函数</a>，可在交互式 SQL 输入过程中建议部分输入词的补全。completion 表例如可用于帮助实现制表符补全。</p><h1 id="details"><span>2. </span>详情</h1>
 
-</p><h1 id="details"><span>2. </span>Details</h1>
-
-<p>The designed query interface is:
-
-</p><div class="codeblock"><pre>SELECT DISTINCT candidate COLLATE nocase
+<p>设计的查询接口是：</p><div class="codeblock"><pre>SELECT DISTINCT candidate COLLATE nocase
   FROM completion($prefix, $wholeline)
  ORDER BY 1;
 </pre></div>
 
-<p>The query above will return suggestions for the whole input word that
-begins with $prefix.  The $wholeline parameter is all text from the beginning
-of the line up to the insertion point.  The $wholeline parameter is used
-for context.
+<p>上述查询将返回以 $prefix 开头的整个输入单词的建议。$wholeline 参数为从行首到插入点的所有文本，$wholeline 参数用于提供上下文。</p><p>$prefix 参数可能为 NULL，此时前缀由 $wholeline 推断。或者，如果没有可用的上下文信息或不需要上下文感知补全，$wholeline 参数可以为 NULL 或省略。</p><p>completion 表可能会返回重复候选项，而且返回顺序任意。示例查询中添加的 DISTINCT 关键字和 ORDER BY 是为了使结果唯一，并按字典序排序。</p><h2 id="example_usage"><span>2.1. </span>示例用法</h2>
 
-</p><p>The $prefix parameter may be NULL, in which case the prefix is deduced
-from $wholeline.  Or, the $wholeline parameter may be NULL or omitted if 
-context information is unavailable or if context-aware completion is not
-desired.
+<p>completion 表与 readline 或 linenoise 输入行编辑包一起，在<a href="cli.html">命令行 shell</a>中用于实现制表符补全。参见源码文件<a href="https://sqlite.org/src/file/src/shell.c.in">https://sqlite.org/src/file/src/shell.c.in</a>了解示例代码。搜索“FROM completion”即可找到相关代码片段。</p><p>由于 completion 表内置于命令行 shell 以提供制表符补全，因此可直接在命令行 shell 中对 completion 表运行测试查询。只需输入如上示例所示的查询，填入适当的 $prefix 和 $wholeline 值，观察输出即可。</p><h1 id="limitations"><span>3. </span>限制</h1>
 
-</p><p>The completion table might return the same candidate more than once, and
-it will return candidates in an arbitrary order.  The DISTINCT keyword and
-the ORDER BY in the sample query above are added to make the answers unique
-and in lexicographical order.
+<p>completion 表专为交互式使用设计，返回速度适合人工输入。在用户界面中只要响应几乎是瞬时的，就不会刻意追求非常高的效率。</p><p>截至撰写本文（2017-07-13），completion 虚拟表只查找 SQL 关键字以及模式、表和列名。$wholeline 中包含的上下文完全被忽略。未来的增强计划会尝试返回来自函数名、pragma 名称等其他来源的新补全，并考虑更多上下文。completion 表应被视为仍在开发中的功能。</p>
 
-</p><h2 id="example_usage"><span>2.1. </span>Example Usage</h2>
-
-<p>The completion table is used to implement tab-completion in the
-<a href="cli.html">command-line shell</a> in conjunction with either the readline or linenoise
-input line editing packages for unix.  See the
-<a href="https://sqlite.org/src/file/src/shell.c.in">https://sqlite.org/src/file/src/shell.c.in</a> source file for example
-code.  Search for "FROM completion" to find the relevant code sections.
-
-</p><p>Because the completion table is built into the command-line shell in order
-to provide for tab-completions, you can run test queries against the
-completion table directly in the command-line shell.  Simply type a
-query such as the example shown above, filling in appropriate values
-for $prefix and $wholeline, and observe the output.
-
-</p><h1 id="limitations"><span>3. </span>Limitations</h1>
-
-<p>The completion table is designed for interactive use.  It will return
-answers at a speed appropriate for human typing.  No effort is made to
-be unusually efficient, so long as the response time is nearly instantaneous
-in a user interface.
-
-</p><p>As of this writing (2017-07-13), the completion virtual table only
-looks for SQL keywords, and schema, table, and column names.  The
-context contained in $wholeline is completely ignored.  Future enhancements
-will try to return new completions taken from function and pragma names
-and other sources, as well as consider more context.  The completion
-table should be considered a work-in-progress.
-</p>
-
+</div>
+</body></html>

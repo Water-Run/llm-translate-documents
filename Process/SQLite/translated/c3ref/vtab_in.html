@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translator-note desktoponly" style="text-align:right;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="转到">
 </form>
 </div>
 </div>
@@ -117,82 +123,60 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_vtab_in -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Identify and handle IN constraints in xBestIndex</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>在 xBestIndex 中识别和处理 IN 约束</h2>
 </div>
 <blockquote><pre>
 int sqlite3_vtab_in(sqlite3_index_info*, int iCons, int bHandle);
 </pre></blockquote>
 <p>
-This interface may only be used from within an
-<a href="../vtab.html#xbestindex">xBestIndex() method</a> of a <a href="../vtab.html">virtual table</a> implementation.
-The result of invoking this interface from any other context is
-undefined and probably harmful.</p>
+此接口只能在<a href="../vtab.html#xbestindex">虚拟表</a>实现的
+<a href="../vtab.html#xbestindex">xBestIndex()</a>方法内部使用。从其他上下文调用该接口的结果
+是未定义的，并且可能有害。</p>
 
-<p>A constraint on a virtual table of the form
-"<a href="../lang_expr.html#in_op">column IN (...)</a>" is
-communicated to the xBestIndex method as a
-<a href="../c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_EQ</a> constraint.  If xBestIndex wants to use
-this constraint, it must set the corresponding
-aConstraintUsage[].argvIndex to a positive integer.  Then, under
-the usual mode of handling IN operators, SQLite generates <a href="../opcode.html">bytecode</a>
-that invokes the <a href="../vtab.html#xfilter">xFilter() method</a> once for each value
-on the right-hand side of the IN operator.  Thus the virtual table
-only sees a single value from the right-hand side of the IN operator
-at a time.</p>
+<p>形式为
+"<a href="../lang_expr.html#in_op">列 IN (...)</a>" 的虚拟表约束
+会作为<a href="../c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_EQ</a>约束传递给 xBestIndex 方法。
+如果 xBestIndex 想要使用该约束，它必须将相应的 aConstraintUsage[].argvIndex 设置为正整数。
+随后，在处理 IN 操作符的常规模式下，SQLite 会生成<a href="../opcode.html">字节码</a>，
+对 IN 操作符右侧的每个值调用一次<a href="../vtab.html#xfilter">xFilter()</a>方法。因此虚拟表一次只能看到 IN 操作符右侧的一个值。</p>
 
-<p>In some cases, however, it would be advantageous for the virtual
-table to see all values on the right-hand of the IN operator all at
-once.  The sqlite3_vtab_in() interfaces facilitates this in two ways:</p>
+<p>然而，在某些情况下，虚拟表如果能够一次性看到 IN 操作符右侧的所有值反而更有利。
+sqlite3_vtab_in() 接口通过两种方式来实现这一点：</p>
 
 <p><ol>
 <li><p>
-A call to sqlite3_vtab_in(P,N,-1) will return true (non-zero)
-if and only if the <a href="../c3ref/index_info.html">P->aConstraint</a>[N] constraint
-is an <a href="../lang_expr.html#in_op">IN operator</a> that can be processed all at once.  In other words,
-sqlite3_vtab_in() with -1 in the third argument is a mechanism
-by which the virtual table can ask SQLite if all-at-once processing
-of the IN operator is even possible.</p>
+对 sqlite3_vtab_in(P,N,-1) 的调用当且仅当 <a href="../c3ref/index_info.html">P->aConstraint</a>[N] 约束
+是一个可以一次性处理的<a href="../lang_expr.html#in_op">IN 操作符</a>时返回 true（非零）。
+换句话说，当第三个参数为 -1 时，sqlite3_vtab_in() 提供了一种机制，
+虚拟表可以借此询问 SQLite 是否支持对该 IN 操作符的一次性处理。</p>
 
 <p><li><p>
-A call to sqlite3_vtab_in(P,N,F) with F==1 or F==0 indicates
-to SQLite that the virtual table does or does not want to process
-the IN operator all-at-once, respectively.  Thus when the third
-parameter (F) is non-negative, this interface is the mechanism by
-which the virtual table tells SQLite how it wants to process the
-IN operator.
+对 sqlite3_vtab_in(P,N,F) 的调用，如果 F==1 或 F==0，分别表示虚拟表希望或不希望一次性处理该 IN 操作符。
+因此当第三个参数（F）为非负值时，该接口就是虚拟表告诉 SQLite 它希望如何处理 IN 操作符的机制。</p>
 </ol></p>
 
-<p>The sqlite3_vtab_in(P,N,F) interface can be invoked multiple times
-within the same xBestIndex method call.  For any given P,N pair,
-the return value from sqlite3_vtab_in(P,N,F) will always be the same
-within the same xBestIndex call.  If the interface returns true
-(non-zero), that means that the constraint is an IN operator
-that can be processed all-at-once.  If the constraint is not an IN
-operator or cannot be processed all-at-once, then the interface returns
-false.</p>
+<p>在同一次 xBestIndex 方法调用中可以多次调用 sqlite3_vtab_in(P,N,F)。
+对于任意给定的 P,N 对，在相同的 xBestIndex 调用中 sqlite3_vtab_in(P,N,F) 的返回值始终相同。
+如果该接口返回 true（非零），说明该约束是一个可以一次性处理的 IN 操作符。
+如果该约束不是 IN 操作符或者不能一次性处理，则该接口返回 false。</p>
 
-<p>All-at-once processing of the IN operator is selected if both of the
-following conditions are met:</p>
+<p>当同时满足下列两个条件时，才采用 IN 操作符的一次性处理：</p>
 
 <p><ol>
-<li><p> The P->aConstraintUsage[N].argvIndex value is set to a positive
-integer.  This is how the virtual table tells SQLite that it wants to
-use the N-th constraint.</p>
+<li><p>P->aConstraintUsage[N].argvIndex 的值设置为正整数。这是虚拟表告诉 SQLite 它希望使用第 N 个约束的方式。</p>
 
-<p><li><p> The last call to sqlite3_vtab_in(P,N,F) for which F was
-non-negative had F>=1.
+<p><li><p>最近一次对 sqlite3_vtab_in(P,N,F) 的调用（且 F 为非负值）必须满足 F>=1。</p>
 </ol></p>
 
-<p>If either or both of the conditions above are false, then SQLite uses
-the traditional one-at-a-time processing strategy for the IN constraint.
-If both conditions are true, then the argvIndex-th parameter to the
-xFilter method will be an <a href="../c3ref/value.html">sqlite3_value</a> that appears to be NULL,
-but which can be passed to <a href="../c3ref/vtab_in_first.html">sqlite3_vtab_in_first()</a> and
-<a href="../c3ref/vtab_in_first.html">sqlite3_vtab_in_next()</a> to find all values on the right-hand side
-of the IN constraint.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>如果上述任一条件或两个都不满足，那么 SQLite 会使用传统的逐个处理 IN 约束策略。
+如果两个条件都为真，则传给 xFilter 方法的第 argvIndex 个参数将是一个看起来为 NULL 的
+<a href="../c3ref/value.html">sqlite3_value</a>，但可以将其传递给
+<a href="../c3ref/vtab_in_first.html">sqlite3_vtab_in_first()</a> 和
+<a href="../c3ref/vtab_in_first.html">sqlite3_vtab_in_next()</a> 来查找 IN 约束右侧的所有值。
+</p><p>另请参见
+  <a href="../c3ref/objlist.html">对象列表</a>、
+  <a href="../c3ref/constlist.html">常量列表</a> 以及
+  <a href="../c3ref/funclist.html">函数列表</a>。
+</p>
 

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Invalid UTF Policy</title>
+<title>无效 UTF 策略</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Invalid UTF Policy
+无效 UTF 策略
 </div>
 </div>
 
@@ -126,124 +132,68 @@ Invalid UTF Policy
 
 
 
-<h1 id="garbage_in_garbage_out"><span>1. </span>Garbage In, Garbage Out</h1>
+<h1 id="garbage_in_garbage_out"><span>1. </span>垃圾进，垃圾出</h1>
 
 <p>
-With regard to invalid UTF, SQLite follows a policy of
-Garbage-In, Garbage-Out (GIGO). If you insert invalid UTF
-into an SQLite database, then try to query that data, what you get back out
-might not be exactly what you put in.  If you put garbage in, then you
-may not complain if you get different garbage back out.
+关于无效 UTF，SQLite 遵循垃圾进、垃圾出 (GIGO) 的策略。如果你向 SQLite 数据库插入无效 UTF，然后尝试查询这些数据，返回的结果可能并不完全等同于你插入的内容。既然你输入的是垃圾，如果得到不同的垃圾也不用抱怨。
 
 </p><p>
-For the purposes of this discussion, "invalid UTF" can mean any of
-the following circumstances:
+在此讨论中，“无效 UTF” 可以指以下任一情形：
 
 </p><ul>
 <li><p>
-Invalid surrogate pairs in UTF-16.
+UTF-16 中的无效代理对。
 
 </p></li><li><p>
-Invalid multi-byte sequences in UTF-8.
+UTF-8 中的无效多字节序列。
 
 </p></li><li><p>
-Using more bytes of UTF-8 than necessary to represent a single
-code point.  (Example:  encoding 'A' as the two-byte sequence
-0xc1, 0x01 instead of just a single 0x41 byte.)
+使用比表示单个代码点所需更多的 UTF-8 字节。（例如：用两字节序列 0xc1, 0x01 编码 'A'，而不是单个 0x41 字节。）
 
 </p></li><li><p>
-NUL characters (U+0000) embedded in strings.
+字符串中嵌入的 NUL 字符（U+0000）。
 
 </p></li><li><p>
-Invalid sequences of combining characters.
+无效的组合字符序列。
 
 </p></li><li><p>
-UTF-8 or UTF-16 bytes sequences that encode numbers that are not
-defined Unicode characters.
+UTF-8 或 UTF-16 字节序列所编码的数字不是定义在 Unicode 中的字符。
 
 </p></li></ul>
 
-<h2 id="invalid_utf_will_never_cause_memory_errors"><span>1.1. </span>Invalid UTF will never cause memory errors</h2>
+<h2 id="invalid_utf_will_never_cause_memory_errors"><span>1.1. </span>无效 UTF 永远不会引发内存错误</h2>
 
 <p>
-If you insert invalid UTF into an SQLite database, then SQLite makes
-no guarantees about what text you might get back out.  But it does
-promise that invalid UTF will never cause memory errors
-(array overruns, reads or writes of uninitialized memory, etc), at
-least for the built-in processing of SQLite.
-In other words, invalid UTF will not cause SQLite to crash.
+如果你向 SQLite 数据库插入无效 UTF，那么 SQLite 不保证你会得到怎样的文本。但它承诺，在 SQLite 的内置处理过程中，无效 UTF 不会导致内存错误（数组越界、读取或写入未初始化内存等）。换句话说，无效 UTF 不会导致 SQLite 崩溃。
 
 </p><p>
-This promise only applies to the core SQLite components, not
-application-provided extensions, of course.
-If an application adds new application-defined SQL functions or
-virtual tables or collating sequences or other extensions, and a
-database contains invalid UTF, then invalid UTF might get passed
-into those extensions.  If the invalid UTF causes one of those
-extensions to crash, then that is a problem with the extension,
-not with SQLite.
+这个承诺只适用于 SQLite 的核心组件，当然不包括应用程序提供的扩展。如果应用程序添加了新的自定义 SQL 函数、虚拟表、排序序列或其他扩展，而数据库中存在无效 UTF，那么这些无效 UTF 可能会传递给这些扩展。如果无效 UTF 导致这些扩展中的某个崩溃，那是扩展的问题，而不是 SQLite 的问题。
 
-</p><h1 id="no_enforcement_of_text_formatting_rules"><span>2. </span>No enforcement of text formatting rules</h1>
+</p><h1 id="no_enforcement_of_text_formatting_rules"><span>2. </span>不强制文本格式规则</h1>
 
 <p>
-SQLite does not try to enforce UTF formatting rules.  You can
-insert invalid UTF into a TEXT field and SQLite will not complain
-about this.  It stores the invalid TEXT as best it can.  SQLite
-sees its role in the world as a storage engine, not a text format
-validation engine.
+SQLite 不会尝试强制执行 UTF 格式规则。你可以在 TEXT 字段中插入无效 UTF，SQLite 不会因此报错。它会尽其所能存储这些无效的文本。SQLite 认为自己是一个存储引擎，而不是文本格式验证引擎。
 
-</p><h1 id="best_effort_to_preserve_text"><span>3. </span>Best effort to preserve text</h1>
+</p><h1 id="best_effort_to_preserve_text"><span>3. </span>尽力保留文本</h1>
 
 <p>
-SQLite does not promise to always preserve invalid UTF, but it does
-make an effort.  Generally speaking, if you insert invalid UTF into
-SQLite, you will get the exact same byte sequence back out, as long
-as you do not ask SQLite to transform the text in any way.
+SQLite 不承诺始终保留无效 UTF，但会尽力而为。一般而言，如果你向 SQLite 插入无效 UTF，只要你不要求 SQLite 对文本进行任何转换，就会拿回完全相同的字节序列。
 
 </p><p>
-For example, if you insert some UTF-16LE with invalid surrogates into
-a TEXT column of a table of a database that has <a href="pragma.html#pragma_encoding">PRAGMA encoding=UTF16LE</a>,
-then later query that column using <a href="c3ref/column_blob.html">sqlite3_column_text16()</a>, you will 
-probably get back the same exact invalid UTF-16.  But if you insert the
-same invalid UTF-16LE content in a <a href="pragma.html#pragma_encoding">PRAGMA encoding=UTF8</a> database,
-the content must be converted into UTF8 when it is stored, which could
-cause irreversible changes to the content.  Or if you insert that
-same invalid UTF-16LE content into a <a href="pragma.html#pragma_encoding">PRAGMA encoding=UTF16LE</a> database
-but then read it out using <a href="c3ref/column_blob.html">sqlite3_column_text()</a>, then a UTF16 to
-UTF8 conversion must occur during the read-out and that conversion might
-introduce irreversible changes.
+例如，如果你向一个设置了 <a href="pragma.html#pragma_encoding">PRAGMA encoding=UTF16LE</a> 的数据库表的 TEXT 列插入带有无效代理的 UTF-16LE，当你稍后使用 <a href="c3ref/column_blob.html">sqlite3_column_text16()</a> 查询该列时，你很可能会得到完全相同的无效 UTF-16。然而，如果你将相同的无效 UTF-16LE 内容插入一个 <a href="pragma.html#pragma_encoding">PRAGMA encoding=UTF8</a> 的数据库，它在存储时必须转换为 UTF-8，这可能导致内容发生不可逆的更改。或者，如果你把相同的无效 UTF-16LE 内容插入一个 <a href="pragma.html#pragma_encoding">PRAGMA encoding=UTF16LE</a> 的数据库，但随后使用 <a href="c3ref/column_blob.html">sqlite3_column_text()</a> 读取，则在读取过程中必须进行 UTF-16 到 UTF-8 的转换，而该转换可能引入不可逆的变化。
 
 </p><p>
-Or, suppose you are doing everything using UTF-8 (the most common case).
-Invalid UTF-8 will normally pass through the database without any change
-in its byte sequence.  However, if you try to transform the invalid
-UTF-8 with SQL functions like <a href="lang_corefunc.html#substr">substr()</a> or <a href="lang_corefunc.html#replace">replace()</a>
-or if you try to do string matching with the <a href="lang_expr.html#like">LIKE</a> operator, then
-you might get unexpected results.
+又或者，假设你完全采用 UTF-8（最常见的情况）。无效的 UTF-8 通常会在数据库中原样通过其字节序列。然而，如果你尝试用 <a href="lang_corefunc.html#substr">substr()</a> 或 <a href="lang_corefunc.html#replace">replace()</a> 等 SQL 函数转换无效 UTF-8，或者尝试用 <a href="lang_expr.html#like">LIKE</a> 运算符进行字符串匹配，你可能会得到意想不到的结果。
 
 </p><p>
-So, in other words, SQLite does not actively try to subvert your
-invalid text.  But when you ask SQLite to make transformations of invalid
-UTF, there are no guarantees that those transformations will be reversible
-or even sensible.
+换句话说，SQLite 不会主动破坏你的无效文本。但当你要求 SQLite 对无效 UTF 进行转换时，并不能保证这些转换是可逆的、甚至是合理的。
 
-</p><h1 id="invalid_utf_in_the_database_schema"><span>4. </span>Invalid UTF in the database schema</h1>
+</p><h1 id="invalid_utf_in_the_database_schema"><span>4. </span>数据库模式中的无效 UTF</h1>
 
 <p>
-If a database schema contains names (table names, column names, index
-names, and so forth) that are invalid UTF, SQLite will continue to
-operate normally.  As far as SQLite is concerned, those names are just
-byte sequences.  SQLite does not care whether they are valid UTF or not.
+如果数据库模式包含无效 UTF 的名称（表名、列名、索引名等），SQLite 仍会照常运行。在 SQLite 看来，这些名称只是字节序列。SQLite 并不在乎它们是否有效的 UTF。
 
 </p><p>
-When generating error messages (using, for example, <a href="c3ref/errcode.html">sqlite3_errmsg()</a>),
-sometimes SQLite will embed parts of the database schema into the
-error message.  If those embedded schema elements
-are invalid UTF, then the resulting error message might also be
-invalid UTF.
-Similarly, the output from the <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> and similar
-statements will sometimes embed the names of schema elements.  If those
-schema element names are invalid UTF, then the output of the command
-will also be invalid UTF.
-</p><p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+当生成错误消息（例如使用 <a href="c3ref/errcode.html">sqlite3_errmsg()</a>）时，有时 SQLite 会将数据库模式的部分嵌入错误信息中。如果这些嵌入的模式元素是无效 UTF，那么生成的错误消息也可能是无效 UTF。同样，<a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 及类似语句的输出有时也会包含模式元素的名称。如果这些模式元素名称是无效 UTF，那么命令的输出也会是无效 UTF。
+</p><p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </small></i></p>
 

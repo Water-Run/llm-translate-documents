@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Attach A Table To A Session Object</title>
+<title>将表附加到会话对象</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,66 +121,38 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Attach A Table To A Session Object</h2><blockquote><pre>int sqlite3session_attach(
-  sqlite3_session *pSession,      /* Session object */
-  const char *zTab                /* Table name */
+<a href="../session/intro.html"><h2>会话模块 C 接口</h2></a><h2>将表附加到会话对象</h2><blockquote><pre>int sqlite3session_attach(
+  sqlite3_session *pSession,      /* 会话对象 */
+  const char *zTab                /* 表名 */
 );
 </pre></blockquote><p>
-If argument zTab is not NULL, then it is the name of a table to attach
-to the session object passed as the first argument. All subsequent changes 
-made to the table while the session object is enabled will be recorded. See 
-documentation for <a href="../session/sqlite3session_changeset.html">sqlite3session_changeset()</a> for further details.</p>
+如果参数 zTab 不为 NULL，那么它就是要附加到作为第一个参数传递的会话对象的表名。会话对象启用后对该表所做的所有后续更改都会被记录。有关详细信息，请参阅 <a href="../session/sqlite3session_changeset.html">sqlite3session_changeset()</a> 的文档。</p>
 
-<p>Or, if argument zTab is NULL, then changes are recorded for all tables
-in the database. If additional tables are added to the database (by 
-executing "CREATE TABLE" statements) after this call is made, changes for 
-the new tables are also recorded.</p>
+<p>或者，如果参数 zTab 为 NULL，那么数据库中的所有表的更改都会被记录。如果在调用之后向数据库添加了其他表（通过执行“CREATE TABLE”语句），这些新表的更改也会被记录。</p>
 
-<p>Changes can only be recorded for tables that have a PRIMARY KEY explicitly
-defined as part of their CREATE TABLE statement. It does not matter if the 
-PRIMARY KEY is an "INTEGER PRIMARY KEY" (rowid alias) or not. The PRIMARY
-KEY may consist of a single column, or may be a composite key.</p>
+<p>只有在 CREATE TABLE 语句中显式定义了 PRIMARY KEY 的表才能记录更改。无论 PRIMARY KEY 是否为“INTEGER PRIMARY KEY”（rowid 别名）都无关紧要。PRIMARY KEY 可以由单个列组成，也可以是复合键。</p>
 
-<p>It is not an error if the named table does not exist in the database. Nor
-is it an error if the named table does not have a PRIMARY KEY. However,
-no changes will be recorded in either of these scenarios.</p>
+<p>如果指定的表在数据库中不存在，也不会报错。同样，如果指定的表没有 PRIMARY KEY，也不会报错。然而在这两种情况下都不会记录任何更改。</p>
 
-<p>Changes are not recorded for individual rows that have NULL values stored
-in one or more of their PRIMARY KEY columns.</p>
+<p>对其一个或多个 PRIMARY KEY 列中存储了 NULL 值的单独行不会记录更改。</p>
 
-<p>SQLITE_OK is returned if the call completes without error. Or, if an error 
-occurs, an SQLite error code (e.g. SQLITE_NOMEM) is returned.</p>
+<p>如果调用完成且无错误，则返回 SQLITE_OK。否则，会返回一个 SQLite 错误码（例如 SQLITE_NOMEM）。</p>
 
-<p><h3>Special sqlite_stat1 Handling</h3></p>
+<p><h3>sqlite_stat1 的特殊处理</h3></p>
 
-<p>As of SQLite version 3.22.0, the "sqlite_stat1" table is an exception to 
-some of the rules above. In SQLite, the schema of sqlite_stat1 is:
+<p>从 SQLite 3.22.0 版本起，“sqlite_stat1”表是上述某些规则的例外。在 SQLite 中，sqlite_stat1 的模式为：
  <pre>
  &nbsp;     CREATE TABLE sqlite_stat1(tbl,idx,stat)  
  </pre></p>
 
-<p>Even though sqlite_stat1 does not have a PRIMARY KEY, changes are 
-recorded for it as if the PRIMARY KEY is (tbl,idx). Additionally, changes 
-are recorded for rows for which (idx IS NULL) is true. However, for such
-rows a zero-length blob (SQL value X'') is stored in the changeset or
-patchset instead of a NULL value. This allows such changesets to be
-manipulated by legacy implementations of sqlite3changeset_invert(),
-concat() and similar.</p>
+<p>尽管 sqlite_stat1 没有 PRIMARY KEY，仍然会像 PRIMARY KEY 是 (tbl,idx) 一样记录其更改。此外，对于 (idx IS NULL) 为真的行，也会记录更改。但是，对于这样的行，在更改集或补丁集中存储的是零长度 blob（SQL 值 X''），而不是 NULL。这样可以使旧版 sqlite3changeset_invert()、concat() 及类似函数能够处理这些更改集。</p>
 
-<p>The sqlite3changeset_apply() function automatically converts the 
-zero-length blob back to a NULL value when updating the sqlite_stat1
-table. However, if the application calls sqlite3changeset_new(),
-sqlite3changeset_old() or sqlite3changeset_conflict on a changeset 
-iterator directly (including on a changeset iterator passed to a
-conflict-handler callback) then the X'' value is returned. The application
-must translate X'' to NULL itself if required.</p>
+<p>sqlite3changeset_apply() 函数在更新 sqlite_stat1 表时会自动将零长度 blob 转换回 NULL。不过，如果应用程序直接在更改集迭代器上调用 sqlite3changeset_new()、sqlite3changeset_old() 或 sqlite3changeset_conflict（包括传递给冲突处理回调的更改集迭代器），则会返回 X'' 值。如果需要，应用程序必须自行将 X'' 翻译为 NULL。</p>
 
-<p>Legacy (older than 3.22.0) versions of the sessions module cannot capture
-changes made to the sqlite_stat1 table. Legacy versions of the
-sqlite3changeset_apply() function silently ignore any modifications to the
-sqlite_stat1 table that are part of a changeset or patchset.
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>旧版（早于 3.22.0）会话模块无法捕获对 sqlite_stat1 表所做的更改。旧版 sqlite3changeset_apply() 函数会悄无声息地忽略更改集或补丁集中针对 sqlite_stat1 表的任何修改。
+</p><p>另请参阅
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a> 和
+  <a href="../session/funclist.html">函数</a> 的列表。</p>
 
+</body></html>

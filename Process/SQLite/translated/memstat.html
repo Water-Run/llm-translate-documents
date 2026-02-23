@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The SQLITE_MEMSTAT Virtual Table</title>
+<title>SQLITE_MEMSTAT 虚拟表</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,46 +124,36 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The SQLITE_MEMSTAT Virtual Table
+SQLITE_MEMSTAT 虚拟表
 </div>
 </div>
 
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概览</h1>
 
 <p>
-The SQLITE_MEMSTAT extension implements an <a href="vtab.html#epoonlyvtab">eponymous-only virtual table</a> that
-provides SQL access to the <a href="c3ref/status.html">sqlite3_status64()</a> and
-<a href="c3ref/db_status.html">sqlite3_db_status()</a> interfaces.
+SQLITE_MEMSTAT 扩展实现了一个<a href="vtab.html#epoonlyvtab">同名虚拟表</a>，提供对<a href="c3ref/status.html">sqlite3_status64()</a>和
+<a href="c3ref/db_status.html">sqlite3_db_status()</a>接口的 SQL 访问。
 </p>
 
 <p>
-The SQLITE_STMT extension can also be loaded at run-time
-by compiling the extension into a shared library or DLL using the source
-code at <a href="https://sqlite.org/src/file/ext/misc/memstat.c">https://sqlite.org/src/file/ext/misc/memstat.c</a> and following the
-instructions for how to <a href="loadext.html#build">compile loadable extensions</a>.
+SQLITE_STMT 扩展也可以在运行时加载，只需使用位于<a href="https://sqlite.org/src/file/ext/misc/memstat.c">https://sqlite.org/src/file/ext/misc/memstat.c</a>的源代码，
+并按照<a href="loadext.html#build">如何编译可加载扩展</a>中的说明将扩展编译为共享库或 DLL。
 </p>
 
-<h1 id="usage"><span>2. </span>Usage</h1>
+<h1 id="usage"><span>2. </span>用法</h1>
 
 <p>
-The SQLITE_MEMSTAT virtual table is a read-only table that can be
-queried to determine performance characteristics (primarily the
-amount of memory being used) of the current instance of SQLite.
-The SQLITE_MEMSTATE table is essentially a wrapper around the
-C-language APIs <a href="c3ref/status.html">sqlite3_status64()</a> and <a href="c3ref/db_status.html">sqlite3_db_status()</a>.
-If the 
-<a href="https://sqlite.org/src/file/ext/misc/memstat.c">memstat.c</a> source
-file is compiled with the -DSQLITE_ENABLE_ZIPVFS option, then SQLITE_MEMSTAT
-will also do some <a href="c3ref/file_control.html">file-control</a> calls to extract
-memory usage information about the 
-<a href="https://www.hwaci.com/sw/sqlite/zipvfs.html">ZIPVFS</a> subsystem, 
-if that subsystem has been licensed, installed, and is in use.
+SQLITE_MEMSTAT 虚拟表是一个只读表，可用于查询当前 SQLite 实例的性能特征（主要是正在使用的内存量）。
+SQLITE_MEMSTATE 表本质上是围绕 C 语言接口<a href="c3ref/status.html">sqlite3_status64()</a>和<a href="c3ref/db_status.html">sqlite3_db_status()</a>的封装。
+如果将<a href="https://sqlite.org/src/file/ext/misc/memstat.c">memstat.c</a>源文件与 -DSQLITE_ENABLE_ZIPVFS 选项一起编译，
+那么 SQLITE_MEMSTAT 还会执行一些<a href="c3ref/file_control.html">文件控制</a>调用，以提取
+<a href="https://www.hwaci.com/sw/sqlite/zipvfs.html">ZIPVFS</a> 子系统的内存使用信息，只要该子系统已获授权、安装并在使用中。
 
 </p><p>
-The SQLITE_MEMSTAT table appears to have the following schema:
+SQLITE_MEMSTAT 表的模式如下：
 
 </p><div class="codeblock"><pre>CREATE TABLE sqlite_memstat(
   name TEXT,
@@ -168,33 +164,24 @@ The SQLITE_MEMSTAT table appears to have the following schema:
 </pre></div>
 
 <p>
-Each row of the SQLITE_MEMSTAT table corresponds to a single call to
-one of the <a href="c3ref/status.html">sqlite3_status64()</a> or <a href="c3ref/db_status.html">sqlite3_db_status()</a> interfaces.
-The NAME column of the row identifies which "verb" was passed to those
-interfaces.  For example, if <a href="c3ref/status.html">sqlite3_status64()</a> is invoked with
-<a href="c3ref/c_status_malloc_count.html#sqlitestatusmemoryused">SQLITE_STATUS_MEMORY_USED</a>, then the NAME column is 'MEMORY_USED'.
-Or if <a href="c3ref/db_status.html">sqlite3_db_status()</a> is invoked with <a href="c3ref/c_dbstatus_options.html#sqlitedbstatuscacheused">SQLITE_DBSTATUS_CACHE_USED</a>,
-then the NAME column is "DB_CACHE_USED".
+SQLITE_MEMSTAT 表的每一行都对应对<a href="c3ref/status.html">sqlite3_status64()</a>或<a href="c3ref/db_status.html">sqlite3_db_status()</a>接口的单次调用。
+该行的 NAME 列标识传递给这些接口的“操作”。例如，如果以
+<a href="c3ref/c_status_malloc_count.html#sqlitestatusmemoryused">SQLITE_STATUS_MEMORY_USED</a>调用<a href="c3ref/status.html">sqlite3_status64()</a>，
+则 NAME 列为 'MEMORY_USED'。或者如果以<a href="c3ref/c_dbstatus_options.html#sqlitedbstatuscacheused">SQLITE_DBSTATUS_CACHE_USED</a>调用
+<a href="c3ref/db_status.html">sqlite3_db_status()</a>，则 NAME 列为 "DB_CACHE_USED"。
 
 </p><p>
-The SCHEMA column is NULL, except for cases when the <a href="c3ref/file_control.html">sqlite3_file_control()</a>
-interface is used to interrogate the ZIPVFS backend.  As this only happens
-when the memstat.c module is compiled with -DSQLITE_ENABLE_ZIPVFS and when
-<a href="https://www.hwaci.com/sw/sqlite/zipvfs.html">ZIPVFS</a> is in use, 
-SCHEMA is usually NULL.
+除非使用<a href="c3ref/file_control.html">sqlite3_file_control()</a>接口查询 ZIPVFS 后端，否则 SCHEMA 列为 NULL。
+由于只有在 memstat.c 模块使用 -DSQLITE_ENABLE_ZIPVFS 编译且<a href="https://www.hwaci.com/sw/sqlite/zipvfs.html">ZIPVFS</a> 正在使用的情况下才会发生这种情况，
+SCHEMA 通常为 NULL。
 
 </p><p>
-The VALUE and HIWTR columns report the current value of the measure and
-its "high-water mark".  The high-water mark is the highest value ever seen
-for the measurement, at least since the last reset.  The SQLITE_MEMSTAT
-virtual table does not provide a mechanism for resetting the high-water mark.
+VALUE 和 HIWTR 列报告该度量的当前值及其“高水位线”。高水位线是该度量自上次重置以来观察到的最高值。SQLITE_MEMSTAT 虚拟表不提供重置高水位线的机制。
 
 </p><p>
-Depending on which parameter is being interrogated, one of the VALUE
-or HIWTR mark measurements might be undefined.  For example, only the
-high-water mark is meaningful for <a href="c3ref/c_status_malloc_count.html#sqlitestatusmallocsize">SQLITE_STATUS_MALLOC_SIZE</a>, and
-only the current value is meaningful for <a href="c3ref/c_dbstatus_options.html#sqlitedbstatuscacheused">SQLITE_DBSTATUS_CACHE_USED</a>.
-For rows where one or the other of VALUE or HIWTR is not meaningful,
-that value is returned as NULL.
-</p><p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+根据所查询的参数不同，VALUE 或 HIWTR 值可能未定义。例如，<a href="c3ref/c_status_malloc_count.html#sqlitestatusmallocsize">SQLITE_STATUS_MALLOC_SIZE</a>只对高水位线有意义，
+而<a href="c3ref/c_dbstatus_options.html#sqlitedbstatuscacheused">SQLITE_DBSTATUS_CACHE_USED</a>只对当前值有意义。
+对于 VALUE 或 HIWTR 中某一项无意义的行，该值返回 NULL。
+</p><p align="center"><small><i>本页面最近更新于 2025-05-31 13:08:22Z </i></small></p>
 
+</body></html>

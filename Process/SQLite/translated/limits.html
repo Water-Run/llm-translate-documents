@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Implementation Limits For SQLite</title>
+<title>SQLite 的实现限制</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.85em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选四项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更改日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,156 +124,88 @@ antiRobotDefense();
 
 
 
-<h2>Limits In SQLite</h2>
+<h2>SQLite 中的限制</h2>
 
 <p>
-"Limits" in the context of this article means sizes or
-quantities that can not be exceeded.  We are concerned
-with things like the maximum number of bytes in a
-BLOB or the maximum number of columns in a table.
+在本文中，“限制”是指不能超出的大小或数量。我们关注诸如 BLOB 中的最大字节数或表中最大列数之类的内容。
 </p>
 
 <p>
-SQLite was originally designed with a policy of avoiding
-arbitrary limits.
-Of course, every program that runs on a machine with finite
-memory and disk space has limits of some kind.  But in SQLite, 
-those limits
-were not well defined.  The policy was that if it would fit
-in memory and you could count it with a 32-bit integer, then
-it should work.
+SQLite 最初的设计策略是避免任意限制。当然，运行在有限内存和磁盘空间的机器上的任何程序都有某种限制。但是在 SQLite 中，这些限制并没有明确定义。政策是只要它能装入内存并且可以用 32 位整数计数，它就应该能工作。
 </p>
 
 <p>
-Unfortunately, the no-limits policy has been shown to create
-problems.  Because the upper bounds were not well
-defined, they were not tested, and bugs were often found
-when pushing SQLite to extremes.  For this reason, versions
-of SQLite since about release 3.5.8 (2008-04-16)
-have well-defined limits, and those limits are tested as part of
-the <a href="testing.html">test suite</a>.
+不幸的是，无限制的策略已经被证明会造成问题。由于上限没有明确定义，它们就没有经过测试，在将 SQLite 推到极限时经常会发现错误。因此，从大约 2008-04-16 发布的 3.5.8 版本起，SQLite 的各项限制都有明确的定义，并且这些限制会作为<a href="testing.html">测试套件</a>的一部分进行测试。
 </p>
 
 <p>
-This article defines what the limits of SQLite are and how they
-can be customized for specific applications.  The default settings
-for limits are normally quite large and adequate for almost every
-application.  Some applications may want to increase a limit here
-or there, but we expect such needs to be rare.  More commonly,
-an application might want to recompile SQLite with much lower
-limits to avoid excess resource utilization in the event of
-bugs in higher-level SQL statement generators or to help thwart 
-attackers who inject malicious SQL statements.
+本文定义了 SQLite 的限制，以及如何为特定应用自定义这些限制。默认设置通常非常大，足以满足几乎所有应用。有些应用可能希望在某些地方增加限制，但我们预计这种需求很少。更常见的情况是，某个应用可能希望用更低的限制重新编译 SQLite，以避免在上层 SQL 语句生成器出现 bug 时过度消耗资源，或帮助阻止注入恶意 SQL 语句的攻击者。
 </p>
 
 <p>
-Some limits can be changed at run-time on a per-connection basis
-using the <a href="c3ref/limit.html">sqlite3_limit()</a> interface with one of the
-<a href="c3ref/c_limit_attached.html#sqlitelimitlength">limit categories</a> defined for that interface.
-Run-time limits are designed for applications that have multiple
-databases, some of which are for internal use only and others which
-can be influenced or controlled by potentially hostile external agents.
-For example, a web browser application might use an internal database
-to track historical page views but have one or more separate databases
-that are created and controlled by javascript applications that are
-downloaded from the internet.
-The <a href="c3ref/limit.html">sqlite3_limit()</a> interface allows internal databases managed by
-trusted code to be unconstrained while simultaneously  placing tight
-limitations on databases created or controlled by untrusted external
-code in order to help prevent a denial of service attack.
+某些限制可以使用<a href="c3ref/limit.html">sqlite3_limit()</a>接口在运行时按连接逐个调整，并使用该接口定义的<a href="c3ref/c_limit_attached.html#sqlitelimitlength">限制类别</a>之一。运行时限制适用于具有多个数据库的应用，其中有些数据库仅供内部门使用，而其他数据库可能受潜在敌对的外部 agent 影响或控制。例如，一个 Web 浏览器应用可能会使用内部数据库来跟踪历史页面浏览情况，但同时还会有一个或多个由从互联网下载的 JavaScript 应用创建和控制的独立数据库。<a href="c3ref/limit.html">sqlite3_limit()</a> 接口允许受信任代码管理的内部数据库不受限制，同时对不受信任的外部代码创建或控制的数据库施加严格限制，以帮助防止拒绝服务攻击。
 </p>
 
 
 <ol>
 <a name="max_length"></a>
-<li><p><b>Maximum length of a string or BLOB</b></p>
+<li><p><b>字符串或 BLOB 的最大长度</b></p>
 
 <p>
-The maximum number of bytes in a string or BLOB in SQLite is defined
-by the preprocessor macro SQLITE_MAX_LENGTH.  The default value
-of this macro is 1 billion (1 thousand million or 1,000,000,000).
-You can raise or lower this value at compile-time using a command-line 
-option like this:
+SQLite 中字符串或 BLOB 的最大字节数由预处理宏 SQLITE_MAX_LENGTH 定义。该宏的默认值为十亿（即一千百万或 1,000,000,000）。你可以在编译时使用如下命令行选项提高或降低这个值：
 </p>
 
 <blockquote>-DSQLITE_MAX_LENGTH=123456789</blockquote>
 
 <p>
-The current implementation will only support a string or BLOB
-length up to 2<small><sup>31</sup></small>-3 or 2147483645.  And
-some built-in functions such as hex() might fail well before that
-point.  In security-sensitive applications it is best not to
-try to increase the maximum string and blob length.  In fact,
-you might do well to lower the maximum string and blob length
-to something more in the range of a few million if that is
-possible.
+当前实现仅支持的字符串或 BLOB 长度最多为 2<small><sup>31</sup></small>-3，即 2147483645。并且某些内置函数如 hex() 在达到该值之前就可能失败。在安全敏感的应用中，最好不要尝试增加最大字符串和 BLOB 长度。实际上，如果可能的话，最好将最大字符串和 BLOB 长度降低到几百万的范围内。
 </p>
 
 <p>
-During part of SQLite's INSERT and SELECT processing, the complete
-content of each row in the database is encoded as a single BLOB.
-So the SQLITE_MAX_LENGTH parameter also determines the maximum
-number of bytes in a row.
+在 SQLite 的 INSERT 和 SELECT 处理的某个阶段，数据库中每一行的完整内容都会被编码为单个 BLOB。因此 SQLITE_MAX_LENGTH 参数也决定了每行的最大字节数。
 </p>
 
 <p>
-The maximum string or BLOB length can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitlength">SQLITE_LIMIT_LENGTH</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitlength">SQLITE_LIMIT_LENGTH</a>,size) 接口在运行时降低最大字符串或 BLOB 长度。
 </p>
 </li><a name="max_column"></a>
-<li><p><b>Maximum Number Of Columns</b></p>
+<li><p><b>最大列数</b></p>
 
 <p>
-The SQLITE_MAX_COLUMN compile-time parameter is used to set an upper
-bound on:
+编译时参数 SQLITE_MAX_COLUMN 用于设置以下内容的上限：
 </p>
 
 <ul>
-<li>The number of columns in a table</li>
-<li>The number of columns in an index</li>
-<li>The number of columns in a view</li>
-<li>The number of terms in the SET clause of an UPDATE statement</li>
-<li>The number of columns in the result set of a SELECT statement</li>
-<li>The number of terms in a GROUP BY or ORDER BY clause</li>
-<li>The number of values in an INSERT statement</li>
+<li>表中的列数</li>
+<li>索引中的列数</li>
+<li>视图中的列数</li>
+<li>UPDATE 语句 SET 子句中的项数</li>
+<li>SELECT 语句结果集中的列数</li>
+<li>GROUP BY 或 ORDER BY 子句中的项数</li>
+<li>INSERT 语句中的值数</li>
 </ul>
 
 <p>
-The default setting for SQLITE_MAX_COLUMN is 2000.  You can change it
-at compile time to values as large as 32767. On the other hand, many
-experienced database designers will argue that a well-normalized database
-will never need more than 100 columns in a table.
+SQLITE_MAX_COLUMN 的默认设置为 2000。你可以在编译时将其更改为最大 32767。另一方面，许多经验丰富的数据库设计师会认为一个合理规范化的数据库永远不需要表中超过 100 列。
 </p>
 
 <p>
-In most applications, the number of columns is small - a few dozen.
-There are places in the SQLite code generator that use algorithms
-that are O(N&sup2;) where N is the number of columns.  
-So if you redefine SQLITE_MAX_COLUMN to be a
-really huge number and you generate SQL that uses a large number of
-columns, you may find that <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>
-runs slowly.</p>
+在大多数应用中，列数很少——几十列。SQLite 代码生成器中的某些地方使用 O(N²) 算法，其中 N 是列数。所以如果你把 SQLITE_MAX_COLUMN 重新定义为非常大的数字，并且生成使用大量列的 SQL，你可能会发现 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 运行得很慢。</p>
 
 
 <p>
-The maximum number of columns can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitcolumn">SQLITE_LIMIT_COLUMN</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitcolumn">SQLITE_LIMIT_COLUMN</a>,size) 接口在运行时降低最大列数。
 </p>
 
 </li><a name="max_sql_length"></a>
-<li><p><b>Maximum Length Of An SQL Statement</b></p>
+<li><p><b>SQL 语句的最大长度</b></p>
 
 <p>
-The maximum number of bytes in the text of an SQL statement is 
-limited to SQLITE_MAX_SQL_LENGTH which defaults to 1,000,000,000.
+SQL 语句文本的最大字节数受限于 SQLITE_MAX_SQL_LENGTH，默认值为 1,000,000,000。
 </p>
 
 <p>
-If an SQL statement is limited to be a million bytes in length, then
-obviously you will not be able to insert multi-million byte strings
-by embedding them as literals inside of INSERT statements.  But
-you should not do that anyway.  Use host <a href="lang_expr.html#varparam">parameters</a> 
-for your data.  Prepare short SQL statements like this:
+如果 SQL 语句被限制为一百万字节，那么显然你不能在 INSERT 语句中通过将几十万字节的字符串作为字面量来插入数据。但你本就不应该那样做。请为数据使用主机<a href="lang_expr.html#varparam">参数</a>。准备像下面这样的短 SQL 语句：
 </p>
 
 <blockquote>
@@ -275,262 +213,144 @@ INSERT INTO tab1 VALUES(?,?,?);
 </blockquote>
 
 <p>
-Then use the <a href="c3ref/bind_blob.html">sqlite3_bind_XXXX()</a> functions
-to bind your large string values to the SQL statement.  The use of binding
-obviates the need to escape quote characters in the string, reducing the
-risk of SQL injection attacks.  It also runs faster since the large
-string does not need to be parsed or copied as much.
+然后使用 <a href="c3ref/bind_blob.html">sqlite3_bind_XXXX()</a> 函数将你的大字符串值绑定到 SQL 语句。绑定的使用避免了对字符串中引号字符进行转义，从而降低 SQL 注入攻击的风险。同时，由于大字符串无需被频繁解析或复制，执行速度也会更快。
 </p>
 
 <p>
-The maximum length of an SQL statement can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitsqllength">SQLITE_LIMIT_SQL_LENGTH</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitsqllength">SQLITE_LIMIT_SQL_LENGTH</a>,size) 接口在运行时降低 SQL 语句的最大长度。
 </p>
-</li><li><p><b>Maximum Number Of Tables In A Join</b></p>
+</li><li><p><b>联接中允许的最大表数</b></p>
 
 <p>
-SQLite does not support joins containing more than 64 tables.
-This limit arises from the fact that the SQLite code generator
-uses bitmaps with one bit per join-table in the query optimizer.
+SQLite 不支持包含超过 64 个表的联接。这个限制源于 SQLite 代码生成器在查询优化器中使用每个联接表一个位的位图。
 </p>
 
 <p>
-SQLite uses an efficient <a href="queryplanner-ng.html">query planner algorithm</a>
-and so even a large join can be <a href="c3ref/prepare.html">prepared</a> quickly.
-Hence, there is no mechanism to raise or lower the limit on the
-number of tables in a join.
+SQLite 使用高效的<a href="queryplanner-ng.html">查询规划算法</a>，因此即便是大的联接也可以迅速执行<a href="c3ref/prepare.html">准备</a>操作。因此，没有机制可以提高或降低联接中表数的限制。
 </p>
 </li><a name="max_expr_depth"></a>
-<li><p><b>Maximum Depth Of An Expression Tree</b></p>
+<li><p><b>表达式树的最大深度</b></p>
 
 <p>
-SQLite parses expressions into a tree for processing.  During
-code generation, SQLite walks this tree recursively.  The depth
-of expression trees is therefore limited in order to avoid
-using too much stack space.
+SQLite 将表达式解析为供处理的树。在代码生成过程中，SQLite 递归地遍历这棵树。因此，为避免占用过多栈空间，表达式树的深度受到限制。
 </p>
 
 <p>
-The SQLITE_MAX_EXPR_DEPTH parameter determines the maximum expression
-tree depth.  If the value is 0, then no limit is enforced.  The
-current implementation has a default value of 1000.
+SQLITE_MAX_EXPR_DEPTH 参数决定了表达式树的最大深度。如果值为 0，则不强制任何限制。当前实现的默认值为 1000。
 </p>
 
 <p>
-The maximum depth of an expression tree can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitexprdepth">SQLITE_LIMIT_EXPR_DEPTH</a>,size) interface if the
-SQLITE_MAX_EXPR_DEPTH is initially positive.  In other words, the maximum
-expression depth can be lowered at run-time if there is already a 
-compile-time limit on the expression depth.  If SQLITE_MAX_EXPR_DEPTH is
-set to 0 at compile time (if the depth of expressions is unlimited) then
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitexprdepth">SQLITE_LIMIT_EXPR_DEPTH</a>,size) is a no-op.
+如果 SQLITE_MAX_EXPR_DEPTH 最初为正数，则可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitexprdepth">SQLITE_LIMIT_EXPR_DEPTH</a>,size) 接口在运行时降低表达式树的最大深度。换句话说，如果编译时已经对表达式深度设置了限制，那么该最大深度就可以在运行时降低。如果在编译时将 SQLITE_MAX_EXPR_DEPTH 设置为 0（表达式深度无限制），那么 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitexprdepth">SQLITE_LIMIT_EXPR_DEPTH</a>,size) 就不会起作用。
 </p>
 
 
 </li><a name="max_function_arg"></a>
-<li><p><b>Maximum Number Of Arguments On A Function</b></p>
+<li><p><b>函数参数的最大数量</b></p>
 
 <p>
-The SQLITE_MAX_FUNCTION_ARG parameter determines the maximum number
-of parameters that can be passed to an SQL function.  For many years, the
-default value was about 100 but the default was raised to 1000 beginning
-with SQLite version 3.48.0 (2025-01-14).
+SQLITE_MAX_FUNCTION_ARG 参数决定了可以传递给 SQL 函数的参数最大数量。多年来默认值大约是 100，但从 SQLite 3.48.0（2025-01-14）版本开始，默认值提高到 1000。
 
-<p>The number of arguments to a function is sometimes stored in a signed
-16-bit integer.  So there is a hard upper bound on SQLITE_MAX_FUNCTION_ARG
-of 32767.</p>
+<p>函数的参数数量有时会存储在带符号的 16 位整数中。因此 SQLITE_MAX_FUNCTION_ARG 的硬上限是 32767。</p>
 
 <p>
-The maximum number of arguments in a function can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitfunctionarg">SQLITE_LIMIT_FUNCTION_ARG</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitfunctionarg">SQLITE_LIMIT_FUNCTION_ARG</a>,size) 接口在运行时降低函数参数的最大数量。
 </p>
 </li><a name="max_compound_select"></a>
-<li><p><b>Maximum Number Of Terms In A Compound SELECT Statement</b></p>
+<li><p><b>复合 SELECT 语句中的项数上限</b></p>
 
 <p>
-A compound <a href="lang_select.html">SELECT</a> statement is two or more SELECT statements connected
-by operators UNION, UNION ALL, EXCEPT, or INTERSECT.  We call each
-individual SELECT statement within a compound SELECT a "term".
+复合<a href="lang_select.html">SELECT</a>语句是由 UNION、UNION ALL、EXCEPT 或 INTERSECT 运算符连接的两个或多个 SELECT 语句。我们将复合 SELECT 中的每个单独 SELECT 称为一个“项”。
 </p>
 
 <p>
-The code generator in SQLite processes compound SELECT statements using
-a recursive algorithm.  In order to limit the size of the stack, we
-therefore limit the number of terms in a compound SELECT.  The maximum
-number of terms is SQLITE_MAX_COMPOUND_SELECT which defaults to 500.
-We think this is a generous allotment since in practice we almost
-never see the number of terms in a compound select exceed single digits.
+SQLite 中的代码生成器使用递归算法处理复合 SELECT 语句。为了限制栈的大小，我们对复合 SELECT 中的项数进行限制。最大项数由 SQLITE_MAX_COMPOUND_SELECT 决定，默认值为 500。我们认为这是一个慷慨的额度，因为在实际中几乎从未见过复合 SELECT 的项数超过个位数。
 </p>
 
 <p>
-The maximum number of compound SELECT terms can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitcompoundselect">SQLITE_LIMIT_COMPOUND_SELECT</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitcompoundselect">SQLITE_LIMIT_COMPOUND_SELECT</a>,size) 接口在运行时降低复合 SELECT 项数的最大值。
 </p>
 
 
 </li><a name="max_like_pattern_length"></a>
-<li><p><b>Maximum Length Of A LIKE Or GLOB Pattern</b></p>
+<li><p><b>LIKE 或 GLOB 模式的最大长度</b></p>
 
 <p>
-The pattern matching algorithm used in the default <a href="lang_expr.html#like">LIKE</a> and <a href="lang_expr.html#glob">GLOB</a>
-implementation of SQLite can exhibit O(N&sup2;) performance (where
-N is the number of characters in the pattern) for certain pathological
-cases.  To avoid denial-of-service attacks from miscreants who are able
-to specify their own LIKE or GLOB patterns, the length of the LIKE
-or GLOB pattern is limited to SQLITE_MAX_LIKE_PATTERN_LENGTH bytes.
-The default value of this limit is 50000.  A modern workstation can
-evaluate even a pathological LIKE or GLOB pattern of 50000 bytes
-relatively quickly.  The denial of service problem only comes into
-play when the pattern length gets into millions of bytes.  Nevertheless,
-since most useful LIKE or GLOB patterns are at most a few dozen bytes
-in length, paranoid application developers may want to reduce this
-parameter to something in the range of a few hundred if they know that
-external users are able to generate arbitrary patterns.
+默认<a href="lang_expr.html#like">LIKE</a>和<a href="lang_expr.html#glob">GLOB</a>实现中使用的模式匹配算法在某些异常情况下表现出 O(N²) 的性能（其中 N 是模式中的字符数）。为了防止能够指定任意 LIKE 或 GLOB 模式的不良分子发起拒绝服务攻击，LIKE 或 GLOB 模式的长度被限制为 SQLITE_MAX_LIKE_PATTERN_LENGTH 字节。该限制的默认值为 50000。现代工作站即便是评估长度为 50000 字节的异常 LIKE 或 GLOB 模式也比较迅速。拒绝服务问题只有在模式长度达到数百万字节时才会出现。然而，由于大多数有用的 LIKE 或 GLOB 模式最多只有几十个字节，如果应用开发者知道外部用户能够生成任意模式，那么出于多虑的考虑，他们可能希望将该参数减少到几百字节左右。
 </p>
 
 <p>
-The maximum length of a LIKE or GLOB pattern can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitlikepatternlength">SQLITE_LIMIT_LIKE_PATTERN_LENGTH</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitlikepatternlength">SQLITE_LIMIT_LIKE_PATTERN_LENGTH</a>,size) 接口在运行时降低 LIKE 或 GLOB 模式的最大长度。
 </p>
 </li><a name="max_variable_number"></a>
-<li><p><b>Maximum Number Of Host Parameters In A Single SQL Statement</b></p>
+<li><p><b>单个 SQL 语句中的主机参数数量上限</b></p>
 
 <p>
-A host <a href="lang_expr.html#varparam">parameter</a> is a place-holder in an SQL statement that is filled
-in using one of the
-<a href="c3ref/bind_blob.html">sqlite3_bind_XXXX()</a> interfaces.
-Many SQL programmers are familiar with using a question mark ("?") as a
-host parameter.  SQLite also supports named host parameters prefaced
-by ":", "$", or "@" and numbered host parameters of the form "?123".
+主机<a href="lang_expr.html#varparam">参数</a>是 SQL 语句中的占位符，使用<a href="c3ref/bind_blob.html">sqlite3_bind_XXXX()</a> 接口来填充。许多 SQL 程序员熟悉使用问号（“?”）作为主机参数。SQLite 还支持前缀为 “:”、 “$” 或 “@” 的命名主机参数，以及形式为 “?123” 的编号主机参数。
 </p>
 
 <p>
-Each host parameter in an SQLite statement is assigned a number.  The
-numbers normally begin with 1 and increase by one with each new
-parameter.  However, when the "?123" form is used, the host parameter
-number is the number that follows the question mark.
+SQLite 为 SQL 语句中的每个主机参数分配一个编号。编号通常从 1 开始并且每个新参数递增 1。然而，当使用 “?123” 形式时，主机参数的编号就是问号后面的数字。
 </p>
 
 <p>
-SQLite allocates space to hold all host parameters between 1 and the
-largest host parameter number used.  Hence, an SQL statement that contains
-a host parameter like ?1000000000 would require gigabytes of storage.
-This could easily overwhelm the resources of the host machine.
-To prevent excessive memory allocations, 
-the maximum value of a host parameter number is SQLITE_MAX_VARIABLE_NUMBER,
-which defaults to 999 for SQLite versions prior to 3.32.0 (2020-05-22)
-or 32766 for SQLite versions after 3.32.0.
+SQLite 为所有编号从 1 到使用的最大主机参数编号之间的参数分配空间。因此，如果在 SQL 语句中使用类似 ?1000000000 这样的主机参数编号，就需要数千兆字节的存储空间。这很容易让宿主机器的资源耗尽。为了防止过度内存分配，主机参数编号的最大值为 SQLITE_MAX_VARIABLE_NUMBER，对于 3.32.0（2020-05-22）之前的 SQLite 版本默认为 999，对于 3.32.0 之后的版本默认为 32766。
 </p>
 
 <p>
-The maximum host parameter number can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitvariablenumber">SQLITE_LIMIT_VARIABLE_NUMBER</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitvariablenumber">SQLITE_LIMIT_VARIABLE_NUMBER</a>,size) 接口在运行时降低主机参数编号的最大值。
 </p>
 </li><a name="max_trigger_depth"></a>
-<li><p><b>Maximum Depth Of Trigger Recursion</b></p>
+<li><p><b>触发器递归的最大深度</b></p>
 
 <p>
-SQLite limits the depth of recursion of triggers in order to prevent
-a statement involving recursive triggers from using an unbounded amount
-of memory.  
+SQLite 限制触发器递归的深度，以防止涉及递归触发器的语句使用无限制的内存。
 </p>
 
-<p>Prior to SQLite <a href="releaselog/3_6_18.html">version 3.6.18</a> (2009-09-11), 
-triggers were not recursive and so
-this limit was meaningless.  Beginning with version 3.6.18, recursive triggers
-were supported but had to be explicitly enabled using the
-<a href="pragma.html#pragma_recursive_triggers">PRAGMA recursive_triggers</a> statement.  
-Beginning with <a href="releaselog/3_7_0.html">version 3.7.0</a> (2009-09-11), 
-recursive triggers are enabled by default but can be manually disabled
-using <a href="pragma.html#pragma_recursive_triggers">PRAGMA recursive_triggers</a>.  The SQLITE_MAX_TRIGGER_DEPTH is
-only meaningful if recursive triggers are enabled.</p>
+<p>
+在 SQLite <a href="releaselog/3_6_18.html">3.6.18 版本</a>（2009-09-11）之前，触发器不支持递归，因此该限制没有意义。从 3.6.18 版本开始，支持递归触发器，但必须使用<a href="pragma.html#pragma_recursive_triggers">PRAGMA recursive_triggers</a> 语句显式启用。从 <a href="releaselog/3_7_0.html">3.7.0 版本</a>（2009-09-11）起，递归触发器默认启用，但可以通过<a href="pragma.html#pragma_recursive_triggers">PRAGMA recursive_triggers</a> 手动禁用。只有在启用了递归触发器的情况下，SQLITE_MAX_TRIGGER_DEPTH 才有意义。</p>
 
-<p>The default maximum trigger recursion depth is 1000.</p>
+<p>默认的触发器递归最大深度是 1000。</p>
 </li><a name="max_attached"></a>
-<li><p><b>Maximum Number Of Attached Databases</b></p>
+<li><p><b>附加数据库的最大数量</b></p>
 
 <p>
-The <a href="lang_attach.html">ATTACH</a> statement is an SQLite extension
-that allows two or more databases to be associated to the same database
-connection and to operate as if they were a single database.  The number
-of simultaneously attached databases is limited to SQLITE_MAX_ATTACHED
-which is set to 10 by default.
-The maximum number of attached databases cannot be increased above 125.</p>
+<a href="lang_attach.html">ATTACH</a> 语句是 SQLite 的扩展，允许将两个或多个数据库关联到同一个数据库连接，并使它们像单个数据库一样运行。可同时附加的数据库数量受 SQLITE_MAX_ATTACHED 限制，默认值为 10。附加数据库的最大数量无法增加到 125 以上。</p>
 
 <p>
-The maximum number of attached databases can be lowered at run-time using
-the <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitattached">SQLITE_LIMIT_ATTACHED</a>,size) interface.
+可以使用 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitattached">SQLITE_LIMIT_ATTACHED</a>,size) 接口在运行时降低附加数据库的最大数量。
 </p>
 </li><a name="max_page_count"></a>
-<li><p><b>Maximum Number Of Pages In A Database File</b></p>
+<li><p><b>数据库文件中允许的最大页数</b></p>
 
 <p>
-SQLite is able to limit the size of a database file to prevent
-the database file from growing too large and consuming too much
-disk space.
-The SQLITE_MAX_PAGE_COUNT parameter
-is the maximum number of pages allowed in a single
-database file.  An attempt to insert new data that would cause
-the database file to grow larger than this will return
-SQLITE_FULL.
+SQLite 可以限制数据库文件的大小，以防止文件变得过大而占用过多磁盘空间。SQLITE_MAX_PAGE_COUNT 参数是单个数据库文件允许的最大页数。尝试插入新数据而使数据库文件变得比该值更大时将返回 SQLITE_FULL。
 </p>
 
 <p>
-The largest possible setting for SQLITE_MAX_PAGE_COUNT is 4294967294
-(2<sup><small>32</small></sup>-2).
-Since version 3.45.0 (2024-01-15), 4294967294 is
-also the default value for SQLITE_MAX_PAGE_COUNT.
-When used with the default page size of 4096 bytes, this gives a
-maximum database size of about 17.5 terabytes.
-If the page size is increased to the maximum of 65536 bytes, then the
-database file can grow to be as large as about 281 terabytes.</p>
+SQLITE_MAX_PAGE_COUNT 的最大可能设置为 4294967294（2<sup><small>32</small></sup>-2）。从 3.45.0 版本（2024-01-15）起，4294967294 也是 SQLITE_MAX_PAGE_COUNT 的默认值。当使用默认页大小 4096 字节时，这意味着最大数据库大小约为 17.5 TB。如果页大小增加到最大 65536 字节，那么数据库文件最多可增长到约 281 TB。</p>
 
 <p>
-The <a href="pragma.html#pragma_max_page_count">
-max_page_count PRAGMA</a> can be used to raise or lower this
-limit at run-time.
+<a href="pragma.html#pragma_max_page_count">
+max_page_count PRAGMA</a> 可用于在运行时提高或降低该限制。
 </p>
-</li><li><p><b>Maximum Number Of Rows In A Table</b></p>
+</li><li><p><b>表中的最大行数</b></p>
 
 <p>
-The theoretical maximum number of rows in a table is
-2<sup><small>64</small></sup> (18446744073709551616 or about 1.8e+19).
-This limit is unreachable since the maximum database size of 281 terabytes
-will be reached first.  A 281 terabytes database can hold no more than
-approximately 2e+13 rows, and then only if there are no indices and if
-each row contains very little data.
-</li><li><p><b>Maximum Database Size</b></p>
+表的理论最大行数是 2<sup><small>64</small></sup>（18446744073709551616，约为 1.8×10¹⁹）。由于最大数据库大小为 281 TB，因此这一限制无法达到。一个 281 TB 的数据库最多可容纳约 2×10¹³ 行，而且前提是没有索引且每行数据非常少。
+</li><li><p><b>数据库的最大大小</b></p>
 
 <p>
-Every database consists of one or more "pages".  Within a single database,
-every page is the same size, but different databases can have page sizes
-that are powers of two between 512 and 65536, inclusive.  The maximum
-size of a database file is 4294967294 pages.  At the maximum page size
-of 65536 bytes, this translates into a maximum database size of 
-approximately 2.8e+14 bytes (281 terabytes, or 256 tebibytes, or
-281474 gigabytes, or 262143 gibibytes).
+每个数据库都由一个或多个“页”组成。在单个数据库中，每页大小相同，但不同数据库的页大小可以是 512 到 65536 之间的 2 的幂。数据库文件的最大大小为 4294967294 页。在最大页大小 65536 字节时，这相当于大约 2.8×10¹⁴ 字节（281 TB，或 256 の tebibytes，或 281474 GB，或 262143 gibibytes）。
 <p>
-This particular upper bound is untested since the developers do not 
-have access to hardware capable of reaching this limit.  However, tests
-do verify that SQLite behaves correctly and sanely when a database 
-reaches the maximum file size of the underlying filesystem (which is
-usually much less than the maximum theoretical database size) and when
-a database is unable to grow due to disk space exhaustion.
-</li><li><p><b>Maximum Number Of Tables In A Schema</b></p>
+这个特定的上限没有经过测试，因为开发者没有能够达到该限制的硬件。不过，测试确实验证了当数据库达到底层文件系统允许的最大文件大小（通常远小于理论最大值）时以及当数据库由于磁盘空间耗尽而无法增长时，SQLite 的行为仍然正确并且合理。
+</li><li><p><b>模式中表的最大数量</b></p>
 
 <p>
-Each table and index requires at least one page in the database file.
-Thus the maximum number of pages in a database file is also the upper
-bound on the number of tables and indices in a schema.  An "index" in
-the previous sentences means an index created explicitly using a
-<a href="lang_createindex.html">CREATE INDEX</a> statement or implicit indices created by UNIQUE and
-PRIMARY KEY constraints.
+每个表和索引在数据库文件中至少需要一页。因此，数据库文件的最大页数也就是模式中表和索引数量的上限。此前所说的“索引”是指使用<a href="lang_createindex.html">CREATE INDEX</a> 语句显式创建的索引，或由 UNIQUE 和 PRIMARY KEY 约束隐式创建的索引。
 <p>
-Whenever a database is opened, the entire schema is scanned and parsed
-and a parse tree for the schema is held in memory.  That means that
-database connection startup time and initial memory usage
-is proportional to the size of the schema.
+每次打开数据库时，整个模式都会被扫描和解析，并且解析树会保存在内存中。这意味着数据库连接的启动时间和初始内存使用量与模式的大小成正比。
 </li>
 </ol>
-<p align="center"><small><i>This page was last updated on 2025-11-13 07:12:58Z </small></i></p>
+<p align="center"><small><i>此页面最近更新于 2025-11-13 07:12:58Z </i></small></p>
 
+</body></html>

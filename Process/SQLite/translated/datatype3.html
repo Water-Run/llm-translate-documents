@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Datatypes In SQLite</title>
+<title>SQLite 中的数据类型</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75em;color:#555;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选五项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,171 +124,99 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Datatypes In SQLite
+SQLite 中的数据类型
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#datatypes_in_sqlite">1. Datatypes In SQLite</a></div>
-<div class="fancy-toc1"><a href="#storage_classes_and_datatypes">2. Storage Classes and Datatypes</a></div>
-<div class="fancy-toc2"><a href="#boolean_datatype">2.1. Boolean Datatype</a></div>
-<div class="fancy-toc2"><a href="#date_and_time_datatype">2.2. Date and Time Datatype</a></div>
-<div class="fancy-toc1"><a href="#type_affinity">3. Type Affinity</a></div>
-<div class="fancy-toc2"><a href="#determination_of_column_affinity">3.1. Determination Of Column Affinity</a></div>
-<div class="fancy-toc3"><a href="#affinity_name_examples">3.1.1. Affinity Name Examples</a></div>
-<div class="fancy-toc2"><a href="#affinity_of_expressions">3.2. Affinity Of Expressions</a></div>
-<div class="fancy-toc2"><a href="#column_affinity_for_views_and_subqueries">3.3. Column Affinity For Views And Subqueries</a></div>
-<div class="fancy-toc3"><a href="#column_affinity_for_compound_views">3.3.1. Column Affinity For Compound Views</a></div>
-<div class="fancy-toc2"><a href="#column_affinity_behavior_example">3.4. Column Affinity Behavior Example</a></div>
-<div class="fancy-toc1"><a href="#comparison_expressions">4. Comparison Expressions</a></div>
-<div class="fancy-toc2"><a href="#sort_order">4.1. Sort Order</a></div>
-<div class="fancy-toc2"><a href="#type_conversions_prior_to_comparison">4.2. Type Conversions Prior To Comparison</a></div>
-<div class="fancy-toc2"><a href="#comparison_example">4.3. Comparison Example</a></div>
-<div class="fancy-toc1"><a href="#operators">5. Operators</a></div>
-<div class="fancy-toc1"><a href="#sorting_grouping_and_compound_selects">6. Sorting, Grouping and Compound SELECTs</a></div>
-<div class="fancy-toc1"><a href="#collating_sequences">7. Collating Sequences</a></div>
-<div class="fancy-toc2"><a href="#assigning_collating_sequences_from_sql">7.1. Assigning Collating Sequences from SQL</a></div>
-<div class="fancy-toc2"><a href="#collation_sequence_examples">7.2. Collation Sequence Examples</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#datatypes_in_sqlite">1. SQLite 中的数据类型</a></div>
+<div class="fancy-toc1"><a href="#storage_classes_and_datatypes">2. 存储类和数据类型</a></div>
+<div class="fancy-toc2"><a href="#boolean_datatype">2.1. 布尔数据类型</a></div>
+<div class="fancy-toc2"><a href="#date_and_time_datatype">2.2. 日期和时间数据类型</a></div>
+<div class="fancy-toc1"><a href="#type_affinity">3. 类型亲和性</a></div>
+<div class="fancy-toc2"><a href="#determination_of_column_affinity">3.1. 列亲和性的确定</a></div>
+<div class="fancy-toc3"><a href="#affinity_name_examples">3.1.1. 亲和性名称示例</a></div>
+<div class="fancy-toc2"><a href="#affinity_of_expressions">3.2. 表达式的亲和性</a></div>
+<div class="fancy-toc2"><a href="#column_affinity_for_views_and_subqueries">3.3. 视图和子查询的列亲和性</a></div>
+<div class="fancy-toc3"><a href="#column_affinity_for_compound_views">3.3.1. 复合视图的列亲和性</a></div>
+<div class="fancy-toc2"><a href="#column_affinity_behavior_example">3.4. 列亲和性行为示例</a></div>
+<div class="fancy-toc1"><a href="#comparison_expressions">4. 比较表达式</a></div>
+<div class="fancy-toc2"><a href="#sort_order">4.1. 排序顺序</a></div>
+<div class="fancy-toc2"><a href="#type_conversions_prior_to_comparison">4.2. 比较前的类型转换</a></div>
+<div class="fancy-toc2"><a href="#comparison_example">4.3. 比较示例</a></div>
+<div class="fancy-toc1"><a href="#operators">5. 运算符</a></div>
+<div class="fancy-toc1"><a href="#sorting_grouping_and_compound_selects">6. 排序、分组和复合 SELECT</a></div>
+<div class="fancy-toc1"><a href="#collating_sequences">7. 排序序列</a></div>
+<div class="fancy-toc2"><a href="#assigning_collating_sequences_from_sql">7.1. 通过 SQL 分配排序序列</a></div>
+<div class="fancy-toc2"><a href="#collation_sequence_examples">7.2. 排序序列示例</a></div>
 </div>
 </details>
 </div>
 
 
 
+<h1 id="datatypes_in_sqlite"><span>1. </span>SQLite 中的数据类型</h1>
+<p>大多数 SQL 数据库引擎（据我们所知除 SQLite 以外的所有 SQL 数据库引擎）都使用静态、刚性类型。使用静态类型时，值的数据类型由其容器决定——值所存储的特定列。</p>
 
+<p>SQLite 使用更通用的动态类型系统。在 SQLite 中，值的数据类型与值本身相关，而不是它的容器。SQLite 的动态类型系统与其他数据库引擎更常见的静态类型系统向后兼容，这意味着在静态类型数据库中有效的 SQL 语句在 SQLite 中也能以相同方式工作。然而，SQLite 中的动态类型使其能够完成传统刚性类型数据库无法实现的操作。<a href="flextypegood.html">灵活类型是一个特性</a>，不是缺陷。</p>
 
-<h1 id="datatypes_in_sqlite"><span>1. </span>Datatypes In SQLite</h1>
-<p>Most SQL database engines (every SQL database engine other than SQLite,
-as far as we know) uses static, rigid typing.  With static typing, the datatype
-of a value is determined by its container - the particular column in
-which the value is stored.</p>
-
-<p>SQLite uses a more general dynamic type system.  In SQLite, the datatype
-of a value is associated with the value itself, not with its container.
-The dynamic type system of SQLite is backwards
-compatible with the more common static type systems of other database engines
-in the sense that SQL statements that work on statically typed databases
-work the same way in SQLite.  However, the dynamic typing in SQLite allows
-it to do things which are not possible in traditional rigidly typed
-databases.  <a href="flextypegood.html">Flexible typing is a feature</a> of SQLite, not a bug.</p>
-
-<p>Update:
-As of version 3.37.0 (2021-11-27), SQLite provides <a href="stricttables.html">STRICT tables</a>
-that do rigid type enforcement, for developers who prefer that kind of thing.
+<p>更新：截至 3.37.0 版本（2021-11-27），SQLite 提供了<a href="stricttables.html">STRICT 表</a>，为偏好刚性类型行为的开发者提供了严格的类型检查。</p>
 
 <a name="storageclasses"></a>
 
-</p><h1 id="storage_classes_and_datatypes"><span>2. </span>Storage Classes and Datatypes</h1>
+<h1 id="storage_classes_and_datatypes"><span>2. </span>存储类和数据类型</h1>
 
-<p>Each value stored in an SQLite database (or manipulated by the
-database engine) has one of the following storage classes:</p>
+<p>存储在 SQLite 数据库中（或由数据库引擎处理）的每个值都属于下列存储类之一：</p>
 <ul>
-  <li><p><b>NULL</b>.
-  The value is a NULL value.</p>
-
-  </li><li><p><b>INTEGER</b>. The value is a signed integer, stored in 0, 1,
-  2, 3, 4, 6, or 8 bytes depending on the magnitude of the value.</p>
-
-  </li><li><p><b>REAL</b>. The value is a floating point value, stored as
-  an 8-byte IEEE floating point number.</p>
-
-  </li><li><p><b>TEXT</b>. The value is a text string, stored using the
-  database encoding (UTF-8, UTF-16BE or UTF-16LE).</p>
-
-  </li><li><p><b>BLOB</b>. The value is a blob of data, stored exactly as
-  it was input.</p>
+  <li><p><b>NULL</b>。该值是 NULL 值。</p>
+  </li><li><p><b>INTEGER</b>。该值是有符号整数，根据值的大小，可使用 0、1、2、3、4、6 或 8 个字节存储。</p>
+  </li><li><p><b>REAL</b>。该值是浮点数，以 8 字节 IEEE 浮点数表示。</p>
+  </li><li><p><b>TEXT</b>。该值是文本字符串，使用数据库编码（UTF-8、UTF-16BE 或 UTF-16LE）存储。</p>
+  </li><li><p><b>BLOB</b>。该值是二进制大对象，按输入时完全原样存储。</p>
 </li></ul>
 
-<p>A storage class is more general than a datatype.
-The INTEGER storage class, for example, includes 7 different integer
-datatypes of different lengths.
-<a href="fileformat2.html#record_format">This makes a difference on disk.</a> 
-But as soon as INTEGER values are read off of disk and into memory for
-processing, they are converted to the most general datatype
-(8-byte signed integer).
-And so for the most part, "storage class" is indistinguishable from 
-"datatype" and the two terms can be used interchangeably.</p>
+<p>存储类比数据类型更通用。例如 INTEGER 存储类包含 7 种不同长度的整数数据类型。<a href="fileformat2.html#record_format">这在磁盘上有所区别。</a>但只要 INTEGER 值从磁盘读取并加载到内存中进行处理，它们就会转换为最通用的数据类型（8 字节有符号整数）。因此在大多数情况下，“存储类”与“数据类型”几乎无法区分，这两个术语可互换使用。</p>
 
-<p>Any column in an SQLite version 3 database,
-except an <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> column, may be used to store a value 
-of any storage class.</p>
+<p>除<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> 列之外，SQLite 3 数据库中的任意列都可用于存储任何存储类的值。</p>
 
-<p>All values in SQL statements, whether they are literals embedded in SQL
-statement text or <a href="lang_expr.html#varparam">parameters</a> bound to 
-<a href="c3ref/stmt.html">precompiled SQL statements</a>
-have an implicit storage class.
-Under circumstances described below, the
-database engine may convert values between numeric storage classes
-(INTEGER and REAL) and TEXT during query execution. 
-</p>
+<p>SQL 语句中的所有值，无论是嵌入在 SQL 语句文本中的字面量，还是绑定到<a href="lang_expr.html#varparam">参数</a>的<a href="c3ref/stmt.html">预编译 SQL 语句</a>，都具有隐含的存储类。在下文描述的某些情况下，数据库引擎可能会在查询执行过程中在数值存储类（INTEGER 和 REAL）与 TEXT 之间转换值。</p>
 
 <a name="boolean"></a>
 
-<h2 id="boolean_datatype"><span>2.1. </span>Boolean Datatype</h2>
+<h2 id="boolean_datatype"><span>2.1. </span>布尔数据类型</h2>
 
-<p>SQLite does not have a separate Boolean storage class.
-Instead, Boolean values are stored as integers 0 (false) and 1 (true).</p>
+<p>SQLite 没有单独的布尔存储类。相反，布尔值作为整数 0（false）和 1（true）存储。</p>
 
-<p>SQLite recognizes the keywords "TRUE" and "FALSE",
-as of version 3.23.0 (2018-04-02) but those keywords are
-really just alternative spellings for the integer literals 1 and 0
-respectively.
+<p>从 3.23.0 版本（2018-04-02）起，SQLite 识别关键字“TRUE”和“FALSE”，但这些关键字实际上只是整数字面量 1 和 0 的另一种写法。</p>
 
 <a name="datetime"></a>
 
-</p><h2 id="date_and_time_datatype"><span>2.2. </span>Date and Time Datatype</h2>
+<h2 id="date_and_time_datatype"><span>2.2. </span>日期和时间数据类型</h2>
 
-<p>SQLite does not have a storage class set aside for storing
-dates and/or times.
-Instead, the built-in <a href="lang_datefunc.html">Date And Time Functions</a> of SQLite are capable of 
-storing dates and times as TEXT, REAL, or INTEGER values:</p>
+<p>SQLite 没有专门用于存储日期和/或时间的存储类。相反，SQLite 内置的<a href="lang_datefunc.html">日期和时间函数</a>能够将日期和时间以 TEXT、REAL 或 INTEGER 值存储：</p>
 
 <ul>
-<li><b>TEXT</b> as ISO8601 strings ("YYYY-MM-DD HH:MM:SS.SSS").
-</li><li><b>REAL</b> as Julian day numbers, the number of days since
-noon in Greenwich on November 24, 4714 B.C. according to the
-proleptic Gregorian calendar.
-</li><li><b>INTEGER</b> as Unix Time, the number of seconds since
-1970-01-01 00:00:00 UTC.
-</li></ul>
+<li><b>TEXT</b> 以 ISO8601 字符串形式表示（"YYYY-MM-DD HH:MM:SS.SSS"）。</li>
+<li><b>REAL</b> 以儒略日数表示，从公元前 4714 年 11 月 24 日格林威治中午起的天数，按推测的公历计算。</li>
+<li><b>INTEGER</b> 以 Unix 时间表示，从 1970-01-01 00:00:00 UTC 起的秒数。</li>
+</ul>
 
-<p>Applications can choose to store dates and times in any of these
-formats and freely convert between formats using the built-in
-<a href="lang_datefunc.html">date and time functions</a>.</p>
-
+<p>应用程序可以选择以上任何格式存储日期和时间，并使用内置<a href="lang_datefunc.html">日期和时间函数</a>在格式之间自由转换。</p>
 
 <a name="affinity"></a>
 
-<h1 id="type_affinity"><span>3. </span>Type Affinity</h1>
+<h1 id="type_affinity"><span>3. </span>类型亲和性</h1>
 
-<p>
-SQL database engines that use rigid typing will usually try to
-automatically convert values to the appropriate datatype.  Consider this:
-
-</p><blockquote><pre>
+<p>使用刚性类型的 SQL 数据库引擎通常会尝试自动将值转换为合适的数据类型。考虑如下示例：</p>
+<blockquote><pre>
 CREATE TABLE t1(a INT, b VARCHAR(10));
 INSERT INTO t1(a,b) VALUES('123',456);
 </pre></blockquote>
 
-<p>
-Rigidly-typed database will convert the string '123' into an
-integer 123 and the integer 456 into a string '456' prior to
-doing the insert.
+<p>刚性类型数据库会在插入前将字符串 '123' 转换为整数 123，并将整数 456 转换为字符串 '456'。</p>
 
-</p><p>
-In order to maximize compatibility between SQLite and other database
-engines, and so that the example above will work on SQLite as it does
-on other SQL database engines,
-SQLite supports the concept of "type affinity" on columns.
-The type affinity of a column is the recommended type for data stored
-in that column.  The important idea here is that the type is recommended, not
-required.  Any column can still store any type of data.
-It is just that some columns, given the choice, will prefer to use
-one storage class over another.  The preferred storage class for
-a column is called its "affinity".
-</p>
+<p>为了最大限度地提高 SQLite 与其他数据库引擎之间的兼容性，并使上述示例在 SQLite 中与其他 SQL 数据库引擎一样工作，SQLite 支持列的“类型亲和性”概念。一列的类型亲和性是推荐用于存储在该列中的数据的类型。这里的重要思想是类型是建议而非强制的。任何列仍然可以存储任何类型的数据。只是某些列在可选情况下会更倾向于使用某种存储类。某列的首选存储类称为其“亲和性”。</p>
 
-<p>Each column in an SQLite 3 database is assigned one of the
-following type affinities:</p>
+<p>SQLite 3 数据库中的每一列都被分配以下类型亲和性之一：</p>
 <ul>
 	<li>TEXT</li>
 	<li>NUMERIC</li>
@@ -291,112 +225,45 @@ following type affinities:</p>
 	<li>BLOB</li>
 </ul>
 
-<p>(Historical note:  The "BLOB" type affinity used to be called "NONE".
-But that term was easy to confuse with "no affinity" and so it was
-renamed.)
+<p>（历史备注：BLOB 类型亲和性以前称为 “NONE”。但该术语容易与“无亲和性”混淆，因此改名。）</p>
 
-</p><p>A column with TEXT affinity stores all data using storage classes
-NULL, TEXT or BLOB. If numerical data is inserted into a column with
-TEXT affinity it is converted into text form before being stored.</p>
+<p>具有 TEXT 亲和性的列使用存储类 NULL、TEXT 或 BLOB 存储所有数据。如果将数值数据插入到 TEXT 亲和性列中，它会在保存前转换为文本形式。</p>
 
-<p>A column with NUMERIC affinity may contain values using all five
-storage classes.  When text data is inserted into a NUMERIC column, the
-storage class of the text is converted to INTEGER or REAL (in order of
-preference) if the text is a well-formed integer or real literal, respectively.
-If the TEXT value is a well-formed integer literal that is too large
-to fit in a 64-bit signed integer, it is converted to REAL.
-For conversions between TEXT and REAL storage classes, only the first
-15 significant decimal digits of the number are preserved.
-If the TEXT value is not a well-formed integer or real literal,
-then the value is stored as TEXT.
-For the purposes of this paragraph, hexadecimal integer
-literals are not considered well-formed and are stored as TEXT.
-(This is done for historical compatibility with versions of SQLite
-prior to <a href="releaselog/3_8_6.html">version 3.8.6</a> 2014-08-15 where hexadecimal integer
-literals were first introduced into SQLite.)
-If a floating point value that can be represented exactly as an integer
-is inserted into a column with NUMERIC affinity, the value is
-converted into an integer.
-No attempt is made to convert NULL or BLOB values.</p>
+<p>具有 NUMERIC 亲和性的列可以包含所有五种存储类的值。当文本数据插入到 NUMERIC 列时，如果文本是格式良好的整数或实数文字，并且分别按照优先顺序，则会将文本的存储类转换为 INTEGER 或 REAL。如果 TEXT 值是格式良好的整数文字，但过大无法适配 64 位有符号整数，则会转换为 REAL。对于 TEXT 和 REAL 存储类之间的转换，仅保留数字的前 15 位有效十进制数字。如果 TEXT 值不是格式良好的整数或实数文字，则以 TEXT 形式存储。出于本段目的，十六进制整数文字不被视为格式良好，并将被存储为 TEXT。（这是为了与在 2014-08-15 的<a href="releaselog/3_8_6.html">3.8.6 版本</a>之前的 SQLite 兼容，当时才引入十六进制整数文字。）如果将可精确表示为整数的浮点值插入 NUMERIC 亲和性列，该值会被转换为整数。不会尝试转换 NULL 或 BLOB 值。</p>
 
-<p>A string might look like a floating-point literal with
-a decimal point and/or exponent notation but as long as
-the value can be expressed as an integer, the NUMERIC affinity will convert
-it into an integer. Hence, the string '3.0e+5' is stored in a
-column with NUMERIC affinity as the integer 300000, not as the floating
-point value 300000.0.</p>
+<p>一个字符串可能看起来像带小数点和/或指数的浮点文字，但只要该值可以表示为整数，NUMERIC 亲和性就会将其转换为整数。因此字符串 '3.0e+5' 在 NUMERIC 亲和性列中存储为整数 300000，而不是浮点 300000.0。</p>
 
-<p>A column that uses INTEGER affinity behaves the same as a column
-with NUMERIC affinity.  The difference between INTEGER and NUMERIC affinity
-is only evident in a <a href="lang_expr.html#castexpr">CAST expression</a>:  The expression
-"CAST(4.0 AS INT)" returns an integer 4, whereas
-"CAST(4.0 AS NUMERIC)" leaves the value as a floating-point 4.0.</p>
+<p>使用 INTEGER 亲和性的列的行为与 NUMERIC 亲和性的列相同。INTEGER 与 NUMERIC 亲和性的差异仅在<a href="lang_expr.html#castexpr">CAST 表达式</a>中可见：表达式 "CAST(4.0 AS INT)" 返回整数 4，而 "CAST(4.0 AS NUMERIC)" 则保持浮点 4.0。</p>
 
-<p>A column with REAL affinity behaves like a column with NUMERIC
-affinity except that it forces integer values into floating point
-representation.  (As an internal optimization, small floating point
-values with no fractional component and stored in columns with REAL
-affinity are written to disk as integers in order to take up less 
-space and are automatically converted back into floating point as
-the value is read out.
-This optimization is completely invisible at the SQL level and can only
-be detected by examining the raw bits of the database file.)</p>
+<p>具有 REAL 亲和性的列类似于 NUMERIC 亲和性列，但其会将整数强制转换为浮点表示。（作为内部优化，在 REAL 亲和性列中存储的小浮点值且无小数部分会以整数形式写入磁盘以节省空间，并在读取时自动转换回浮点。这种优化在 SQL 层完全不可见，只能通过检查数据库文件的原始位来检测。）</p>
 
-<p>A column with affinity BLOB does not prefer one storage class over
-another and no attempt is made to coerce data from one storage class into
-another.</p>
+<p>具有 BLOB 亲和性的列不会偏向任何存储类，也不会尝试将数据从一种存储类强制转换为另一种。</p>
 
 <a name="affname"></a>
 
-<h2 id="determination_of_column_affinity"><span>3.1. </span>Determination Of Column Affinity</h2>
+<h2 id="determination_of_column_affinity"><span>3.1. </span>列亲和性的确定</h2>
 
-<p>For tables not declared as <a href="stricttables.html">STRICT</a>,
-the affinity of a column is determined by the declared type
-of the column, according to the following rules in the order shown:</p>
+<p>对于未声明为<a href="stricttables.html">STRICT</a> 的表，列的亲和性由该列声明的类型决定，按以下顺序的规则：</p>
 
 <ol>
-  <li><p>If the declared type contains the string "INT" then it
-  is assigned INTEGER affinity.</p>
-
-  </li><li><p>If the declared type of the column contains any of the strings
-  "CHAR", "CLOB", or "TEXT" then that
-  column has TEXT affinity.  Notice that the type VARCHAR contains the
-  string "CHAR" and is thus assigned TEXT affinity.</p>
-
-  </li><li><p>If the declared type for a column
-  contains the string "BLOB" or if
-  no type is specified then the column has affinity BLOB.</p>
-
-  </li><li><p>If the declared type for a column
-  contains any of the strings "REAL", "FLOA",
-  or "DOUB" then the column has REAL affinity.</p>
-
-  </li><li><p>Otherwise, the affinity is NUMERIC.</p>
+  <li><p>如果声明类型包含字符串 "INT"，则分配 INTEGER 亲和性。</p>
+  </li><li><p>如果列的声明类型包含字符串 "CHAR"、"CLOB" 或 "TEXT"，则该列具有 TEXT 亲和性。注意，类型 VARCHAR 包含字符串 "CHAR"，因此分配 TEXT 亲和性。</p>
+  </li><li><p>如果列的声明类型包含字符串 "BLOB" 或未指定类型，则该列具有 BLOB 亲和性。</p>
+  </li><li><p>如果列的声明类型包含字符串 "REAL"、"FLOA" 或 "DOUB"，则该列具有 REAL 亲和性。</p>
+  </li><li><p>否则，亲和性为 NUMERIC。</p>
 </li></ol>
 
-<p>Note that the order of the rules for determining column affinity
-is important.  A column whose declared type is "CHARINT" will match
-both rules 1 and 2 but the first rule takes precedence and so the 
-column affinity will be INTEGER.</p>
+<p>请注意，确定列亲和性的规则顺序很重要。声明类型为 "CHARINT" 的列将同时匹配规则 1 和 2，但由于第一个规则具有优先级，该列亲和性为 INTEGER。</p>
 
-<h3 id="affinity_name_examples"><span>3.1.1. </span>Affinity Name Examples</h3>
+<h3 id="affinity_name_examples"><span>3.1.1. </span>亲和性名称示例</h3>
 
-<p>The following table shows how many common datatype names from
-more traditional SQL implementations are converted into affinities by the five rules of the
-previous section.  This table shows only a small subset of the
-datatype names that SQLite will accept.  Note that numeric arguments
-in parentheses that following the type name (ex: "VARCHAR(255)") are
-ignored by SQLite - SQLite does not impose any length restrictions
-(other than the large global <a href="limits.html#max_length">SQLITE_MAX_LENGTH</a> limit) on the length of
-strings, BLOBs or numeric values.</p>
+<p>下表展示了传统 SQL 实现中一些常见数据类型名称如何通过上一节的五条规则转换为亲和性。该表仅展示 SQLite 接受的数据类型名称的一小部分。请注意，类型名称后面括号中的数字参数（例如 "VARCHAR(255)"）在 SQLite 中会被忽略——除全局<a href="limits.html#max_length">SQLITE_MAX_LENGTH</a> 限制之外，SQLite 不对字符串、BLOB 或数值长度施加任何限制。</p>
 
 <blockquote> 
 <table border="1" cellpadding="5">
-<tr><th>Example Typenames From The<br>CREATE TABLE Statement<br>
-        or CAST Expression
-    </th><th>Resulting Affinity
-    </th><th>Rule Used To Determine Affinity
-
+<tr><th>来自 CREATE TABLE 语句<br>或 CAST 表达式的示例类型名称
+    </th><th>得到的亲和性
+    </th><th>用于确定亲和性的规则
 </th></tr><tr><td align="center" valign="top">
   INT<br>
   INTEGER<br>
@@ -424,7 +291,7 @@ strings, BLOBs or numeric values.</p>
 
 </td></tr><tr><td align="center" valign="top">
   BLOB<br>
-  <i>no datatype specified</i>
+  <i>未指定数据类型</i>
 </td><td align="center">BLOB
 </td><td align="center">3
 
@@ -447,100 +314,50 @@ strings, BLOBs or numeric values.</p>
 </td></tr></table>
 </blockquote>
 
-<p>Note that a declared type of "FLOATING POINT" would give INTEGER
-affinity, not REAL affinity, due to the "INT" at the end of "POINT".
-And the declared type of "STRING" has an affinity of NUMERIC, not TEXT.
+<p>请注意，类型声明为 "FLOATING POINT" 会因末尾的 "INT" 而提供 INTEGER 亲和性，而不是 REAL 亲和性。声明类型为 "STRING" 的亲和性为 NUMERIC，而非 TEXT。</p>
 
 <a name="expraff"></a>
 
-</p><h2 id="affinity_of_expressions"><span>3.2. </span>Affinity Of Expressions</h2>
+<h2 id="affinity_of_expressions"><span>3.2. </span>表达式的亲和性</h2>
 
-<p>Every table column has a type affinity (one of BLOB, TEXT, INTEGER,
-REAL, or NUMERIC) but expressions do not necessarily have an affinity.
+<p>每个表列都有类型亲和性（BLOB、TEXT、INTEGER、REAL 或 NUMERIC 之一），但表达式不一定具有亲和性。</p>
 
-</p><p>Expression affinity is determined by the following rules:
+<p>表达式亲和性由以下规则决定：</p>
 
-</p><ul>
-  <li><p>The right-hand operand of an IN or NOT IN
-  operator has no affinity if the operand is a list, or has the same
-  affinity as the affinity of the result set expression if the operand
-  is a SELECT.
-
-  </p></li><li><p>When an expression is a simple reference to a column of a
-  real table (not a <a href="lang_createview.html">VIEW</a> or subquery) then the expression
-  has the same affinity as the table column.
-  </p><ul>
-  <li><p>Parentheses around the column name are ignored.  Hence if
-  X and Y.Z are column names, then (X) and (Y.Z) are also considered
-  column names and have the affinity of the corresponding columns.
-  </p></li><li><p>
-  Any operators applied to column names, including the no-op 
-   unary "+" operator, convert the column name into an expression which
-   always has no affinity.  Hence even if X and Y.Z are column names, the
-   expressions +X and +Y.Z are not column names and have no affinity.
-  </p></li></ul>
-
-  </li><li><p>An expression of the form "CAST(<i>expr</i> AS <i>type</i>)"
-  has an affinity that is the same as a column with a declared
-  type of "<i>type</i>".
-
-  </p></li><li><p>A COLLATE operator has the same affinity as its left-hand side operand.
-
-  </p></li><li><p>Otherwise, an expression has no affinity.
-</p></li></ul>
+<ul>
+  <li><p>如果 IN 或 NOT IN 操作符的右操作数是列表，则无亲和性；如果是 SELECT，则具有与结果集表达式相同的亲和性。</p></li>
+  <li><p>如果表达式仅是对实际表（非<a href="lang_createview.html">VIEW</a> 或子查询）某列的简单引用，则表达式具有与该表列相同的亲和性。<ul>
+  <li><p>对列名加括号会被忽略。因此如果 X 和 Y.Z 是列名，则 (X) 和 (Y.Z) 也被视为列名，并具有相应列的亲和性。</p></li>
+  <li><p>应用于列名的任何操作符，包括无操作的单目 "+" 操作符，都会将列名转换为始终无亲和性的表达式。因此即使 X 和 Y.Z 是列名，表达式 +X 和 +Y.Z 也不是列名，并且没有亲和性。</p></li></ul>
+  </p></li>
+  <li><p>表达式形式为 "CAST(<i>expr</i> AS <i>type</i>)" 时，其亲和性与声明类型为 "<i>type</i>" 的列相同。</p></li>
+  <li><p>COLLATE 操作符具有与其左操作数相同的亲和性。</p></li>
+  <li><p>否则，表达式没有亲和性。</p></li>
+</ul>
 
 <a name="affview"></a>
 
-<h2 id="column_affinity_for_views_and_subqueries"><span>3.3. </span>Column Affinity For Views And Subqueries</h2>
+<h2 id="column_affinity_for_views_and_subqueries"><span>3.3. </span>视图和子查询的列亲和性</h2>
 
-<p>The "columns" of a <a href="lang_createview.html">VIEW</a> or FROM-clause subquery are really
-the expressions
-in the result set of the <a href="lang_select.html">SELECT</a> statement that implements the VIEW
-or subquery.  Thus, the affinity for columns of a VIEW or subquery
-are determined by the expression affinity rules above.
-Consider an example:
-
-</p><blockquote><pre>
+<p><a href="lang_createview.html">VIEW</a> 或 FROM 子句的子查询中的“列”实际上是实现 VIEW 或子查询的<a href="lang_select.html">SELECT</a> 语句结果集中的表达式。因此，VIEW 或子查询列的亲和性由上述表达式亲和性规则决定。考虑示例：</p>
+<blockquote><pre>
 CREATE TABLE t1(a INT, b TEXT, c REAL);
 CREATE VIEW v1(x,y,z) AS SELECT b, a+c, 42 FROM t1 WHERE b!=11;
 </pre></blockquote>
 
-<p>The affinity of the v1.x column will be the same as the affinity
-of t1.b (TEXT), since v1.x maps directly into t1.b.  But
-columns v1.y and v1.z both have no affinity, since those columns
-map into expression a+c and 42, and expressions always have no
-affinity.
+<p>v1.x 列的亲和性与 t1.b 相同（TEXT），因为 v1.x 直接映射到 t1.b。但 v1.y 和 v1.z 两列均无亲和性，因为它们分别映射到表达式 a+c 和 42，而表达式总是无亲和性。</p>
 
 <a name="affcompoundview"></a>
 
-</p><h3 id="column_affinity_for_compound_views"><span>3.3.1. </span>Column Affinity For Compound Views</h3>
+<h3 id="column_affinity_for_compound_views"><span>3.3.1. </span>复合视图的列亲和性</h3>
 
-<p>When the <a href="lang_select.html">SELECT</a> statement that implements a <a href="lang_createview.html">VIEW</a> or 
-FROM-clause subquery is a <a href="lang_select.html#compound">compound SELECT</a> then the affinity of 
-each column of the VIEW or subquery will
-be the affinity of the corresponding result column for
-one of the individual SELECT statements that make up 
-the compound.  
-However, it is indeterminate which of the SELECT statements will 
-be used to determine affinity.
-Different constituent SELECT statements might be used to determine 
-affinity at different times during query evaluation.  The choice
-might vary across different versions of SQLite.  The choice might
-change between one query and the next in the same version of SQLite.
-The choice might be different at different times within the same
-query.  Hence, you can never be sure what affinity will be used
-for columns of a compound SELECT that have different affinities in
-the constituent subqueries.
+<p>当实现 <a href="lang_createview.html">VIEW</a> 或 FROM 子句子查询的<a href="lang_select.html">SELECT</a> 语句是<a href="lang_select.html#compound">复合 SELECT</a> 时，该 VIEW 或子查询中每一列的亲和性将取决于组成复合语句的某个单独 SELECT 语句中相应结果列的亲和性。然而，无法确定究竟使用哪个 SELECT 来确定亲和性。不同的组成 SELECT 语句可能在查询评估的不同时间用来确定亲和性。不同版本的 SQLite 可能使用不同的选择。同一版本中连续两个查询之间也可能不同。同一查询内部的不同时候也可能不同。因此，对于在组成子查询中具有不同亲和性的复合 SELECT 的列，永远无法确定将使用哪种亲和性。</p>
 
-</p><p>Best practice is to avoid mixing affinities in a compound SELECT
-if you care about the datatype of the result.  Mixing affinities in
-a compound SELECT can lead to surprising and unintuitive results.
-See, for example, <a href="https://sqlite.org/forum/forumpost/02d7be94d7">forum post 02d7be94d7</a>.
+<p>最佳做法是，如果你在意结果的数据类型，就避免在复合 SELECT 中混合不同亲和性。混合亲和性可能导致令人惊讶且不直观的结果。例如，请查阅<a href="https://sqlite.org/forum/forumpost/02d7be94d7">论坛帖子 02d7be94d7</a>。</p>
 
-</p><h2 id="column_affinity_behavior_example"><span>3.4. </span>Column Affinity Behavior Example</h2>
+<h2 id="column_affinity_behavior_example"><span>3.4. </span>列亲和性行为示例</h2>
 
-<p>The following SQL demonstrates how SQLite uses column affinity
-to do type conversions when values are inserted into a table.</p>
+<p>下面的 SQL 演示了 SQLite 插入表时如何使用列亲和性进行类型转换。</p>
 
 <blockquote>
 <pre>
@@ -585,81 +402,41 @@ null|null|null|null|null
 
 <a name="comparisons"></a>
 
-<h1 id="comparison_expressions"><span>4. </span>Comparison Expressions</h1>
+<h1 id="comparison_expressions"><span>4. </span>比较表达式</h1>
 
-<p>SQLite version 3 has the usual set of SQL comparison operators
-including "=", "==", "&lt;", "&lt;=", "&gt;", "&gt;=", "!=", "",
-"IN", "NOT IN", "BETWEEN", "IS", and "IS NOT", .
+<p>SQLite 3 版本具有常见的 SQL 比较运算符，包括 “=”, “==”, “&lt;”, “&lt;=”, “&gt;”, “&gt;=”, “!=”, “”, “IN”, “NOT IN”, “BETWEEN”, “IS”, 和 “IS NOT”。</p>
 
 <a name="sortorder"></a>
 
-</p><h2 id="sort_order"><span>4.1. </span>Sort Order</h2>
+<h2 id="sort_order"><span>4.1. </span>排序顺序</h2>
 
-<p>The results of a comparison depend on the storage classes of the
-operands, according to the following rules:</p>
+<p>比较结果取决于操作数的存储类，按以下规则判断：</p>
 <ul>
-  <li><p>A value with storage class NULL is considered less than any
-  other value (including another value with storage class NULL).</p>
-
-  </li><li><p>An INTEGER or REAL value is less than any TEXT or BLOB value.
-  When an INTEGER or REAL is compared to another INTEGER or REAL, a
-  numerical comparison is performed.</p>
-
-  </li><li><p>A TEXT value is less than a BLOB value.  When two TEXT values
-  are compared an appropriate collating sequence is used to determine 
-  the result.  </p>
-
-  </li><li><p>When two BLOB values are compared, the result is
-  determined using memcmp().</p>
+  <li><p>存储类为 NULL 的值被视为小于任何其他值（包括另一个 NULL 值）。</p>
+  </li><li><p>INTEGER 或 REAL 值小于任何 TEXT 或 BLOB 值。当 INTEGER 或 REAL 与另一个 INTEGER 或 REAL 比较时，执行数值比较。</p>
+  </li><li><p>TEXT 值小于 BLOB 值。当比较两个 TEXT 值时，使用适当的排序序列确定结果。</p>
+  </li><li><p>当比较两个 BLOB 值时，使用 memcmp() 确定结果。</p>
 </li></ul>
 
 <a name="compaff"></a>
 
-<h2 id="type_conversions_prior_to_comparison"><span>4.2. </span>Type Conversions Prior To Comparison</h2>
+<h2 id="type_conversions_prior_to_comparison"><span>4.2. </span>比较前的类型转换</h2>
 
-<p>SQLite may attempt to convert values between the storage classes
-INTEGER, REAL, and/or TEXT before performing a comparison.
-Whether or not any conversions are attempted before the comparison takes
-place depends on the type affinity of the operands.
+<p>SQLite 可能在执行比较之前尝试在 INTEGER、REAL 和/或 TEXT 存储类之间转换值。是否在比较之前尝试转换取决于操作数的类型亲和性。</p>
 
-</p><p>To "apply affinity" means to convert an operand to a particular storage
-class if and only if the conversion does not lose essential information.
-Numeric values can always be converted into TEXT.  TEXT values 
-can be converted into numeric values if the text content is a well-formed 
-integer or real literal, but not a hexadecimal integer literal.
-BLOB values are converted into TEXT values by simply interpreting
-the binary BLOB content as a text string in the current database
-encoding.
+<p>“应用亲和性”意味着仅在不会丢失关键信息的前提下，将操作数转换为特定存储类。数值总是可以转换为 TEXT。TEXT 值可以转换为数值，但前提是文本内容是格式良好的整数或实数文字，而不是十六进制整数文字。BLOB 值通过将二进制内容解释为当前数据库编码的文本字符串而转换为 TEXT。</p>
 
-</p><p>Affinity is applied to operands of a comparison operator prior to
-the comparison according to the following rules in the order shown:</p>
+<p>在比较之前，按以下规则顺序对比较操作符的操作数应用亲和性：</p>
 
 <ul>
-<li><p>If one operand has INTEGER, REAL or NUMERIC affinity
-and the other operand has TEXT or BLOB or no affinity
-then NUMERIC affinity is applied to the other operand.
+<li><p>如果一个操作数具有 INTEGER、REAL 或 NUMERIC 亲和性，而另一个操作数具有 TEXT、BLOB 或无亲和性，则对另一个操作数应用 NUMERIC 亲和性。</p></li>
+<li><p>如果一个操作数具有 TEXT 亲和性而另一个无亲和性，则对另一个操作数应用 TEXT 亲和性。</p></li>
+<li><p>否则，不应用亲和性，两个操作数按原样比较。</p></li>
+</ul>
 
-</p></li><li><p>If one operand has TEXT affinity and the other has no affinity,
-then TEXT affinity is applied to the other operand.
+<p>表达式 "a BETWEEN b AND c" 被视为两个独立的二元比较 "a &gt;= b AND a &lt;= c"，即使这意味着在各个比较中对 'a' 应用不同的亲和性。形式为 "x IN (SELECT y ...)" 的比较中的数据类型转换处理方式如同比较实际上为 "x=y"。表达式 "a IN (x, y, z, ...)" 等价于 "a = +x OR a = +y OR a = +z OR ..."。换句话说，IN 操作符右侧的值（示例中的“x”“y”“z”）被视为无亲和性，即使它们恰好是列值或 CAST 表达式。</p>
 
-</p></li><li><p>Otherwise, no affinity is applied and both operands are compared
-as is.</p>
-</li></ul>
-
-<p>The expression "a BETWEEN b AND c" is treated as two separate
-binary comparisons "a &gt;= b AND a &lt;= c", even if that means
-different affinities are applied to 'a' in each of the comparisons.
-Datatype conversions in comparisons of the
-form "x IN (SELECT y ...)" are handled as if
-the comparison were really "x=y".
-The expression "a IN (x, y, z, ...)" is equivalent to "a = +x OR
-a = +y OR a = +z OR ...".  
-In other words, the values to the right of the IN operator (the "x", "y",
-and "z" values in this example) are considered to have no affinity, 
-even if they happen to be column values or CAST expressions.  
-</p>
-
-<h2 id="comparison_example"><span>4.3. </span>Comparison Example</h2>
+<h2 id="comparison_example"><span>4.3. </span>比较示例</h2>
 
 <blockquote>
 <pre>
@@ -678,213 +455,100 @@ text|integer|text|integer
 -- Because column "a" has text affinity, numeric values on the
 -- right-hand side of the comparisons are converted to text before
 -- the comparison occurs.
-SELECT a &lt; 40,   a &lt; 60,   a &lt; 600 FROM t1;
+SELECT a < 40,   a < 60,   a < 600 FROM t1;
 0|1|1
 
 -- Text affinity is applied to the right-hand operands but since
 -- they are already TEXT this is a no-op; no conversions occur.
-SELECT a &lt; '40', a &lt; '60', a &lt; '600' FROM t1;
+SELECT a < '40', a < '60', a < '600' FROM t1;
 0|1|1
 
 -- Column "b" has numeric affinity and so numeric affinity is applied
 -- to the operands on the right.  Since the operands are already numeric,
 -- the application of affinity is a no-op; no conversions occur.  All
 -- values are compared numerically.
-SELECT b &lt; 40,   b &lt; 60,   b &lt; 600 FROM t1;
+SELECT b < 40,   b < 60,   b < 600 FROM t1;
 0|0|1
 
 -- Numeric affinity is applied to operands on the right, converting them
 -- from text to integers.  Then a numeric comparison occurs.
-SELECT b &lt; '40', b &lt; '60', b &lt; '600' FROM t1;
+SELECT b < '40', b < '60', b < '600' FROM t1;
 0|0|1
 
 -- No affinity conversions occur.  Right-hand side values all have
 -- storage class INTEGER which are always less than the TEXT values
 -- on the left.
-SELECT c &lt; 40,   c &lt; 60,   c &lt; 600 FROM t1;
+SELECT c < 40,   c < 60,   c < 600 FROM t1;
 0|0|0
 
 -- No affinity conversions occur.  Values are compared as TEXT.
-SELECT c &lt; '40', c &lt; '60', c &lt; '600' FROM t1;
+SELECT c < '40', c < '60', c < '600' FROM t1;
 0|1|1
 
 -- No affinity conversions occur.  Right-hand side values all have
 -- storage class INTEGER which compare numerically with the INTEGER
 -- values on the left.
-SELECT d &lt; 40,   d &lt; 60,   d &lt; 600 FROM t1;
+SELECT d < 40,   d < 60,   d < 600 FROM t1;
 0|0|1
 
 -- No affinity conversions occur.  INTEGER values on the left are
 -- always less than TEXT values on the right.
-SELECT d &lt; '40', d &lt; '60', d &lt; '600' FROM t1;
+SELECT d < '40', d < '60', d < '600' FROM t1;
 1|1|1
 </pre>
 </blockquote>
 
-<p>All of the results in the example are the same if the comparisons are
-commuted - if expressions of the form "a&lt;40" are rewritten
-as "40&gt;a".
+<p>如果将示例中的比较交换顺序——将形式 "a&lt;40" 重写为 "40&gt;a"——所有结果仍相同。</p>
 
-</p><h1 id="operators"><span>5. </span>Operators</h1>
+<h1 id="operators"><span>5. </span>运算符</h1>
 
-<p>Mathematical operators (+, -, *, /, %, &lt;&lt;, &gt;&gt;,
-&amp;, and |) interpret both operands as if they were numbers.
-STRING or BLOB operands automatically convert into REAL or INTEGER values.
-If the STRING or BLOB looks like a real number (if it has a decimal point
-or an exponent) or if the value is outside the range that can be represented
-as a 64-bit signed integer, then it converts to REAL.  Otherwise the operand
-converts to INTEGER.
-The implied type conversion of mathematical operands is slightly different
-from <a href="lang_expr.html#castexpr">CAST to NUMERIC</a> in that string and BLOB values that
-look like real numbers but have no fractional part are kept as REAL
-instead of being converted into INTEGER as they would be for <a href="lang_expr.html#castexpr">CAST to NUMERIC</a>.
-The conversion from STRING or BLOB into REAL or INTEGER is performed
-even if it is lossy and irreversible.
-Some mathematical operators (%, &lt;&lt;, &gt;&gt;, &amp;, and |) expect
-INTEGER operands.  For those operators, REAL operands are converted into INTEGER
-in the same way as a <a href="lang_expr.html#castexpr">CAST to INTEGER</a>.
-The &lt;&lt;, &gt;&gt;, &amp;, and | operators always return an INTEGER (or NULL)
-result, but the % operator returns either INTEGER or REAL (or NULL)
-depending on the type of its operands.
-A NULL operand on a mathematical operator yields a NULL result.
-An operand on a mathematical operator that does not look in any way
-numeric and is not NULL is converted to 0 or 0.0.
-Division by zero gives a result of NULL.
-</p>
+<p>算术运算符（+、-、*、/、%、&lt;&lt;、&gt;&gt;、&amp; 和 |）会将两个操作数都解释为数字。STRING 或 BLOB 操作数会自动转换为 REAL 或 INTEGER 值。如果 STRING 或 BLOB 看起来像实数（具有小数点或指数），或者其值超出 64 位有符号整数的表示范围，则会转换为 REAL。否则，操作数转换为 INTEGER。算术操作数的隐式类型转换与<a href="lang_expr.html#castexpr">CAST 到 NUMERIC</a>略有不同：看起来像实数但没有小数部分的字符串和 BLOB 值会保留为 REAL，而不是像 CAST 到 NUMERIC 那样转换为 INTEGER。即使转换是有损且不可逆的，也会将 STRING 或 BLOB 转换为 REAL 或 INTEGER。一些算术运算符（%、&lt;&lt;、&gt;&gt;、&amp; 和 |）期望 INTEGER 操作数。对于这些运算符，REAL 操作数会像<a href="lang_expr.html#castexpr">CAST 到 INTEGER</a>一样转换为 INTEGER。&lt;&lt;、&gt;&gt;、&amp; 和 | 运算符始终返回 INTEGER（或 NULL）结果，但 % 运算符根据操作数类型返回 INTEGER 或 REAL（或 NULL）。算术运算符的 NULL 操作数会产生 NULL 结果。对于既不是 NULL 也看起来绝非数值的算术操作数，会将其转换为 0 或 0.0。除零会返回 NULL。</p>
 
-<h1 id="sorting_grouping_and_compound_selects"><span>6. </span>Sorting, Grouping and Compound SELECTs</h1>
+<h1 id="sorting_grouping_and_compound_selects"><span>6. </span>排序、分组和复合 SELECT</h1>
 
-<p>When query results are sorted by an ORDER BY clause, values with storage
-class NULL come first, followed by INTEGER and REAL values
-interspersed in numeric order, followed by TEXT values in collating
-sequence order, and finally BLOB values in memcmp() order.  No storage
-class conversions occur before the sort.</p>
+<p>当查询结果通过 ORDER BY 子句排序时，存储类为 NULL 的值排在最前，其后以数值顺序穿插的 INTEGER 和 REAL 值，再之后是按照排序序列顺序排列的 TEXT 值，最后是按 memcmp() 顺序排列的 BLOB 值。排序之前不会发生存储类转换。</p>
 
-<p>When grouping values with the GROUP BY clause values with
-different storage classes are considered distinct, except for INTEGER
-and REAL values which are considered equal if they are numerically
-equal. No affinities are applied to any values as the result of a
-GROUP by clause.</p>
+<p>当使用 GROUP BY 子句对值进行分组时，不同存储类的值被视为不同，除非 INTEGER 和 REAL 值在数值上相等。在 GROUP BY 结果中不对任何值应用亲和性。</p>
 
-<p>The compound SELECT operators UNION,
-INTERSECT and EXCEPT perform implicit comparisons between values.
-No affinity is applied to comparison operands for the implicit
-comparisons associated with UNION, INTERSECT, or EXCEPT - the values
-are compared as is.</p>
+<p>复合 SELECT 运算符 UNION、INTERSECT 和 EXCEPT 在值之间执行隐式比较。与 UNION、INTERSECT 或 EXCEPT 相关的隐式比较的操作数不会应用亲和性——值按原样比较。</p>
 
 <a name="collation"></a>
 
-<h1 id="collating_sequences"><span>7. </span>Collating Sequences</h1>
+<h1 id="collating_sequences"><span>7. </span>排序序列</h1>
 
-<p>When SQLite compares two strings, it uses a collating sequence or
-collating function (two terms for the same thing) to determine which
-string is greater or if the two strings are equal.
-SQLite has three built-in collating functions:  BINARY, NOCASE, and 
-RTRIM.</p>
+<p>当 SQLite 比较两个字符串时，会使用排序序列或排序函数（两个术语指同一事物）来确定哪个字符串更大或两字符串是否相等。SQLite 提供三种内置排序函数：BINARY、NOCASE 和 RTRIM。</p>
 
 <ul>
-<li><b>BINARY</b> - Compares string data using memcmp(), regardless
-                   of text encoding.</li>
-<li><b>NOCASE</b> - Similar to binary, except that it uses
-     <a href="c3ref/stricmp.html">sqlite3_strnicmp()</a> for the comparison.  Hence the 26 upper case
-     characters of ASCII are folded to their lower case equivalents before
-     the comparison is performed.  Note that only ASCII characters
-     are case folded.  SQLite does not attempt to do full
-     UTF case folding due to the size of the tables required.
-     Also note that any U+0000 characters in the string are considered
-     string terminators for comparison purposes.
-
-</li><li><b>RTRIM</b> - The same as binary, except that trailing space
-     characters are ignored.</li>
+<li><b>BINARY</b> - 使用 memcmp() 比较字符串数据，无论文本编码为何。</li>
+<li><b>NOCASE</b> - 类似于 BINARY，但比较时使用<a href="c3ref/stricmp.html">sqlite3_strnicmp()</a>。因此，ASCII 的 26 个大写字符在比较前会折叠为其小写形式。注意只有 ASCII 字符会被折叠。由于所需表格庞大，SQLite 不尝试进行完整的 UTF 大小写折叠。此外，字符串中的任何 U+0000 字符在比较中被视为字符串终止符。</li>
+<li><b>RTRIM</b> - 与 BINARY 相同，但忽略尾随空格字符。</li>
 </ul>
 
-<p>An application can register additional collating functions using
-the <a href="c3ref/create_collation.html">sqlite3_create_collation()</a> interface.</p>
+<p>应用程序可以通过<a href="c3ref/create_collation.html">sqlite3_create_collation()</a>接口注册额外的排序函数。</p>
 
-<p>Collating functions only matter when comparing string values.
-Numeric values are always compared numerically, and BLOBs are always
-compared byte-by-byte using memcmp().</p>
+<p>排序函数仅在比较字符串值时有意义。数值始终按数值比较，BLOB 始终按字节逐个比较（memcmp()）。</p>
 
-<h2 id="assigning_collating_sequences_from_sql"><span>7.1. </span>Assigning Collating Sequences from SQL</h2>
+<h2 id="assigning_collating_sequences_from_sql"><span>7.1. </span>通过 SQL 分配排序序列</h2>
 
-<p>
-Every column of every
-table has an associated collating function.  If no collating function
-is explicitly defined, then the collating function defaults to BINARY.
-The COLLATE clause of the <a href="lang_createtable.html#tablecoldef">column definition</a> is used
-to define alternative collating functions for a column.
-</p>
+<p>每张表的每一列都有一个关联的排序函数。如果未显式定义排序函数，则默认为 BINARY。<a href="lang_createtable.html#tablecoldef">列定义</a>中的 COLLATE 子句用于为列定义可选的排序函数。</p>
 
 <a name="colrules"></a>
 
-
-<p>
-The rules for determining which collating function to use for a
-binary comparison operator (=, &lt;, &gt;, &lt;=, &gt;=, !=, IS, and
-IS NOT) are as follows:
-
-</p><ol>
-<li><p>If either operand has an explicit collating function assignment
-using the postfix <a href="lang_expr.html#collateop">COLLATE operator</a>, then the explicit collating function
-is used for comparison, with precedence to the collating function of the
-left operand.</p></li>
-
-<li><p>If either operand is a column, then the collating function of
-that column is used with precedence to the left operand.
-For the purposes of the previous sentence, a column name
-preceded by one or more unary "+" operators and/or CAST operators
-is still considered a column name.
-</p></li>
-
-<li><p>Otherwise, the BINARY collating function is used for comparison.
-</p></li>
+<p>确定用于二元比较操作符（=、&lt;、&gt;、&lt;=、&gt;=、!=、IS 和 IS NOT）的排序函数的规则如下：</p>
+<ol>
+<li><p>如果任一操作数通过后缀<a href="lang_expr.html#collateop">COLLATE 操作符</a>显式指定了排序函数，则使用该排序函数，优先级归属于左操作数的排序函数。</p></li>
+<li><p>如果任一操作数是列，则使用该列的排序函数，左操作数优先。在此前提下，即使列名前面带有一个或多个单目 "+" 操作符和/或 CAST 操作符，也仍然被视为列名。</p></li>
+<li><p>否则，使用 BINARY 排序函数进行比较。</p></li>
 </ol>
 
-<p>
-An operand of a comparison is considered to have an explicit
-collating function assignment (rule 1 above) 
-if any subexpression of the operand uses
-the postfix <a href="lang_expr.html#collateop">COLLATE operator</a>.  Thus, if a <a href="lang_expr.html#collateop">COLLATE operator</a> is used
-anywhere in a comparison expression, the collating function defined
-by that operator is used for string comparison regardless of what 
-table columns might be a part of that expression.  If two or more
-<a href="lang_expr.html#collateop">COLLATE operator</a> subexpressions appear anywhere in a comparison, the 
-left most explicit collating function is used regardless of how deeply the
-COLLATE operators are nested in the expression and regardless of
-how the expression is parenthesized.
-</p>
+<p>如果比较操作的任一子表达式使用了<a href="lang_expr.html#collateop">COLLATE 操作符</a>，则该操作被视为对该操作数显式指定了排序函数（规则 1）。因此，如果比较表达式中任一处使用了 COLLATE 操作符，则无论表达式中包含哪些表列，都将使用该操作符定义的排序函数进行字符串比较。如果比较中出现两个或多个<a href="lang_expr.html#collateop">COLLATE 操作符</a>子表达式，将使用最左侧的显式排序函数，而不考虑这些 COLLATE 操作符在表达式中的嵌套深度或表达式的括号结构。</p>
 
-<p>
-The expression "x BETWEEN y and z" is logically
-equivalent to two comparisons "x &gt;= y AND x &lt;= z" and works with
-respect to collating functions as if it were two separate comparisons.
-The expression "x IN (SELECT y ...)" is handled in the same way as the
-expression "x = y" for the purposes of determining the collating sequence.
-The collating sequence used for expressions of the form 
-"x IN (y, z, ...)" is the collating sequence of x.
-If an explicit collating sequence is required on an IN operator
-it should be applied to the left operand, like this: 
-"x COLLATE nocase IN (y,z, ...)".
-</p>  
+<p>表达式 "x BETWEEN y and z" 逻辑上等价于两个比较 "x &gt;= y AND x &lt;= z"，在排序函数方面也如同两个独立比较。表达式 "x IN (SELECT y ...)" 处理方式与表达式 "x = y" 相同，以确定排序序列。形式为 "x IN (y, z, ...)" 表达式使用 x 的排序序列。如果需要在 IN 操作符上显式指定排序序列，应将 COLLATE 应用于左操作数，例如 "x COLLATE nocase IN (y,z, ...)"。</p>
 
-<p>
-Terms of the ORDER BY clause that is part of a <a href="lang_select.html">SELECT</a>
-statement may be assigned a collating sequence using the 
-<a href="lang_expr.html#collateop">COLLATE operator</a>, in which case the specified collating function is
-used for sorting.
-Otherwise, if the expression sorted by an ORDER BY clause is
-a column, then the collating sequence of the column is used to
-determine sort order. If the expression is not a column and has no
-COLLATE clause, then the BINARY collating sequence is used.
-</p>  
+<p>作为<a href="lang_select.html">SELECT</a> 语句一部分的 ORDER BY 子句中的项可以使用<a href="lang_expr.html#collateop">COLLATE 操作符</a>指定排序序列，在这种情况下，将使用指定的排序函数进行排序。否则，如果 ORDER BY 排序的是某列，则使用该列的排序序列确定排序顺序。如果排序表达式不是列且未使用 COLLATE 子句，则使用 BINARY 排序序列。</p>
 
-<h2 id="collation_sequence_examples"><span>7.2. </span>Collation Sequence Examples</h2>
-<p>
-The examples below identify the collating sequences that would be used to
-determine the results of text comparisons that may be performed by various
-SQL statements. Note that a text comparison may not be required, and no
-collating sequence used, in the case of numeric, blob or NULL values.
-</p>
+<h2 id="collation_sequence_examples"><span>7.2. </span>排序序列示例</h2>
+<p>下面的示例说明了在执行各种 SQL 语句时用于确定字符串比较结果的排序序列。请注意，对于数值、BLOB 或 NULL 值，可能不需要字符串比较，也不会使用排序序列。</p>
 <blockquote>
 <pre>
 CREATE TABLE t1(
@@ -947,5 +611,6 @@ SELECT x FROM t1 ORDER BY c COLLATE NOCASE, x;
 --result 2 4 3 1
 </pre>
 </blockquote>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
-
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </i></small></p>
+</body>
+</html>

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Determine The Collation For a Virtual Table Constraint</title>
+<title>确定虚拟表约束的排序序列</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75rem;line-height:1.2;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,43 +123,31 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_vtab_collation -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Determine The Collation For a Virtual Table Constraint</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>确定虚拟表约束的排序序列</h2>
 </div>
 <blockquote><pre>
 const char *sqlite3_vtab_collation(sqlite3_index_info*,int);
 </pre></blockquote>
 <p>
-This function may only be called from within a call to the <a href="../vtab.html#xbestindex">xBestIndex</a>
-method of a <a href="../vtab.html">virtual table</a>.  This function returns a pointer to a string
-that is the name of the appropriate collation sequence to use for text
-comparisons on the constraint identified by its arguments.</p>
+此函数只能在调用<a href="../vtab.html#xbestindex">xBestIndex</a>方法的虚拟表中被调用。此函数返回一个指向字符串的指针，该字符串表示应在其参数所标识的约束上进行文本比较时使用的适当排序序列名称。</p>
 
-<p>The first argument must be the pointer to the <a href="../c3ref/index_info.html">sqlite3_index_info</a> object
-that is the first parameter to the xBestIndex() method. The second argument
-must be an index into the aConstraint[] array belonging to the
-sqlite3_index_info structure passed to xBestIndex.</p>
+<p>第一个参数必须是传给<a href="../c3ref/index_info.html">sqlite3_index_info</a>对象的指针，该对象是 xBestIndex() 方法的第一个参数。第二个参数必须是传入 xBestIndex 的 sqlite3_index_info 结构中 aConstraint[] 数组的索引。</p>
 
-<p>Important:
-The first parameter must be the same pointer that is passed into the
-xBestMethod() method.  The first parameter may not be a pointer to a
-different <a href="../c3ref/index_info.html">sqlite3_index_info</a> object, even an exact copy.</p>
+<p>重要提示：
+第一个参数必须与传入<a href="../vtab.html#xbestmethod">xBestMethod()</a>方法的指针完全相同。第一个参数不得是指向不同<a href="../c3ref/index_info.html">sqlite3_index_info</a>对象的指针，即便其为完全相同的副本。</p>
 
-<p>The return value is computed as follows:</p>
+<p>返回值按如下方式计算：</p>
 
 <p><ol>
-<li><p> If the constraint comes from a WHERE clause expression that contains
-a <a href="../lang_expr.html#collateop">COLLATE operator</a>, then the name of the collation specified by
-that COLLATE operator is returned.
-<li><p> If there is no COLLATE operator, but the column that is the subject
-of the constraint specifies an alternative collating sequence via
-a <a href="../lang_createtable.html#collateclause">COLLATE clause</a> on the column definition within the CREATE TABLE
-statement that was passed into <a href="../c3ref/declare_vtab.html">sqlite3_declare_vtab()</a>, then the
-name of that alternative collating sequence is returned.
-<li><p> Otherwise, "BINARY" is returned.
+<li><p> 如果约束来自包含<a href="../lang_expr.html#collateop">COLLATE 运算符</a>的 WHERE 子句表达式，则返回该 COLLATE 运算符所指定的排序名称。
+<li><p> 如果不存在 COLLATE 运算符，但约束所针对的列在通过<a href="../lang_createtable.html#collateclause">COLLATE 子句</a>定义的列排序序列中指定了替代排序序列，且该列定义来自传入<a href="../c3ref/declare_vtab.html">sqlite3_declare_vtab()</a>的 CREATE TABLE 语句，则返回该替代排序序列的名称。
+<li><p> 否则，返回“BINARY”。
 </ol>
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a>列表、
+  <a href="../c3ref/constlist.html">常量</a>列表以及
+  <a href="../c3ref/funclist.html">函数</a>列表。</p>
 
+</body>
+</html>

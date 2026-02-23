@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,63 +123,37 @@ antiRobotDefense();
 </script>
 
 
-<h1>Constraint Conflict Resolution in SQLite</h1>
+<h1>SQLite 中的约束冲突解决</h1>
 
 <p>
-In most SQL databases, if you have a <a href="lang_createtable.html#uniqueconst">UNIQUE</a>, <a href="lang_createtable.html#notnullconst">NOT NULL</a>, or
-<a href="lang_createtable.html#ckconst">CHECK</a> constraint on
-a table and you try to do an <a href="lang_update.html">UPDATE</a> or <a href="lang_insert.html">INSERT</a> that violates
-the constraint, the database will abort the operation in
-progress, back out any prior changes associated with the same
-UPDATE or INSERT statement, and return an error.
-This is the default behavior of SQLite, though SQLite also allows one to
-define alternative ways for dealing with constraint violations.
-This article describes those alternatives and how to use them.
+在大多数 SQL 数据库中，如果在表上有 <a href="lang_createtable.html#uniqueconst">UNIQUE</a>、<a href="lang_createtable.html#notnullconst">NOT NULL</a> 或
+<a href="lang_createtable.html#ckconst">CHECK</a> 约束，并且你尝试执行会违反该约束的 <a href="lang_update.html">UPDATE</a> 或 <a href="lang_insert.html">INSERT</a>，
+数据库会中止正在进行的操作，撤销与同一 UPDATE 或 INSERT 语句相关的任何先前更改，并返回错误。
+这是 SQLite 的默认行为，不过 SQLite 也允许定义处理约束违规的替代方式。
+本文介绍这些替代方法以及如何使用它们。
 </p>
 
-<h2>Conflict Resolution Algorithms</h2>
+<h2>冲突解决算法</h2>
 
 <p>
-SQLite defines five constraint conflict resolution algorithms
-as follows:
+SQLite 定义了以下五种约束冲突解决算法：
 </p>
 
 <dl>
 <dt><b>ROLLBACK</b></dt>
-<dd><p>When a constraint violation occurs, an immediate ROLLBACK
-occurs, thus ending the current transaction, and the command aborts
-with a return code of SQLITE_CONSTRAINT.  If no transaction is
-active (other than the implied transaction that is created on every
-command) then this algorithm works the same as ABORT.</p></dd>
+<dd><p>当发生约束冲突时，会立即执行 ROLLBACK，从而结束当前事务，并以 SQLITE_CONSTRAINT 返回码中止该命令。如果没有活动事务（除了每个命令隐式创建的事务），则该算法的行为与 ABORT 相同。</p></dd>
 
 <dt><b>ABORT</b></dt>
-<dd><p>When a constraint violation occurs, the command backs out
-any prior changes it might have made and aborts with a return code
-of SQLITE_CONSTRAINT.  But no ROLLBACK is executed so changes
-from prior commands within the same transaction
-are preserved.  This is the default behavior for SQLite.</p></dd>
+<dd><p>当发生约束冲突时，该命令会撤销它可能所做的任何先前更改，并以 SQLITE_CONSTRAINT 返回码中止。但不会执行 ROLLBACK，因此同一事务内先前命令的更改会被保留。这是 SQLite 的默认行为。</p></dd>
 
 <dt><b>FAIL</b></dt>
-<dd><p>When a constraint violation occurs, the command aborts with a
-return code SQLITE_CONSTRAINT.  But any changes to the database that
-the command made prior to encountering the constraint violation
-are preserved and are not backed out.  For example, if an UPDATE
-statement encountered a constraint violation on the 100th row that
-it attempts to update, then the first 99 row changes are preserved
-but change to rows 100 and beyond never occur.</p></dd>
+<dd><p>当发生约束冲突时，该命令会以 SQLITE_CONSTRAINT 返回码中止。但命令在遇到约束冲突之前对数据库所做的任何更改都会被保留，不会被撤销。例如，如果 UPDATE 语句在尝试更新的第 100 行遇到约束冲突，那么前 99 行的更改会被保留，而第 100 行及之后的行则不会发生更改。</p></dd>
 
 <dt><b>IGNORE</b></dt>
-<dd><p>When a constraint violation occurs, the one row that contains
-the constraint violation is not inserted or changed.  But the command
-continues executing normally.  Other rows before and after the row that
-contained the constraint violation continue to be inserted or updated
-normally.  No error is returned.</p></dd>
+<dd><p>当发生约束冲突时，包含该冲突的那一行不会被插入或更改。但命令继续正常执行。冲突行之前和之后的其他行会照常被插入或更新。不会返回错误。</p></dd>
 
 <dt><b>REPLACE</b></dt>
-<dd><p>When a UNIQUE constraint violation occurs, the pre-existing row
-that caused the constraint violation is removed prior to inserting
-or updating the current row.  Thus the insert or update always occurs.
-The command continues executing normally.  No error is returned.</p></dd>
+<dd><p>当发生 UNIQUE 约束冲突时，导致冲突的预先存在的行会在插入或更新当前行之前被删除。因此插入或更新总是会发生。命令继续正常执行。不会返回错误。</p></dd>
 </dl>
 
 

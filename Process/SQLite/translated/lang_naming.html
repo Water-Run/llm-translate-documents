@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Database Object Name Resolution</title>
+<title>数据库对象名称解析</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="开始">
 </form>
 </div>
 </div>
@@ -116,51 +122,42 @@ antiRobotGo();
 antiRobotDefense();
 </script>
 
-
+<p>
+  在 SQLite 中，数据库对象（表、索引、触发器或视图）由对象名称以及其所处数据库的名称来标识。
+  数据库对象可以位于主数据库、临时数据库或
+  <a href="lang_attach.html">附加数据库</a> 中。
+</p>
 
 <p>
-  In SQLite, a database object (a table, index, trigger or view) is identified
-  by the name of the object and the name of the database that it resides in. 
-  Database objects may reside in the main database, the temp database, or in
-  an <a href="lang_attach.html">attached database</a>.
-
-<p>
-  The syntax of the <a href="lang_droptable.html">DROP TABLE</a>, <a href="lang_dropindex.html">DROP INDEX</a>, <a href="lang_dropview.html">DROP VIEW</a>, <a href="lang_droptrigger.html">DROP TRIGGER</a>,
-  <a href="lang_reindex.html">REINDEX</a>, <a href="lang_altertable.html">ALTER TABLE</a> and many other commands all permit the user to
-  specify a database object either by its name alone, or by a combination of
-  its name and the name of its database. If no database is specified as part
-  of the object reference, then SQLite searches the main, temp and all attached
-  databases for an object with a matching name. The temp database is searched
-  first, followed by the main database, followed by all attached databases in the
-  order that they were attached. The reference resolves to the first match
-  found. For example:
+  <a href="lang_droptable.html">DROP TABLE</a>、<a href="lang_dropindex.html">DROP INDEX</a>、<a href="lang_dropview.html">DROP VIEW</a>、<a href="lang_droptrigger.html">DROP TRIGGER</a>、
+  <a href="lang_reindex.html">REINDEX</a>、<a href="lang_altertable.html">ALTER TABLE</a> 以及许多其他命令的语法都允许用户仅通过对象名称，或通过对象名称和数据库名称的组合来指定数据库对象。
+  如果对象引用中未指定数据库，那么 SQLite 将首先在 temp 数据库中搜索，其次在 main 数据库中搜索，再按照附加的顺序在所有附加数据库中搜索具有匹配名称的对象。
+  引用将解析为找到的第一个匹配项。例如：
+</p>
 
 <pre>
-      /* Add a table named 't1' to the temp, main and an attached database */
+      /* 向临时、主数据库及附加数据库添加名为 't1' 的表 */
       ATTACH 'file.db' AS aux;
       CREATE TABLE t1(x, y);
       CREATE TEMP TABLE t1(x, y);
       CREATE TABLE aux.t1(x, y);
 
-      DROP TABLE t1;         /* Drop table in temp database */
-      DROP TABLE t1;         /* Drop table in main database */
-      DROP TABLE t1;         /* Drop table in aux database */
+      DROP TABLE t1;         /* 删除 temp 数据库中的表 */
+      DROP TABLE t1;         /* 删除 main 数据库中的表 */
+      DROP TABLE t1;         /* 删除 aux 数据库中的表 */
 </pre>
 
 <p>
-  If a schema name is specified as part of an object reference, it must be
-  either "main", or "temp" or the schema-name of an attached database.
-  Like other SQL identifiers, schema names are case-insensitive.
-  If a schema name is specified, then only that one schema is searched for
-  the named object.
+  如果对象引用中指定了 schema 名称，则该名称必须是 “main”、“temp”，或某个附加数据库的 schema 名称。
+  与其他 SQL 标识符一样，schema 名称不区分大小写。
+  如果指定了 schema 名称，则仅在该 schema 中搜索命名对象。
+</p>
 
 <p>
-  Most object references may only resolve to a specific type of object (for
-  example a reference that is part of a DROP TABLE statement may only resolve
-  to a table object, not an index, trigger or view). However in some contexts 
-  (e.g. <a href="lang_reindex.html">REINDEX</a>) an object reference may be resolved to more than one type
-  of object. When searching database schemas for a named object, objects of
-  types that cannot be used in the context of the reference are always 
-  ignored.
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+  大多数对象引用仅能解析为特定类型的对象（例如 DROP TABLE 语句中的引用只能解析为表对象，而不能是索引、触发器或视图）。
+  但是在某些上下文（例如 <a href="lang_reindex.html">REINDEX</a>）中，对象引用可能会解析为多种类型的对象。
+  在搜索数据库 schema 以查找命名对象时，引用上下文中无法使用的类型对象将始终被忽略。
+</p>
+<p align="center"><small><i>本页面最后更新于 2025-05-31 13:08:22Z </i></small></p>
 
+</body></html>

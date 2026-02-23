@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; font-size:0.75rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三个。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,74 +121,40 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<h2>SQLite Release 3.12.0 On 2016-03-29</h2><p><ol class='lessindent'>
-<p><b>Potentially Disruptive Change:</b>
-<li>The <a href="../compile.html#default_page_size">SQLITE_DEFAULT_PAGE_SIZE</a> is increased from 1024 to 4096.
-    The <a href="../compile.html#default_cache_size">SQLITE_DEFAULT_CACHE_SIZE</a> is changed from 2000 to -2000 so
-    the same amount of cache memory is used by default.
-    See the application note on the
-    <a href="../pgszchng2016.html">version 3.12.0 page size change</a> for further information.
-<p><b>Performance enhancements:</b>
-<li>Enhancements to the <a href="../lemon.html">Lemon parser generator</a>
-    so that it creates a smaller and faster SQL parser.
-<li>Only create <a href="../tempfiles.html#superjrnl">master journal</a> files if two or more attached databases are all
-    modified, do not have <a href="../pragma.html#pragma_synchronous">PRAGMA synchronous</a> set to OFF, and
-    do not have the <a href="../pragma.html#pragma_journal_mode">journal_mode</a> set to OFF, MEMORY, or WAL.
-<li>Only create <a href="../tempfiles.html#stmtjrnl">statement journal</a> files when their size exceeds a threshold.
-    Otherwise the journal is held in memory and no I/O occurs.  The threshold
-    can be configured at compile-time using <a href="../compile.html#stmtjrnl_spill">SQLITE_STMTJRNL_SPILL</a> or at
-    start-time using <a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigstmtjrnlspill">SQLITE_CONFIG_STMTJRNL_SPILL</a>).
-<li>The query planner is able to optimize IN operators on <a href="../vtab.html">virtual tables</a>
-    even if the <a href="../vtab.html#xbestindex">xBestIndex</a> method does not set the
-    sqlite3_index_constraint_usage.omit flag of the
-    virtual table column to the left of the IN operator.
-<li>The query planner now does a better job of optimizing <a href="../vtab.html">virtual table</a>
-    accesses in a 3-way or higher join where constraints on the virtual
-    table are split across two or more other tables of the join.
-<li>More efficient handling of <a href="../appfunc.html">application-defined SQL functions</a>, especially
-    in cases where the application defines hundreds or thousands of
-    custom functions.
-<li>The query planner considers the LIMIT clause when estimating the cost
-    of ORDER BY.
-<li>The configure script (on unix) automatically detects
-    pread() and pwrite() and sets compile-time options to use those OS
-    interfaces if they are available.
-<li>Reduce the amount of memory needed to hold the schema.
-<li>Other miscellaneous micro-optimizations for improved performance and reduced
-    memory usage.
-<p><b>New Features:</b>
-<li>Added the <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenablefts3tokenizer">SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER</a> option to <a href="../c3ref/db_config.html">sqlite3_db_config()</a>
-    which allows the two-argument version of the <a href="../fts3.html#f3tknzr">fts3_tokenizer()</a> SQL function to
-    be enabled or disabled at run-time.
-<li>Added the <a href="https://sqlite.org/src/artifact/d7cc99350?ln=403-443">sqlite3rbu_bp_progress()</a>
-    interface to the <a href="../rbu.html">RBU</a> extension.
-<li>The <a href="../pragma.html#pragma_defer_foreign_keys">PRAGMA defer_foreign_keys=ON</a> statement now also disables
-    <a href="../foreignkeys.html#fk_actions">RESTRICT actions</a> on foreign key.
-<li>Added the <a href="../c3ref/system_errno.html">sqlite3_system_errno()</a> interface.
-<li>Added the <a href="../compile.html#default_synchronous">SQLITE_DEFAULT_SYNCHRONOUS</a> and <a href="../compile.html#default_wal_synchronous">SQLITE_DEFAULT_WAL_SYNCHRONOUS</a>
-    compile-time options.  The <a href="../compile.html#default_synchronous">SQLITE_DEFAULT_SYNCHRONOUS</a> compile-time option
-    replaces the <a href="../compile.html#extra_durable">SQLITE_EXTRA_DURABLE</a> option, which is no longer supported.
-<li>Enhanced the ".stats" command in the <a href="../cli.html">command-line shell</a> to show more
-    information about I/O performance obtained from /proc, when available.
-<p><b>Bug fixes:</b>
-<li>Make sure the <a href="../c3ref/get_auxdata.html">sqlite3_set_auxdata()</a> values from multiple triggers
-    within a single statement do not interfere with one another.
-    Ticket <a href="https://sqlite.org/src/info/dc9b1c91">dc9b1c91</a>.
-<li>Fix the code generator for expressions of the form "x IN (SELECT...)" where
-    the SELECT statement on the RHS is a correlated subquery.
-    Ticket <a href="https://sqlite.org/src/info/5e3c886796e5512e">5e3c886796e5512e</a>.
-<li>Fix a harmless TSAN warning associated with the <a href="../c3ref/db_readonly.html">sqlite3_db_readonly()</a> interface.
-<p><b>Hashes:</b>
+<h2>SQLite 3.12.0 版本 发布于 2016-03-29</h2><p><ol class='lessindent'>
+<p><b>可能引起重大影响的变更：</b>
+<li><a href="../compile.html#default_page_size">SQLITE_DEFAULT_PAGE_SIZE</a> 从 1024 增加到 4096。<br>
+    <a href="../compile.html#default_cache_size">SQLITE_DEFAULT_CACHE_SIZE</a> 从 2000 改为 -2000，以便默认使用相同量的缓存内存。<br>
+    有关详情，请参阅
+    <a href="../pgszchng2016.html">3.12.0 版本页面大小变更</a> 的应用说明。
+<p><b>性能增强：</b>
+<li>对 <a href="../lemon.html">Lemon 解析器生成器</a> 的增强，使其生成更小更快的 SQL 解析器。
+<li>仅在两个或更多附加数据库都被修改、其 <a href="../pragma.html#pragma_synchronous">PRAGMA synchronous</a> 未设为 OFF，且<a href="../pragma.html#pragma_journal_mode">journal_mode</a> 未设为 OFF、MEMORY 或 WAL 时，才创建 <a href="../tempfiles.html#superjrnl">master journal</a> 文件。
+<li>仅在 <a href="../tempfiles.html#stmtjrnl">statement journal</a> 文件的大小超过阈值时创建，否则日志保存在内存中，不发生任何 I/O。该阈值可以在编译时使用 <a href="../compile.html#stmtjrnl_spill">SQLITE_STMTJRNL_SPILL</a> 配置，或在启动时通过 <a href="../c3ref/config.html">sqlite3_config</a>(<a href="../c3ref/c_config_covering_index_scan.html#sqliteconfigstmtjrnlspill">SQLITE_CONFIG_STMTJRNL_SPILL</a>) 配置。
+<li>即使 <a href="../vtab.html#xbestindex">xBestIndex</a> 方法未在 IN 运算符左侧的虚拟表列上设置 sqlite3_index_constraint_usage.omit 标志，查询规划器仍然可以优化虚拟表上的 IN 运算符。
+<li>在包含三个或更多表的连接中，如果对虚拟表的约束分布在其他两个或更多表上，查询规划器现在能更好地优化对虚拟表的访问。
+<li>对<a href="../appfunc.html">应用自定义 SQL 函数</a>提供更高效的处理，特别是当应用定义了数百或数千个自定义函数时。
+<li>查询规划器在估算 ORDER BY 的成本时会考虑 LIMIT 子句。
+<li>配置脚本（在 Unix 上）会自动检测 pread() 和 pwrite()，并在可用时设置编译时选项以使用这些操作系统接口。
+<li>减少保存模式所需的内存量。
+<li>其他杂项微优化，以提升性能并减少内存使用。
+<p><b>新功能：</b>
+<li>为 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> 添加了 <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigenablefts3tokenizer">SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER</a> 选项，可在运行时启用或禁用具有两个参数版本的 <a href="../fts3.html#f3tknzr">fts3_tokenizer()</a> SQL 函数。
+<li>向 <a href="../rbu.html">RBU</a> 扩展添加了 <a href="https://sqlite.org/src/artifact/d7cc99350?ln=403-443">sqlite3rbu_bp_progress()</a> 接口。
+<li><a href="../pragma.html#pragma_defer_foreign_keys">PRAGMA defer_foreign_keys=ON</a> 语句现在也会禁止外键上的 <a href="../foreignkeys.html#fk_actions">RESTRICT 操作</a>。
+<li>增加了 <a href="../c3ref/system_errno.html">sqlite3_system_errno()</a> 接口。
+<li>新增了 <a href="../compile.html#default_synchronous">SQLITE_DEFAULT_SYNCHRONOUS</a> 和 <a href="../compile.html#default_wal_synchronous">SQLITE_DEFAULT_WAL_SYNCHRONOUS</a> 编译时选项。<a href="../compile.html#default_synchronous">SQLITE_DEFAULT_SYNCHRONOUS</a> 编译选项取代了已不再支持的 <a href="../compile.html#extra_durable">SQLITE_EXTRA_DURABLE</a> 选项。
+<li>增强了 <a href="../cli.html">命令行 shell</a> 中的“.stats”命令（在可用的情况下）以显示更多来自 /proc 的 I/O 性能信息。
+<p><b>错误修复：</b>
+<li>确保单条语句内多个触发器的 <a href="../c3ref/get_auxdata.html">sqlite3_set_auxdata()</a> 值不会互相干扰。 票号 <a href="https://sqlite.org/src/info/dc9b1c91">dc9b1c91</a>。
+<li>修复形式为“x IN (SELECT...)”的表达式的代码生成器，当右侧的 SELECT 语句是相关子查询时的处理。 票号 <a href="https://sqlite.org/src/info/5e3c886796e5512e">5e3c886796e5512e</a>。
+<li>修复与 <a href="../c3ref/db_readonly.html">sqlite3_db_readonly()</a> 接口相关的无害 TSAN 警告。
+<p><b>哈希值：</b>
 <li>SQLITE_SOURCE_ID: "2016-03-29 10:14:15 e9bb4cf40f4971974a74468ef922bdee481c988b"
-<li>SHA1 for sqlite3.c: cba2be96d27cb51978cd4a200397a4ad178986eb
+<li>sqlite3.c 的 SHA1: cba2be96d27cb51978cd4a200397a4ad178986eb
 
 </ol></p>
 
-      <p>A <a href="../changes.html">complete list of SQLite releases</a>
-      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
-      A detailed history of every
-      check-in is available at
-      <a href="https://sqlite.org/src/timeline">
-      SQLite version control site</a>.</p>
+      <p><a href="../changes.html">SQLite 发布版本完整列表</a>可在单页中查看，<a href="../chronology.html">版本年表</a>也可用。每次提交的详细历史记录可在<a href="https://sqlite.org/src/timeline">
+      SQLite 版本控制站点</a>查阅。</p>
     
-

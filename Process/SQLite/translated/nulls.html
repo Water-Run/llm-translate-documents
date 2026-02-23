@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>NULL Handling in SQLite</title>
+<title>SQLite 中的 NULL 处理</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="desktoponly" style="text-align:right;font-size:0.85em;margin-bottom:0.25rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索变更日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -117,72 +123,55 @@ antiRobotDefense();
 </script>
 
 
-<h2>NULL Handling in SQLite Versus Other Database Engines</h2>
+<h2>SQLite 与其他数据库引擎的 NULL 处理</h2>
 
 <p>
-The goal is
-to make SQLite handle NULLs in a standards-compliant way.
-But the descriptions in the SQL standards on how to handle
-NULLs seem ambiguous. 
-It is not clear from the standards documents exactly how NULLs should
-be handled in all circumstances.
+目标是让 SQLite 以符合标准的方式处理 NULL。
+但 SQL 标准中关于如何处理 NULL 的描述似乎模棱两可。
+从标准文档中不清楚究竟在所有情况下应该如何处理 NULL。
 </p>
 
 <p>
-So instead of going by the standards documents, various popular
-SQL engines were tested to see how they handle NULLs.  The idea
-was to make SQLite work like all the other engines.
-An SQL test script was developed and run by volunteers on various
-SQL RDBMSes and the results of those tests were used to deduce
-how each engine processed NULL values.
-The original tests were run in May of 2002.
-A copy of the test script is found at the end of this document.
+因此，与其依据标准文档，不如对各种流行的 SQL 引擎进行测试，看看它们如何处理 NULL。
+目标是让 SQLite 的行为与其他引擎一致。
+志愿者在各种 SQL RDBMS 上开发并运行了一个 SQL 测试脚本，并使用这些测试结果推断出每个引擎如何处理 NULL 值。
+最初的测试于 2002 年 5 月运行。
+本文件末尾附有测试脚本的副本。
 </p>
 
 <p>
-SQLite was originally coded in such a way that the answer to
-all questions in the chart below would be "Yes".  But the
-experiments run on other SQL engines showed that none of them
-worked this way.  So SQLite was modified to work the same as
-Oracle, PostgreSQL, and DB2.  This involved making NULLs
-indistinct for the purposes of the SELECT DISTINCT statement and
-for the UNION operator in a SELECT.  NULLs are still distinct
-in a UNIQUE column.  This seems somewhat arbitrary, but the desire
-to be compatible with other engines outweighed that objection.
+SQLite 最初的编码方式使下面图表中所有问题的答案都为“是”。 
+但在其他 SQL 引擎上的实验表明，它们都不是这样工作的。
+因此 SQLite 被修改为与 Oracle、PostgreSQL 和 DB2 的行为一致；
+这意味着在 SELECT DISTINCT 声明和 SELECT 中的 UNION 操作中，NULL 被视为相同。
+在 UNIQUE 列中 NULL 仍然被视为不同。
+这看似有些武断，但为了与其他引擎兼容的愿望压倒了这一反对意见。
 </p>
 
 <p>
-It is possible to make SQLite treat NULLs as distinct for the
-purposes of the SELECT DISTINCT and UNION.  To do so, one should
-change the value of the NULL_ALWAYS_DISTINCT #define in the
-<tt>sqliteInt.h</tt> source file and recompile.
+可以让 SQLite 在 SELECT DISTINCT 和 UNION 的上下文中将 NULL 视为不同。
+为此，应修改 <tt>sqliteInt.h</tt> 源文件中 NULL_ALWAYS_DISTINCT 的 #define 值并重新编译。
 </p>
 
 <blockquote>
 <p>
-<i>Update 2003-07-13:</i>
-Since this document was originally written some of the database engines
-tested have been updated and users have been kind enough to send in
-corrections to the chart below.  The original data showed a wide variety
-of behaviors, but over time the range of behaviors has converged toward
-the PostgreSQL/Oracle model.  The only significant difference 
-is that Informix and MS-SQL both treat NULLs as
-indistinct in a UNIQUE column.
+<i>更新 2003-07-13：</i>
+由于本文档最初撰写以来，一些被测试的数据库引擎已经更新，且用户也好心地发送了对下表的修正。
+最初的数据展示了各种行为，但随着时间推移，行为范围已趋向 PostgreSQL/Oracle 模型。
+唯一显著的差异是 Informix 和 MS-SQL 在 UNIQUE 列中都将 NULL 视为相同。
 </p>
 
 <p>
-The fact that NULLs are distinct for UNIQUE columns but are indistinct for
-SELECT DISTINCT and UNION continues to be puzzling.  It seems that NULLs
-should be either distinct everywhere or nowhere.  And the SQL standards
-documents suggest that NULLs should be distinct everywhere.  Yet as of
-this writing, no SQL engine tested treats NULLs as distinct in a SELECT
-DISTINCT statement or in a UNION.
+NULL 在 UNIQUE 列中是不同的，而在 SELECT DISTINCT 和 UNION 中却是相同的，这仍然令人不解。
+似乎 NULL 应该要么在所有地方都不同，要么在所有地方都相同。
+SQL 标准文档暗示 NULL 在各处都应是不同的。
+然而截至本文撰写时，尚无任何测试过的 SQL 引擎在 SELECT DISTINCT 或 UNION 中将 NULL 视为不同。
 </p>
 </blockquote>
 
 
 <p>
-The following table shows the results of the NULL handling experiments.
+下表显示了 NULL 处理实验的结果。
 </p>
 
 <table border=1 cellpadding=3 width="100%">
@@ -196,77 +185,77 @@ The following table shows the results of the NULL handling experiments.
 <th>OCELOT</th>
 </tr>
 
-<tr><td>Adding anything to null gives null</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>向 NULL 添加任何值仍为 NULL</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>Multiplying null by zero gives null</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>将 NULL 乘以零仍为 NULL</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>nulls are distinct in a UNIQUE column</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#aaaad2">(Note 4)</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>在 UNIQUE 列中 NULL 是不同的</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#aaaad2">（注 4）</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>nulls are distinct in SELECT DISTINCT</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
+<tr><td>在 SELECT DISTINCT 中 NULL 是不同的</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
 </tr>
-<tr><td>nulls are distinct in a UNION</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
+<tr><td>在 UNION 中 NULL 是不同的</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
 </tr>
-<tr><td>"CASE WHEN null THEN 1 ELSE 0 END" is 0?</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>“CASE WHEN null THEN 1 ELSE 0 END” 是 0 吗？</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>"null OR true" is true</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>“null OR true”为真</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>"not (null AND false)" is true</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>“not (null AND false)” 为真</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
 </table>
 
@@ -279,109 +268,102 @@ The following table shows the results of the NULL handling experiments.
 <th>Borland<br>Interbase</th>
 </tr>
 
-<tr><td>Adding anything to null gives null</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>向 NULL 添加任何值仍为 NULL</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>Multiplying null by zero gives null</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>将 NULL 乘以零仍为 NULL</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>nulls are distinct in a UNIQUE column</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#aaaad2">(Note 4)</td>
-<td valign="center" align="center" bgcolor="#aaaad2">(Note 4)</td>
+<tr><td>在 UNIQUE 列中 NULL 是不同的</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#aaaad2">（注 4）</td>
+<td valign="center" align="center" bgcolor="#aaaad2">（注 4）</td>
 </tr>
-<tr><td>nulls are distinct in SELECT DISTINCT</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No (Note 1)</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
+<tr><td>在 SELECT DISTINCT 中 NULL 是不同的</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否（注 1）</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
 </tr>
-<tr><td>nulls are distinct in a UNION</td>
-<td valign="center" align="center" bgcolor="#aaaad2">(Note 3)</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No (Note 1)</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
+<tr><td>在 UNION 中 NULL 是不同的</td>
+<td valign="center" align="center" bgcolor="#aaaad2">（注 3）</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否（注 1）</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
 </tr>
-<tr><td>"CASE WHEN null THEN 1 ELSE 0 END" is 0?</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#aaaad2">(Note 5)</td>
+<tr><td>“CASE WHEN null THEN 1 ELSE 0 END” 是 0 吗？</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#aaaad2">（注 5）</td>
 </tr>
-<tr><td>"null OR true" is true</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>“null OR true”为真</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
-<tr><td>"not (null AND false)" is true</td>
-<td valign="center" align="center" bgcolor="#c7a9a9">No</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
-<td valign="center" align="center" bgcolor="#a9c7a9">Yes</td>
+<tr><td>“not (null AND false)” 为真</td>
+<td valign="center" align="center" bgcolor="#c7a9a9">否</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
+<td valign="center" align="center" bgcolor="#a9c7a9">是</td>
 </tr>
 </table>
 
 <table border=0 align="right" cellpadding=0 cellspacing=0>
 <tr>
-<td valign="top" rowspan=5>Notes:&nbsp;&nbsp;</td>
+<td valign="top" rowspan=5>注释：&nbsp;&nbsp;</td>
 <td>1.&nbsp;</td>
-<td>Older versions of firebird omit all NULLs from SELECT DISTINCT
-and from UNION.</td>
+<td>旧版本的 Firebird 会从 SELECT DISTINCT 和 UNION 中省略所有 NULL。</td>
 </tr>
 <tr><td>2.&nbsp;</td>
-<td>Test data unavailable.</td>
+<td>测试数据不可用。</td>
 </tr>
 <tr><td>3.&nbsp;</td>
-<td>MySQL version 3.23.41 does not support UNION.</td>
+<td>MySQL 3.23.41 版本不支持 UNION。</td>
 </tr>
 <tr><td>4.&nbsp;</td>
-<td>DB2, SQL Anywhere, and Borland Interbase 
-do not allow NULLs in a UNIQUE column.</td>
+<td>DB2、SQL Anywhere 以及 Borland Interbase 不允许在 UNIQUE 列中出现 NULL。</td>
 </tr>
 <tr><td>5.&nbsp;</td>
-<td>Borland Interbase does not support CASE expressions.</td>
+<td>Borland Interbase 不支持 CASE 表达式。</td>
 </tr>
 </table>
 <br clear="both">
 
 <p>&nbsp;</p>
 <p>
-The following script was used to gather information for the table
-above.
+以下脚本用于收集上述表格的信息。
 </p>
 
 <pre>
--- I have about decided that SQL's treatment of NULLs is capricious and cannot be
--- deduced by logic.  It must be discovered by experiment.  To that end, I have 
--- prepared the following script to test how various SQL databases deal with NULL.
--- My aim is to use the information gathered from this script to make SQLite as
--- much like other databases as possible.
+-- 我差不多已经决定 SQL 对 NULL 的处理是反复无常的，无法通过逻辑推导得出。
+-- 它必须通过实验来发现。为此，我准备了下面的脚本，测试各种 SQL 数据库如何处理 NULL。
+-- 我的目标是利用这个脚本收集的信息，使 SQLite 尽可能地像其他数据库。
 --
--- If you could please run this script in your database engine and mail the results
--- to me at drh@hwaci.com, that will be a big help.  Please be sure to identify the
--- database engine you use for this test.  Thanks.
+-- 如果你能在自己的数据库引擎上运行这个脚本，并将结果发送到 drh@hwaci.com，那将大有帮助。
+-- 请务必说明你用于测试的数据库引擎。谢谢。
 --
--- If you have to change anything to get this script to run with your database
--- engine, please send your revised script together with your results.
+-- 如果你必须修改任何内容才能让这个脚本在你的数据库引擎上运行，请把修改后的脚本和结果一起寄给我。
 --
 
--- Create a test table with data
+-- 创建一个带数据的测试表
 create table t1(a int, b int, c int);
 insert into t1 values(1,0,0);
 insert into t1 values(2,0,1);
@@ -391,7 +373,7 @@ insert into t1 values(5,null,0);
 insert into t1 values(6,null,1);
 insert into t1 values(7,null,null);
 
--- Check to see what CASE does with NULLs in its test expressions
+-- 检查 CASE 在其测试表达式中对 NULL 的处理
 select a, case when b<>0 then 1 else 0 end from t1;
 select a+10, case when not b<>0 then 1 else 0 end from t1;
 select a+20, case when b<>0 and c<>0 then 1 else 0 end from t1;
@@ -401,17 +383,17 @@ select a+50, case when not (b<>0 or c<>0) then 1 else 0 end from t1;
 select a+60, case b when c then 1 else 0 end from t1;
 select a+70, case c when b then 1 else 0 end from t1;
 
--- What happens when you multiply a NULL by zero?
+-- 当你把 NULL 乘以零时会发生什么？
 select a+80, b*0 from t1;
 select a+90, b*c from t1;
 
--- What happens to NULL for other operators?
+-- 其他运算符对 NULL 会产生什么结果？
 select a+100, b+c from t1;
 
--- Test the treatment of aggregate operators
+-- 测试聚合运算符对 NULL 的处理
 select count(*), count(b), sum(b), avg(b), min(b), max(b) from t1;
 
--- Check the behavior of NULLs in WHERE clauses
+-- 检查 WHERE 子句中 NULL 的行为
 select a+110 from t1 where b<10;
 select a+120 from t1 where not b>10;
 select a+130 from t1 where b<10 OR c=1;
@@ -419,14 +401,13 @@ select a+140 from t1 where b<10 AND c=1;
 select a+150 from t1 where not (b<10 AND c=1);
 select a+160 from t1 where not (c=1 AND b<10);
 
--- Check the behavior of NULLs in a DISTINCT query
+-- 检查 DISTINCT 查询中 NULL 的表现
 select distinct b from t1;
 
--- Check the behavior of NULLs in a UNION query
+-- 检查 UNION 查询中 NULL 的表现
 select b from t1 union select b from t1;
 
--- Create a new table with a unique column.  Check to see if NULLs are considered
--- to be distinct.
+-- 创建一个带有 UNIQUE 列的新表，检查 NULL 是否被认为是不同的。
 create table t2(a int, b int unique);
 insert into t2 values(1,1);
 insert into t2 values(2,null);
@@ -436,5 +417,5 @@ select * from t2;
 drop table t1;
 drop table t2;
 </pre>
-<p align="center"><small><i>This page was last updated on 2022-04-18 02:55:50Z </small></i></p>
-
+<p align="center"><small><i>该页面最后更新于 2022-04-18 02:55:50Z </i></small></p>
+</body></html>

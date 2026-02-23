@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Write-Ahead Log Commit Hook</title>
+<title>预写式日志提交钩子</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -117,8 +123,8 @@ antiRobotDefense();
 </script>
 <!-- keywords: sqlite3_wal_hook -->
 <div class=nosearch>
-<a href="../c3ref/intro.html"><h2>SQLite C Interface</h2></a>
-<h2>Write-Ahead Log Commit Hook</h2>
+<a href="../c3ref/intro.html"><h2>SQLite C 接口</h2></a>
+<h2>预写式日志提交钩子</h2>
 </div>
 <blockquote><pre>
 void *sqlite3_wal_hook(
@@ -128,51 +134,26 @@ void *sqlite3_wal_hook(
 );
 </pre></blockquote>
 <p>
-The <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a> function is used to register a callback that
-is invoked each time data is committed to a database in wal mode.</p>
+<a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a> 函数用于注册一个回调，该回调在以 wal 模式向数据库提交数据时每次都会被调用。</p>
 
-<p>The callback is invoked by SQLite after the commit has taken place and
-the associated write-lock on the database released, so the implementation
-may read, write or <a href="../wal.html#ckpt">checkpoint</a> the database as required.</p>
+<p>提交完成并释放数据库的写锁之后，SQLite 会调用该回调，因此实现可以根据需要读取、写入或 <a href="../wal.html#ckpt">检查点</a> 数据库。</p>
 
-<p>The first parameter passed to the callback function when it is invoked
-is a copy of the third parameter passed to sqlite3_wal_hook() when
-registering the callback. The second is a copy of the database handle.
-The third parameter is the name of the database that was written to -
-either "main" or the name of an <a href="../lang_attach.html">ATTACH</a>-ed database. The fourth parameter
-is the number of pages currently in the write-ahead log file,
-including those that were just committed.</p>
+<p>回调被调用时传入的第一个参数是注册该回调时传递给 sqlite3_wal_hook() 第三个参数的副本。第二个参数是数据库句柄的副本。第三个参数是写入的数据库名称——要么是 “main”，要么是某个 <a href="../lang_attach.html">ATTACH</a> 过的数据库的名称。第四个参数是写前日志文件当前包含的页数，包括刚刚提交的页。</p>
 
-<p>The callback function should normally return <a href="../rescode.html#ok">SQLITE_OK</a>.  If an error
-code is returned, that error will propagate back up through the
-SQLite code base to cause the statement that provoked the callback
-to report an error, though the commit will have still occurred. If the
-callback returns <a href="../rescode.html#row">SQLITE_ROW</a> or <a href="../rescode.html#done">SQLITE_DONE</a>, or if it returns a value
-that does not correspond to any valid SQLite error code, the results
-are undefined.</p>
+<p>回调函数通常应该返回 <a href="../rescode.html#ok">SQLITE_OK</a>。如果返回错误代码，该错误会向上传播至触发回调的语句并导致其报告错误，尽管提交已经发生。如果回调返回 <a href="../rescode.html#row">SQLITE_ROW</a> 或 <a href="../rescode.html#done">SQLITE_DONE</a>，或者返回一个不对应于任何有效 SQLite 错误码的值，则其结果未定义。</p>
 
-<p>A single database handle may have at most a single write-ahead log
-callback registered at one time. Calling <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a>
-replaces the default behavior or previously registered write-ahead
-log callback.</p>
+<p>单个数据库句柄最多只能同时注册一个写前日志回调。再次调用 <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a> 会替换默认行为或之前注册的写前日志回调。</p>
 
-<p>The return value is a copy of the third parameter from the
-previous call, if any, or 0.</p>
+<p>返回值是前一次调用传入的第三个参数的副本（如果有），否则为 0。</p>
 
-<p>The <a href="../c3ref/wal_autocheckpoint.html">sqlite3_wal_autocheckpoint()</a> interface and the
-<a href="../pragma.html#pragma_wal_autocheckpoint">wal_autocheckpoint pragma</a> both invoke <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a> and
-will overwrite any prior <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a> settings.</p>
+<p><a href="../c3ref/wal_autocheckpoint.html">sqlite3_wal_autocheckpoint()</a> 接口和 <a href="../pragma.html#pragma_wal_autocheckpoint">wal_autocheckpoint 指令</a> 都会调用 <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a>，并会覆盖任何先前的 <a href="../c3ref/wal_hook.html">sqlite3_wal_hook()</a> 设置。</p>
 
-<p>If a write-ahead log callback is set using this function then
-<a href="../c3ref/wal_checkpoint_v2.html">sqlite3_wal_checkpoint_v2()</a> or <a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint</a>
-should be invoked periodically to keep the write-ahead log file
-from growing without bound.</p>
+<p>如果使用此函数设置了写前日志回调，则应定期调用 <a href="../c3ref/wal_checkpoint_v2.html">sqlite3_wal_checkpoint_v2()</a> 或 <a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint</a>，以防写前日志文件无限增长。</p>
 
-<p>Passing a NULL pointer for the callback disables automatic
-checkpointing entirely. To re-enable the default behavior, call
-sqlite3_wal_autocheckpoint(db,1000) or use <a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint</a>.
-</p><p>See also lists of
-  <a href="../c3ref/objlist.html">Objects</a>,
-  <a href="../c3ref/constlist.html">Constants</a>, and
-  <a href="../c3ref/funclist.html">Functions</a>.</p>
+<p>传入 NULL 指针作为回调将完全禁用自动检查点。要重新启用默认行为，请调用 sqlite3_wal_autocheckpoint(db,1000) 或使用 <a href="../pragma.html#pragma_wal_checkpoint">PRAGMA wal_checkpoint</a> 。
+</p><p>另请参阅
+  <a href="../c3ref/objlist.html">对象</a> 列表、
+  <a href="../c3ref/constlist.html">常量</a> 列表和
+  <a href="../c3ref/funclist.html">函数</a> 列表。
+</p>
 

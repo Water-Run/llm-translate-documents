@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Automatic Undo/Redo With SQLite</title>
+<title>使用 SQLite 自动撤销/重做</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.85rem;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任意选择其中三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -119,47 +125,31 @@ antiRobotDefense();
 
 
 <h1 align="center">
-Automatic Undo/Redo Using SQLite
+使用 SQLite 实现自动撤销/重做
 </h1>
 
 <p>
-This page demonstrates how to use triggers to implement undo/redo 
-logic for an application that uses SQLite as its 
-<a href="appfileformat.html">application file format</a>.
+本页演示如何使用触发器为以 SQLite 作为其<a href="appfileformat.html">应用程序文件格式</a>的应用实现撤销/重做逻辑。
 
-<h2>Object-Oriented Design</h2>
+<h2>面向对象设计</h2>
 
 <p>
-This design note considers the database to be a collection of objects.
-Each SQL table is a class.
-Each row is an instance of that class.
-There are, of course, other ways to interpret an SQL database schema,
-and the techniques described here work equally well under alternative
-interpretations, but an object-oriented view seems be more natural
-to most contemporary programmers.
+本设计说明将数据库视为对象的集合。每个 SQL 表是一种类。每一行是该类的一个实例。当然，也可以用其他方式来解释 SQL 数据库模式，这里描述的技术在其他解释下同样适用，但面向对象的视角对大多数当代程序员来说更自然。
 
-<h2>Capture Changes Using Triggers</h2>
+<h2>使用触发器捕获更改</h2>
 
 <p>
-The core idea is to create a special table (named "UNDOLOG" in the example)
-that holds information needed to undo/redo changes to the database. 
-For each class (table) in the database that wants to participate in 
-the undo/redo, triggers are created that cause entries to be made in 
-the UNDOLOG table for each DELETE, INSERT, and UPDATE of the participating
-class.
-The UNDOLOG entries consist of ordinary SQL statements the can be
-played back to reverse the changes.
+核心思想是创建一个特殊的表（示例中名为“UNDOLOG”），其中保存撤销/重做数据库更改所需的信息。对于要参与撤销/重做的每个类（表），都创建触发器，使每次对该参与类的 DELETE、INSERT 或 UPDATE 操作都会在 UNDOLOG 表中插入记录。UNDOLOG 记录由普通的 SQL 语句组成，可回放以撤销更改。
 
 <p>
-For example, suppose you wanted undo/redo on a class (table)
-that looks like this:
+例如，假设你希望对如下的类（表）启用撤销/重做功能：
 
 <blockquote><pre>
 CREATE TABLE ex1(a,b,c);
 </pre></blockquote>
 
 <p>
-Triggers to record changes to table EX1 might look like this:
+记录对 EX1 表所做更改的触发器可能如下所示：
 
 <blockquote><pre>
 CREATE TEMP TRIGGER ex1_it AFTER INSERT ON ex1 BEGIN
@@ -178,80 +168,43 @@ END;
 </pre></blockquote>
 
 <p>
-After each INSERT on ex1, the ex1_it trigger constructs text of a 
-DELETE statement that will undo the INSERT. The ex1_ut trigger constructs 
-an UPDATE statement that will undo the effects of an UPDATE. 
-And the ex1_dt trigger constructs a statement that will undo the 
-effects of a DELETE.
+每次对 ex1 执行 INSERT 后，ex1_it 触发器会构造一条 DELETE 语句来撤销该 INSERT。ex1_ut 触发器构造一条 UPDATE 语句来撤销 UPDATE 的效果。ex1_dt 触发器构造一条语句来撤销 DELETE 的影响。
 
 <p>
-Note the use of the <a href="lang_corefunc.html#quote">quote() SQL function</a> in these triggers.
-The quote() function converts its argument into a form 
-that is appropriate for inclusion in an SQL statement. Numeric values 
-come through unchanged. Single quotes are added before and after 
-strings and any internal single quotes are escaped.  BLOB values
-are rendered using SQL-standard hexadecimal BLOB notation.  The
-use of the quote() function ensures that the SQL statements used to
-undo and redo are always safe from SQL injection.
+请注意这些触发器中对<a href="lang_corefunc.html#quote">quote() SQL 函数</a>的使用。quote() 函数将其参数转换为适合包含在 SQL 语句中的形式。数值保持不变。字符串前后会加上单引号，内部的单引号会被转义。BLOB 值采用 SQL 标准的十六进制 BLOB 表示法。使用 quote() 函数可确保用于撤销和重做的 SQL 语句始终安全，不易受 SQL 注入影响。
 
-<h2>Automatic Creation Of Triggers</h2>
+<h2>自动创建触发器</h2>
 
 <p>
-Triggers such as the above could be entered manually, but that is tedious.
-An important feature of the technique demonstrated below is 
-that the triggers are generated automatically.
+可以手动输入上述触发器，但这很繁琐。下面演示的技术的一个重要特性是这些触发器是自动生成的。
 
 <p>
-The implementation language for the example code is 
-<a href="http://www.tcl-lang.org">TCL</a>, though you can easily do the same thing 
-in another programming language.
-Remember that the code here is a demonstration of the technique,
-not a drop-in module that will automatically do everything for you.
-The demonstration code shown below is derived from actual code 
-in production use. But you will need to make changes to tailor it 
-to your application.
+示例代码的实现语言是<a href="http://www.tcl-lang.org">TCL</a>，不过你也可以使用其他编程语言来完成同样的事情。请记住，这里的代码是对该技术的演示，并非一个可以直接使用的模块。下面所示的演示代码来源于实际生产环境中的代码，但你仍需根据自己的应用进行修改。
 
 <p>
-To activate the undo/redo logic, invoke the undo::activate command 
-with all classes (tables) that are to participate in the undo/redo 
-as arguments. Use undo::deactivate, undo::freeze, and undo::unfreeze 
-to control the state of the undo/redo mechanism.
+要激活撤销/重做逻辑，请使用所有要参与撤销/重做的类（表）作为参数调用 undo::activate 命令。使用 undo::deactivate、undo::freeze 和 undo::unfreeze 来控制撤销/重做机制的状态。
 
 <p>
-The undo::activate command creates temporary triggers in the database
-that record all changes made to the tables named in the arguments.
+undo::activate 命令在数据库中创建临时触发器，用于记录对参数中命名的表所做的所有更改。
 
-<h2>Application Interface</h2>
-
-<p>
-After a sequence of changes that define a single undo/redo step, 
-invoke the undo::barrier command to define the limit of that step. 
-In an interactive program, you can call undo::event after any change 
-and undo::barrier will be called automatically as an idle callback.
+<h2>应用接口</h2>
 
 <p>
-When the user presses the Undo button, invoke undo::undo. 
-Invoke undo::redo when the user presses the Redo button.
+在定义一个撤销/重做步骤的一系列更改之后，调用 undo::barrier 命令以定义该步骤的边界。在交互式程序中，你可以在每次更改后调用 undo::event，并且 undo::barrier 会作为空闲回调自动被调用。
 
 <p>
-On each call to undo::undo or undo::redo, the undo/redo module 
-automatically invokes methods status_refresh and reload_all in 
-all toplevel namespaces. These methods should be defined to 
-reconstruct the display or otherwise update the state of the 
-program based on the undone/redone changes to the database.
+当用户按下“撤销”按钮时，调用 undo::undo。用户按下“重做”按钮时，调用 undo::redo。
 
 <p>
-The demonstration code below includes a status_refresh method 
-that grays-out or activates the Undo and Redo buttons and menu 
-entries depending on whether or not there is anything to be 
-undone or redone. You will need to redefine this method to 
-control the Undo and Redo buttons in your application.
+每次调用 undo::undo 或 undo::redo 时，撤销/重做模块会自动在所有顶层命名空间中调用 status_refresh 和 reload_all 方法。应当定义这些方法以根据对数据库所做的撤销/重做更改来重建显示或更新程序状态。
 
 <p>
-The demonstration code assumes that the SQLite database is
-opened and used as a database object named "db".
+下面的演示代码包含一个 status_refresh 方法，根据是否存在可撤销或可重做的操作，灰显或激活“撤销”和“重做”按钮及菜单项。你需要重新定义此方法以控制你自己的应用中的“撤销”和“重做”按钮。
 
-<h2>Example Code</h2>
+<p>
+演示代码假设 SQLite 数据库已经以名为 “db” 的数据库对象打开并在使用。
+
+<h2>示例代码</h2>
 
 
 <blockquote><pre>
@@ -530,5 +483,6 @@ proc _step {v1 v2} {
 # End of the ::undo namespace
 }
 </pre></blockquote>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p align="center"><small><i>本页最后更新于 2025-05-31 13:08:22Z </small></i></p>
 
+</body></html>

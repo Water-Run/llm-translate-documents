@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The Geopoly Interface To The SQLite R*Tree Module</title>
+<title>SQLite R*Tree 模块的 Geopoly 接口</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:12px;margin-bottom:4px;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -118,30 +124,30 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The Geopoly Interface To The SQLite R*Tree Module
+SQLite R*Tree 模块的 Geopoly 接口
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. Overview</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#overview">1. 概述</a></div>
 <div class="fancy-toc2"><a href="#geojson">1.1. GeoJSON</a></div>
-<div class="fancy-toc2"><a href="#binary_storage_format">1.2. Binary storage format</a></div>
-<div class="fancy-toc1"><a href="#using_the_geopoly_extension">2. Using The Geopoly Extension</a></div>
-<div class="fancy-toc2"><a href="#queries">2.1. Queries</a></div>
-<div class="fancy-toc1"><a href="#special_functions">3. Special Functions</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_overlap_p1_p2_function">3.1. The geopoly_overlap(P1,P2) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_within_p1_p2_function">3.2. The geopoly_within(P1,P2) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_area_p_function">3.3. The geopoly_area(P) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_blob_p_function">3.4. The geopoly_blob(P) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_json_p_function">3.5. The geopoly_json(P) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_svg_p_function">3.6. The geopoly_svg(P,...) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_bbox_p_and_geopoly_group_bbox_p_functions">3.7. The geopoly_bbox(P) and geopoly_group_bbox(P) Functions</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_contains_point_p_x_y_function">3.8. The geopoly_contains_point(P,X,Y) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_xform_p_a_b_c_d_e_f_function">3.9. The geopoly_xform(P,A,B,C,D,E,F) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_regular_x_y_r_n_function">3.10. The geopoly_regular(X,Y,R,N) Function</a></div>
-<div class="fancy-toc2"><a href="#the_geopoly_ccw_j_function">3.11. The geopoly_ccw(J) Function</a></div>
-<div class="fancy-toc1"><a href="#implementation_details">4. Implementation Details</a></div>
-<div class="fancy-toc2"><a href="#binary_encoding_of_polygons">4.1. Binary Encoding of Polygons</a></div>
-<div class="fancy-toc2"><a href="#shadow_tables">4.2. Shadow Tables</a></div>
+<div class="fancy-toc2"><a href="#binary_storage_format">1.2. 二进制存储格式</a></div>
+<div class="fancy-toc1"><a href="#using_the_geopoly_extension">2. 使用 Geopoly 扩展</a></div>
+<div class="fancy-toc2"><a href="#queries">2.1. 查询</a></div>
+<div class="fancy-toc1"><a href="#special_functions">3. 特殊函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_overlap_p1_p2_function">3.1. geopoly_overlap(P1,P2) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_within_p1_p2_function">3.2. geopoly_within(P1,P2) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_area_p_function">3.3. geopoly_area(P) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_blob_p_function">3.4. geopoly_blob(P) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_json_p_function">3.5. geopoly_json(P) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_svg_p_function">3.6. geopoly_svg(P,...) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_bbox_p_and_geopoly_group_bbox_p_functions">3.7. geopoly_bbox(P) 与 geopoly_group_bbox(P) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_contains_point_p_x_y_function">3.8. geopoly_contains_point(P,X,Y) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_xform_p_a_b_c_d_e_f_function">3.9. geopoly_xform(P,A,B,C,D,E,F) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_regular_x_y_r_n_function">3.10. geopoly_regular(X,Y,R,N) 函数</a></div>
+<div class="fancy-toc2"><a href="#the_geopoly_ccw_j_function">3.11. geopoly_ccw(J) 函数</a></div>
+<div class="fancy-toc1"><a href="#implementation_details">4. 实现细节</a></div>
+<div class="fancy-toc2"><a href="#binary_encoding_of_polygons">4.1. 多边形的二进制编码</a></div>
+<div class="fancy-toc2"><a href="#shadow_tables">4.2. 影子表</a></div>
 </div>
 </details>
 </div>
@@ -149,310 +155,255 @@ The Geopoly Interface To The SQLite R*Tree Module
 
 
 
-<h1 id="overview"><span>1. </span>Overview</h1>
+<h1 id="overview"><span>1. </span>概述</h1>
 
 <p>
-The Geopoly module is an alternative interface to the <a href="rtree.html">R-Tree extension</a> that uses
-the <a href="http://geojson.org">GeoJSON</a> notation
-(<a href="https://tools.ietf.org/html/rfc7946">RFC-7946</a>) to describe two-dimensional
-polygons.  Geopoly includes functions for detecting when one polygon is
-contained within or overlaps with another, for computing the
-area enclosed by a polygon, for doing linear transformations of polygons,
-for rendering polygons as
-<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">SVG</a>, and other
-similar operations.
+Geopoly 模块是 <a href="rtree.html">R-Tree 扩展</a> 的替代接口，使用
+<a href="http://geojson.org">GeoJSON</a> 表示法
+（<a href="https://tools.ietf.org/html/rfc7946">RFC-7946</a>）来描述二维
+多边形。Geopoly 包含用于检测一个多边形是否被包含在另一个多边形内或与之重叠、
+计算多边形所包围的面积、对多边形执行线性变换、
+将多边形渲染为
+<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">SVG</a>，以及其他
+类似操作的函数。
 
 </p><p>
-The source code for Geopoly is included in the <a href="amalgamation.html">amalgamation</a>.  However,
-depending on configuration options and the particular version of SQLite
-you are using, the Geopoly extension may or may not be enabled by default.
-To ensure that Geopoly is enabled for your build, 
-add the <a href="compile.html#enable_geopoly">-DSQLITE_ENABLE_GEOPOLY=1</a> compile-time option.
+Geopoly 的源代码包含在 <a href="amalgamation.html">合并文件</a> 中。然而，
+根据配置选项和你使用的具体 SQLite 版本，Geopoly 扩展
+可能默认启用，也可能未启用。为了确保在你的构建中启用 Geopoly，
+请添加 <a href="compile.html#enable_geopoly">-DSQLITE_ENABLE_GEOPOLY=1</a> 编译时选项。
 
 </p><p>
-Geopoly operates on "simple" polygons - that is, polygons for which
-the boundary does not intersect itself.  Geopoly thus extends the capabilities
-of the <a href="rtree.html">R-Tree extension</a> which can only deal with rectangular areas.
-On the other hand, the <a href="rtree.html">R-Tree extension</a> is
-able to handle between 1 and 5 coordinate dimensions, whereas Geopoly is restricted
-to 2-dimensional shapes only.
+Geopoly 作用于“简单”多边形——即边界不会自相交的多边形。Geopoly 因此
+扩展了 <a href="rtree.html">R-Tree 扩展</a> 的功能，后者只能处理矩形区域。
+另一方面，<a href="rtree.html">R-Tree 扩展</a>
+可以处理 1 到 5 维坐标，而 Geopoly 则仅限于二维形状。
 
 </p><p>
-Each polygon in the Geopoly module can be associated with an arbitrary
-number of auxiliary data fields.
+Geopoly 模块中的每个多边形都可以关联任意数量的辅助数据字段。
 
 </p><h2 id="geojson"><span>1.1. </span>GeoJSON</h2>
 
-<p>The <a href="https://tools.ietf.org/html/rfc7946">GeoJSON standard</a> is syntax for
-exchanging geospatial information using JSON.  GeoJSON is a rich standard
-that can describe nearly any kind of geospatial content.
+<p><a href="https://tools.ietf.org/html/rfc7946">GeoJSON 标准</a>是一套使用 JSON 交换
+地理空间信息的语法。GeoJSON 是一个丰富的标准，
+几乎可以描述任何类型的地理空间内容。
 
-</p><p>The Geopoly module only understands
-a small subset of GeoJSON, but a critical subset.  
-In particular, GeoJSON understands
-the JSON array of vertexes that describes a simple polygon.
+</p><p>Geopoly 模块只理解 GeoJSON 的一个小子集，但却是关键的子集。
+特别是，GeoJSON 理解描述简单多边形的顶点 JSON 数组。
 
-</p><p>A polygon is defined by its vertexes.
-Each vertex is a JSON array of two numeric values which are the
-X and Y coordinates of the vertex.
-A polygon is a JSON array of at least four of these vertexes, 
-and hence is an array of arrays.
-The first and last vertex in the array must be the same.
-The polygon follows the right-hand rule:  When tracing a line from
-one vertex to the next, the area to the right of the line is outside
-of the polygon and the area to the left is inside the polygon.
-In other words, the net rotation of the vertexes is counter-clockwise.
+</p><p>多边形由其顶点定义。
+每个顶点是一个包含两个数值的 JSON 数组，分别代表该顶点的
+X 和 Y 坐标。
+一个多边形是至少四个这样顶点的 JSON 数组，
+因此是数组中的数组。
+数组中的第一个和最后一个顶点必须相同。
+多边形遵循右手法则：当从一个顶点追踪到下一个顶点时，线右侧的区域属于外部，
+而线左侧的区域属于多边形内部。
+换句话说，顶点的净旋转方向是逆时针。
 
 </p><p>
-For example, the following JSON describes an isosceles triangle, sitting
-on the X axis and with an area of 0.5:
+例如，下列 JSON 描述了一个等腰三角形，其位于 X 轴上，面积为 0.5：
 
-</p><div class="codeblock"><pre>&#91;&#91;0,0],&#91;1,0],&#91;0.5,1],&#91;0,0]]
+</p><div class="codeblock"><pre>[[0,0],[1,0],[0.5,1],[0,0]]
 </pre></div>
 
 <p>
-A triangle has three vertexes, but the GeoJSON description of the triangle
-has 4 vertexes because the first and last vertex are duplicates.
+三角形有三个顶点，但该三角形的 GeoJSON 描述包含四个顶点，因为第一和最后一个顶点是重复的。
 
-</p><h2 id="binary_storage_format"><span>1.2. </span>Binary storage format</h2>
-
-<p>
-Internally, Geopoly stores polygons in a binary format - an SQL BLOB.
-Details of the binary format are given below.
-All of the Geopoly interfaces are able to accept polygons in either the
-GeoJSON format or in the binary format.
-
-</p><h1 id="using_the_geopoly_extension"><span>2. </span>Using The Geopoly Extension</h1>
+</p><h2 id="binary_storage_format"><span>1.2. </span>二进制存储格式</h2>
 
 <p>
-A geopoly table is created as follows:
+在内部，Geopoly 将多边形以二进制格式（SQL BLOB）存储。下文提供了二进制格式的细节。
+所有 Geopoly 接口都可以接受 GeoJSON 格式或二进制格式的多边形。
+
+</p><h1 id="using_the_geopoly_extension"><span>2. </span>使用 Geopoly 扩展</h1>
+
+<p>
+Geopoly 表按如下方式创建：
 
 </p><div class="codeblock"><pre>CREATE VIRTUAL TABLE newtab USING geopoly(a,b,c);
 </pre></div>
 
 <p>
-The statement above creates a new geopoly table named "newtab".
-Every geopoly table contains a built-in integer "rowid" column
-and a "_shape" column that contains
-the polygon associated with that row of the table.
-The example above also defines three auxiliary data columns 
-named "a", "b", and "c" that can store whatever additional
-information the application needs to associate
-with each polygon.  If there is no need to store auxiliary
-information, the list of auxiliary columns can be omitted.
+上述语句创建一个名为 “newtab” 的 newtab geopoly 表。
+每个 geopoly 表都包含一个内建的整数 “rowid” 列
+以及一个 “_shape” 列，该列存储与该行对应的多边形。
+上述示例还定义了三个辅助数据列
+“a”、“b” 和 “c”，它们可以存储应用需要与每个多边形关联的额外
+信息。如果无需存储辅助信息，则可以省略辅助列列表。
 
 </p><p>
-Store new polygons in the table using ordinary INSERT statements:
+使用普通的 INSERT 语句将新多边形存入表：
 
-</p><div class="codeblock"><pre>INSERT INTO newtab(_shape) VALUES('&#91;&#91;0,0],&#91;1,0],&#91;0.5,1],&#91;0,0]]');
+</p><div class="codeblock"><pre>INSERT INTO newtab(_shape) VALUES('[[0,0],[1,0],[0.5,1],[0,0]]');
 </pre></div>
 
 <p>
-UPDATE and DELETE statements work similarly.
+UPDATE 和 DELETE 语句的工作方式类似。
 
-</p><h2 id="queries"><span>2.1. </span>Queries</h2>
+</p><h2 id="queries"><span>2.1. </span>查询</h2>
 
 <p>
-To query the geopoly table using an indexed geospatial search, 
-use one of the functions geopoly_overlap()
-or geopoly_within() as a boolean function in the WHERE clause,
-with the "_shape" column as the first argument to the function.
-For example:
+要使用索引的地理空间搜索查询 geopoly 表，
+在 WHERE 子句中将 geopoly_overlap() 或 geopoly_within() 作为布尔函数使用，
+并将 “_shape” 列作为函数的第一个参数。
+例如：
 
 </p><div class="codeblock"><pre>SELECT * FROM newtab WHERE geopoly_overlap(_shape, $query_polygon);
 </pre></div>
 
 <p>
-The previous example will return every row for which the _shape
-overlaps the polygon in the $query_polygon parameter.  The
-geopoly_within() function works similarly, but only returns rows for
-which the _shape is completely contained within $query_polygon.
+上述示例会返回所有与 $query_polygon 参数中的多边形重叠的 _shape 行。geopoly_within() 函数的工作方式类似，
+但仅返回 _shape 完全包含在 $query_polygon 内的行。
 
 </p><p>
-Queries (and also DELETE and UPDATE statements) in which the WHERE
-clause contains a bare geopoly_overlap() or geopoly_within() function
-make use of the underlying R*Tree data structures for a fast lookup that
-only has to examine a subset of the rows in the table.  The number of
-rows examined depends, of course, on the size of the $query_polygon.
-Large $query_polygons will normally need to look at more rows than small
-ones.
+在 WHERE 子句中包含裸露的 geopoly_overlap() 或 geopoly_within() 函数的查询（以及 DELETE 和 UPDATE 语句）
+会利用底层的 R*Tree 数据结构进行快速查找，只需检查表中的部分行。
+查找的行数当然取决于 $query_polygon 的大小。
+较大的 $query_polygon 通常需要检查比小的多更多的行。
 
 </p><p>
-Queries against the rowid of a geopoly table are also very quick, even
-for tables with a vast number of rows.
-However, none of the auxiliary data columns are indexes, and so queries
-against the auxiliary data columns will involve a full table scan.
+针对 geopoly 表的 rowid 的查询也非常快速，即便表有大量行。
+然而，辅助数据列都不是索引，因此针对辅助数据列的查询将涉及全表扫描。
 
-</p><h1 id="special_functions"><span>3. </span>Special Functions</h1>
+</p><h1 id="special_functions"><span>3. </span>特殊函数</h1>
 
 <p>
-The geopoly module defines several new SQL functions that are useful for
-dealing with polygons.  All polygon arguments to these functions can be
-either the GeoJSON format or the internal binary format.
+Geopoly 模块定义了一些新 SQL 函数，可用于处理多边形。所有传递给这些函数的多边形参数都可以是
+GeoJSON 格式或内部二进制格式。
 
 <a name="goverlap"></a>
 
-</p><h2 id="the_geopoly_overlap_p1_p2_function"><span>3.1. </span>The geopoly_overlap(P1,P2) Function</h2>
+</p><h2 id="the_geopoly_overlap_p1_p2_function"><span>3.1. </span>geopoly_overlap(P1,P2) 函数</h2>
 
 <p>
-If P1 and P2 are both polygons, then the geopoly_overlap(P1,P2) function returns
-a non-zero integer if there is any overlap between P1 and P2, or it returns
-zero if P1 and P2 completely disjoint.
-If either P1 or P2 is not a polygon, this routine returns NULL.
+如果 P1 和 P2 都是多边形，那么 geopoly_overlap(P1,P2) 函数在 P1 与 P2 有任意重叠时返回非零整数，
+如果 P1 与 P2 完全不相交则返回零。如果 P1 或 P2 不是多边形，该例程返回 NULL。
 
 </p><p>
-The geopoly_overlap(P1,P2) function is special in that the geopoly virtual
-table knows how to use R*Tree indexes to optimize queries in which the 
-WHERE clause uses geopoly_overlap() as a boolean function.  Only the
-geopoly_overlap(P1,P2) and geopoly_within(P1,P2) functions have this
-capability.
+geopoly_overlap(P1,P2) 函数的特殊之处在于 geopoly 虚拟表知道如何使用 R*Tree 索引来优化 WHERE 子句中
+将 geopoly_overlap() 作为布尔函数的查询。只有 geopoly_overlap(P1,P2) 和 geopoly_within(P1,P2) 函数具有这一能力。
 
 <a name="gwithin"></a>
 
-</p><h2 id="the_geopoly_within_p1_p2_function"><span>3.2. </span>The geopoly_within(P1,P2) Function</h2>
+</p><h2 id="the_geopoly_within_p1_p2_function"><span>3.2. </span>geopoly_within(P1,P2) 函数</h2>
 
 <p>
-If P1 and P2 are both polygons, then the geopoly_within(P1,P2) function returns
-a non-zero integer if P1 is completely contained within P2, or it returns zero
-if any part of P1 is outside of P2.  If P1 and P2 are the same polygon, this routine
-returns non-zero.
-If either P1 or P2 is not a polygon, this routine returns NULL.
+如果 P1 和 P2 都是多边形，那么 geopoly_within(P1,P2) 函数在 P1 完全包含在 P2 内时返回非零整数，
+如果 P1 的任意部分位于 P2 之外则返回零。如果 P1 和 P2 是同一个多边形，该例程返回非零。
+如果 P1 或 P2 不是多边形，该例程返回 NULL。
 
 </p><p>
-The geopoly_within(P1,P2) function is special in that the geopoly virtual
-table knows how to use R*Tree indexes to optimize queries in which the 
-WHERE clause uses geopoly_within() as a boolean function.  Only the
-geopoly_within(P1,P2) and geopoly_overlap(P1,P2) functions have this
-capability.
+geopoly_within(P1,P2) 函数的特殊之处在于 geopoly 虚拟表知道如何使用 R*Tree 索引来优化 WHERE 子句中
+将 geopoly_within() 作为布尔函数的查询。只有 geopoly_within(P1,P2) 和 geopoly_overlap(P1,P2) 函数具有这一能力。
 
 <a name="garea"></a>
 
-</p><h2 id="the_geopoly_area_p_function"><span>3.3. </span>The geopoly_area(P) Function</h2>
+</p><h2 id="the_geopoly_area_p_function"><span>3.3. </span>geopoly_area(P) 函数</h2>
 
 <p>
-If P is a polygon, then geopoly_area(P) returns the area enclosed by
-that polygon.  If P is not a polygon, geopoly_area(P) returns NULL.
+如果 P 是多边形，那么 geopoly_area(P) 返回该多边形所包围的面积。如果 P 不是多边形，geopoly_area(P) 返回 NULL。
 
 <a name="gblob"></a>
 
-</p><h2 id="the_geopoly_blob_p_function"><span>3.4. </span>The geopoly_blob(P) Function</h2>
+</p><h2 id="the_geopoly_blob_p_function"><span>3.4. </span>geopoly_blob(P) 函数</h2>
 
 <p>
-If P is a polygon, then geopoly_blob(P) returns the binary encoding
-of that polygon as a BLOB.
-If P is not a polygon, geopoly_blob(P) returns NULL.
+如果 P 是多边形，那么 geopoly_blob(P) 返回该多边形的二进制编码（BLOB）。
+如果 P 不是多边形，geopoly_blob(P) 返回 NULL。
 
 <a name="gjson"></a>
 
-</p><h2 id="the_geopoly_json_p_function"><span>3.5. </span>The geopoly_json(P) Function</h2>
+</p><h2 id="the_geopoly_json_p_function"><span>3.5. </span>geopoly_json(P) 函数</h2>
 
 <p>
-If P is a polygon, then geopoly_json(P) returns the GeoJSON representation
-of that polygon as a TEXT string.
-If P is not a polygon, geopoly_json(P) returns NULL.
+如果 P 是多边形，那么 geopoly_json(P) 返回该多边形的 GeoJSON 表示（TEXT 字符串）。
+如果 P 不是多边形，geopoly_json(P) 返回 NULL。
 
 <a name="gsvg"></a>
 
-</p><h2 id="the_geopoly_svg_p_function"><span>3.6. </span>The geopoly_svg(P,...) Function</h2>
+</p><h2 id="the_geopoly_svg_p_function"><span>3.6. </span>geopoly_svg(P,...) 函数</h2>
 
 <p>
-If P is a polygon, then geopoly_svg(P,...) returns a text string which is a
-<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics (SVG)</a>
-representation of that polygon.  If there is more one argument, then second
-and subsequent arguments are added as attributes to each SVG glyph.  For example:
+如果 P 是多边形，那么 geopoly_svg(P,...) 返回一个文本字符串，该字符串是该多边形的
+<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">可缩放矢量图形（SVG）</a>
+表示。如果存在多个参数，则第二个及之后的参数会作为属性添加到每个 SVG 图元上。例如：
 
 </p><div class="codeblock"><pre>SELECT geopoly_svg($polygon,'class="poly"','style="fill:blue;"');
 </pre></div>
 
 <p>
-If P is not a polygon, geopoly_svg(P,...) returns NULL.
+如果 P 不是多边形，geopoly_svg(P,...) 返回 NULL。
 
 </p><p>
-Note that geopoly uses a traditional right-handed cartesian coordinate system
-with the origin at the lower left, whereas SVG uses a left-handed coordinate
-system with the origin at the upper left.  The geopoly_svg() routine makes no
-attempt to transform the coordinate system, so the displayed images are shown
-in mirror image and rotated.  If that is undesirable, the geopoly_xform() routine
-can be used to transform the output from cartesian to SVG coordinates prior to
-passing the polygons into geopoly_svg().
+请注意，geopoly 使用传统的右手笛卡尔坐标系，原点在左下角，而 SVG 使用左手坐标系，原点在左上角。
+geopoly_svg() 例程不会尝试转换坐标系，因此显示的图像会镜像并旋转。如果这不可接受，
+可以在将多边形传递给 geopoly_svg() 之前使用 geopoly_xform() 例程将输出从笛卡尔坐标转换为 SVG 坐标。
 
 <a name="gbbox"></a>
 
-</p><h2 id="the_geopoly_bbox_p_and_geopoly_group_bbox_p_functions"><span>3.7. </span>The geopoly_bbox(P) and geopoly_group_bbox(P) Functions</h2>
+</p><h2 id="the_geopoly_bbox_p_and_geopoly_group_bbox_p_functions"><span>3.7. </span>geopoly_bbox(P) 与 geopoly_group_bbox(P) 函数</h2>
 
 <p>
-If P is a polygon, then geopoly_bbox(P) returns a new polygon that is
-the smallest (axis-aligned) rectangle completely enclosing P.
-If P is not a polygon, geopoly_bbox(P) returns NULL.
+如果 P 是多边形，那么 geopoly_bbox(P) 返回一个新的多边形，该多边形是完全包围 P 的最小（轴对齐）矩形。
+如果 P 不是多边形，geopoly_bbox(P) 返回 NULL。
 
 </p><p>
-The geopoly_group_bbox(P) function is an aggregate version of geopoly_bbox(P).
-The geopoly_group_bbox(P) function returns the smallest rectangle that will
-enclose all P values seen during aggregation.
+geopoly_group_bbox(P) 函数是 geopoly_bbox(P) 的聚合版本。
+geopoly_group_bbox(P) 函数返回聚合期间出现的所有 P 值所能包围的最小矩形。
 
 <a name="gpoint"></a>
 
-</p><h2 id="the_geopoly_contains_point_p_x_y_function"><span>3.8. </span>The geopoly_contains_point(P,X,Y) Function</h2>
+</p><h2 id="the_geopoly_contains_point_p_x_y_function"><span>3.8. </span>geopoly_contains_point(P,X,Y) 函数</h2>
 
 <p>
-If P is a polygon, then geopoly_contains_point(P,X,Y) returns a 
-non-zero integer if and only
-if the coordinate X,Y is inside or on the boundary of the polygon P.
-If P is not a polygon, geopoly_contains_point(P,X,Y) returns NULL.
+如果 P 是多边形，那么 geopoly_contains_point(P,X,Y) 当且仅当坐标 X,Y 在多边形 P 内部或边界上时返回非零整数。
+如果 P 不是多边形，geopoly_contains_point(P,X,Y) 返回 NULL。
 
 <a name="xform"></a>
 
-</p><h2 id="the_geopoly_xform_p_a_b_c_d_e_f_function"><span>3.9. </span>The geopoly_xform(P,A,B,C,D,E,F) Function</h2>
+</p><h2 id="the_geopoly_xform_p_a_b_c_d_e_f_function"><span>3.9. </span>geopoly_xform(P,A,B,C,D,E,F) 函数</h2>
 
 <p>
-The geopoly_xform(P,A,B,C,D,E,F) function returns a new polygon that is an
-affine transformation of the polygon P and where the transformation
-is defined by values A,B,C,D,E,F. If P is not a valid polygon, this
-routine returns NULL.
+geopoly_xform(P,A,B,C,D,E,F) 函数返回一个新的多边形，该多边形是 P 的仿射变换，
+变换由 A,B,C,D,E,F 定义。如果 P 不是有效多边形，该例程返回 NULL。
 
 </p><p>
-The transformation converts each vertex of the polygon according to the
-following formula:
+变换根据以下公式转换多边形的每个顶点：
 
 </p><div class="codeblock"><pre>x1 = A*x0 + B*y0 + E
 y1 = C*x0 + D*y0 + F
 </pre></div>
 
 <p>
-So, for example, to move a polygon by some amount DX, DY without changing
-its shape, use:
+因此，例如，如果想在不改变形状的情况下平移多边形 DX、DY，可使用：
 
 </p><div class="codeblock"><pre>geopoly_xform($polygon, 1, 0, 0, 1, $DX, $DY)
 </pre></div>
 
 <p>
-To rotate a polygon by R radians around the point 0, 0:
+要围绕点 0,0 旋转多边形 R 弧度：
 
 </p><div class="codeblock"><pre>geopoly_xform($polygon, cos($R), sin($R), -sin($R), cos($R), 0, 0)
 </pre></div>
 
 <p>
-Note that a transformation that flips the polygon might cause the
-order of vertexes to be reversed.  In other words, the transformation
-might cause the vertexes to circulate in clockwise order instead of
-counter-clockwise.  This can be corrected by sending the result
-through the <a href="geopoly.html#ccw">geopoly_ccw()</a> function after transformation.
-
+请注意，翻转多边形的变换可能会导致顶点顺序反转。
+换句话说，该变换可能使顶点顺序由逆时针变为顺时针。
+这可以在变换后将结果传入 <a href="geopoly.html#ccw">geopoly_ccw()</a> 函数来修正。
 
 <a name="regpoly"></a>
 
-</p><h2 id="the_geopoly_regular_x_y_r_n_function"><span>3.10. </span>The geopoly_regular(X,Y,R,N) Function</h2>
+</p><h2 id="the_geopoly_regular_x_y_r_n_function"><span>3.10. </span>geopoly_regular(X,Y,R,N) 函数</h2>
 
 <p>
-The geopoly_regular(X,Y,R,N) function returns a convex, simple, regular,
-equilateral, equiangular polygon with N sides, centered at X,Y, and with
-a circumradius of R.  Or, if R is negative or if N is less than 3, the
-function returns NULL.  The N value is capped at 1000 so that the routine
-will never render a polygon with more than 1000 sides even if the N value
-is larger than 1000.
+geopoly_regular(X,Y,R,N) 函数返回一个凸的、简单的、正则的、
+等边等角的 N 边形，该多边形以 X,Y 为中心，外接圆半径为 R。
+如果 R 为负或 N 小于 3，则函数返回 NULL。N 的值被限制为 1000，
+因此即使 N 值超过 1000，该例程也永远不会绘制超过 1000 条边的多边形。
 
 </p><p>
-As an example, the following graphic:
+例如，下面的图形：
 
 </p><blockquote>
 <svg width="600" height="300" style="border:1px solid black">
@@ -469,7 +420,7 @@ As an example, the following graphic:
 </svg>
 </blockquote>
 
-<p>Was generated by this script:
+<p>由下列脚本生成：
 
 </p><div class="codeblock"><pre>SELECT '&lt;svg width="600" height="300">';
 WITH t1(x,y,n,color) AS (VALUES
@@ -494,72 +445,60 @@ SELECT '&lt;/svg>';
 
 <a name="ccw"></a>
 
-<h2 id="the_geopoly_ccw_j_function"><span>3.11. </span>The geopoly_ccw(J) Function</h2>
+<h2 id="the_geopoly_ccw_j_function"><span>3.11. </span>geopoly_ccw(J) 函数</h2>
 
-<p>The geopoly_ccw(J) function returns the polygon J with counter-clockwise (CCW) rotation.
+<p>geopoly_ccw(J) 函数返回具有逆时针（CCW）旋转的多边形 J。
 
 </p><p>
-<a href="https://tools.ietf.org/html/rfc7946">RFC-7946</a> requires that polygons use CCW rotation.
-But the spec also observes that many legacy GeoJSON files do not following the spec and
-contain polygons with clockwise (CW) rotation.  The geopoly_ccw() function is useful for
-applications that are reading legacy GeoJSON scripts.  If the input to geopoly_ccw() is
-a correctly-formatted polygon, then no changes are made.  However, if the circulation of
-the input polygon is backwards, then geopoly_ccw() reverses the circulation order so that
-it conforms to the spec and so that it will work correctly with the Geopoly module.
+<a href="https://tools.ietf.org/html/rfc7946">RFC-7946</a> 要求多边形使用 CCW 旋转。
+但规范也指出许多旧版 GeoJSON 文件没有遵循规范，
+并包含顺时针（CW）旋转的多边形。geopoly_ccw() 函数对正在读取旧版 GeoJSON 脚本的应用非常有用。
+如果传入 geopoly_ccw() 的输入是格式正确的多边形，函数不会做任何更改。
+然而，如果输入多边形的循环顺序相反，则 geopoly_ccw() 会反转循环顺序，使其符合规范，
+并且可以与 Geopoly 模块一起正常工作。
 
 
 
-</p><h1 id="implementation_details"><span>4. </span>Implementation Details</h1>
+</p><h1 id="implementation_details"><span>4. </span>实现细节</h1>
 
-<p>The geopoly module is an extension to the <a href="rtree.html">R-Tree extension</a>.  Geopoly
-uses the same underlying logic and shadow tables as the <a href="rtree.html">R-Tree extension</a>.
-Geopoly merely presents a different interface, and provides some extra logic
-to compute polygon decoding, overlap, and containment.
+<p>Geopoly 模块是对 <a href="rtree.html">R-Tree 扩展</a> 的扩展。Geopoly
+使用与 <a href="rtree.html">R-Tree 扩展</a> 相同的底层逻辑和影子表。
+Geopoly 仅仅呈现了一个不同的接口，并提供了一些额外的逻辑
+用于计算多边形的解码、重叠和包含关系。
 
-</p><h2 id="binary_encoding_of_polygons"><span>4.1. </span>Binary Encoding of Polygons</h2>
+</p><h2 id="binary_encoding_of_polygons"><span>4.1. </span>多边形的二进制编码</h2>
 
 <p>
-Geopoly stores all polygons internally using a binary format.  A binary
-polygon consists of a 4-byte header following by an array of coordinate
-pairs in which each dimension of each coordinate is a 32-bit floating point
-number.
+Geopoly 在内部使用二进制格式存储所有多边形。一个二进制多边形由 4 字节的头部
+后跟一组坐标对组成，每个坐标的每个维度都是 32 位浮点数。
 
 </p><p>
-The first byte of the header is a flag byte.  The least significant bit
-of the flag byte determines whether the coordinate pairs that follow the
-header are stored big-endian or little-endian.  A value of 0 for the least
-significant bit means big-endian and a value of 1 means little endian.
-Other bits of the first byte in the header are reserved for future expansion.
+头部的第一个字节是标志字节。标志字节的最低有效位决定头部后面
+的坐标对是以大端还是小端存储。最低有效位为 0 表示大端，为 1 表示小端。
+头部第一个字节的其他位保留供将来扩展使用。
 
 </p><p>
-The next three bytes in the header record the number of vertexes in the polygon
-as a big-endian integer.  Thus there is an upper bound of about 16 million
-vertexes per polygon.
+头部的接下来的三个字节记录多边形中顶点的数量，作为一个大端整数。
+因此，每个多边形的顶点数量上限约为 1600 万。
 
 </p><p>
-Following the header is the array of coordinate pairs.  Each coordinate is
-a 32-bit floating point number.  The use of 32-bit floating point values for
-coordinates means that any point on the earth's surface can be mapped with
-a resolution of approximately 2.5 meters.  Higher resolutions are of course
-possible if the map is restricted to a single continent or country.
-Note that the resolution of coordinates in the geopoly module is similar
-in magnitude to daily movement of points on the earth's surface due to
-tidal forces.
+头部之后是坐标对数组。每个坐标都是 32 位浮点数。
+坐标使用 32 位浮点值意味着地表上的任何点都可以用约 2.5 米的分辨率进行映射。
+如果地图限于单个大陆或国家，当然可以实现更高分辨率。
+请注意，geopoly 模块中坐标的分辨率与地球表面由于潮汐力引起的日常移动量
+在数量级上相似。
 
 </p><p>
-The list of coordinates in the binary format contains no redundancy.  
-The last coordinate is not a repeat of the first as it is with GeoJSON.  
-Hence, there is always one fewer coordinate pair in the binary representation of
-a polygon compared to the GeoJSON representation.
+二进制格式中的坐标列表不包含重复项。
+最后一个坐标不像 GeoJSON 那样重复第一个坐标。
+因此，二进制表示中的坐标对数量总是比 GeoJSON 表示少一项。
 
-</p><h2 id="shadow_tables"><span>4.2. </span>Shadow Tables</h2>
+</p><h2 id="shadow_tables"><span>4.2. </span>影子表</h2>
 
 <p>
-The geopoly module is built on top of the <a href="rtree.html">R-Tree extension</a> and uses the
-same underlying shadow tables and algorithms.  For indexing purposes, each
-polygon is represented in the shadow tables as a rectangular bounding box.
-The underlying R-Tree implementation uses bounding boxes to limit the search
-space.  Then the geoploy_overlap() and/or geopoly_within() routines further
-refine the search to the exact answer.
-</p><p align="center"><small><i>This page was last updated on 2025-07-12 15:11:36Z </small></i></p>
+Geopoly 模块基于 <a href="rtree.html">R-Tree 扩展</a> 构建，并使用
+相同的底层影子表和算法。对于索引目的，每个多边形在影子表中表示为一个矩形边界框。
+底层的 R-Tree 实现使用边界框来限制搜索空间。然后 geoploy_overlap() 和/或 geopoly_within() 例程进一步
+将搜索缩小到确切答案。
+</p><p align="center"><small><i>本页面最后一次更新于 2025-07-12 15:11:36Z </i></small></p>
 

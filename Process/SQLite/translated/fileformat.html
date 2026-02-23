@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-credit desktoponly" style="text-align:right;font-size:0.8em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">主页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,1200 +124,622 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Database File Format
+数据库文件格式
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#the_database_file">1. The Database File</a></div>
-<div class="fancy-toc2"><a href="#hot_journals">1.1. Hot Journals</a></div>
-<div class="fancy-toc2"><a href="#pages">1.2. Pages</a></div>
-<div class="fancy-toc2"><a href="#the_database_header">1.3. The Database Header</a></div>
-<div class="fancy-toc3"><a href="#magic_header_string">1.3.1. Magic Header String</a></div>
-<div class="fancy-toc3"><a href="#page_size">1.3.2. Page Size</a></div>
-<div class="fancy-toc3"><a href="#file_format_version_numbers">1.3.3. File format version numbers</a></div>
-<div class="fancy-toc3"><a href="#reserved_bytes_per_page">1.3.4. Reserved bytes per page</a></div>
-<div class="fancy-toc3"><a href="#payload_fractions">1.3.5. Payload fractions</a></div>
-<div class="fancy-toc3"><a href="#file_change_counter">1.3.6. File change counter</a></div>
-<div class="fancy-toc3"><a href="#in_header_database_size">1.3.7. In-header database size</a></div>
-<div class="fancy-toc3"><a href="#free_page_list">1.3.8. Free page list</a></div>
-<div class="fancy-toc3"><a href="#schema_cookie">1.3.9. Schema cookie</a></div>
-<div class="fancy-toc3"><a href="#schema_format_number">1.3.10. Schema format number</a></div>
-<div class="fancy-toc3"><a href="#suggested_cache_size">1.3.11. Suggested cache size</a></div>
-<div class="fancy-toc3"><a href="#incremental_vacuum_settings">1.3.12. Incremental vacuum settings</a></div>
-<div class="fancy-toc3"><a href="#text_encoding">1.3.13. Text encoding</a></div>
-<div class="fancy-toc3"><a href="#user_version_number">1.3.14. User version number</a></div>
-<div class="fancy-toc3"><a href="#application_id">1.3.15. Application ID</a></div>
-<div class="fancy-toc3"><a href="#write_library_version_number_and_version_valid_for_number">1.3.16. Write library version number and version-valid-for number</a></div>
-<div class="fancy-toc3"><a href="#header_space_reserved_for_expansion">1.3.17. Header space reserved for expansion</a></div>
-<div class="fancy-toc2"><a href="#the_lock_byte_page">1.4. The Lock-Byte Page</a></div>
-<div class="fancy-toc2"><a href="#the_freelist">1.5. The Freelist</a></div>
-<div class="fancy-toc2"><a href="#b_tree_pages">1.6. B-tree Pages</a></div>
-<div class="fancy-toc2"><a href="#cell_payload_overflow_pages">1.7. Cell Payload Overflow Pages</a></div>
-<div class="fancy-toc2"><a href="#pointer_map_or_ptrmap_pages">1.8. Pointer Map or Ptrmap Pages</a></div>
-<div class="fancy-toc1"><a href="#schema_layer">2. Schema Layer</a></div>
-<div class="fancy-toc2"><a href="#record_format">2.1. Record Format</a></div>
-<div class="fancy-toc2"><a href="#record_sort_order">2.2. Record Sort Order</a></div>
-<div class="fancy-toc2"><a href="#representation_of_sql_tables">2.3. Representation Of SQL Tables</a></div>
-<div class="fancy-toc2"><a href="#representation_of_without_rowid_tables">2.4. Representation of WITHOUT ROWID Tables</a></div>
-<div class="fancy-toc3"><a href="#suppression_of_redundant_columns_in_the_primary_key_of_without_rowid_tables">2.4.1. Suppression of redundant columns in the PRIMARY KEY
-of WITHOUT ROWID tables</a></div>
-<div class="fancy-toc2"><a href="#representation_of_sql_indices">2.5. Representation Of SQL Indices</a></div>
-<div class="fancy-toc3"><a href="#suppression_of_redundant_columns_in_without_rowid_secondary_indexes_">2.5.1. Suppression of redundant columns in WITHOUT ROWID secondary indexes
-</a></div>
-<div class="fancy-toc2"><a href="#storage_of_the_sql_database_schema">2.6. Storage Of The SQL Database Schema</a></div>
-<div class="fancy-toc3"><a href="#alternative_names_for_the_schema_table">2.6.1. Alternative Names For The Schema Table</a></div>
-<div class="fancy-toc3"><a href="#internal_schema_objects">2.6.2. Internal Schema Objects</a></div>
-<div class="fancy-toc3"><a href="#the_sqlite_sequence_table">2.6.3. The sqlite_sequence table</a></div>
-<div class="fancy-toc3"><a href="#the_sqlite_stat1_table">2.6.4. The sqlite_stat1 table</a></div>
-<div class="fancy-toc3"><a href="#the_sqlite_stat2_table">2.6.5. The sqlite_stat2 table</a></div>
-<div class="fancy-toc3"><a href="#the_sqlite_stat3_table">2.6.6. The sqlite_stat3 table</a></div>
-<div class="fancy-toc3"><a href="#the_sqlite_stat4_table">2.6.7. The sqlite_stat4 table</a></div>
-<div class="fancy-toc1"><a href="#the_rollback_journal">3. The Rollback Journal</a></div>
-<div class="fancy-toc1"><a href="#the_write_ahead_log">4. The Write-Ahead Log</a></div>
-<div class="fancy-toc2"><a href="#wal_file_format">4.1. WAL File Format</a></div>
-<div class="fancy-toc2"><a href="#checksum_algorithm">4.2. Checksum Algorithm</a></div>
-<div class="fancy-toc2"><a href="#checkpoint_algorithm">4.3. Checkpoint Algorithm</a></div>
-<div class="fancy-toc2"><a href="#wal_reset">4.4. WAL Reset</a></div>
-<div class="fancy-toc2"><a href="#reader_algorithm">4.5. Reader Algorithm</a></div>
-<div class="fancy-toc2"><a href="#wal_index_format">4.6. WAL-Index Format</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#the_database_file">1. 数据库文件</a></div>
+<div class="fancy-toc2"><a href="#hot_journals">1.1. 热日志</a></div>
+<div class="fancy-toc2"><a href="#pages">1.2. 页面</a></div>
+<div class="fancy-toc2"><a href="#the_database_header">1.3. 数据库头</a></div>
+<div class="fancy-toc3"><a href="#magic_header_string">1.3.1. 魔术头字符串</a></div>
+<div class="fancy-toc3"><a href="#page_size">1.3.2. 页面大小</a></div>
+<div class="fancy-toc3"><a href="#file_format_version_numbers">1.3.3. 文件格式版本号</a></div>
+<div class="fancy-toc3"><a href="#reserved_bytes_per_page">1.3.4. 每页保留字节</a></div>
+<div class="fancy-toc3"><a href="#payload_fractions">1.3.5. 有效载荷分数</a></div>
+<div class="fancy-toc3"><a href="#file_change_counter">1.3.6. 文件变更计数器</a></div>
+<div class="fancy-toc3"><a href="#in_header_database_size">1.3.7. 头部记录的数据库大小</a></div>
+<div class="fancy-toc3"><a href="#free_page_list">1.3.8. 空闲页列表</a></div>
+<div class="fancy-toc3"><a href="#schema_cookie">1.3.9. 模式 cookie</a></div>
+<div class="fancy-toc3"><a href="#schema_format_number">1.3.10. 模式格式号</a></div>
+<div class="fancy-toc3"><a href="#suggested_cache_size">1.3.11. 建议的缓存大小</a></div>
+<div class="fancy-toc3"><a href="#incremental_vacuum_settings">1.3.12. 增量清理设置</a></div>
+<div class="fancy-toc3"><a href="#text_encoding">1.3.13. 文本编码</a></div>
+<div class="fancy-toc3"><a href="#user_version_number">1.3.14. 用户版本号</a></div>
+<div class="fancy-toc3"><a href="#application_id">1.3.15. 应用程序 ID</a></div>
+<div class="fancy-toc3"><a href="#write_library_version_number_and_version_valid_for_number">1.3.16. 写库版本号与版本生效号</a></div>
+<div class="fancy-toc3"><a href="#header_space_reserved_for_expansion">1.3.17. 为扩展保留的头空间</a></div>
+<div class="fancy-toc2"><a href="#the_lock_byte_page">1.4. 锁字节页</a></div>
+<div class="fancy-toc2"><a href="#the_freelist">1.5. 空闲表</a></div>
+<div class="fancy-toc2"><a href="#b_tree_pages">1.6. B 树页面</a></div>
+<div class="fancy-toc2"><a href="#cell_payload_overflow_pages">1.7. 单元有效载荷溢出页面</a></div>
+<div class="fancy-toc2"><a href="#pointer_map_or_ptrmap_pages">1.8. 指针映射或 Ptrmap 页面</a></div>
+<div class="fancy-toc1"><a href="#schema_layer">2. 模式层</a></div>
+<div class="fancy-toc2"><a href="#record_format">2.1. 记录格式</a></div>
+<div class="fancy-toc2"><a href="#record_sort_order">2.2. 记录排序顺序</a></div>
+<div class="fancy-toc2"><a href="#representation_of_sql_tables">2.3. SQL 表的表示</a></div>
+<div class="fancy-toc2"><a href="#representation_of_without_rowid_tables">2.4. WITHOUT ROWID 表的表示</a></div>
+<div class="fancy-toc3"><a href="#suppression_of_redundant_columns_in_the_primary_key_of_without_rowid_tables">2.4.1. OMIT 重复列于 WITHOUT ROWID 表的主键</a></div>
+<div class="fancy-toc2"><a href="#representation_of_sql_indices">2.5. SQL 索引的表示</a></div>
+<div class="fancy-toc3"><a href="#suppression_of_redundant_columns_in_without_rowid_secondary_indexes_">2.5.1. OMIT WITHOUT ROWID 二级索引中的重复列</a></div>
+<div class="fancy-toc2"><a href="#storage_of_the_sql_database_schema">2.6. SQL 数据库模式的存储</a></div>
+<div class="fancy-toc3"><a href="#alternative_names_for_the_schema_table">2.6.1. 模式表的替代名称</a></div>
+<div class="fancy-toc3"><a href="#internal_schema_objects">2.6.2. 内部模式对象</a></div>
+<div class="fancy-toc3"><a href="#the_sqlite_sequence_table">2.6.3. sqlite_sequence 表</a></div>
+<div class="fancy-toc3"><a href="#the_sqlite_stat1_table">2.6.4. sqlite_stat1 表</a></div>
+<div class="fancy-toc3"><a href="#the_sqlite_stat2_table">2.6.5. sqlite_stat2 表</a></div>
+<div class="fancy-toc3"><a href="#the_sqlite_stat3_table">2.6.6. sqlite_stat3 表</a></div>
+<div class="fancy-toc3"><a href="#the_sqlite_stat4_table">2.6.7. sqlite_stat4 表</a></div>
+<div class="fancy-toc1"><a href="#the_rollback_journal">3. 回滚日志</a></div>
+<div class="fancy-toc1"><a href="#the_write_ahead_log">4. 预写日志</a></div>
+<div class="fancy-toc2"><a href="#wal_file_format">4.1. WAL 文件格式</a></div>
+<div class="fancy-toc2"><a href="#checksum_algorithm">4.2. 校验和算法</a></div>
+<div class="fancy-toc2"><a href="#checkpoint_algorithm">4.3. 检查点算法</a></div>
+<div class="fancy-toc2"><a href="#wal_reset">4.4. WAL 重置</a></div>
+<div class="fancy-toc2"><a href="#reader_algorithm">4.5. 读取者算法</a></div>
+<div class="fancy-toc2"><a href="#wal_index_format">4.6. WAL-索引格式</a></div>
 </div>
 </details>
 </div>
 
+<p>本文档描述并定义自版本 3.0.0（2004-06-18）以来所有 SQLite 发行版使用的磁盘数据库文件格式。</p>
 
+<h1 id="the_database_file"><span>1. </span>数据库文件</h1>
 
+<p>SQLite 数据库的完整状态通常保存在称为“主数据库文件”的单个磁盘文件中。</p>
 
-
-
-<p>This document describes and defines the on-disk database file
-format used by all releases of SQLite since 
-version 3.0.0 (2004-06-18).</p>
-
-<h1 id="the_database_file"><span>1. </span>The Database File</h1>
-
-<p>The complete state of an SQLite database is usually
-contained in a single file on disk called the "main database file".</p>
-
-<p>During a transaction, SQLite stores additional information 
-in a second file called the "rollback journal", or if SQLite is in
-<a href="wal.html">WAL mode</a>, a write-ahead log file.
+<p>在事务过程中，SQLite 会在名为“回滚日志”的第二个文件中存储附加信息，或者如果 SQLite 处于<a href="wal.html">WAL 模式</a>，则存储到预写日志文件中。</p>
 
 <a name="hotjrnl"></a>
 
-</p><h2 id="hot_journals"><span>1.1. </span>Hot Journals</h2>
-<p>If the application or
-host computer crashes before the transaction completes, then the rollback
-journal or write-ahead log contains information needed 
-to restore the main database file to a consistent state.  When a rollback 
-journal or write-ahead log contains information necessary for recovering 
-the state of the database, they are called a "hot journal" or "hot WAL file".
-Hot journals and WAL files are only a factor during error recovery
-scenarios and so are uncommon, but they are part of the state of an SQLite
-database and so cannot be ignored.  This document defines the format
-of a rollback journal and the write-ahead log file, but the focus is
-on the main database file.</p>
+</p><h2 id="hot_journals"><span>1.1. </span>热日志</h2>
+<p>如果应用或主机在事务完成之前崩溃，那么回滚日志或预写日志包含将主数据库文件恢复到一致状态所需的信息。当回滚日志或预写日志包含恢复数据库状态所需的信息时，它们被称为“热日志”或“热 WAL 文件”。热日志和 WAL 文件仅在错误恢复场景中起作用，因此并不常见，但它们是 SQLite 数据库状态的一部分，因此不能忽视。本文档定义了回滚日志和预写日志文件的格式，但重点仍然是主数据库文件。</p>
 
-<h2 id="pages"><span>1.2. </span>Pages</h2>
+<h2 id="pages"><span>1.2. </span>页面</h2>
 
-<p>The main database file consists of one or more pages.  The size of a
-page is a power of two between 512 and 65536 inclusive.  All pages within
-the same database are the same size.  The page size for a database file
-is determined by the 2-byte integer located at an offset of
-16 bytes from the beginning of the database file.</p>
+<p>主数据库文件由一个或多个页面组成。页面大小为 512 到 65536 之间的 2 的幂。每个数据库中的所有页面大小相同。数据库文件的页面大小由数据库文件开头偏移 16 字节处的 2 字节整数决定。</p>
 
-<p>Pages are numbered beginning with 1.  The maximum page number is
-4294967294 (2<sup><small>32</small></sup> - 2).  The minimum size
-SQLite database is a single 512-byte page.
-The maximum size database would be 4294967294 pages at 65536 bytes per
-page or 281,474,976,579,584 bytes (about 281 terabytes).  Usually SQLite will
-hit the maximum file size limit of the underlying filesystem or disk
-hardware long before it hits its own internal size limit.</p>
+<p>页面编号从 1 开始。最大页面号为 4294967294（2<sup><small>32</small></sup> - 2）。SQLite 数据库最小为单个 512 字节页面。最大数据库大小为 4294967294 个页面，每页 65536 字节，合计 281,474,976,579,584 字节（约 281 TB）。通常 SQLite 很早就会遇到底层文件系统或磁盘硬件的最大文件大小限制，而不是自身的内部限制。</p>
 
-<p>In common use, SQLite databases tend to range in size from a few kilobytes
-to a few gigabytes, though terabyte-size SQLite databases are known to exist
-in production.</p>
+<p>在常见用例中，SQLite 数据库大小通常从几 KB 到几 GB 不等，但实际生产中也有 TB 级别的 SQLite 数据库。</p>
 
-<p>At any point in time, every page in the main database has a single
-use which is one of the following:
-</p><ul>
-<li>A b-tree page
+<p>任意时刻，主数据库中的每个页面都只承担以下用途之一：</p><ul>
+<li>一个 B 树页面
 <ul>
-<li>A table b-tree interior page
-</li><li>A table b-tree leaf page
-</li><li>An index b-tree interior page
-</li><li>An index b-tree leaf page
+<li>表 B 树内部页面
+</li><li>表 B 树叶页面
+</li><li>索引 B 树内部页面
+</li><li>索引 B 树叶页面
 </li></ul>
-</li><li>A freelist page
+</li><li>一个空闲表页面
 <ul>
-<li>A freelist trunk page
-</li><li>A freelist leaf page
+<li>空闲表主干页面
+</li><li>空闲表叶页面
 </li></ul>
-</li><li>A payload overflow page
-</li><li>A pointer map page
-</li><li>The lock-byte page
+</li><li>一个有效载荷溢出页面
+</li><li>一个指针映射页面
+</li><li>锁字节页
 </li></ul>
 
-
-<p>All reads from and writes to the main database file begin at a page
-boundary and all writes are an integer number of pages in size.  Reads
-are also usually an integer number of pages in size, with the one exception
-that when the database is first opened, the first 100 bytes of the
-database file (the database file header) are read as a sub-page size unit.</p>
+<p>对主数据库文件的所有读写都从页面边界开始，并且所有写入都是整页大小。读也通常是整页大小，唯一例外是数据库首次打开时，会将数据库文件的前 100 字节（数据库文件头）作为子页大小单元读取。</p>
 
 <a name="database_header"></a>
 
-<h2 id="the_database_header"><span>1.3. </span>The Database Header</h2>
+<h2 id="the_database_header"><span>1.3. </span>数据库头</h2>
 
-<p>The first 100 bytes of the database file comprise the database file 
-header.  The database file header is divided into fields as shown by
-the table below.  All multibyte fields in the database file header are
-stored with the most significant byte first (big-endian).</p>
+<p>数据库文件的前 100 字节构成数据库文件头。数据库文件头分成下表所示的字段。数据库文件头中的所有多字节字段都以最高有效字节优先（大端）存储。</p>
 
 <center>
-<i>Database Header Format</i><br>
+<i>数据库头格式</i><br>
 <table width="80%" border="1">
-<tr><th>Offset</th><th>Size</th><th>Description
+<tr><th>偏移</th><th>大小</th><th>说明
 </th></tr><tr><td valign="top" align="center">0</td><td valign="top" align="center">16</td><td align="left">
-The header string: "SQLite format 3\000"
+头字符串：“SQLite format 3\000”
 </td></tr><tr><td valign="top" align="center">16</td><td valign="top" align="center">2</td><td align="left">
-The database page size in bytes.  Must be a power of two between 512
-and 32768 inclusive, or the value 1 representing a page size of 65536.
+数据库页面大小（字节）。必须是 512 到 32768 之间的 2 的幂，或表示 65536 页面大小的值 1。
 </td></tr><tr><td valign="top" align="center">18</td><td valign="top" align="center">1</td><td align="left">
-File format write version.  1 for legacy; 2 for <a href="wal.html">WAL</a>.
+文件格式写版本。legacy 为 1；<a href="wal.html">WAL</a> 为 2。
 </td></tr><tr><td valign="top" align="center">19</td><td valign="top" align="center">1</td><td align="left">
-File format read version.  1 for legacy; 2 for <a href="wal.html">WAL</a>.
+文件格式读版本。legacy 为 1；<a href="wal.html">WAL</a> 为 2。
 </td></tr><tr><td valign="top" align="center">20</td><td valign="top" align="center">1</td><td align="left">
-Bytes of unused "reserved" space at the end of each page.  Usually 0.
+每页末尾未使用“保留”空间的字节数。通常为 0。
 </td></tr><tr><td valign="top" align="center">21</td><td valign="top" align="center">1</td><td align="left">
-Maximum embedded payload fraction.  Must be 64.
+最大嵌入有效载荷分数。必须为 64。
 </td></tr><tr><td valign="top" align="center">22</td><td valign="top" align="center">1</td><td align="left">
-Minimum embedded payload fraction.  Must be 32.
+最小嵌入有效载荷分数。必须为 32。
 </td></tr><tr><td valign="top" align="center">23</td><td valign="top" align="center">1</td><td align="left">
-Leaf payload fraction.  Must be 32.
+叶有效载荷分数。必须为 32。
 </td></tr><tr><td valign="top" align="center">24</td><td valign="top" align="center">4</td><td align="left">
-File change counter.
+文件变更计数器。
 </td></tr><tr><td valign="top" align="center">28</td><td valign="top" align="center">4</td><td align="left">
-Size of the database file in pages.  The "in-header database size".
+数据库文件页数。即“头部记录的数据库大小”。
 </td></tr><tr><td valign="top" align="center">32</td><td valign="top" align="center">4</td><td align="left">
-Page number of the first freelist trunk page.
+第一个空闲表主干页面的页码。
 </td></tr><tr><td valign="top" align="center">36</td><td valign="top" align="center">4</td><td align="left">
-Total number of freelist pages.
+空闲表页面总数。
 </td></tr><tr><td valign="top" align="center">40</td><td valign="top" align="center">4</td><td align="left">
-The schema cookie.
+模式 cookie。
 </td></tr><tr><td valign="top" align="center">44</td><td valign="top" align="center">4</td><td align="left">
-The schema format number.  Supported schema formats are 1, 2, 3, and 4.
+模式格式号。支持的格式有 1、2、3 和 4。
 </td></tr><tr><td valign="top" align="center">48</td><td valign="top" align="center">4</td><td align="left">
-Default page cache size.
+默认页面缓存大小。
 </td></tr><tr><td valign="top" align="center">52</td><td valign="top" align="center">4</td><td align="left">
-The page number of the largest root b-tree page when in auto-vacuum or
-incremental-vacuum modes, or zero otherwise.
+自动清理或增量清理模式下最大根 B 树页的页码，否则为 0。
 </td></tr><tr><td valign="top" align="center">56</td><td valign="top" align="center">4</td><td align="left">
-The database text encoding.  A value of 1 means UTF-8.  A value of 2
-means UTF-16le.  A value of 3 means UTF-16be.
+数据库文本编码。值为 1 表示 UTF-8，值为 2 表示 UTF-16le，值为 3 表示 UTF-16be。
 </td></tr><tr><td valign="top" align="center">60</td><td valign="top" align="center">4</td><td align="left">
-The "user version" as read and set by the <a href="pragma.html#pragma_user_version">user_version pragma</a>.
+通过<a href="pragma.html#pragma_user_version">user_version pragma</a>读取和设置的“用户版本”。
 </td></tr><tr><td valign="top" align="center">64</td><td valign="top" align="center">4</td><td align="left">
-True (non-zero) for incremental-vacuum mode.  False (zero) otherwise.
+增量清理模式时为真（非零），否则为假（零）。
 </td></tr><tr><td valign="top" align="center">68</td><td valign="top" align="center">4</td><td align="left">
-The "Application ID" set by <a href="pragma.html#pragma_application_id">PRAGMA application_id</a>.
+通过<a href="pragma.html#pragma_application_id">PRAGMA application_id</a>设置的“应用程序 ID”。
 </td></tr><tr><td valign="top" align="center">72</td><td valign="top" align="center">20</td><td align="left">
-Reserved for expansion.  Must be zero.
+为扩展保留。必须为零。
 </td></tr><tr><td valign="top" align="center">92</td><td valign="top" align="center">4</td><td align="left">
-The <a href="fileformat2.html#validfor">version-valid-for number</a>.
+<a href="fileformat2.html#validfor">版本生效号</a>。
 </td></tr><tr><td valign="top" align="center">96</td><td valign="top" align="center">4</td><td align="left">
 <a href="c3ref/c_scm_branch.html">SQLITE_VERSION_NUMBER</a>
 </td></tr></table></center>
 
-<h3 id="magic_header_string"><span>1.3.1. </span>Magic Header String</h3>
+<h3 id="magic_header_string"><span>1.3.1. </span>魔术头字符串</h3>
 
-<p>Every valid SQLite database file begins with the following 16 bytes 
-(in hex): 53 51 4c 69 74 65 20 66 6f 72 6d 61 74 20 33 00.  This byte sequence
-corresponds to the UTF-8 string "SQLite format 3" including the nul
-terminator character at the end.</p>
+<p>每个有效的 SQLite 数据库文件都以以下 16 字节（十六进制）开头：53 51 4c 69 74 65 20 66 6f 72 6d 61 74 20 33 00。该字节序列对应于 UTF-8 字符串“SQLite format 3”，包括结尾的空字符。</p>
 
-<h3 id="page_size"><span>1.3.2. </span>Page Size</h3>
+<h3 id="page_size"><span>1.3.2. </span>页面大小</h3>
 
-<p>The two-byte value beginning at offset 16 determines the page size of 
-the database.  For SQLite versions 3.7.0.1 (2010-08-04)
-and earlier, this value is 
-interpreted as a big-endian integer and must be a power of two between
-512 and 32768, inclusive.  Beginning with SQLite <a href="releaselog/3_7_1.html">version 3.7.1</a>
-(2010-08-23), a page
-size of 65536 bytes is supported.  The value 65536 will not fit in a
-two-byte integer, so to specify a 65536-byte page size, the value
-at offset 16 is 0x00 0x01.
-This value can be interpreted as a big-endian
-1 and thought of as a magic number to represent the 65536 page size.
-Or one can view the two-byte field as a little endian number and say
-that it represents the page size divided by 256.  These two 
-interpretations of the page-size field are equivalent.</p>
+<p>从偏移 16 开始的两字节值决定数据库页面大小。对于 SQLite 版本 3.7.0.1（2010-08-04）及之前，该值按大端整数解释，必须是介于 512 到 32768（含）之间的 2 的幂。自 SQLite <a href="releaselog/3_7_1.html">版本 3.7.1</a>（2010-08-23）开始，支持 65536 字节页面大小。65536 超出两字节整数范围，因此要指定 65536 字节页面大小，需要在偏移 16 处写入 0x00 0x01。该值可以被解释为大端的 1，也可被视为魔术数字代表 65536 页面大小；亦可将该两字节字段视为小端整数，表示页面大小除以 256。这两种解释等价。</p>
 
 <a name="vnums"></a>
 
-<h3 id="file_format_version_numbers"><span>1.3.3. </span>File format version numbers</h3>
+<h3 id="file_format_version_numbers"><span>1.3.3. </span>文件格式版本号</h3>
 
-<p>The file format write version and file format read version at offsets
-18 and 19 are intended to allow for enhancements of the file format
-in future versions of SQLite.  In current versions of SQLite, both of
-these values are 1 for rollback journalling modes and 2 for <a href="wal.html">WAL</a>
-journalling mode.  If a version of SQLite coded to the current
-file format specification encounters a database file where the read
-version is 1 or 2 but the write version is greater than 2, then the database
-file must be treated as read-only.  If a database file with a read version
-greater than 2 is encountered, then that database cannot be read or written.</p>
+<p>偏移 18 和 19 的文件格式写版本与读版本旨在允许未来版本的 SQLite 扩展文件格式。在当前版本中，回滚日志模式下这两个值都是 1，<a href="wal.html">WAL</a> 模式下为 2。如果遵循当前文件格式规范的 SQLite 遇到一个数据库文件，其读版本为 1 或 2 但写版本大于 2，则必须将该数据库文件视为只读。如果遇到读版本大于 2 的数据库文件，则无法读取或写入。</p>
 
 <a name="resbyte"></a>
 
-<h3 id="reserved_bytes_per_page"><span>1.3.4. </span>Reserved bytes per page</h3>
+<h3 id="reserved_bytes_per_page"><span>1.3.4. </span>每页保留字节</h3>
 
-<p>SQLite has the ability to set aside a small number of extra bytes at
-the end of every page for use by extensions.  These extra bytes are
-used, for example, by the SQLite Encryption Extension to store a nonce
-and/or cryptographic checksum associated with each page.  The 
-"reserved space" size in the 1-byte integer at offset 20 is the number
-of bytes of space at the end of each page to reserve for extensions.
-This value is usually 0.  The value can be odd.</p>
+<p>SQLite 可以在每页末尾预留少量额外字节供扩展使用。例如，SQLite 加密扩展用这些字节存储每页的随机数和/或校验和。数据库头偏移 20 处的 1 字节整数记录“保留空间”大小，即每页末尾预留给扩展的字节数。该值通常为 0，可以是奇数。</p>
 
 <a name="usable_size"></a>
 
-<p>The "usable size" of a database page is the page size specified by the
-2-byte integer at offset 16 in the header less the "reserved" space size
-recorded in the 1-byte integer at offset 20 in the header.  The usable
-size of a page might be an odd number.  However, the usable size is not
-allowed to be less than 480.  In other words, if the page size is 512,
-then the reserved space size cannot exceed 32.</p>
+<p>数据库页面的“可用大小”为头部偏移 16 处的两字节整数指定的页面大小减去偏移 20 处的 1 字节“保留”空间。页面可用大小可能为奇数。但可用大小不得小于 480。换句话说，如果页面大小为 512，则保留空间最大不能超过 32。</p>
 
-<h3 id="payload_fractions"><span>1.3.5. </span>Payload fractions</h3>
+<h3 id="payload_fractions"><span>1.3.5. </span>有效载荷分数</h3>
 
-<p>The maximum and minimum embedded payload fractions and the leaf
-payload fraction values must be 64, 32, and 32.  These values were
-originally intended to be tunable parameters that could be used to
-modify the storage format of the b-tree algorithm.  However, that
-functionality is not supported and there are no current plans to add
-support in the future.  Hence, these three bytes are fixed at the
-values specified.</p>
+<p>最大嵌入有效载荷分数、最小嵌入有效载荷分数以及叶有效载荷分数的值必须分别为 64、32 和 32。它们最初意在作为可调参用于修改 B 树存储格式，但当前不支持，未来也没有计划添加。因此，这三个字节固定为指定值。</p>
 
 <a name="chngctr"></a>
 
-<h3 id="file_change_counter"><span>1.3.6. </span>File change counter</h3>
+<h3 id="file_change_counter"><span>1.3.6. </span>文件变更计数器</h3>
 
-<p>The file change counter is a 4-byte big-endian integer at
-offset 24 that is incremented whenever the database file is unlocked
-after having been modified.
-When two or more processes are reading the same database file, each 
-process can detect database changes from other processes by monitoring 
-the change counter.
-A process will normally want to flush its database page cache when
-another process modified the database, since the cache has become stale.
-The file change counter facilitates this.</p>
+<p>变更计数器是偏移 24 的 4 字节大端整数，当数据库文件在修改后解锁时递增。当两个或多个进程读取同一数据库文件时，可通过监视变更计数器发现其他进程的更改。通常，在观察到其他进程修改数据库后，进程会刷新数据库页面缓存以避免缓存过期。变更计数器促成了这一机制。</p>
 
-<p>In WAL mode, changes to the database are detected using the wal-index
-and so the change counter is not needed.  Hence, the change counter might
-not be incremented on each transaction in WAL mode.</p>
+<p>在 WAL 模式下，数据库变化通过 wal-index 检测，因此不需要变更计数器。因此，在 WAL 模式中，变更计数器不一定在每个事务后递增。</p>
 
-<h3 id="in_header_database_size"><span>1.3.7. </span>In-header database size</h3>
+<h3 id="in_header_database_size"><span>1.3.7. </span>头部记录的数据库大小</h3>
 
 <a name="filesize"></a>
 
-<p>The 4-byte big-endian integer at offset 28 into the header 
-stores the size of the database file in pages.  If this in-header
-datasize size is not valid (see the next paragraph), then the database 
-size is computed by looking
-at the actual size of the database file. Older versions of SQLite
-ignored the in-header database size and used the actual file size
-exclusively.  Newer versions of SQLite use the in-header database
-size if it is available but fall back to the actual file size if
-the in-header database size is not valid.</p>
+<p>头部偏移 28 处的 4 字节大端整数记录数据库文件的页数。如果该头部记录的数据库大小无效（参见下一段），则数据库大小由数据库文件的实际大小决定。旧版本的 SQLite 忽略头部数据库大小而完全依赖实际文件大小。较新版本会使用头部大小（如果可用），否则退回到实际文件大小。</p>
 
-<p>The in-header database size is only considered to be valid if
-it is non-zero and if the 4-byte <a href="fileformat2.html#chngctr">change counter</a> at offset 24
-exactly matches the 4-byte <a href="fileformat2.html#validfor">version-valid-for number</a> at offset 92.
-The in-header database size is always valid 
-when the database is only modified using recent versions of SQLite,
-versions 3.7.0 (2010-07-21) and later.
-If a legacy version of SQLite writes to the database, it will not
-know to update the in-header database size and so the in-header
-database size could be incorrect.  But legacy versions of SQLite
-will also leave the version-valid-for number at offset 92 unchanged
-so it will not match the change-counter.  Hence, invalid in-header
-database sizes can be detected (and ignored) by observing when
-the change-counter does not match the version-valid-for number.</p>
+<p>头部记录的数据库大小仅在非零且头部偏移 24 的 4 字节<a href="fileformat2.html#chngctr">变更计数器</a>与偏移 92 的 4 字节<a href="fileformat2.html#validfor">版本生效号</a>完全匹配时才被视为有效。只要数据库仅由较新版本（3.7.0 及以后）修改，头部记录的数据库大小总是有效的。如果旧版本的 SQLite 写入数据库，它不会更新头部记录的数据库大小，因此该值可能不正确。但旧版本也不会改变偏移 92 的版本生效号，因此它将与变更计数器不匹配。因此，当变更计数器与版本生效号不匹配时，可以检测到（并忽略）无效的头部记录数据库大小。</p>
 
-<h3 id="free_page_list"><span>1.3.8. </span>Free page list</h3>
+<h3 id="free_page_list"><span>1.3.8. </span>空闲页列表</h3>
 
-<p>Unused pages in the database file are stored on a freelist.  The
-4-byte big-endian integer at offset 32 stores the page number of
-the first page of the freelist, or zero if the freelist is empty.
-The 4-byte big-endian integer at offset 36 stores the total 
-number of pages on the freelist.</p>
+<p>未使用的页面存储在空闲表中。头部偏移 32 处的 4 字节大端整数记录空闲表第一个页面的页码，如果空闲表为空则为零。偏移 36 处的 4 字节大端整数记录空闲表页面总数。</p>
 
-<h3 id="schema_cookie"><span>1.3.9. </span>Schema cookie</h3>
+<h3 id="schema_cookie"><span>1.3.9. </span>模式 cookie</h3>
 
-<p>The schema cookie is a 4-byte big-endian integer at offset 40
-that is incremented whenever the database schema changes.  A 
-prepared statement is compiled against a specific version of the
-database schema.  When the database schema changes, the statement
-must be reprepared.  When a prepared statement runs, it first checks
-the schema cookie to ensure the value is the same as when the statement
-was prepared and if the schema cookie has changed, the statement either
-automatically reprepares and reruns or it aborts with an <a href="rescode.html#schema">SQLITE_SCHEMA</a> 
-error.</p>
+<p>模式 cookie 是偏移 40 的 4 字节大端整数，每当数据库模式发生变化时递增。预编译语句针对特定数据库模式版本进行编译。当数据库模式变化时，必须重新准备语句。预编译语句运行时会先检查模式 cookie 是否与编译期相同，如果变化，它会自动重新准备并重试，或者以<a href="rescode.html#schema">SQLITE_SCHEMA</a>错误中止。</p>
 
 <a name="schemaformat"></a>
 
-<h3 id="schema_format_number"><span>1.3.10. </span>Schema format number</h3>
+<h3 id="schema_format_number"><span>1.3.10. </span>模式格式号</h3>
 
-<p>The schema format number is a 4-byte big-endian integer at offset 44.
-The schema format number is similar to the file format read and write
-version numbers at offsets 18 and 19 except that the schema format number
-refers to the high-level SQL formatting rather than the low-level b-tree
-formatting.  Four schema format numbers are currently defined:</p>
+<p>模式格式号是偏移 44 的 4 字节大端整数。它类似于偏移 18 和 19 的文件格式读写版本，但指的是高级 SQL 格式而非底层 B 树格式。目前定义了四个模式格式号：</p>
 
 <ol>
-<li value="1">Format 1 is understood by all versions of SQLite back to
-<a href="releaselog/3_0_0.html">version 3.0.0</a> (2004-06-18).</li>
-<li value="2">Format 2 adds the ability of rows within the same table
-to have a varying number of columns, in order to support the
-<a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a> functionality.  Support for
-reading and writing format 2 was added in SQLite 
-<a href="releaselog/3_1_3.html">version 3.1.3</a> on 2005-02-20.</li>
-<li value="3">Format 3 adds the ability of extra columns added by
-<a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a> to have non-NULL default
-values.  This capability was added in SQLite <a href="releaselog/3_1_4.html">version 3.1.4</a>
-on 2005-03-11.</li>
-<li value="4">Format 4 causes SQLite to respect the
-<a href="lang_createindex.html#descidx">DESC keyword</a> on
-index declarations.  (The DESC keyword is ignored in indexes for 
-formats 1, 2, and 3.)
-Format 4 also adds two new boolean record type values (<a href="fileformat2.html#serialtype">serial types</a>
-8 and 9).  Support for format 4 was added in SQLite 3.3.0 on
-2006-01-10.</li>
+<li value="1">格式 1 可被所有 SQLite 版本识别，直到<a href="releaselog/3_0_0.html">版本 3.0.0</a>（2004-06-18）。
+</li><li value="2">格式 2 增加了同一表中行可拥有不同列数的能力，以支持<a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a>。在 SQLite <a href="releaselog/3_1_3.html">版本 3.1.3</a>（2005-02-20）中添加了对格式 2 的读写支持。
+</li><li value="3">格式 3 使得<a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a> 添加的附加列可以拥有非 NULL 的默认值。此功能在 SQLite <a href="releaselog/3_1_4.html">版本 3.1.4</a>（2005-03-11）中添加。
+</li><li value="4">格式 4 使 SQLite 在索引声明中遵循<a href="lang_createindex.html#descidx">DESC 关键字</a>（格式 1、2、3 中忽略）。格式 4 还添加了两个新的布尔记录类型值（<a href="fileformat2.html#serialtype">序列类型</a>）8 和 9。SQLite 3.3.0（2006-01-10）中添加了格式 4 支持。</li>
 </ol>
 
-<p>New database files created by SQLite use format 4 by default.
-The <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfiglegacyfileformat">SQLITE_DBCONFIG_LEGACY_FILE_FORMAT</a> option for the
-<a href="c3ref/db_config.html">sqlite3_db_config()</a> C-language interface can be used to cause SQLite
-to create new database files using format 1. The format version number
-can be made to default to 1 instead of 4 by setting
-<a href="compile.html#default_file_format">SQLITE_DEFAULT_FILE_FORMAT</a>=1 at compile-time.
-</p>
+<p>SQLite 创建的新数据库文件默认使用格式 4。可通过 C 语言接口<a href="c3ref/db_config.html">sqlite3_db_config()</a>的<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfiglegacyfileformat">SQLITE_DBCONFIG_LEGACY_FILE_FORMAT</a>选项使 SQLite 使用格式 1 创建新数据库文件。通过在编译时将<a href="compile.html#default_file_format">SQLITE_DEFAULT_FILE_FORMAT</a>=1，也可以让格式版本默认为 1。</p>
 
-<p>If the database is completely empty, if it has no schema, then the
-schema format number can be zero.
+<p>如果数据库完全为空、没有模式，则模式格式号可为零。</p>
 
-</p><h3 id="suggested_cache_size"><span>1.3.11. </span>Suggested cache size</h3>
+<h3 id="suggested_cache_size"><span>1.3.11. </span>建议的缓存大小</h3>
 
-<p>The 4-byte big-endian signed integer at offset 48 is the suggested
-cache size in pages for the database file.  The value is a suggestion
-only and SQLite is under no obligation to honor it.  The absolute value
-of the integer is used as the suggested size.  The suggested cache size
-can be set using the <a href="pragma.html#pragma_default_cache_size">default_cache_size pragma</a>.</p>
+<p>偏移 48 的 4 字节大端有符号整数表示数据库文件的建议缓存大小（页数）。该值仅为建议，SQLite 不一定遵循。使用该整数的绝对值作为建议值。可通过<a href="pragma.html#pragma_default_cache_size">default_cache_size pragma</a>设置。</p>
 
-<h3 id="incremental_vacuum_settings"><span>1.3.12. </span>Incremental vacuum settings</h3>
+<h3 id="incremental_vacuum_settings"><span>1.3.12. </span>增量清理设置</h3>
 
-<p>The two 4-byte big-endian integers at offsets 52 and 64 are used
-to manage the <a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a> and <a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a> modes.  If
-the integer at offset 52 is zero then pointer-map (ptrmap) pages are
-omitted from the database file and neither auto_vacuum nor
-incremental_vacuum are supported.  If the integer at offset 52 is
-non-zero then it is the page number of the largest root page in the
-database file, the database file will contain ptrmap pages, and the
-mode must be either auto_vacuum or incremental_vacuum.  In this latter
-case, the integer at offset 64 is true for incremental_vacuum and
-false for auto_vacuum.  If the integer at offset 52 is zero then
-the integer at offset 64 must also be zero.</p>
+<p>偏移 52 与 64 的两个 4 字节大端整数用于管理<a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a>和<a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a>模式。如果偏移 52 处整数为零，则数据库文件中省略指针映射（ptrmap）页面，不支持 auto_vacuum 或 incremental_vacuum。如果该整数非零，则表示数据库文件中最大根页面的页码，数据库文件将包含 ptrmap 页面，并且必须处于 auto_vacuum 或 incremental_vacuum 模式。在后一种情况下，偏移 64 处的整数为真表示 incremental_vacuum，为假表示 auto_vacuum。如果偏移 52 为零，则偏移 64 也必须为零。</p>
 
 <a name="enc"></a>
 
-<h3 id="text_encoding"><span>1.3.13. </span>Text encoding</h3>
+<h3 id="text_encoding"><span>1.3.13. </span>文本编码</h3>
 
-<p>The 4-byte big-endian integer at offset 56 determines the encoding
-used for all text strings stored in the database.  
-A value of 1 means UTF-8.
-A value of 2 means UTF-16le.
-A value of 3 means UTF-16be.
-No other values are allowed.
-The sqlite3.h header file defines C-preprocessor macros SQLITE_UTF8 as 1,
-SQLITE_UTF16LE as 2, and SQLITE_UTF16BE as 3, to use in place of
-the numeric codes for the text encoding.</p>
+<p>偏移 56 的 4 字节大端整数指定数据库中所有文本字符串使用的编码。值为 1 表示 UTF-8，值为 2 表示 UTF-16le，值为 3 表示 UTF-16be。不允许使用其他值。sqlite3.h 头文件定义了用于替代文本编码数字的宏：SQLITE_UTF8 = 1、SQLITE_UTF16LE = 2 和 SQLITE_UTF16BE = 3。</p>
 
-<h3 id="user_version_number"><span>1.3.14. </span>User version number</h3>
+<h3 id="user_version_number"><span>1.3.14. </span>用户版本号</h3>
 
-<p>The 4-byte big-endian integer at offset 60 is the user version which
-is set and queried by the <a href="pragma.html#pragma_user_version">user_version pragma</a>.  The user version is
-not used by SQLite.</p>
+<p>偏移 60 的 4 字节大端整数表示用户版本，可通过<a href="pragma.html#pragma_user_version">user_version pragma</a>设置和查询。SQLite 本身不使用该值。</p>
 
 <a name="appid"></a>
 
-<h3 id="application_id"><span>1.3.15. </span>Application ID</h3>
+<h3 id="application_id"><span>1.3.15. </span>应用程序 ID</h3>
 
-<p>The 4-byte big-endian integer at offset 68 is an "Application ID" that
-can be set by the <a href="pragma.html#pragma_application_id">PRAGMA application_id</a> command in order to identify the
-database as belonging to or associated with a particular application.
-The application ID is intended for database files used as an
-<a href="appfileformat.html">application file-format</a>.  The application ID can be used by utilities 
-such as <a href="http://www.darwinsys.com/file/">file(1)</a> to determine the specific
-file type rather than just reporting "SQLite3 Database".  A list of
-assigned application IDs can be seen by consulting the
-<a href="https://sqlite.org/src/artifact?ci=trunk&filename=magic.txt">magic.txt</a>
-file in the SQLite source repository.</p>
+<p>偏移 68 的 4 字节大端整数是“应用程序 ID”，可通过<a href="pragma.html#pragma_application_id">PRAGMA application_id</a>命令设置，用于标识数据库属于或关联于某个特定应用。应用程序 ID 适用于作为<a href="appfileformat.html">应用文件格式</a>使用的数据库文件。类似<a href="http://www.darwinsys.com/file/">file(1)</a>的工具可使用该 ID 确定具体文件类型，而非仅报告“SQLite3 Database”。SQLite 源代码仓库中的<a href="https://sqlite.org/src/artifact?ci=trunk&filename=magic.txt">magic.txt</a>文件列出了分配过的应用程序 ID。</p>
 
 <a name="validfor"></a>
 
-<h3 id="write_library_version_number_and_version_valid_for_number"><span>1.3.16. </span>Write library version number and version-valid-for number</h3>
+<h3 id="write_library_version_number_and_version_valid_for_number"><span>1.3.16. </span>写库版本号与版本生效号</h3>
 
-<p>The 4-byte big-endian integer at offset 96 stores the 
-<a href="c3ref/c_scm_branch.html">SQLITE_VERSION_NUMBER</a> value for the SQLite library that most
-recently modified the database file.  The 4-byte big-endian integer at
-offset 92 is the value of the <a href="fileformat2.html#chngctr">change counter</a> when the version number
-was stored.  The integer at offset 92 indicates which transaction
-the version number is valid for and is sometimes called the
-"version-valid-for number".
+<p>偏移 96 的 4 字节大端整数记录最近修改数据库文件的 SQLite 库的<a href="c3ref/c_scm_branch.html">SQLITE_VERSION_NUMBER</a>值。偏移 92 的 4 字节大端整数记录存储该版本号时的<a href="fileformat2.html#chngctr">变更计数器</a>值。该整数指示版本号有效的事务，有时称为“版本生效号”。</p>
 
-</p><h3 id="header_space_reserved_for_expansion"><span>1.3.17. </span>Header space reserved for expansion</h3>
+</p><h3 id="header_space_reserved_for_expansion"><span>1.3.17. </span>为扩展保留的头空间</h3>
 
-<p>All other bytes of the database file header are reserved for
-future expansion and must be set to zero.</p>
+<p>数据库文件头的其他所有字节都预留给未来扩展，必须设为零。</p>
 
 <a name="lockbyte"></a>
 
-<h2 id="the_lock_byte_page"><span>1.4. </span>The Lock-Byte Page</h2>
+<h2 id="the_lock_byte_page"><span>1.4. </span>锁字节页</h2>
 
-<p>The lock-byte page is the single page of the database file
-that contains the bytes at offsets between 1073741824 and 1073742335,
-inclusive.  A database file that is less than or equal to 1073741824 bytes 
-in size contains no lock-byte page.  A database file larger than
-1073741824 contains exactly one lock-byte page.
-</p>
+<p>锁字节页是数据库文件中包含偏移 1073741824 到 1073742335 之间字节的单个页面。如果数据库文件大小小于等于 1073741824 字节，则没有锁字节页。超过该大小的数据库文件恰好包含一个锁字节页。</p>
 
-<p>The lock-byte page is set aside for use by the operating-system specific
-<a href="vfs.html">VFS</a> implementation in implementing the database file locking primitives.
-SQLite does not use the lock-byte page.  The SQLite core 
-will never read or write the lock-byte page,
-though operating-system specific <a href="vfs.html">VFS</a> 
-implementations may choose to read or write bytes on the lock-byte 
-page according to the 
-needs and proclivities of the underlying system.  The unix and win32
-<a href="vfs.html">VFS</a> implementations that come built into SQLite do not write to the
-lock-byte page, but third-party VFS implementations for
-other operating systems might.</p>
+<p>操作系统特定的<a href="vfs.html">VFS</a>实现用于数据库文件锁定原语时可使用锁字节页。SQLite 不使用该页。SQLite 内核永远不会读写锁字节页，但操作系统特定的<a href="vfs.html">VFS</a>实现可以根据底层系统的需求和喜好选择读写该页。SQLite 自带的 unix 和 win32 <a href="vfs.html">VFS</a> 实现不会写入锁字节页，但其他操作系统的第三方 VFS 实现可能会。</p>
 
-<p>The lock-byte page arose from the need to support Win95 which was the
-predominant operating system when this file format was designed and which 
-only supported mandatory file locking.  All modern operating systems that
-we know of support advisory file locking, and so the lock-byte page is
-not really needed any more, but is retained for backwards compatibility.</p>
+<p>锁字节页源于支持当年主流的 Win95 系统的需要，该系统只支持强制文件锁。所有现代操作系统都支持建议性文件锁，因此锁字节页现在其实不再必须，但为了向后兼容仍然保留。</p>
 
 <a name="freelist"></a>
 
-<h2 id="the_freelist"><span>1.5. </span>The Freelist</h2>
+<h2 id="the_freelist"><span>1.5. </span>空闲表</h2>
 
-<p>A database file might contain one or more pages that are not in
-active use.  Unused pages can come about, for example, when information
-is deleted from the database.  Unused pages are stored on the freelist
-and are reused when additional pages are required.</p>
+<p>数据库文件可能包含一个或多个未被积极使用的页面。例如删除操作会产生未使用页面。这些未使用页面被存储在空闲表中，在需要额外页面时重新使用。</p>
 
-<p>The freelist is organized as a linked list of freelist trunk pages
-with each trunk page containing page numbers for zero or more freelist
-leaf pages.</p>
+<p>空闲表组织为空闲表主干页面组成的链表，每个主干页面包含一个或多个空闲表叶页面的页码。</p>
 
-<p>A freelist trunk page consists of an array of 4-byte big-endian integers.
-The size of the array is as many integers as will fit in the usable space
-of a page.  The minimum usable space is 480 bytes so the array will always
-be at least 120 entries in length.  The first integer on a freelist trunk
-page is the page number of the next freelist trunk page in the list or zero 
-if this is the last freelist trunk page.  The second integer on a freelist
-trunk page is the number of leaf page pointers to follow.  
-Call the second integer on a freelist trunk page L.
-If L is greater than zero then integers with array indexes between 2 and
-L+1 inclusive contain page numbers for freelist leaf pages.</p>
+<p>空闲表主干页面由一组 4 字节大端整数构成。数组大小等于一个页面可用空间中可容纳的整数个数。最小可用空间为 480 字节，所以数组至少包含 120 个条目。主干页面的第一个整数是下一个主干页面的页码，最后一个主干页面为零。第二个整数表示后续叶页面指针的数量，记为 L。如果 L 大于零，索引在 2 到 L+1（含）之间的整数包含空闲表叶页面的页码。</p>
 
-<p>Freelist leaf pages contain no information.  SQLite avoids reading or
-writing freelist leaf pages in order to reduce disk I/O.</p>
+<p>空闲表叶页面不包含信息。SQLite 避免读取或写入空闲表叶页面以减少磁盘 I/O。</p>
 
-<p>A bug in SQLite versions prior to 3.6.0 (2008-07-16)
-caused the database to be
-reported as corrupt if any of the last 6 entries in the freelist trunk page 
-array contained non-zero values.  Newer versions of SQLite do not have
-this problem.  However, newer versions of SQLite still avoid using the 
-last six entries in the freelist trunk page array in order that database
-files created by newer versions of SQLite can be read by older versions
-of SQLite.</p>
+<p>SQLite 3.6.0（2008-07-16）之前的版本存在一个 bug：如果空闲表主干页面数组的最后 6 个条目中任意有非零值，则数据库会被报告为损坏。新版本不存在该问题。但新版本仍避免使用数组的最后 6 个条目，以便新版本创建的数据库文件可被旧版本读取。</p>
 
-<p>The number of freelist pages is stored as a 4-byte big-endian integer
-in the database header at an offset of 36 from the beginning of the file.
-The database header also stores the page number of the first freelist trunk
-page as a 4-byte big-endian integer at an offset of 32 from the beginning
-of the file.</p>
+<p>空闲表页面数量以 4 字节大端整数存储在文件开头偏移 36 处。头部还在偏移 32 处存储第一个空闲表主干页面的页码。</p>
 
 <a name="btree"></a>
 
-<h2 id="b_tree_pages"><span>1.6. </span>B-tree Pages</h2>
+<h2 id="b_tree_pages"><span>1.6. </span>B 树页面</h2>
 
-<p>The b-tree algorithm provides key/data storage with unique and
-ordered keys on page-oriented storage devices.
-For background information on b-trees, see
-Knuth, <u>The Art Of Computer Programming</u>, Volume 3 "Sorting
-and Searching", pages 471-479.  Two variants of b-trees are used by
-SQLite.  "Table b-trees" use a 64-bit signed integer key and store
-all data in the leaves.  "Index b-trees" use arbitrary keys and store no
-data at all.
+<p>B 树算法为页式存储设备提供了带有唯一且有序键的键/数据存储。关于 B 树的背景资料请参见 Knuth 的<u>The Art Of Computer Programming</u>第 3 卷“排序与查找”第 471-479 页。SQLite 使用两种 B 树变体。“表 B 树”使用 64 位有符号整数键，并在叶节点中存储所有数据。“索引 B 树”使用任意键，并不存储任何数据。</p>
 
-</p><p>A b-tree page is either an interior page or a leaf page.
-A leaf page contains keys and in the case of a table b-tree each
-key has associated data.  An interior page contains
-K keys together with K+1 pointers to child b-tree pages.
-A "pointer" in an interior b-tree page is just the 32-bit 
-unsigned integer page number of the child page.</p><p>
+<p>B 树页面要么是内部页面，要么是叶页面。叶页面包含键，在表 B 树中每个键还伴随数据。内部页面包含 K 个键以及 K+1 个指向子 B 树页面的指针。内部 B 树页面中的“指针”指的是子页面的 32 位无符号页码。</p>
 
-</p><p>The number of keys on an interior b-tree page, K,
-is almost always at least 2 and is usually much more than 2.
-The only exception is when page 1 is an interior b-tree page.
-Page 1 has 100 fewer bytes of storage space available,
-due to the presence of the database header at the beginning of that page,
-and so sometimes (rarely) if page 1 is an interior b-tree page, it can
-end up holding just a single key.  In all other cases, K is 2 or more.
-The upper bound on K is as many keys as will fit on the page. Large keys
-on index b-trees are split up into <a href="fileformat2.html#ovflpgs">overflow pages</a> so that no single key
-uses more than one fourth of the available storage space on the page
-and hence every internal page is able to store at least 4 keys.
-The integer keys of table b-trees are never large enough to
-require overflow, so key overflow only occurs on index b-trees.</p>
+<p>内部 B 树页面的键数 K 通常至少为 2，往往远大于 2。唯一例外是当第 1 页为内部页面时。由于数据库头占据了第 1 页的前 100 字节，空间减少，因此在这种情况下（很少）第 1 页的内部 B 树页面可能只包含一个键。其他情况下，K 至少为 2。K 的上限是页面最多能容纳的键数。索引 B 树中的大键会拆分到<a href="fileformat2.html#ovflpgs">溢出页面</a>，以确保单个键不占用页面可用空间的四分之一，从而每个内部页面至少能存储 4 个键。表 B 树的整型键从不大到需要溢出，因此仅索引 B 树会发生键溢出。</p>
 
-<p>Define the depth
-of a leaf b-tree to be 1 and the depth of any interior b-tree to be one
-more than the maximum depth of any of its children.  In a well-formed
-database, all children of an interior b-tree have the same depth.</p>
+<p>定义叶 B 树的深度为 1，任意内部 B 树的深度为其子树最大深度加 1。在良构数据库中，内部 B 树的所有子页面深度相同。</p>
 
-<p>In an interior b-tree page, the pointers and keys logically alternate 
-with a pointer on both ends. (The previous sentence is to be understood
-conceptually - the actual layout of the keys and
-pointers within the page is more complicated and will be described in
-the sequel.)  All keys within the same page are unique and are logically
-organized in ascending order from left to right.  (Again, this ordering
-is logical, not physical.  The actual location of keys within the page
-is arbitrary.) For any key X, pointers to the left
-of a X refer to b-tree pages on which all keys are less than or equal to X.
-Pointers to the right of X refer to pages where all keys are 
-greater than X.</p>
+<p>在内部 B 树页面中，指针与键逻辑上交替出现，两端均有指针。（此处描述为概念性，页面中键与指针的实际布局更复杂，将在后文详述。）同一页面内的所有键唯一且逻辑上从左至右按升序排列。（再次提醒，这是逻辑顺序，非物理顺序。键在页面中的实际位置是任意的。）对任意键 X，位于其左侧的指针指向所有键小于或等于 X 的 B 树页面；位于其右侧的指针指向所有键大于 X 的页面。</p>
 
-<p>Within an interior b-tree page, each key and the pointer to its
-immediate left are combined into a structure called a "cell".  The
-right-most pointer is held separately.  A leaf b-tree page has no
-pointers, but it still uses the cell structure to hold keys for
-index b-trees or keys and content for table b-trees.  Data is also
-contained in the cell.
-</p>
+<p>在内部 B 树页面中，每个键及其左侧的指针被组合成称为“单元”的结构。最右侧的指针单独存储。叶页面没有指针，但仍使用单元结构存储索引 B 树的键或表 B 树的键与内容。数据也存储在单元内。</p>
 
-<p>Every b-tree page has at most one parent b-tree page.
-A b-tree page without a parent is called a root page.  A root b-tree page
-together with the closure of its children form a complete b-tree.
-It is possible (and in fact rather common) to have a complete b-tree
-that consists of a single page that is both a leaf and the root.
-Because there are pointers from parents to children, every page of a
-complete b-tree can be located if only the root page is known.  Hence,
-b-trees are identified by their root page number.</p>
+<p>每个 B 树页面最多只有一个父页面。没有父页面的 B 树页面称为根页面。根页面及其子页面构成一个完整的 B 树。单页既是叶又是根的完整 B 树在实践中很常见。因为父页面指向子页面，因此只要知道根页面就能找到完整 B 树的所有页面。因此，B 树通过其根页面页码标识。</p>
 
 <a name="btypes"></a>
 
-<p>A b-tree page is either a table b-tree page or an index b-tree page.
-All pages within each complete b-tree are of the same type: either table
-or index.  There is one table b-tree in the database file
-for each rowid table in the database schema, including system tables
-such as <a href="schematab.html">sqlite_schema</a>.  There is one index b-tree
-in the database file for each index in the schema, including implied indexes
-created by uniqueness constraints.  There are no b-trees associated with
-<a href="vtab.html">virtual tables</a>.  Specific virtual table implementations might make use
-of <a href="vtab.html#xshadowname">shadow tables</a> for storage, but those shadow tables will have separate
-entries in the database schema.  <a href="withoutrowid.html">WITHOUT ROWID</a> tables use index b-trees
-rather than table b-trees, so there is one
-index b-tree in the database file for each <a href="withoutrowid.html">WITHOUT ROWID</a> table.
-The b-tree corresponding to the sqlite_schema table is always a table
-b-tree and always has a root page of 1.
-The sqlite_schema table contains the root page number for every other 
-table and index in the database file.</p>
+<p>B 树页面要么是表 B 树页面，要么是索引 B 树页面。每棵完整 B 树内所有页面类型相同：要么是表，要么是索引。数据库文件中每个 rowid 表（包括系统表如<a href="schematab.html">sqlite_schema</a>）对应一棵表 B 树。每个模式中定义的索引（包括由唯一约束隐式创建的索引）对应一棵索引 B 树。<a href="vtab.html">虚拟表</a>没有对应的 B 树。具体的虚拟表实现可能使用<a href="vtab.html#xshadowname">影子表</a>存储，但这些影子表在数据库模式中有独立条目。<a href="withoutrowid.html">WITHOUT ROWID</a> 表使用索引 B 树而不是表 B 树，因此每个 WITHOUT ROWID 表在数据库文件中对应一棵索引 B 树。sqlite_schema 表对应的 B 树始终为表 B 树，根页面号为 1。sqlite_schema 表保存了数据库中其他所有表和索引的根页面号。</p>
 
-<p>Each entry in a table b-tree consists of a 64-bit signed integer key
-and up to 2147483647 bytes of arbitrary data.  (The key of a table b-tree
-corresponds to the <a href="lang_createtable.html#rowid">rowid</a> of the SQL table that the b-tree implements.)
-Interior table b-trees hold only keys and pointers to children.
-All data is contained in the table b-tree leaves.</p>
+<p>表 B 树中的每条记录由 64 位有符号整数键与最多 2147483647 字节的任意数据组成。（表 B 树的键对应于实现该表的 SQL 表的<a href="lang_createtable.html#rowid">rowid</a>。）内部表 B 树只包含键与子指针，所有数据都在叶页面。</p>
 
-<p>Each entry in an index b-tree consists of an arbitrary key of up
-to 2147483647 bytes in length and no data.</p>
+<p>索引 B 树中的每条记录由最多 2147483647 字节的任意键组成，不含数据。</p>
 
 <a name="cell_payload"></a>
 
-<p>Define the "payload" of a cell to be the arbitrary length section
-of the cell.  For an index b-tree, the key is always arbitrary in length
-and hence the payload is the key.  There are no arbitrary length elements
-in the cells of interior table b-tree pages and so those cells have no
-payload.  Table b-tree leaf pages contain arbitrary length content and
-so for cells on those pages the payload is the content.
-</p><p>When the size of payload for a cell exceeds a certain threshold (to
-be defined later) then only the first few bytes of the payload
-are stored on the b-tree page and the balance is stored in a linked list
-of content overflow pages.</p>
+<p>定义单元的“有效载荷”为单元中任意长度的部分。对于索引 B 树，键始终任意长度，因此有效载荷就是键。内部表 B 树页面的单元没有任意长度元素，因此不含有效载荷。表 B 树叶页面包含任意长度内容，因此这些页面上的单元有效载荷为内容。</p><p>如果单元有效载荷大小超过稍后定义的阈值，则只将前几字节存储在 B 树页面上，剩余部分存储在内容溢出页面组成的链表中。</p>
 
-<p>A b-tree page is divided into regions in the following order:
+<p>B 树页面按顺序划分为以下区域：</p>
 
-</p><ol>
-<li>The 100-byte database file header (found on page 1 only)
-</li><li>The 8 or 12 byte b-tree page header
-</li><li>The cell pointer array
-</li><li>Unallocated space
-</li><li>The cell content area
-</li><li>The reserved region
+<ol>
+<li>仅出现在第 1 页的 100 字节数据库文件头
+</li><li>8 或 12 字节的 B 树页面头
+</li><li>单元指针数组
+</li><li>未分配空间
+</li><li>单元内容区域
+</li><li>保留区域
 </li></ol>
 
+<p>100 字节数据库文件头仅存在于第 1 页（始终为表 B 树页面）。数据库文件中的其他 B 树页面均省略该 100 字节头。</p>
 
-<p>The 100-byte database file header is found only on page 1, which is
-always a table b-tree page.  All other b-tree pages in the database file
-omit this 100-byte header.</p>
+<p>保留区域是每个页面（锁定页面除外）末尾的一块未使用空间，供扩展存储每页信息。保留区域大小由数据库头偏移 20 处的 1 字节无符号整数决定。通常为零。</p>
 
-<p>The reserved region is an area of unused space at the end of every
-page (except the locking page) that extensions can use to hold per-page
-information.  The size of the reserved region is determined by the one-byte
-unsigned integer found at an offset of 20 into the database file header.
-The size of the reserved region is usually zero.</p>
-
-<p>The b-tree page header is 8 bytes in size for leaf pages and 12
-bytes for interior pages.  All multibyte values in the page header
-are big-endian.
-The b-tree page header is composed of the following fields:</p>
+<p>B 树页面头对于叶页面为 8 字节，内部页面为 12 字节，所有多字节值都为大端。页面头由以下字段构成：</p>
 
 <center>
-<i>B-tree Page Header Format</i><br>
+<i>B 树页面头格式</i><br>
 <table border="1" width="80%">
-<tr><th>Offset</th><th>Size</th><th>Description
+<tr><th>偏移</th><th>大小</th><th>说明
 </th></tr><tr><td align="center" valign="top">0</td><td align="center" valign="top">1</td><td align="left">
-The one-byte flag at offset 0 indicating the b-tree page type.<ul>
-<li>A value of 2 (0x02) means the page is an interior index b-tree page.
-</li><li>A value of 5 (0x05) means the page is an interior table b-tree page.
-</li><li>A value of 10 (0x0a) means the page is a leaf index b-tree page.
-</li><li>A value of 13 (0x0d) means the page is a leaf table b-tree page.</li></ul>
-Any other value for the b-tree page type is an error.
+偏移 0 的 1 字节标志指示页面类型。<ul>
+<li>值 2（0x02）表示内部索引 B 树页面。
+</li><li>值 5（0x05）表示内部表 B 树页面。
+</li><li>值 10（0x0a）表示叶索引 B 树页面。
+</li><li>值 13（0x0d）表示叶表 B 树页面。</li></ul>
+其他值均为错误。
 </td></tr><tr><td align="center" valign="top">1</td><td align="center" valign="top">2</td><td align="left">
-The two-byte integer at offset 1 gives the start of the
-first freeblock on the page, or is zero if there are no freeblocks.
+偏移 1 的两字节整数表示页面上第一个空闲块的起始位置；如果没有空闲块则为零。
 </td></tr><tr><td align="center" valign="top">3</td><td align="center" valign="top">2</td><td align="left">
-The two-byte integer at offset 3 gives the number of cells on the page.
+偏移 3 的两字节整数指示页面上的单元数量。
 </td></tr><tr><td align="center" valign="top">5</td><td align="center" valign="top">2</td><td align="left">
-The two-byte integer at offset 5 designates the start of the cell content
-area.  A zero value for this integer is interpreted as 65536.
+偏移 5 的两字节整数表示单元内容区域的起始点。该整数为零时解释为 65536。
 </td></tr><tr><td align="center" valign="top">7</td><td align="center" valign="top">1</td><td align="left">
-The one-byte integer at offset 7 gives the number of fragmented free
-bytes within the cell content area.
+偏移 7 的一字节整数表示单元内容区域内碎片化空闲字节数。
 </td></tr><tr><td align="center" valign="top">8</td><td align="center" valign="top">4</td><td align="left">
-The four-byte page number at offset 8 is the right-most pointer.  This
-value appears in the header of interior b-tree pages only and is omitted from
-all other pages.
+偏移 8 的四字节页码为最右指针。仅出现在内部 B 树页面的头部，其他页面省略。
 </td></tr></table></center>
 
-<p>The cell pointer array of a b-tree page immediately follows the b-tree
-page header.  Let K be the number of cells on the btree.  The cell pointer
-array consists of K 2-byte integer offsets to the cell contents.  The
-cell pointers are arranged in key order with left-most cell (the cell with the
-smallest key) first and the right-most cell (the cell with the largest
-key) last.</p>
+<p>B 树页面的单元指针数组紧随页面头。设 K 为页面上的单元数。数组由 K 个两字节整数构成，每个整数为一个单元内容的偏移量。单元指针以键顺序排列，最左单元（键最小）在前，最右单元（键最大）在后。</p>
 
-<p>Cell content is stored in the cell content region of the b-tree page.
-SQLite strives to place cells as far toward the end of the b-tree page as
-it can, in order to leave space for future growth of the cell pointer array.
-The area in between the last cell pointer array entry and the beginning of
-the first cell is the unallocated region.
-</p>
+<p>单元内容存储在 B 树页面的单元内容区域。SQLite 尽可能将单元放置在页面末尾，以便为未来扩展单元指针数组留出空间。最后一个单元指针条目与第一个单元之间的区域为未分配区域。</p>
 
-<p>If a page contains no cells (which is only possible for a root page
-of a table that contains no rows) then the offset to the
-cell content area will equal the page size minus the bytes of reserved space.
-If the database uses a 65536-byte page size and the reserved space is zero
-(the usual value for reserved space) then the cell content offset of an
-empty page wants to be 65536.  
-However, that integer is too large to be stored in a
-2-byte unsigned integer, so a value of 0 is used in its place.
+<p>如果页面上没有单元（仅在空表的根页面可能发生），则单元内容区域的偏移等于页面大小减去保留空间的字节数。如果数据库使用 65536 字节页面且保留空间为零（通常值），则空页面的单元内容偏移为 65536。然而该整数超出两字节无符号整数范围，因此用 0 代替。</p>
 
-</p><p>A freeblock is a structure used to identify unallocated space within
-a b-tree page.  Freeblocks are organized as a chain.  The first 2 bytes of
-a freeblock are a big-endian integer which is the offset in the b-tree page
-of the next freeblock in the chain, or zero if the freeblock is the last on
-the chain.  The third and fourth bytes of each freeblock form
-a big-endian integer which is the size of the freeblock in bytes, including
-the 4-byte header.  Freeblocks are always connected in order 
-of increasing offset.  The second field of the b-tree page header is the
-offset of the first freeblock, or zero if there are no freeblocks on the
-page.  In a well-formed b-tree page, there will always be at least one cell
-before the first freeblock.</p>
+<p>空闲块是用于标识 B 树页面内未分配空间的结构。空闲块组织成链表。每个空闲块的前两字节为大端整数，指向链中下一个空闲块的偏移；若为空则为零。第三和第四字节组成大端整数，表示空闲块的字节大小（含 4 字节头）。空闲块按偏移递增顺序连接。页面头第二字段记录第一个空闲块的偏移；若无则为零。在良构页面中，第一个空闲块前总有至少一个单元。</p>
 
-<p>A freeblock requires at least 4 bytes of space.  If there is an isolated
-group of 1, 2, or 3 unused bytes within the cell content area, those bytes
-comprise a fragment.  The total number of bytes in all fragments is stored
-in the fifth field of the b-tree page header.  In a well-formed b-tree page,
-the total number of bytes in fragments may not exceed 60.</p>
+<p>空闲块至少需要 4 字节。如果单元内容区内存在孤立的 1、2 或 3 字节未使用区域，则称为碎片。所有碎片字节的总数记录在页面头的第五字段中。在良构页面中，碎片字节总数不得超过 60。</p>
 
-<p>The total amount of free space on a b-tree page consists of the size
-of the unallocated region plus the total size of all freeblocks plus the
-number of fragmented free bytes.  SQLite may from time to time reorganize
-a b-tree page so that there are no freeblocks or fragment bytes, all
-unused bytes are contained in the unallocated space region, and all
-cells are packed tightly at the end of the page.  This is called 
-"defragmenting" the b-tree page.</p>
+<p>页面上的空闲空间总量包括未分配区域大小、所有空闲块大小之和以及碎片字节数。SQLite 可能会不定期重新整理 B 树页面，使其没有空闲块或碎片，所有未使用字节都归入未分配区域，并且所有单元紧密打包到页面末尾。这种操作称为“碎片整理”。</p>
 
 <a name="varint"></a>
 
+<p>可变长度整数（varint）是一个静态霍夫曼编码的 64 位二补数整数，对于较小的正数占用更少空间。varint 长度介于 1 到 9 字节之间。varint 由零个或多个高位为 1 的字节组成，后面跟一个高位为 0 的单字节（或 9 字节），两者取较短。前八个字节的低七位以及第九字节的全部 8 位用于重构 64 位二补数整数。varint 采用大端：取自较早字节的位比后续字节的位更重要。</p>
 
-<p>A variable-length integer or "varint" is a static Huffman encoding
-of 64-bit twos-complement integers that uses less space for small positive 
-values. 
-A varint is between 1 and 9 bytes in length.  The varint consists of either
-zero or more bytes which have the high-order bit set followed by a single byte
-with the high-order bit clear, or nine bytes, whichever is shorter.
-The lower seven bits of each of the first eight bytes and all 8 bits of
-the ninth byte are used to reconstruct the 64-bit twos-complement integer.
-Varints are big-endian: bits taken from the earlier byte of the varint
-are more significant than bits taken from the later bytes. </p>
-
-<p>The format of a cell depends on which kind of b-tree page the cell
-appears on.  The following table shows the elements of a cell, in
-order of appearance, for the various b-tree page types.
+<p>单元的格式取决于其所在的 B 树页面类型。下表列出不同 B 树页面类型中单元各元素的出现顺序。</p>
 
 </p><dl>
-<dt><p>Table B-Tree Leaf Cell (header 0x0d):</p></dt>
+<dt><p>表 B 树叶单元（头部 0x0d）：</p></dt>
 <dd><p></p><ul>
-<li>A varint which is the total number of bytes of payload, including any
-overflow
-</li><li>A varint which is the integer key, a.k.a. "<a href="lang_createtable.html#rowid">rowid</a>"
-</li><li>The initial portion of the payload that does not spill to overflow
-pages.
-</li><li>A 4-byte big-endian integer page number for the first page of the
-overflow page list - omitted if all payload fits on the b-tree page.
+<li>一个 varint，表示有效载荷（包括溢出部分）的总字节数。
+</li><li>一个 varint，表示整数键，即“<a href="lang_createtable.html#rowid">rowid</a>”。
+</li><li>不会溢出到溢出页面的有效载荷初始部分。
+</li><li>溢出页面链第一个页面的 4 字节大端页码——如果所有有效载荷都在 B 树页面上则省略。
 </li></ul></dd>
 
-<dt><p>Table B-Tree Interior Cell (header 0x05):</p></dt>
+<dt><p>表 B 树内部单元（头部 0x05）：</p></dt>
 <dd><p></p><ul>
-<li>A 4-byte big-endian page number which is the left child pointer.
-</li><li>A varint which is the integer key
+<li>一个 4 字节大端页码，为左子页面指针。
+</li><li>一个 varint，表示整数键。
 </li></ul></dd>
 
-<dt><p>Index B-Tree Leaf Cell (header 0x0a):</p></dt>
+<dt><p>索引 B 树叶单元（头部 0x0a）：</p></dt>
 <dd><p></p><ul>
-<li>A varint which is the total number of bytes of key payload, including any
-overflow
-</li><li>The initial portion of the payload that does not spill to overflow
-pages.
-</li><li>A 4-byte big-endian integer page number for the first page of the
-overflow page list - omitted if all payload fits on the b-tree page.
+<li>一个 varint，表示键有效载荷（包括溢出部分）的总字节数。
+</li><li>不会溢出的有效载荷初始部分。
+</li><li>溢出页面链第一个页面的 4 字节大端页码——如果所有有效载荷都在 B 树页面上则省略。
 </li></ul></dd>
 
-<dt><p>Index B-Tree Interior Cell (header 0x02):</p></dt>
+<dt><p>索引 B 树内部单元（头部 0x02）：</p></dt>
 <dd><p></p><ul>
-<li>A 4-byte big-endian page number which is the left child pointer.
-</li><li>A varint which is the total number of bytes of key payload, including any
-overflow
-</li><li>The initial portion of the payload that does not spill to overflow
-pages.
-</li><li>A 4-byte big-endian integer page number for the first page of the
-overflow page list - omitted if all payload fits on the b-tree page.
+<li>一个 4 字节大端页码，为左子页面指针。
+</li><li>一个 varint，表示键有效载荷（包括溢出部分）的总字节数。
+</li><li>不会溢出的有效载荷初始部分。
+</li><li>溢出页面链第一个页面的 4 字节大端页码——如果所有有效载荷都在 B 树页面上则省略。
 </li></ul></dd>
 </dl>
 
-<p>The information above can be recast into a table format as follows:</p>
+<p>以上信息也可转换为下表：</p>
 
 <a name="cellformat"></a>
 
 <center>
-<i>B-tree Cell Format</i>
+<i>B 树单元格式</i>
 <table border="1" width="80%">
-<tr><th rowspan="2">Datatype
-    </th><th colspan="4">Appears in...
-    </th><th rowspan="2">Description
-</th></tr><tr><th>Table Leaf (0x0d)
-    </th><th>Table Interior (0x05)
-    </th><th>Index Leaf (0x0a)
-    </th><th>Index Interior (0x02)
-</th></tr><tr><td align="center" valign="top">4-byte integer
+<tr><th rowspan="2">数据类型
+    </th><th colspan="4">出现于...
+    </th><th rowspan="2">说明
+</th></tr><tr><th>表叶（0x0d）
+    </th><th>表内部（0x05）
+    </th><th>索引叶（0x0a）
+    </th><th>索引内部（0x02）
+</th></tr><tr><td align="center" valign="top">4 字节整数
     </td><td align="center" valign="top">&nbsp;
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&nbsp;
     </td><td align="center" valign="top">&#x2714;
-    </td><td align="left">Page number of left child
+    </td><td align="left">左子页面页码
 </td></tr><tr><td align="center" valign="top">varint
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&nbsp;
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&#x2714;
-    </td><td align="left">Number of bytes of payload
+    </td><td align="left">有效载荷字节数
 </td></tr><tr><td align="center" valign="top">varint
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&nbsp;
     </td><td align="center" valign="top">&nbsp;
-    </td><td align="left">Rowid
-</td></tr><tr><td align="center" valign="top">byte array
+    </td><td align="left">rowid
+</td></tr><tr><td align="center" valign="top">字节数组
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&nbsp;
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&#x2714;
-    </td><td align="left">Payload
-</td></tr><tr><td align="center" valign="top">4-byte integer
+    </td><td align="left">有效载荷
+</td></tr><tr><td align="center" valign="top">4 字节整数
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&nbsp;
     </td><td align="center" valign="top">&#x2714;
     </td><td align="center" valign="top">&#x2714;
-    </td><td align="left">Page number of first overflow page
+    </td><td align="left">第一溢出页的页码
 </td></tr></table></center>
 
-
-<p>The amount of payload that spills onto overflow pages also depends on
-the page type.  For the following computations, let U be the usable size
-of a database page, the total page size less the reserved space at the
-end of each page.  And let P be the payload size.  In the following,
-symbol X represents the maximum amount of payload that can be stored directly
-on the b-tree page without spilling onto an overflow page and symbol M
-represents the minimum amount of payload that must be stored on the btree
-page before spilling is allowed.
+<p>溢出到溢出页面的有效载荷量也取决于页面类型。以下计算中，令 U 为数据库页面的可用大小（页面总大小减去每页末尾保留空间），P 为有效载荷大小。在下文中，符号 X 表示可直接存储在 B 树页面上的最大有效载荷，符号 M 表示在允许溢出之前必须存储在 B 树页面上的最小有效载荷。</p>
 
 </p><dl>
-<dt><p>Table B-Tree Leaf Cell:</p></dt>
+<dt><p>表 B 树叶单元：</p></dt>
 <dd><p>
-Let X be U-35.  If the payload size P is less than or equal to X then
-the entire payload is stored on the b-tree leaf page.
-Let M be ((U-12)*32/255)-23 and let K be M+((P-M)%(U-4)).
-If P is greater than X
-then the number of bytes stored on the table b-tree leaf page is K
-if K is less or equal to X or M otherwise.
-The number of bytes stored on the leaf page is never less than M.
+令 X = U-35。如果有效载荷大小 P 小于等于 X，则整个有效载荷存储在表 B 树叶页面上。
+令 M = ((U-12)*32/255)-23，K = M+((P-M)%(U-4))。如果 P 大于 X，则存储在该页面的字节数为 K（当 K ≤ X）或 M（否则）。叶页面存储的字节数永远不会小于 M。
 </p></dd>
 
-<dt><p>Table B-Tree Interior Cell:</p></dt>
+<dt><p>表 B 树内部单元：</p></dt>
 <dd><p>
-Interior pages of table b-trees have no payload and so there is never
-any payload to spill.
+表 B 树内部页面没有有效载荷，因此永远不会溢出。
 </p></dd>
 
-<dt><p>Index B-Tree Leaf Or Interior Cell:</p></dt>
+<dt><p>索引 B 树叶或内部单元：</p></dt>
 <dd><p>
-Let X be ((U-12)*64/255)-23.  If the payload size P is less than
-or equal to X then the entire payload is stored on the b-tree page.
-Let M be ((U-12)*32/255)-23 and let K be M+((P-M)%(U-4)).
-If P is greater than X then the number
-of bytes stored on the index b-tree page is K if K is less than or
-equal to X or M otherwise.
-The number of bytes stored on the index page is never less than M.
+令 X = ((U-12)*64/255)-23。如果有效载荷大小 P ≤ X，则整个有效载荷存储在 B 树页面上。令 M = ((U-12)*32/255)-23，K = M+((P-M)%(U-4))。如果 P 大于 X，则存储在索引页面上的字节数为 K（当 K ≤ X）或 M（否则）。索引页面存储的字节数永远不会小于 M。
 </p></dd>
 </dl>
 
-<p>Here is an alternative description of the same computation:
+<p>以下描述是相同计算的替代方式：</p>
 
-</p><ul>
-<li>X is U-35 for table btree leaf pages or
-    ((U-12)*64/255)-23 for index pages.
-</li><li>M is always ((U-12)*32/255)-23.
-</li><li>Let K be M+((P-M)%(U-4)).
-</li><li>If P&lt;=X then all P bytes of payload are stored directly on the 
-    btree page without overflow.
-</li><li>If P&gt;X and K&lt;=X then the first K bytes of P are stored on the 
-    btree page and the remaining P-K bytes are stored on overflow pages.
-</li><li>If P&gt;X and K&gt;X then the first M bytes of P are stored on the
-    btree page and the remaining P-M bytes are stored on overflow pages.
-</li></ul>
+<ul>
+<li>X 对于表 B 树叶页面为 U-35；对于索引页面为 ((U-12)*64/255)-23。</li>
+<li>M 始终为 ((U-12)*32/255)-23。</li>
+<li>令 K = M+((P-M)%(U-4))。</li>
+<li>如果 P≤X，则所有 P 字节直接存储在 B 树页面上，无需溢出。</li>
+<li>如果 P&gt;X 且 K≤X，则前 K 字节存储在页面上，其余 P-K 字节存储在溢出页面。</li>
+<li>如果 P&gt;X 且 K&gt;X，则前 M 字节存储在页面上，其余 P-M 字节存储在溢出页面。</li>
+</ul>
 
-<p>The overflow thresholds are designed to give a minimum fanout of
-4 for index b-trees and to make sure enough of the payload
-is on the b-tree page that the record header can usually be accessed
-without consulting an overflow page.  In hindsight, the designer of
-the SQLite b-tree logic realized that these thresholds could have been
-made much simpler.  However, the computations cannot be changed
-without resulting in an incompatible file format.  And the current computations
-work well, even if they are a little complex.</p>
+<p>这些溢出阈值旨在确保索引 B 树有最小扇出 4，并使足够多的有效载荷保持在 B 树页面上，以便通常可以在不访问溢出页面的情况下访问记录头。事后看来，SQLite B 树逻辑设计者意识到这些阈值本可以更简单，但若更改计算方式会导致不兼容文件格式。当前计算虽然复杂，但运行良好。</p>
 
 <a name="ovflpgs"></a>
 
-<h2 id="cell_payload_overflow_pages"><span>1.7. </span>Cell Payload Overflow Pages</h2>
+<h2 id="cell_payload_overflow_pages"><span>1.7. </span>单元有效载荷溢出页面</h2>
 
-<p>When the payload of a b-tree cell is too large for the b-tree page,
-the surplus is spilled onto overflow pages.  Overflow pages form a linked
-list.  The first four bytes of each overflow page are a big-endian
-integer which is the page number of the next page in the chain, or zero
-for the final page in the chain.  The fifth byte through the last usable
-byte are used to hold overflow content.</p>
+<p>当 B 树单元的有效载荷过大而无法全部放入 B 树页面时，剩余部分溢出到溢出页面。溢出页面形成链表。每个溢出页面的前 4 字节为大端整数，记录链中下一页面的页码；最后一个页面为零。第五字节到最后一个可用字节用于保存溢出内容。</p>
 
-<h2 id="pointer_map_or_ptrmap_pages"><span>1.8. </span>Pointer Map or Ptrmap Pages</h2>
+<h2 id="pointer_map_or_ptrmap_pages"><span>1.8. </span>指针映射或 Ptrmap 页面</h2>
 
-<p>Pointer map or ptrmap pages are extra pages inserted into the database
-to make the operation of <a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a> and <a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a> modes
-more efficient.  Other page types in the database typically have pointers
-from parent to child.  For example, an interior b-tree page contains pointers
-to its child b-tree pages and an overflow chain has a pointer
-from earlier to later links in the chain.  A ptrmap page contains linkage
-information going in the opposite direction, from child to parent.</p>
+<p>指针映射（ptrmap）页面是插入数据库以提高<a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a>和<a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a>模式效率的额外页面。数据库中其他页面通常由父指向子。例如，内部 B 树页面包含指向子页面的指针，溢出链中早期页面指向后续页面。Ptrmap 页面记录从子向父的反向链接。</p>
 
-<p>Ptrmap pages must exist in any database file which has a non-zero
-largest root b-tree page value at offset 52 in the database header.
-If the largest root b-tree page value is zero, then the database must not
-contain ptrmap pages.</p>
+<p>当数据库文件头偏移 52 的最大根 B 树页面值非零时，必须存在 ptrmap 页面。如果该值为零，则数据库文件不得包含 ptrmap 页面。</p>
 
-<p>In a database with ptrmap pages, the first ptrmap page is page 2.
-A ptrmap page consists of an array of 5-byte entries.  Let J be the
-number of 5-byte entries that will fit in the usable space of a page.
-(In other words, J=U/5.)  The first ptrmap page will contain back pointer
-information for pages 3 through J+2, inclusive.  The second pointer map
-page will be on page J+3 and that ptrmap page will provide back pointer
-information for pages J+4 through 2*J+3 inclusive.  And so forth for
-the entire database file.</p>
+<p>使用 ptrmap 页面时，第一张 ptrmap 页面为第 2 页。ptrmap 页面由多个 5 字节条目组成。令 J 为一个页面可用空间中能放下的 5 字节条目数（即 J=U/5）。第一张 ptrmap 页面包含页码 3 到 J+2 的反向链接信息。第二张 ptrmap 页面位于 J+3，并记录页码 J+4 到 2*J+3 的反向链接。依此类推。</p>
 
-<p>In a database that uses ptrmap pages, all pages at locations identified
-by the computation in the previous paragraph must be ptrmap page and no
-other page may be a ptrmap page.  Except, if the byte-lock page happens to
-fall on the same page number as a ptrmap page, then the ptrmap is moved
-to the following page for that one case.</p>
+<p>在使用 ptrmap 页面时，根据上一段计算出的页面位置必须为 ptrmap 页面，其他位置不能是 ptrmap 页面。唯一例外是字节锁页与 ptrmap 页面页码相同的情况，此时 ptrmap 页面移动到紧接后的页面。</p>
 
-<p>Each 5-byte entry on a ptrmap page provides back-link information about 
-one of the pages that immediately follow the pointer map.  If page B is a
-ptrmap page then back-link information about page B+1 is provided by
-the first entry on the pointer map.  Information about page B+2 is
-provided by the second entry.  And so forth.</p>
-
-<p>Each 5-byte ptrmap entry consists of one byte of "page type" information
-followed by a 4-byte big-endian page number.  Five page types are recognized:
-</p>
+<p>每个 ptrmap 条目（5 字节）包含 1 字节“页面类型”信息，后跟 4 字节大端页码。识别出五种页面类型：</p>
 
 <ol>
-<li>A b-tree root page.  The
-page number should be zero.
-</li><li>A freelist page.  The page number should be
-zero.
-</li><li>The first page of a
-cell payload overflow chain.  The page number is the b-tree page that
-contains the cell whose content has overflowed.
-</li><li>A page in an overflow chain
-other than the first page.  The page number is the prior page of the
-overflow chain.
-</li><li>A non-root b-tree page.  The
-page number is the parent b-tree page.
-</li></ol>
+<li>B 树根页面。页码应为零。</li>
+<li>空闲表页面。页码应为零。</li>
+<li>单元有效载荷溢出链的第一页面。页码为包含该溢出内容的 B 树页面。</li>
+<li>溢出链中非首页面。页码为溢出链的前一页面。</li>
+<li>非根 B 树页面。页码为父页面。</li>
+</ol>
 
-<p>In any database file that contains ptrmap pages, all b-tree root pages 
-must come before any non-root b-tree page, cell payload overflow page, or
-freelist page.  This restriction ensures that a root page will never
-be moved during an auto-vacuum or incremental-vacuum.  The auto-vacuum
-logic does not know how to update the root_page field of the sqlite_schema
-table and so it is necessary to prevent root pages from being moved
-during an auto-vacuum in order to preserve the integrity of the
-sqlite_schema table.  Root pages are moved to the beginning of the
-database file by the CREATE TABLE, CREATE INDEX, DROP TABLE, and
-DROP INDEX operations.</p>
+<p>凡包含 ptrmap 页面数据库文件中，所有 B 树根页面必须排在任意非根 B 树页面、单元溢出页面或空闲表页面之前。此限制确保自动清理过程中根页面不会移动，而自动清理逻辑无法更新 sqlite_schema 表的 root_page 字段，因此必须防止根页面被移动以维护 sqlite_schema 表完整性。根页面由 CREATE TABLE、CREATE INDEX、DROP TABLE 及 DROP INDEX 操作移动到文件开头。</p>
 
-<h1 id="schema_layer"><span>2. </span>Schema Layer</h1>
+<h1 id="schema_layer"><span>2. </span>模式层</h1>
 
-<p>The foregoing text describes low-level aspects of the SQLite file
-format.  The b-tree mechanism provides a powerful and efficient means of
-accessing a large data set.  This section will describe how the
-low-level b-tree layer is used to implement higher-level SQL
-capabilities.</p>
+<p>前文描述了 SQLite 文件格式的低级方面。B 树机制提供了访问大量数据的强大且高效的手段。本节将说明如何使用低级 B 树层实现更高级的 SQL 能力。</p>
 
 <a name="record_format"></a>
 
-<h2 id="record_format"><span>2.1. </span>Record Format</h2>
+<h2 id="record_format"><span>2.1. </span>记录格式</h2>
 
-<p>The data for a table b-tree leaf page and the key
-of an index b-tree page was characterized above
-as an arbitrary sequence of bytes.
-The prior discussion mentioned one key being less than another, but
-did not define what "less than" meant.  The current section will address
-these omissions.</p>
+<p>表 B 树叶页面的数据与索引 B 树页面的键在前文被描述为任意字节序列。此前提到了某个键小于另一个，但未定义“更小”的含义。本节将补充说明。</p>
 
-<p>Payload, either table b-tree data or index b-tree keys, 
-is always in the "record format".
-The record format defines a sequence of values corresponding
-to columns in a table or index.  The record format specifies the number
-of columns, the datatype of each column, and the content of each column.</p>
+<p>表 B 树数据或索引 B 树键的有效载荷始终采用“记录格式”。记录格式定义了一系列值，对应于表或索引中的列。记录格式指定列数、每列数据类型以及每列内容。</p>
 
-<p>The record format makes extensive use of the 
-<a href="fileformat2.html#varint">variable-length integer</a> or <a href="fileformat2.html#varint">varint</a>
-representation of 64-bit signed integers defined above.</p>
+<p>记录格式大量使用前文定义的<a href="fileformat2.html#varint">可变长度整数</a>。</p>
 
 <a name="serialtype"></a>
 
-<p>A record contains a header and a body, in that order.  
-The header begins with a single varint which determines the total number
-of bytes in the header.  The varint value is the size of the header in
-bytes including the size varint itself.  Following the size varint are
-one or more additional varints, one per column.  These additional varints
-are called "serial type" numbers and
-determine the datatype of each column, according to the following chart:</p>
+<p>记录由头部和主体按顺序组成。头部以单个 varint 开始，决定头部总字节数。该 varint 值为头部长度，包括该大小 varint 自身。紧随其后的是一个或多个 varint（每列对应一个），称为“序列类型”号，用于确定每列的数据类型，见下表：</p>
 
 <center>
-<i>Serial Type Codes Of The Record Format</i><br>
+<i>记录格式的序列类型代码</i><br>
 <table width="80%" border="1">
-<tr><th>Serial Type</th><th>Content Size</th><th>Meaning
+<tr><th>序列类型</th><th>内容大小</th><th>含义
 </th></tr><tr><td valign="top" align="center">0</td><td valign="top" align="center">0</td><td align="left">
-Value is a NULL.
+表示 NULL。
 </td></tr><tr><td valign="top" align="center">1</td><td valign="top" align="center">1</td><td align="left">
-Value is an 8-bit twos-complement integer.
+表示 8 位二补数整数。
 </td></tr><tr><td valign="top" align="center">2</td><td valign="top" align="center">2</td><td align="left">
-Value is a big-endian 16-bit twos-complement integer.
+表示大端 16 位二补数整数。
 </td></tr><tr><td valign="top" align="center">3</td><td valign="top" align="center">3</td><td align="left">
-Value is a big-endian 24-bit twos-complement integer.
+表示大端 24 位二补数整数。
 </td></tr><tr><td valign="top" align="center">4</td><td valign="top" align="center">4</td><td align="left">
-Value is a big-endian 32-bit twos-complement integer.
+表示大端 32 位二补数整数。
 </td></tr><tr><td valign="top" align="center">5</td><td valign="top" align="center">6</td><td align="left">
-Value is a big-endian 48-bit twos-complement integer.
+表示大端 48 位二补数整数。
 </td></tr><tr><td valign="top" align="center">6</td><td valign="top" align="center">8</td><td align="left">
-Value is a big-endian 64-bit twos-complement integer.
+表示大端 64 位二补数整数。
 </td></tr><tr><td valign="top" align="center">7</td><td valign="top" align="center">8</td><td align="left">
-Value is a big-endian IEEE 754-2008 64-bit floating point number.
+表示大端 IEEE 754-2008 64 位浮点数。
 </td></tr><tr><td valign="top" align="center">8</td><td valign="top" align="center">0</td><td align="left">
-Value is the integer 0. (Only available for <a href="fileformat2.html#schemaformat">schema format</a> 4 and higher.)
+表示整数 0。（仅对<a href="fileformat2.html#schemaformat">模式格式</a> 4 及以上可用。）
 </td></tr><tr><td valign="top" align="center">9</td><td valign="top" align="center">0</td><td align="left">
-Value is the integer 1. (Only available for <a href="fileformat2.html#schemaformat">schema format</a> 4 and higher.)
+表示整数 1。（仅对<a href="fileformat2.html#schemaformat">模式格式</a> 4 及以上可用。）
 </td></tr><tr><td valign="top" align="center">10,11
-    </td><td valign="top" align="center"><i>variable</i></td><td align="left">
-<i>Reserved for internal use.  These serial type codes will
-   never appear in a well-formed database file, but they
-   might be used in transient and temporary database files
-   that SQLite sometimes generates for its own use.
-   The meanings of these codes can shift from one release
-   of SQLite to the next.</i>
-</td></tr><tr><td valign="top" align="center">N&#x2265;12 and even
+    </td><td valign="top" align="center"><i>可变</i></td><td align="left">
+<i>保留给内部使用。这些序列类型代码不会出现在良构数据库中，但可能出现在 SQLite 为自身生成的临时文件中。这些代码的含义可能随 SQLite 版本而变化。</i>
+</td></tr><tr><td valign="top" align="center">N&#x2265;12 且为偶数
     </td><td valign="top" align="center">(N-12)/2</td><td align="left">
-Value is a BLOB that is (N-12)/2 bytes in length.
-</td></tr><tr><td valign="top" align="center">N&#x2265;13 and odd
+表示长度为 (N-12)/2 的 BLOB。
+</td></tr><tr><td valign="top" align="center">N&#x2265;13 且为奇数
     </td><td valign="top" align="center">(N-13)/2</td><td align="left">
-Value is a string in the <a href="fileformat2.html#enc">text encoding</a> and (N-13)/2 bytes in length.
-The nul terminator is not stored.
+表示文本，采用<a href="fileformat2.html#enc">文本编码</a>，长度为 (N-13)/2 字节，不存储 NULL 终止符。
 </td></tr></table></center>
 
-<p>The header size varint
-and serial type varints will usually consist of a single byte.  The
-serial type varints for large strings and BLOBs might extend to two or three
-byte varints, but that is the exception rather than the rule. 
-The varint format is very efficient at coding the record header.</p>
+<p>头部大小 varint 与序列类型 varint 通常为单字节。大型字符串与 BLOB 的序列类型 varint 可能扩展到两或三字节，但属例外。varint 格式对记录头编码非常高效。</p>
 
-<p>The values for each column in the record immediately follow the header.
-For serial types 0, 8, 9, 12, and 13, the value is zero bytes in
-length.  If all columns are of these types then the body section of the
-record is empty.</p>
+<p>每列的值紧跟在头部之后。对于序列类型 0、8、9、12 和 13，值长度为零字节。如果所有列都是这些类型，则记录体部分为空。</p>
 
-<p>A record might have fewer values than the number of columns in the
-corresponding table.  This can happen, for example, after an
-<a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a> SQL statement has increased
-the number of columns in the table schema without modifying preexisting rows
-in the table.
-Missing values at the end of the record are filled in using the
-<a href="lang_createtable.html#dfltval">default value</a> for the corresponding columns defined in the table schema.
-</p>
+<p>记录中的值可能少于列数。例如，在执行<a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a> 后，表模式中的列数增加但旧行未更新。记录末尾缺失的列值由表模式中定义的<a href="lang_createtable.html#dfltval">默认值</a>填充。</p>
 
+<h2 id="record_sort_order"><span>2.2. </span>记录排序顺序</h2>
 
-<h2 id="record_sort_order"><span>2.2. </span>Record Sort Order</h2>
-
-<p>The order of keys in an index b-tree is determined by the sort order of
-the records that the keys represent.  Record comparison progresses column
-by column.  Columns of a record are examined from left to right.  The
-first pair of columns that are not equal determines the relative order
-of the two records.  The sort order of individual columns is as
-follows:</p>
+<p>索引 B 树中键的顺序由它们所代表记录的排序顺序决定。记录比较按列逐个进行，从左向右。第一个不等的列对决定两个记录的相对顺序。各列的排序顺序如下：</p>
 
 <ol>
-<li>NULL values (serial type 0) sort first.
-</li><li>Numeric values (serial types 1 through 9) sort after NULLs
-      and in numeric order.
-</li><li>Text values (odd serial types 13 and larger) sort after numeric
-    values in the order determined by the columns <a href="datatype3.html#collation">collating function</a>.
-</li><li>BLOB values (even serial types 12 and larger) sort last and in the order 
-    determined by memcmp().
+<li>NULL 值（序列类型 0）最先排序。
+</li><li>数值（序列类型 1 至 9）在 NULL 之后按数值排序。
+</li><li>文本（奇序列类型 13 及以上）在数值之后，按列的<a href="datatype3.html#collation">排序函数</a>确定顺序。
+</li><li>BLOB（偶序列类型 12 及以上）最后排序，按 memcmp() 确定顺序。
 </li></ol>
 
-<p>A <a href="datatype3.html#collation">collating function</a> for each column is necessary in order to compute
-the order of text fields.
-SQLite defines three built-in collating functions:
-</p>
+<p>为每列提供<a href="datatype3.html#collation">排序函数</a>才能计算文本字段的顺序。SQLite 定义了三种内建排序函数：</p>
 
 <blockquote><table border="0" cellspacing="10">
 <tr><td valign="top">BINARY
-    </td><td> The built-in BINARY collation compares strings byte by byte
-        using the memcmp() function
-        from the standard C library.
+    </td><td>内建 BINARY 排序逐字节比较字符串，使用标准 C 库的 memcmp()。
 </td></tr><tr><td valign="top">NOCASE
-    </td><td> The NOCASE collation is like BINARY except that uppercase
-        ASCII characters ('A' through 'Z')
-        are folded into their lowercase equivalents prior to running the
-        comparison.  Only ASCII characters are case-folded.
-        NOCASE
-        does not implement a general purpose unicode caseless comparison.
+    </td><td>NOCASE 类似于 BINARY，但在比较前将 ASCII 大写字母（'A' 到 'Z'）折叠为小写。仅对 ASCII 字符进行大小写折叠。NOCASE 不实现通用 Unicode 无大小写比较。
 </td></tr><tr><td valign="top">RTRIM
-    </td><td> RTRIM is like BINARY except that extra spaces at the end of either
-         string do not change the result.  In other words, strings will
-         compare equal to one another as long as they
-         differ only in the number of spaces at the end.
+    </td><td>RTRIM 类似于 BINARY，唯一区别是忽略字符串尾部的额外空格。换句话说，只要字符串仅在尾部空格数不同，就视为相等。
 </td></tr></table></blockquote>
 
-<p>Additional application-specific collating functions can be added to
-SQLite using the <a href="c3ref/create_collation.html">sqlite3_create_collation()</a> interface.</p>
+<p>可通过<a href="c3ref/create_collation.html">sqlite3_create_collation()</a>接口为应用添加额外的排序函数。</p>
 
-<p>The default collating function for all strings is BINARY.
-Alternative collating functions for table columns can be specified in the
-<a href="lang_createtable.html">CREATE TABLE</a> statement using the COLLATE clause on the <a href="lang_createtable.html#tablecoldef">column definition</a>.
-When a column is indexed, the same collating function specified in the
-<a href="lang_createtable.html">CREATE TABLE</a> statement is used for the column in the index, by default,
-though this can be overridden using a COLLATE clause in the 
-<a href="lang_createindex.html">CREATE INDEX</a> statement.
+<p>所有字符串默认排序函数为 BINARY。可以在<a href="lang_createtable.html">CREATE TABLE</a>语句的<a href="lang_createtable.html#tablecoldef">列定义</a>中通过 COLLATE 子句指定列的替代排序函数。当列被索引时，默认情况下索引使用 CREATE TABLE 中指定的相同排序函数，但也可以通过<a href="lang_createindex.html">CREATE INDEX</a>语句中的 COLLATE 子句覆盖。</p>
 
 <a name="#sqltab"></a>
 
-</p><h2 id="representation_of_sql_tables"><span>2.3. </span>Representation Of SQL Tables</h2>
+</p><h2 id="representation_of_sql_tables"><span>2.3. </span>SQL 表的表示</h2>
 
-<p> Each ordinary SQL table in the database schema is represented on-disk
-by a table b-tree.  Each entry in the table b-tree corresponds to a row
-of the SQL table.  The <a href="lang_createtable.html#rowid">rowid</a> of the SQL table is the 64-bit signed
-integer key for each entry in the table b-tree.</p>
+<p>数据库模式中的每个普通 SQL 表通过一棵表 B 树在磁盘上表示。表 B 树的每条记录对应 SQL 表的一行。SQL 表的<a href="lang_createtable.html#rowid">rowid</a> 是表 B 树中每条记录的 64 位有符号整数键。</p>
 
-<p> The content of each SQL table row is stored in the database file by
-first combining the values in the various columns into a byte array
-in the record format, then storing that byte array as the payload in
-an entry in the table b-tree.  The order of values in the record is
-the same as the order of columns in the SQL table definition.
-When an SQL table includes an
-<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> column (which aliases the <a href="lang_createtable.html#rowid">rowid</a>) then that
-column appears in the record as a NULL value.  SQLite will always use
-the table b-tree key rather than the NULL value when referencing the
-<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> column.</p>
+<p>SQL 表每行的内容先将各列值组合成记录格式的字节数组，再将该数组作为表 B 树记录的有效载荷存储在数据库文件中。记录中的值顺序与 SQL 表定义中的列顺序一致。当 SQL 表包含<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>（即 rowid 别名）列时，该列在记录中存储为 NULL。SQLite 在引用 INTEGER PRIMARY KEY 列时总是使用表 B 树键，而不是 NULL 值。</p>
 
-<p> If the <a href="datatype3.html#affinity">affinity</a> of a column is REAL and that column contains a
-value that can be converted to an integer without loss of information
-(if the value contains no fractional part and is not too large to be
-represented as an integer) then the column may be stored in the record
-as an integer.  SQLite will convert the value back to floating
-point when extracting it from the record.</p>
+<p>如果某列的<a href="datatype3.html#affinity">亲和性</a>为 REAL，且该列包含可在不丢失信息的前提下转换为整数的值（即值无小数且可表示为整数），则该列在记录中也可存储为整数。SQLite 在提取时会将其转换回浮点数。</p>
 
-<h2 id="representation_of_without_rowid_tables"><span>2.4. </span>Representation of WITHOUT ROWID Tables</h2>
+<h2 id="representation_of_without_rowid_tables"><span>2.4. </span>WITHOUT ROWID 表的表示</h2>
 
-<p>If an SQL table is created using the "WITHOUT ROWID" clause at the
-end of its CREATE TABLE statement, then that table is a <a href="withoutrowid.html">WITHOUT ROWID</a>
-table and uses a different on-disk representation.  A WITHOUT ROWID
-table uses an index b-tree rather than a table b-tree for storage.
-The key for each entry in the WITHOUT ROWID b-tree is a record composed
-of the columns of the PRIMARY KEY followed by all remaining columns of
-the table.  The primary key columns appear in the order that they were
-declared in the PRIMARY KEY clause and the remaining columns appear in
-the order they occur in the CREATE TABLE statement.
+<p>如果 SQL 表在 CREATE TABLE 语句末尾使用“WITHOUT ROWID”子句，则该表为<a href="withoutrowid.html">WITHOUT ROWID</a>表，采用不同的磁盘表示。WITHOUT ROWID 表使用索引 B 树而非表 B 树进行存储。每个 WITHOUT ROWID B 树记录的键由 PRIMARY KEY 列按声明顺序拼接在前，后接表中剩余列。PRIMARY KEY 列按其在 PRIMARY KEY 子句中声明的顺序排列，其余列按在 CREATE TABLE 声明中的顺序排列。</p>
 
-</p><p>Hence, the content encoding for a WITHOUT ROWID table is the same
-as the content encoding for an ordinary rowid table, except that the
-order of the columns is rearranged so that PRIMARY KEY columns come
-first, and the content is used as the key in an index b-tree rather
-than as the data in a table b-tree.
-The special encoding rules for columns with REAL affinity
-apply to WITHOUT ROWID tables the same as they do with rowid tables.
+</p><p>因此，WITHOUT ROWID 表的内容编码与普通 rowid 表一样，只是列顺序调整为 PRIMARY KEY 列优先，并且该内容作为索引 B 树的键而非表 B 树的数据。具有 REAL 亲和性的列的特殊编码规则在 WITHOUT ROWID 表中与 rowid 表相同。</p>
 
-</p><h3 id="suppression_of_redundant_columns_in_the_primary_key_of_without_rowid_tables"><span>2.4.1. </span>Suppression of redundant columns in the PRIMARY KEY
-    of WITHOUT ROWID tables</h3>
+</p><h3 id="suppression_of_redundant_columns_in_the_primary_key_of_without_rowid_tables"><span>2.4.1. </span>WITHOUT ROWID 表主键中冗余列的抑制</h3>
 
-<p>If the PRIMARY KEY of a WITHOUT ROWID tables uses the same columns
-with the same collating sequence more than once, then the second and
-subsequent occurrences of that column in the PRIMARY KEY definition are
-ignored.  For example, the following CREATE TABLE statements all specify
-the same table, which will have the exact same representation on disk:
+<p>如果 WITHOUT ROWID 表的 PRIMARY KEY 中同一列（且排序序列相同）出现多次，则该列的第二次及后续出现会被忽略。例如，下列 CREATE TABLE 语句均定义同一个表，在磁盘上的表示完全相同：</p>
 
 </p><blockquote><pre>
 CREATE TABLE t1(a,b,c,d,PRIMARY KEY(a,c)) WITHOUT ROWID;
@@ -1320,40 +748,17 @@ CREATE TABLE t1(a,b,c,d,PRIMARY KEY(a,A,a,C)) WITHOUT ROWID;
 CREATE TABLE t1(a,b,c,d,PRIMARY KEY(a,a,a,a,c)) WITHOUT ROWID;
 </pre></blockquote>
 
-<p>The first example above is the preferred definition of the table,
-of course.  All of the examples create a WITHOUT ROWID table with
-two PRIMARY KEY columns, "a" and "c", in that order, followed by
-two data columns "b" and "d", also in that order.
+<p>上述第一个示例当然是推荐的定义。所有示例都会创建一个 WITHOUT ROWID 表，主键列依次为 “a” 和 “c”，随后是数据列 “b” 和 “d”，也按顺序排列。</p>
 
-</p><h2 id="representation_of_sql_indices"><span>2.5. </span>Representation Of SQL Indices</h2>
+</p><h2 id="representation_of_sql_indices"><span>2.5. </span>SQL 索引的表示</h2>
 
-<p>Each SQL index, whether explicitly declared via a <a href="lang_createindex.html">CREATE INDEX</a> statement
-or implied by a UNIQUE or PRIMARY KEY constraint, corresponds to an 
-index b-tree in the database file.
-Each entry in the index b-tree corresponds to a single row in the 
-associated SQL table.
-The key to an index b-tree is
-a record composed of the columns that are being indexed followed by the
-key of the corresponding table row.  For ordinary tables, the row key is
-the <a href="lang_createtable.html#rowid">rowid</a>, and for <a href="withoutrowid.html">WITHOUT ROWID</a> tables the row key is the PRIMARY KEY.
-Because every row in the table has a unique row key,
-all keys in an index are unique.</p>
+<p>每个 SQL 索引（无论是通过<a href="lang_createindex.html">CREATE INDEX</a> 显式声明，还是由 UNIQUE 或 PRIMARY KEY 约束隐含创建）在数据库文件中对应一棵索引 B 树。索引 B 树的每条记录对应关联 SQL 表的一行。索引 B 树的键由索引列组合而成，后接对应表行的键。对于普通表，行键为<a href="lang_createtable.html#rowid">rowid</a>；对于<a href="withoutrowid.html">WITHOUT ROWID</a>表，行键为 PRIMARY KEY。由于表中的每一行都有唯一行键，因此索引中的所有键也唯一。</p>
 
-<p>In a normal index, there is a one-to-one mapping between rows in a 
-table and entries in each index associated with that table.
-However, in a <a href="partialindex.html">partial index</a>, the index b-tree only contains entries
-corresponding to table rows for which the WHERE clause expression on the
-CREATE INDEX statement is true.
-Corresponding rows in the index and table b-trees share the same rowid
-or primary key values and contain the same value for all indexed columns.</p>
+<p>在标准索引中，表中的行与各索引中的条目一一对应。然而，在<a href="partialindex.html">部分索引</a>中，索引 B 树仅包含满足 CREATE INDEX 语句 WHERE 子句的表行。索引与表 B 树中对应的行共享相同的 rowid 或 PRIMARY KEY 值，并且在所有索引列上的值也相同。</p>
 
-<h3 id="suppression_of_redundant_columns_in_without_rowid_secondary_indexes_"><span>2.5.1. </span>Suppression of redundant columns in WITHOUT ROWID secondary indexes
-</h3>
+<h3 id="suppression_of_redundant_columns_in_without_rowid_secondary_indexes_"><span>2.5.1. </span>WITHOUT ROWID 二级索引中冗余列的抑制</h3>
 
-<p> In an index on a WITHOUT ROWID table, if a column of the PRIMARY KEY
-is also a column in the index and has a matching collating sequence, then the
-indexed column is not repeated in the table-key suffix on the
-end of the index record.  As an example, consider the following SQL:
+<p>在 WITHOUT ROWID 表的索引中，如果 PRIMARY KEY 中的某列在索引中也出现且排序序列一致，则不会在索引记录的表键后缀中重复该列。例如，考虑如下 SQL：</p>
 
 </p><blockquote><pre>
 CREATE TABLE ex25(a,b,c,d,e,PRIMARY KEY(d,c,a)) WITHOUT rowid;
@@ -1362,42 +767,19 @@ CREATE INDEX ex25acde ON ex25(a,c,d,e);
 CREATE INDEX ex25ae ON ex25(a COLLATE nocase,e);
 </pre></blockquote>
 
-<p>Each row in the ex25ce index is a record
-with these columns: c, e, d, a.  The first two columns are
-the columns being indexed, c and e.  The remaining columns are the primary
-key of the corresponding table row.  Normally, the primary key would be
-columns d, c, and a, but because column c already appears earlier in the
-index, it is omitted from the key suffix.</p>
+<p>ex25ce 索引的每一行是包含列 c、e、d、a 的记录。前两列是被索引的列（c 和 e），剩下的列是对应表行的主键。正常情况下主键为 d、c 和 a，但因为 c 已在索引前面出现，所以在键后缀中略去。</p>
 
-<p>In the extreme case where the columns being indexed cover all columns
-of the PRIMARY KEY, the index will consist of only the columns being
-indexed.  The ex25acde example above demonstrates this.  Each entry in
-the ex25acde index consists of only the columns a, c, d, and e, in that
-order.</p>
+<p>如果被索引的列包含了 PRIMARY KEY 的所有列，则索引记录只包含被索引列。ex25acde 示例即说明了这一点，其记录仅包含 a、c、d、e。</p>
 
-<p>Each row in ex25ae contains five columns: a, e, d, c, a.  The "a"
-column is repeated since the first occurrence of "a" has a collating
-function of "nocase" and the second has a collating sequence of "binary".
-If the "a" column is not repeated and if the table contains two or more
-entries with the same "e" value and where "a" differs only in case, then
-all of those table entries would correspond to a single entry in the
-index, which would break the one-to-one correspondence between the table
-and the index.
+<p>ex25ae 索引的每一行包含五列：a、e、d、c、a。其中“a”列重复出现，因为第一次出现的“a”使用 COLLATE nocase，第二次使用 COLLATE binary。如果省略第二个“a”，且表中存在两个或更多 e 值相同、a 值仅大小写不同的条目，则这些表条目会映射到同一个索引条目，破坏表与索引之间的一一对应关系。</p>
 
-</p><p> The suppression of redundant columns in the key suffix of an index
-entry only occurs in WITHOUT ROWID tables.  In an ordinary rowid table,
-the index entry always ends with the rowid even if the <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>
-column is one of the columns being indexed.</p>
+</p><p>冗余列在索引记录键后缀中的抑制仅在 WITHOUT ROWID 表中发生。在普通 rowid 表中，即使<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> 列被索引，索引记录仍以 rowid 结尾。</p>
 
 <a name="ffschema"></a>
 
-<h2 id="storage_of_the_sql_database_schema"><span>2.6. </span>Storage Of The SQL Database Schema</h2>
+<h2 id="storage_of_the_sql_database_schema"><span>2.6. </span>SQL 数据库模式的存储</h2>
 
-<p>Page 1 of a database file is the root page of a table b-tree that
-holds a special table named "<a href="schematab.html">sqlite_schema</a>".  This b-tree is known
-as the "schema table" since it stores the complete
-database schema.  The structure of the sqlite_schema table is as
-if it had been created using the following SQL:</p>
+<p>数据库文件的第 1 页是一个表 B 树的根页面，保存一个特殊表名为“<a href="schematab.html">sqlite_schema</a>”。该 B 树称为“模式表”，存储完整数据库模式。sqlite_schema 表的结构仿佛由下列 SQL 创建：</p>
 
 <blockquote><pre>
 CREATE TABLE sqlite_schema(
@@ -1409,664 +791,321 @@ CREATE TABLE sqlite_schema(
 );
 </pre></blockquote>
 
-<p>The sqlite_schema table contains one row for each table, index, view,
-and trigger (collectively "objects") in the database schema, except there
-is no entry for the sqlite_schema table itself.  The sqlite_schema table
-contains entries for <a href="fileformat2.html#intschema">internal schema objects</a> in addition to application-
-and programmer-defined objects.
+<p>sqlite_schema 表为数据库模式中的每张表、索引、视图和触发器（统称“对象”）保存一行，唯独 sqlite_schema 表本身没有条目。它还包含<a href="fileformat2.html#intschema">内部模式对象</a>的条目，除了应用和开发者定义的对象外。</p>
 
+</p><p>sqlite_schema.type 列的值为以下文本之一：'table'、'index'、'view' 或 'trigger'，取决于对象类型。'table' 用于普通表与<a href="vtab.html">虚拟表</a>。</p>
 
-</p><p>The sqlite_schema.type column will be one
-of the following text strings:  'table', 'index', 'view', or 'trigger'
-according to the type of object defined.  The 'table' string is used
-for both ordinary and <a href="vtab.html">virtual tables</a>.</p>
+<p>sqlite_schema.name 存放对象名称。表上的<a href="lang_createtable.html#uniqueconst">UNIQUE</a>和<a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>约束会导致 SQLite 创建名为“sqlite_autoindex_TABLE_N”的<a href="fileformat2.html#intschema">内部索引</a>，其中 TABLE 替换为对应表名，N 从 1 开始，每个约束递增。对于<a href="withoutrowid.html">WITHOUT ROWID</a>表，PRIMARY KEY 没有 sqlite_schema 条目，但为 PRIMARY KEY 保留了“sqlite_autoindex_TABLE_N”名称，这会影响后续 UNIQUE 约束的编号。“sqlite_autoindex_TABLE_N”名称永远不会分配给<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>，无论在 rowid 表还是 WITHOUT ROWID 表中。</p>
 
-<p>The sqlite_schema.name column will hold the name of the object.
-<a href="lang_createtable.html#uniqueconst">UNIQUE</a> and <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> constraints on tables cause SQLite to create
-<a href="fileformat2.html#intschema">internal indexes</a> with names of the form "sqlite_autoindex_TABLE_N"
-where TABLE is replaced by the name of the table that contains the
-constraint and N is an integer beginning with 1 and increasing by one
-with each constraint seen in the table definition.
-In a <a href="withoutrowid.html">WITHOUT ROWID</a> table, there is no sqlite_schema entry for the
-PRIMARY KEY, but the "sqlite_autoindex_TABLE_N" name is set aside
-for the PRIMARY KEY as if the sqlite_schema entry did exist.  This
-will affect the numbering of subsequent UNIQUE constraints.
-The "sqlite_autoindex_TABLE_N" name is never allocated for an
-<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>, either in rowid tables or WITHOUT ROWID tables.
-</p>
+<p>sqlite_schema.tbl_name 列保存对象关联的表或视图名称。对于表或视图，tbl_name 与 name 相同。对于索引，tbl_name 为被索引表的名称。对于触发器，tbl_name 存储触发器所作用的表或视图。</p>
 
-<p>The sqlite_schema.tbl_name column holds the name of a table or view
-that the object is associated with.  For a table or view, the
-tbl_name column is a copy of the name column.  For an index, the tbl_name
-is the name of the table that is indexed.  For a trigger, the tbl_name
-column stores the name of the table or view that causes the trigger 
-to fire.</p>
+<p>sqlite_schema.rootpage 保存表和索引的根 B 树页面号。对于定义视图、触发器和虚拟表的行，该字段为 0 或 NULL。</p>
 
-<p>The sqlite_schema.rootpage column stores the page number of the root
-b-tree page for tables and indexes.  For rows that define views, triggers,
-and virtual tables, the rootpage column is 0 or NULL.</p>
-
-<p>The sqlite_schema.sql column stores SQL text that describes the
-object.  This SQL text is a <a href="lang_createtable.html">CREATE TABLE</a>, <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a>,
-<a href="lang_createindex.html">CREATE INDEX</a>,
-<a href="lang_createview.html">CREATE VIEW</a>, or <a href="lang_createtrigger.html">CREATE TRIGGER</a> statement that if evaluated against
-the database file when it is the main database of a <a href="c3ref/sqlite3.html">database connection</a>
-would recreate the object.  The text is usually a copy of the original
-statement used to create the object but with normalizations applied so
-that the text conforms to the following rules:
+<p>sqlite_schema.sql 列保存描述对象的 SQL 文本。该文本为在数据库作为<a href="c3ref/sqlite3.html">数据库连接</a>的主数据库时，如果执行该语句将重新创建对象的<a href="lang_createtable.html">CREATE TABLE</a>、<a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a>、<a href="lang_createindex.html">CREATE INDEX</a>、<a href="lang_createview.html">CREATE VIEW</a>或<a href="lang_createtrigger.html">CREATE TRIGGER</a>语句。该文本通常为创建对象的原始语句的副本，但经过规范化以符合以下规则：</p>
 
 </p><ul>
-<li>The CREATE, TABLE, VIEW, TRIGGER, and INDEX keywords at the beginning
-of the statement are converted to all upper case letters.
-</li><li>The TEMP or TEMPORARY keyword is removed if it occurs after the 
-initial CREATE keyword.
-</li><li>Any database name qualifier that occurs prior to the name of the
-object being created is removed.
-</li><li>Leading spaces are removed.
-</li><li>All spaces following the first two keywords are converted into a single
-space.
+<li>语句开头的 CREATE、TABLE、VIEW、TRIGGER 和 INDEX 关键字转换为大写。
+</li><li>如果 CREATE 关键字之后出现 TEMP 或 TEMPORARY，则去除。
+</li><li>对象名称之前的任何数据库名称限定符均被移除。
+</li><li>前导空格删除。
+</li><li>前两个关键字之后的所有空格归为一个空格。
 </li></ul>
 
-<p>The text in the sqlite_schema.sql column is a copy of the original
-CREATE statement text that created the object, except normalized as
-described above and as modified by subsequent <a href="lang_altertable.html">ALTER TABLE</a> statements.
-The sqlite_schema.sql is NULL for the <a href="fileformat2.html#intschema">internal indexes</a> that are
-automatically created by <a href="lang_createtable.html#uniqueconst">UNIQUE</a> or <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> constraints.</p>
+<p>sqlite_schema.sql 列的文本是原始 CREATE 语句的副本，经过上述规范化并可能被随后<a href="lang_altertable.html">ALTER TABLE</a>语句修改。由<a href="lang_createtable.html#uniqueconst">UNIQUE</a>或<a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>约束自动创建的<a href="fileformat2.html#intschema">内部索引</a>的 sqlite_schema.sql 为 NULL。</p>
 
-<h3 id="alternative_names_for_the_schema_table"><span>2.6.1. </span>Alternative Names For The Schema Table</h3>
+<h3 id="alternative_names_for_the_schema_table"><span>2.6.1. </span>模式表的替代名称</h3>
 
-<p>The name "sqlite_schema" does not appear anywhere in the file format.
-That name is just a convention used by the database implementation.
-Due to historical and operational considerations, the
-"sqlite_schema" table can also sometimes be called by one of the
-following aliases:
+<p>名称“sqlite_schema”未出现在文件格式中。该名称只是数据库实现中的约定。出于历史与操作原因，该表也有以下别名：</p>
 
-</p><ol>
+<ol>
 <li> sqlite_master
 </li><li> sqlite_temp_schema
 </li><li> sqlite_temp_master
 </li></ol>
 
-<p>Because the name of the schema table does not appear anywhere in
-the file format, the meaning of the database file is not changed if
-the application chooses to refer to the schema table by one of
-these alternative names.
+<p>由于文件格式中不包含模式表名称，所以如果应用选择使用上述别名之一引用模式表，数据库文件的含义不会改变。</p>
 
 <a name="intschema"></a>
 
-</p><h3 id="internal_schema_objects"><span>2.6.2. </span>Internal Schema Objects</h3>
+</p><h3 id="internal_schema_objects"><span>2.6.2. </span>内部模式对象</h3>
 
-<p>In addition to the tables, indexes, views, and triggers created by
-the application and/or the developer using CREATE statements SQL, the
-sqlite_schema table may contain zero or more entries for 
-<i>internal schema objects</i> that are created by SQLite for its 
-own internal use.  The names of internal schema objects
-always begin with "sqlite_" and any table, index, view, or trigger
-whose name begins with "sqlite_" is an internal schema object.
-SQLite prohibits applications from creating objects whose names begin
-with "sqlite_".  
+<p>除了应用或开发者通过 CREATE 语句创建的表、索引、视图和触发器之外，sqlite_schema 表可以包含零个或多个由 SQLite 自身创建的<i>内部模式对象</i>条目。内部模式对象的名称始终以“sqlite_”开头，任何名称以“sqlite_”开头的表、索引、视图或触发器都是内部模式对象。SQLite 禁止应用创建以“sqlite_”开头的对象。</p>
 
-</p><p>Internal schema objects used by SQLite may include the following:
+</p><p>SQLite 使用的内部模式对象可能包括：</p>
 
-</p><ul>
-<li><p>Indices with names of the form "sqlite_autoindex_TABLE_N" that
-       are used to implement <a href="lang_createtable.html#uniqueconst">UNIQUE</a> and <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> constraints on
-       ordinary tables.
+<ul>
+<li><p>名称形如“sqlite_autoindex_TABLE_N”的索引，用于实现普通表上的<a href="lang_createtable.html#uniqueconst">UNIQUE</a>和<a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>约束。</p></li>
+<li><p>名为“sqlite_sequence”的表，用于追踪使用<a href="autoinc.html">AUTOINCREMENT</a>的表的最大历史<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a>。</p></li>
+<li><p>名称形如“sqlite_statN”的表，其中 N 为整数，用于存储由<a href="lang_analyze.html">ANALYZE</a>命令收集的数据库统计信息，供查询规划器确定最佳查询策略。</p></li></ul>
 
-</p></li><li><p>A table with the name "sqlite_sequence" that is used to keep track
-       of the maximum historical <a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> for a table
-       using <a href="autoinc.html">AUTOINCREMENT</a>.
-
-</p></li><li><p>Tables with names of the form "sqlite_statN" where N is an integer.
-       Such tables store database statistics gathered by the <a href="lang_analyze.html">ANALYZE</a>
-       command and used by the query planner to help determine the best
-       algorithm to use for each query.
-</p></li></ul>
-
-<p>New internal schema objects names, always beginning with "sqlite_",
-may be added to the SQLite file format in future releases.
+<p>以“sqlite_”开头的新内部模式对象名称可能会在未来的 SQLite 版本中添加。</p>
 
 <a name="seqtab"></a>
 
-</p><h3 id="the_sqlite_sequence_table"><span>2.6.3. </span>The sqlite_sequence table</h3>
+</p><h3 id="the_sqlite_sequence_table"><span>2.6.3. </span>sqlite_sequence 表</h3>
 
-<p>The sqlite_sequence table is an internal table used to help implement
-<a href="autoinc.html">AUTOINCREMENT</a>.  The sqlite_sequence table is created automatically
-whenever any ordinary table with an AUTOINCREMENT integer primary
-key is created.  Once created, the sqlite_sequence table exists in the
-sqlite_schema table forever; it cannot be dropped.
-The schema for the sqlite_sequence table is:
+<p>sqlite_sequence 表是用于实现<a href="autoinc.html">AUTOINCREMENT</a>的内部表。当任何普通表与 AUTOINCREMENT 整数主键被创建时，sqlite_sequence 表自动创建。创建后，该表在 sqlite_schema 表中永久存在，无法删除。其模式为：</p>
 
 </p><blockquote><pre>
 CREATE TABLE sqlite_sequence(name,seq);
 </pre></blockquote>
 
-<p>There is a single row in the sqlite_sequence table for each ordinary
-table that uses AUTOINCREMENT.  The name of the table (as it appears in
-sqlite_schema.name) is in the sqlite_sequence.name field and the largest
-<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> ever inserted into that table is 
-in the sqlite_sequence.seq field.  
-New automatically generated integer primary keys for AUTOINCREMENT
-tables are guaranteed to be larger than the sqlite_sequence.seq field for
-that table.
-If the sqlite_sequence.seq field of an AUTOINCREMENT table is already at
-the largest integer value (9223372036854775807) then attempts to add new
-rows to that table with an automatically generated integer primary will fail
-with an <a href="rescode.html#full">SQLITE_FULL</a> error.
-The sqlite_sequence.seq field is automatically updated if required when
-new entries are inserted to an AUTOINCREMENT table.  
-The sqlite_sequence row for an AUTOINCREMENT table is automatically deleted
-when the table is dropped.
-If the sqlite_sequence row for an AUTOINCREMENT table does not exist when
-the AUTOINCREMENT table is updated, then a new sqlite_sequence row is created.
-If the sqlite_sequence.seq value for an AUTOINCREMENT table is manually 
-set to something other than an integer and there is a subsequent attempt to
-insert the or update the AUTOINCREMENT table, then the behavior is undefined.
+<p>sqlite_sequence 表为每个使用 AUTOINCREMENT 的普通表包含一行。该表名称（在 sqlite_schema.name 中出现）存储于 sqlite_sequence.name 字段，最大历史<a href="lang_createtable.html#rowid">INTEGER PRIMARY KEY</a> 存储于 sqlite_sequence.seq 字段。AUTOINCREMENT 表的新自动生成整数主键保证大于该表的 sqlite_sequence.seq。如果 sqlite_sequence.seq 已达到最大整数值（9223372036854775807），则尝试向该表插入新行（使用自动生成整数主键）会失败并报<a href="rescode.html#full">SQLITE_FULL</a>错误。插入新条目时，如有必要，sqlite_sequence.seq 字段会自动更新。删除表时，相应的 sqlite_sequence 行也会自动删除。如果在更新 AUTOINCREMENT 表时找不到其 sqlite_sequence 行，则会自动创建新行。如果手动将 sqlite_sequence.seq 设置为非整数且随后尝试插入/更新 AUTOINCREMENT 表，则行为未定义。</p>
 
-</p><p>Application code is allowed to modify the sqlite_sequence table, to add
-new rows, to delete rows, or to modify existing rows.  However, application
-code cannot create the sqlite_sequence table if it does not already exist.
-Application code can delete all entries from the sqlite_sequence table,
-but application code cannot drop the sqlite_sequence table.
+</p><p>应用代码可以修改 sqlite_sequence 表（添加行、删除行、修改现有行）。但应用代码不能创建 sqlite_sequence 表（若不存在）。应用可以删除 sqlite_sequence 表的所有条目，但不能删除表本身。</p>
 
 <a name="stat1tab"></a>
 
-</p><h3 id="the_sqlite_stat1_table"><span>2.6.4. </span>The sqlite_stat1 table</h3>
+</p><h3 id="the_sqlite_stat1_table"><span>2.6.4. </span>sqlite_stat1 表</h3>
 
-<p>The sqlite_stat1 is an internal table created by the <a href="lang_analyze.html">ANALYZE</a> command
-and used to hold supplemental information about tables and indexes that the
-query planner can use to help it find better ways of performing queries.
-Applications can update, delete from, insert into or drop the sqlite_stat1
-table, but may not create or alter the sqlite_stat1 table.
-The schema of the sqlite_stat1 table is as follows:
+<p>sqlite_stat1 是由<a href="lang_analyze.html">ANALYZE</a>命令创建的内部表，用于保存有关表与索引的补充信息，查询规划器可借此改进查询执行策略。应用可以更新、删除、插入或删除 sqlite_stat1 表，但不能创建或修改其模式。其模式如下：</p>
 
 </p><blockquote><pre>
 CREATE TABLE sqlite_stat1(tbl,idx,stat);
 </pre></blockquote>
 
-<p> There is normally one row per index, with the index identified by the
-name in the sqlite_stat1.idx column.  The sqlite_stat1.tbl column is
-the name of the table to which the index belongs.  In each such row, 
-the sqlite_stat.stat column will be
-a string consisting of a list of integers followed by zero or more 
-arguments.  The first integer in this
-list is the approximate number of rows in the index.  (The number of
-rows in the index is the same as the number of rows in the table,
-except for <a href="partialindex.html">partial indexes</a>.)
-The second integer is the approximate number of rows in the index
-that have the same value in the first column of the index.  The third 
-integer is the number of rows in the index that have 
-the same value for the first two columns.  The N-th integer (for N>1) 
-is the estimated average number of rows in 
-the index which have the same value for the first N-1 columns.  For
-a K-column index, there will be K+1 integers in the stat column.  If
-the index is unique, then the last integer will be 1.
+<p>通常每个索引有一行，索引由 sqlite_stat1.idx 列指定。sqlite_stat1.tbl 列为索引所属的表名。在该行中，sqlite_stat1.stat 列包含一串整数及零个或多个参数。该串的第一个整数近似表示索引行数（索引与表行数相同，部分索引除外）。第二个整数是索引中第一列值相同的行数估计。第三个整数是前两列值相同的行数估计。当 N>1 时，第 N 个整数估计索引中前 N-1 列值相同的行数的平均值。对于具有 K 个列的索引，stat 列中有 K+1 个整数。如果索引唯一，则最后一个整数为 1。</p>
 
-</p><p>The list of integers in the stat column can optionally be followed
-by arguments, each of which is a sequence of non-space characters.
-All arguments are preceded by a single space.
-Unrecognized arguments are silently ignored.
+</p><p>stat 列中的整数列表后可附加参数，每个参数由一个非空格字符序列组成，前面有一个空格。不识别的参数会被静默忽略。</p>
 
-</p><p>If the "unordered" argument is present, then the query planner assumes
-that the index is unordered and will not use the index for a range query
-or for sorting.
+</p><p>如果存在“unordered”参数，查询规划器会认为索引无序，不会将其用于范围查询或排序。</p>
 
-</p><p>The "sz=NNN" argument (where NNN represents a sequence of 1 or more digits)
-means that the average row size over all records of the table or
-index is NNN bytes per row.  The SQLite query planner might use the
-estimated row size information provided by the "sz=NNN" token
-to help it choose smaller tables and indexes that require less disk I/O.
+</p><p>“sz=NNN”参数（NNN 为一串数字）表示表或索引所有记录的平均行大小为 NNN 字节。SQLite 查询规划器可能利用该信息选择更小的表或索引，减少磁盘 I/O。</p>
 
-</p><p>The presence of the "noskipscan" token on the sqlite_stat1.stat field
-of an index prevents that index from being used with the
-<a href="optoverview.html#skipscan">skip-scan optimization</a>.
+</p><p>如果 sqlite_stat1.stat 字段中出现“noskipscan”标记，则该索引不能用于<a href="optoverview.html#skipscan">skip-scan 优化</a>。</p>
 
-</p><p>New text tokens may be added to the end of the stat column in future
-enhancements to SQLite.  For compatibility, unrecognized tokens at the end
-of the stat column are silently ignored.
+</p><p>未来 SQLite 可能在 stat 列末尾添加新的文本标记。为兼容，末尾未识别的标记会被静默忽略。</p>
 
-</p><p>If the sqlite_stat1.idx column is NULL, then the sqlite_stat1.stat
-column contains a single integer which is the approximate number of
-rows in the table identified by sqlite_stat1.tbl.
-If the sqlite_stat1.idx column is the same as the sqlite_stat1.tbl
-column, then the table is a <a href="withoutrowid.html">WITHOUT ROWID</a> table and the sqlite_stat1.stat
-field contains information about the index btree that implements the
-WITHOUT ROWID table.
+</p><p>如果 sqlite_stat1.idx 列为 NULL，则 sqlite_stat1.stat 列仅包含一个整数，表示 sqlite_stat1.tbl 指定的表的大致行数。</p>
+
+<p>如果 sqlite_stat1.idx 与 sqlite_stat1.tbl 相同，则该表为<a href="withoutrowid.html">WITHOUT ROWID</a>表，sqlite_stat1.stat 字段包含实现该 WITHOUT ROWID 表的索引 B 树信息。</p>
 
 <a name="stat2tab"></a>
 
-</p><h3 id="the_sqlite_stat2_table"><span>2.6.5. </span>The sqlite_stat2 table</h3>
+</p><h3 id="the_sqlite_stat2_table"><span>2.6.5. </span>sqlite_stat2 表</h3>
 
-<p>The sqlite_stat2 is only created and is only used if SQLite is compiled
-with SQLITE_ENABLE_STAT2 and if the SQLite version number is between
-3.6.18 (2009-09-11) and 3.7.8 (2011-09-19).
-The sqlite_stat2 table is neither read nor written by any
-version of SQLite before 3.6.18 nor after 3.7.8.
-The sqlite_stat2 table contains additional information
-about the distribution of keys within an index.
-The schema of the sqlite_stat2 table is as follows:
+<p>sqlite_stat2 仅在 SQLite 编译时启用了 SQLITE_ENABLE_STAT2 且版本号在 3.6.18（2009-09-11）到 3.7.8（2011-09-19）之间时创建并使用。该表在 3.6.18 之前或 3.7.8 之后的版本都不会读写。sqlite_stat2 表记录索引中键分布的附加信息。其模式如下：</p>
 
 </p><blockquote><pre>
 CREATE TABLE sqlite_stat2(tbl,idx,sampleno,sample);
 </pre></blockquote>
 
-<p>The sqlite_stat2.idx column and the sqlite_stat2.tbl column in each 
-row of the sqlite_stat2 table identify an index described by that row.
-There are usually 10 rows in the sqlite_stat2
-table for each index.
+<p>sqlite_stat2 表的每一行通过 sqlite_stat2.idx 与 sqlite_stat2.tbl 定义一个索引。通常每个索引在 sqlite_stat2 表中有 10 行。</p>
 
-</p><p>The sqlite_stat2 entries for an index that have sqlite_stat2.sampleno
-between 0 and 9 inclusive are samples of the left-most key value in the
-index taken at evenly spaced points along the index.
-Let C be the number of rows in the index.
-Then the sampled rows are given by
+</p><p>对于 sqlite_stat2.sampleno 在 0 到 9（含）之间的条目，它们代表在索引中均匀间隔点采样的最左键。设索引行数为 C，则采样行编号为：</p>
 
 </p><blockquote>
      rownumber = (i*C*2 + C)/20
 </blockquote>
 
-<p>The variable i in the previous expression varies between 0 and 9.
-Conceptually, the index space is divided into
-10 uniform buckets and the samples are the middle row from each bucket.
+<p>变量 i 在上述表达式中从 0 变化到 9。将索引空间划分为 10 个均匀桶，每个桶取中间行。</p>
 
-</p><p>The format for sqlite_stat2 is recorded here for legacy reference.  
-Recent versions of SQLite no longer support sqlite_stat2 and the
-sqlite_stat2 table, if is exists, is simply ignored.
+</p><p>sqlite_stat2 的描述仅为遗留参考。近期版本不再支持 sqlite_stat2，若存在该表则直接忽略。</p>
 
 <a name="stat3tab"></a>
 
-</p><h3 id="the_sqlite_stat3_table"><span>2.6.6. </span>The sqlite_stat3 table</h3>
+</p><h3 id="the_sqlite_stat3_table"><span>2.6.6. </span>sqlite_stat3 表</h3>
 
-<p>The sqlite_stat3 is only used if SQLite is compiled
-with <a href="compile.html#enable_stat3">SQLITE_ENABLE_STAT3</a> or <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a>
-and if the SQLite version number is 3.7.9 (2011-11-01) or greater.
-The sqlite_stat3 table is neither read nor written by any
-version of SQLite before 3.7.9.
-If the <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> compile-time option is used and the
-SQLite version number is 3.8.1 (2013-10-17) or greater,
-then sqlite_stat3 might be read but not written.
-The sqlite_stat3 table contains additional information
-about the distribution of keys within an index, information that the
-query planner can use to devise better and faster query algorithms.
-The schema of the sqlite_stat3 table is as follows:
+<p>sqlite_stat3 仅在 SQLite 编译时启用了<a href="compile.html#enable_stat3">SQLITE_ENABLE_STAT3</a>或<a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a>并且版本号大于等于 3.7.9（2011-11-01）时使用。3.7.9 以前版本不会读写 sqlite_stat3。如果编译时使用了<a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a>且版本号大于等于 3.8.1（2013-10-17），则 sqlite_stat3 可能只读不写。sqlite_stat3 表记录索引键分布的附加信息，供查询规划器生成更优查询算法。其模式如下：</p>
 
 </p><blockquote><pre>
 CREATE TABLE sqlite_stat3(tbl,idx,nEq,nLt,nDLt,sample);
 </pre></blockquote>
 
-<p>There are usually multiple entries in the sqlite_stat3 table for each index.
-The sqlite_stat3.sample column holds the value of the left-most field of an
-index identified by sqlite_stat3.idx and sqlite_stat3.tbl.
-The sqlite_stat3.nEq column holds the approximate
-number of entries in the index whose left-most column exactly matches
-the sample.
-The sqlite_stat3.nLt holds the approximate number of entries in the
-index whose left-most column is less than the sample.
-The sqlite_stat3.nDLt column holds the approximate
-number of distinct left-most entries in the index that are less than
-the sample.
+<p>通常每个索引有多个 sqlite_stat3 条目。sqlite_stat3.sample 列包含由 sqlite_stat3.idx 与 sqlite_stat3.tbl 指定索引的最左字段。sqlite_stat3.nEq 列近似表示索引中与该样本最左字段完全匹配的条目数。sqlite_stat3.nLt 列近似表示最左字段小于该样本的条目数。sqlite_stat3.nDLt 列近似表示索引中小于该样本的不同最左字段数量。</p>
 
-</p><p>There can be an arbitrary number of sqlite_stat3 entries per index.
-The <a href="lang_analyze.html">ANALYZE</a> command will typically generate sqlite_stat3 tables
-that contain between 10 and 40 samples that are distributed across
-the key space and with large nEq values.
+</p><p>每个索引可包含任意数量的 sqlite_stat3 条目。<a href="lang_analyze.html">ANALYZE</a> 命令通常会生成包含 10 到 40 个样本且拥有较大 nEq 值的 sqlite_stat3 表。</p>
 
-</p><p>In a well-formed sqlite_stat3 table, the samples for any single
-index must appear in the same order that they occur in the index.  
-In other words, if the entry with left-most column S1 is earlier in
-the index b-tree than the
-entry with left-most column S2, then in the sqlite_stat3 table, 
-sample S1 must have a smaller rowid than sample S2.
+</p><p>在良构 sqlite_stat3 表中，任何索引的样本在表中出现的顺序必须与其在索引中的顺序相同。换句话说，如果最左字段为 S1 的条目在索引 B 树中位于 S2 之前，则 sqlite_stat3 表中样本 S1 的 rowid 必须小于样本 S2。</p>
 
 <a name="stat4tab"></a>
 
-</p><h3 id="the_sqlite_stat4_table"><span>2.6.7. </span>The sqlite_stat4 table</h3>
+</p><h3 id="the_sqlite_stat4_table"><span>2.6.7. </span>sqlite_stat4 表</h3>
 
-<p>The sqlite_stat4 is only created and is only used if SQLite is compiled
-with <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> and if the SQLite version number is
-3.8.1 (2013-10-17) or greater.
-The sqlite_stat4 table is neither read nor written by any
-version of SQLite before 3.8.1.
-The sqlite_stat4 table contains additional information
-about the distribution of keys within an index or the distribution of
-keys in the primary key of a <a href="withoutrowid.html">WITHOUT ROWID</a> table.
-The query planner can sometimes use the additional information in
-the sqlite_stat4 table to devise better and faster query algorithms.
-The schema of the sqlite_stat4 table is as follows:
+<p>sqlite_stat4 仅在 SQLite 编译时启用了<a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a>且版本号大于等于 3.8.1（2013-10-17）时创建并使用。3.8.1 以前版本不会读写 sqlite_stat4。该表记录索引或<a href="withoutrowid.html">WITHOUT ROWID</a> 表主键的键分布附加信息。查询规划器有时会使用 sqlite_stat4 中的信息以优化查询。其模式如下：</p>
 
 </p><blockquote><pre>
 CREATE TABLE sqlite_stat4(tbl,idx,nEq,nLt,nDLt,sample);
 </pre></blockquote>
 
-<p>There are typically between 10 to 40 entries in the sqlite_stat4 table for
-each index for which statistics are available, however these limits are
-not hard bounds.
-The meanings of the columns in the sqlite_stat4 table are as follows:
+<p>对于每个有统计信息的索引，sqlite_stat4 表通常包含 10 到 40 条记录，但这不是硬性上限。sqlite_stat4 表中各列含义如下：</p>
 
 </p><center>
 <table border="0" width="100%" cellpadding="10">
 <tr><td valign="top" align="right">tbl:</td>
-    <td>The sqlite_stat4.tbl column holds name of the table that owns
-    the index that the row describes
-
-</td></tr><tr><td valign="top" align="right">idx:</td>
-    <td>The sqlite_stat4.idx column holds name of the index that the
-    row describes, or in the case of
-    an sqlite_stat4 entry for a <a href="withoutrowid.html">WITHOUT ROWID</a> table, the
-    name of the table itself.
-
-</td></tr><tr><td valign="top" align="right">sample:</td>
-    <td>The sqlite_stat4.sample column holds a BLOB
-    in the <a href="fileformat2.html#record_format">record format</a> that encodes the indexed columns followed by
-    the rowid for a rowid table or by the columns of the primary key 
-    for a WITHOUT ROWID table.
-    The sqlite_stat4.sample BLOB for the WITHOUT ROWID table itself 
-    contains just the columns of the primary key.
-    Let the number of columns encoded by the sqlite_stat4.sample blob be N.
-    For indexes on an ordinary rowid table, N will be one more than the number 
-    of columns indexed.
-    For indexes on WITHOUT ROWID tables, N will be the number of columns
-    indexed plus the number of columns in the primary key.
-    For a WITHOUT ROWID table, N will be the number of columns in the
-    primary key.
-
-</td></tr><tr><td valign="top" align="right">nEq:</td>
-    <td>The sqlite_stat4.nEq column holds a list of N integers where 
-    the K-th integer is the approximate number of entries in the index
-    whose left-most K columns exactly match the K left-most columns
-    of the sample.
-
-</td></tr><tr><td valign="top" align="right">nLt:</td>
-    <td>The sqlite_stat4.nLt column holds a list of N integers where
-    the K-th integer is the approximate number of entries in the
-    index whose K left-most columns are collectively less than the 
-    K left-most columns of the sample.
-
-</td></tr><tr><td valign="top" align="right">nDLt:</td>
-    <td>The sqlite_stat4.nDLt column holds a list of N integers where
-    the K-th integer is the approximate
-    number of entries in the index that are distinct in the first K columns and
-    where the left-most K columns are collectively less than the left-most
-    K columns of the sample.
-</td></tr></table>
+    <td>sqlite_stat4.tbl 列保存拥有该索引的表名。</td></tr>
+<tr><td valign="top" align="right">idx:</td>
+    <td>sqlite_stat4.idx 列保存索引名；对于 WITHOUT ROWID 表的 sqlite_stat4 条目，保存表名。</td></tr>
+<tr><td valign="top" align="right">sample:</td>
+    <td>sqlite_stat4.sample 列保存一个以<a href="fileformat2.html#record_format">记录格式</a>编码的 BLOB，其中包含被索引列以及 rowid 表的 rowid 或 WITHOUT ROWID 表的主键列。对于 WITHOUT ROWID 表自身，BLOB 仅包含主键列。设 sqlite_stat4.sample BLOB 编码的列数为 N。对于普通 rowid 表上的索引，N 等于被索引列数量加 1。对于 WITHOUT ROWID 表上的索引，N 为索引列数加主键列数。对于 WITHOUT ROWID 表自身，N 为主键列数。</td></tr>
+<tr><td valign="top" align="right">nEq:</td>
+    <td>sqlite_stat4.nEq 列保存 N 个整数列表，其中第 K 个整数近似表示索引中其前 K 列与样本前 K 列完全匹配的条目数。</td></tr>
+<tr><td valign="top" align="right">nLt:</td>
+    <td>sqlite_stat4.nLt 列保存 N 个整数列表，其中第 K 个整数近似表示索引中其前 K 列整体小于样本前 K 列的条目数。</td></tr>
+<tr><td valign="top" align="right">nDLt:</td>
+    <td>sqlite_stat4.nDLt 列保存 N 个整数列表，其中第 K 个整数大致表示索引中前 K 列组合独特且小于样本前 K 列的条目数。</td></tr></table>
 </center>
 
-<p>The sqlite_stat4 is a generalization of the sqlite_stat3 table.  The
-sqlite_stat3 table provides information about the left-most column of an
-index whereas the sqlite_stat4 table provides information about all columns
-of the index.
+<p>sqlite_stat4 是 sqlite_stat3 的推广。sqlite_stat3 仅提供索引最左列信息，而 sqlite_stat4 提供索引所有列的信息。</p>
 
-</p><p>There can be an arbitrary number of sqlite_stat4 entries per index.
-The <a href="lang_analyze.html">ANALYZE</a> command will typically generate sqlite_stat4 tables
-that contain between 10 and 40 samples that are distributed across
-the key space and with large nEq values.
+</p><p>每个索引可有任意数量的 sqlite_stat4 条目。<a href="lang_analyze.html">ANALYZE</a> 通常生成包含 10 到 40 个样本、均匀分布且 nEq 值较大的 sqlite_stat4 表。</p>
 
-</p><p>In a well-formed sqlite_stat4 table, the samples for any single
-index must appear in the same order that they occur in the index.  
-In other words, if entry S1 is earlier in the index b-tree than 
-entry S2, then in the sqlite_stat4 table, sample S1 must have a
-smaller rowid than sample S2.
+</p><p>在良构 sqlite_stat4 表中，同一索引的样本按其在索引中的顺序出现。换句话说，如果条目 S1 在索引 B 树中早于条目 S2，则 sqlite_stat4 表中样本 S1 的 rowid 必须小于样本 S2。</p>
 
 <a name="rollbackjournal"></a>
 
-</p><h1 id="the_rollback_journal"><span>3. </span>The Rollback Journal</h1>
+</p><h1 id="the_rollback_journal"><span>3. </span>回滚日志</h1>
 
-<p>The rollback journal is a file associated with each SQLite database
-file that holds information used to restore the database file to its initial
-state during the course of a transaction.
-The rollback journal file is always located in the same 
-directory as the database
-file and has the same name as the database file but with the string
-"<tt>-journal</tt>" appended.  There can only be a single rollback journal
-associated with a give database and hence there can only be one write
-transaction open against a single database at one time.</p>
+<p>回滚日志是与每个 SQLite 数据库文件关联的文件，用于在事务过程中恢复数据库到初始状态。回滚日志文件始终位于数据库文件相同目录、文件名后附加“-journal”的位置。每个数据库最多只能有一个回滚日志，因此同一时刻只能有一个写事务。</p>
 
-<p>Before any information-bearing page of the database is modified, 
-the original unmodified content of that page is written into the 
-rollback journal.  If a transaction is interrupted and needs to be 
-rolled back, the rollback journal can then be used to restore the
-database to its original state.  Freelist leaf pages bear no
-information that would need to be restored on a rollback and so they
-are not written to the journal prior to modification, in order to
-reduce disk I/O.</p>
+<p>在修改数据库的任何含信息页面之前，页面的原始未修改内容会写入回滚日志。如果事务中断并需回滚，可利用回滚日志还原数据库。空闲表叶页面不承载需回滚的信息，因此在修改前不会写入日志，从而减少 I/O。</p>
 
-<p>If a transaction is aborted due to an application crash, or a single,
-or an operating system crash, or a hardware power failure or crash, then 
-the main database file might be left in an inconsistent state. 
-The next time SQLite attempts to open
-the database file, the presence of the rollback journal file will be 
-detected and the journal will be automatically played back to restore the
-database to its state at the start of the incomplete transaction.</p>
+<p>若事务因应用崩溃、单个还是操作系统崩溃、硬件断电等原因中止，则主数据库可能处于不一致状态。下一次 SQLite 尝试打开该数据库时，会检测到回滚日志文件的存在，并自动重放日志以恢复数据库至未完成事务开始时的状态。</p>
 
-<p>A rollback journal is only considered to be valid if it exists and
-contains a valid header.  Hence a transaction can be committed in one
-of three ways:
-</p><ol>
-<li>The rollback journal file can be deleted,
-</li><li>The rollback journal file can be truncated to zero length, or
-</li><li>The header of the rollback journal can be overwritten with
-invalid header text (for example, all zeros).
-</li></ol>
-<p>
-These three ways of committing a transaction correspond to the DELETE,
-TRUNCATE, and PERSIST settings, respectively, of the <a href="pragma.html#pragma_journal_mode">journal_mode pragma</a>.
-</p>
+<p>只有在回滚日志存在且包含有效头时，该日志才被视为有效。事务可以通过以下三种方式提交：</p><ol>
+<li>删除回滚日志文件，</li>
+<li>将日志截断为零长度，</li>
+<li>用无效头覆盖日志头（例如全部置零）。</li></ol>
+<p>这三种提交方式分别对应于<a href="pragma.html#pragma_journal_mode">journal_mode pragma</a>的 DELETE、TRUNCATE 与 PERSIST 设置。</p>
 
-
-<p>A valid rollback journal begins with a header in the following format:</p>
+<p>有效的回滚日志以以下格式的头开始：</p>
 
 <center>
-<i>Rollback Journal Header Format</i><br>
+<i>回滚日志头格式</i><br>
 <table width="80%" border="1">
-<tr><th>Offset</th><th>Size</th><th>Description
+<tr><th>偏移</th><th>大小</th><th>说明
 </th></tr><tr><td valign="top" align="center">0
     </td><td valign="top" align="center">8
-    </td><td>Header string:  0xd9, 0xd5, 0x05, 0xf9, 0x20, 0xa1, 0x63, 0xd7
+    </td><td>头字符串：0xd9, 0xd5, 0x05, 0xf9, 0x20, 0xa1, 0x63, 0xd7
 </td></tr><tr><td valign="top" align="center">8
     </td><td valign="top" align="center">4
-    </td><td>The "Page Count" - The number of pages in the next segment of the 
-        journal, or -1 to
-        mean all content to the end of the file
+    </td><td>“页面计数”——接下来日志片段中的页面数，或 -1 表示直到文件末尾的所有内容
 </td></tr><tr><td valign="top" align="center">12
     </td><td valign="top" align="center">4
-    </td><td>A random nonce for the checksum
+    </td><td>校验和的随机 nonce
 </td></tr><tr><td valign="top" align="center">16
     </td><td valign="top" align="center">4
-    </td><td>Initial size of the database in pages
+    </td><td>事务开始时数据库的初始页数
 </td></tr><tr><td valign="top" align="center">20
     </td><td valign="top" align="center">4
-    </td><td>Size of a disk sector assumed by the process that wrote this
-        journal.
+    </td><td>写入该日志的进程假设的磁盘扇区大小
 </td></tr><tr><td valign="top" align="center">24
     </td><td valign="top" align="center">4
-    </td><td>Size of pages in this journal.
+    </td><td>该日志中的页面大小
 </td></tr></table>
 </center>
 
-<p>A rollback journal header is padded with zeros out to the size of a 
-single sector (as defined by the sector size integer at offset 20).
-The header is in a sector by itself so that if a power loss occurs while
-writing the sector, information that follows the header will be
-(hopefully) undamaged.</p>
+<p>回滚日志头填充零直到一个扇区大小（由偏移 20 的扇区大小整数定义）。头部独占一个扇区，以期在写入过程断电时后续内容保持完好。</p>
 
-<p>After the header and zero padding are zero or more page records.  Each
-page record stores a copy of the content of a page from the database file
-before it was changed.  The same page may not appear more than once
-within a single rollback journal.
-To rollback an incomplete transaction, a process
-has merely to read the rollback journal from beginning to end and
-write pages found in the journal back into the database file at the
-appropriate location.</p>
+<p>在头部和零填充之后是零个或多个页面记录。每条记录保存数据库中某页被修改前的内容。同一个页面在同一回滚日志中只出现一次。要回滚未完成的事务，只需从头到尾读取回滚日志，并将记录中的页面写回数据库相应位置。</p>
 
-<p>Let the database page size (the value of the integer at offset 24 
-in the journal header) be N.
-Then the format of a page record is as follows:</p>
+<p>设数据库页面大小（即日志头偏移 24 的整数）为 N。那么页面记录格式如下：</p>
 
 <center>
-<i>Rollback Journal Page Record Format</i><br>
+<i>回滚日志页面记录格式</i><br>
 <table width="80%" border="1">
-<tr><th>Offset</th><th>Size</th><th>Description
+<tr><th>偏移</th><th>大小</th><th>说明
 </th></tr><tr><td valign="top" align="center">0
     </td><td valign="top" align="center">4
-    </td><td>The page number in the database file
+    </td><td>数据库文件中的页码
 </td></tr><tr><td valign="top" align="center">4
     </td><td valign="top" align="center">N
-    </td><td>Original content of the page prior to the start of the transaction
+    </td><td>事务开始前该页面的原始内容
 </td></tr><tr><td valign="top" align="center">N+4
     </td><td valign="top" align="center">4
-    </td><td>Checksum
+    </td><td>校验和
 </td></tr></table>
 </center>
 
-
-<p>The checksum is an unsigned 32-bit integer computed as follows:</p>
+<p>校验和为 32 位无符号整数，按以下方式计算：</p>
 
 <ol>
-<li>Initialize the checksum to the checksum nonce value found in the
-journal header at offset 12.
-</li><li>Initialize index X to be N-200 (where N is the size of a database page
-in bytes.
-</li><li>Interpret the byte at offset X into the page as an 8-bit unsigned integer
- and add the value of that integer to the checksum.
-</li><li>Subtract 200 from X.
-</li><li>If X is greater than or equal to zero, go back to step 3.
-</li></ol>
+<li>将校验和初始化为头部偏移 12 处的 nonce 值。</li>
+<li>将索引 X 初始化为 N-200（N 为页面字节数）。</li>
+<li>将页面偏移 X 处的字节解释为 8 位无符号整数并加至校验和。</li>
+<li>将 X 减 200。</li>
+<li>如果 X ≥ 0，则返回步骤 3。</li>
+</ol>
 
-<p>The checksum value is used to guard against incomplete writes of
-a journal page record following a power failure.  A different random nonce
-is used each time a transaction is started in order to minimize the risk
-that unwritten sectors might by chance contain data from the same page
-that was a part of prior journals.  By changing the nonce for each
-transaction, stale data on disk will still generate an incorrect checksum
-and be detected with high probability.  The checksum only uses a sparse sample
-of 32-bit words from the data record for performance reasons - design studies 
-during the planning phases of SQLite 3.0.0 showed
-a significant performance hit in checksumming the entire page.</p>
+<p>校验和用于防止在记录写入过程中断电导致的残缺写入。每次事务开始时会使用不同随机 nonce，以降低未写扇区中的内容碰巧与前一日志的页面数据相同的几率。通过每次改变 nonce，磁盘上陈旧数据仍会产生错误的校验和，并高概率被检测出来。出于性能考虑，校验和只使用数据记录中的稀疏 32 位字样本——SQLite 3.0.0 规划阶段的设计研究显示完整校验整页会显著影响性能。</p>
 
-<p>Let the page count value at offset 8 in the journal header be M.
-If M is greater than zero then after M page records the journal file
-may be zero padded out to the next multiple of the sector size and another
-journal header may be inserted.  All journal headers within the same
-journal must contain the same database page size and sector size.</p>
+<p>设头部偏移 8 处的页面计数为 M。如果 M 大于零，则在写入 M 条页面记录后，日志文件可填充零以对齐扇区，然后插入另一个日志头。同一日志中的所有头必须包含相同的数据库页面大小与扇区大小。</p>
 
-<p>If M is -1 in the initial journal header, then the number of page records
-that follow is computed by computing how many page records will fit in
-the available space of the remainder of the journal file.</p>
+<p>如果初始日志头中的 M 为 -1，则随后页面记录的数量通过计算剩余可用空间能容纳多少条页面记录得出。</p>
 
 <a name="walformat"></a>
 
-<h1 id="the_write_ahead_log"><span>4. </span>The Write-Ahead Log</h1>
+<h1 id="the_write_ahead_log"><span>4. </span>预写日志</h1>
 
-<p>Beginning with <a href="releaselog/3_7_0.html">version 3.7.0</a> (2010-07-21), 
-SQLite supports a new transaction
-control mechanism called "<a href="wal.html">write-ahead log</a>" or "<a href="wal.html">WAL</a>".
-When a database is in WAL mode, all connections to that database must
-use the WAL.  A particular database will use either a rollback journal
-or a WAL, but not both at the same time.
-The WAL is always located in the same directory as the database
-file and has the same name as the database file but with the string
-"<tt>-wal</tt>" appended.</p>
+<p>自<a href="releaselog/3_7_0.html">版本 3.7.0</a>（2010-07-21）起，SQLite 支持一种名为“<a href="wal.html">预写日志</a>”或“<a href="wal.html">WAL</a>”的事务控制机制。当数据库处于 WAL 模式时，所有连接都必须使用 WAL。某个数据库要么使用回滚日志，要么使用 WAL，不会同时使用两者。WAL 文件始终位于数据库文件同一目录，文件名后附加“-wal”。</p>
 
-<h2 id="wal_file_format"><span>4.1. </span>WAL File Format</h2>
+<h2 id="wal_file_format"><span>4.1. </span>WAL 文件格式</h2>
 
-<p>A <a href="wal.html#walfile">WAL file</a> consists of a header followed by zero or more "frames".
-Each frame records the revised content of a single page from the
-database file.  All changes to the database are recorded by writing
-frames into the WAL.  Transactions commit when a frame is written that
-contains a commit marker.  A single WAL can and usually does record 
-multiple transactions.  Periodically, the content of the WAL is
-transferred back into the database file in an operation called a
-"checkpoint".</p>
+<p><a href="wal.html#walfile">WAL 文件</a>由头部和零个或多个“帧”组成。每个帧记录数据库文件单个页面的修订内容。对数据库的所有变更都写入 WAL 帧。事务在写入包含提交标记的帧时提交。单个 WAL 可记录多个事务，通常会被周期性检查点操作（checkpoint）将内容转回数据库文件。</p>
 
-<p>A single WAL file can be reused multiple times.  In other words, the
-WAL can fill up with frames and then be checkpointed and then new
-frames can overwrite the old ones.  A WAL always grows from beginning
-toward the end.  Checksums and counters attached to each frame are
-used to determine which frames within the WAL are valid and which
-are leftovers from prior checkpoints.</p>
+<p>单个 WAL 文件可重复利用。也就是说，WAL 可以填满帧、完成检查点后再由新帧覆盖旧帧。WAL 总是从头向尾增长。附加到每个帧的校验和与计数器用于判定哪些帧有效，哪些是来自先前检查点的残留。</p>
 
-<p>The WAL header is 32 bytes in size and consists of the following eight
-big-endian 32-bit unsigned integer values:</p>
+<p>WAL 头为 32 字节，由以下八个大端 32 位无符号整数组成：</p>
 
 <center>
-<i>WAL Header Format</i><br>
+<i>WAL 头格式</i><br>
 <table width="80%" border="1">
-<tr><th>Offset</th><th>Size</th><th>Description
+<tr><th>偏移</th><th>大小</th><th>说明
 </th></tr><tr><td valign="top" align="center">0</td><td valign="top" align="center">4
-    </td><td>Magic number.  0x377f0682 or 0x377f0683
+    </td><td>魔术数字：0x377f0682 或 0x377f0683
 </td></tr><tr><td valign="top" align="center">4</td><td valign="top" align="center">4
-    </td><td>File format version.  Currently 3007000.
+    </td><td>文件格式版本。目前为 3007000。
 </td></tr><tr><td valign="top" align="center">8</td><td valign="top" align="center">4
-    </td><td>Database page size.  Example: 1024
+    </td><td>数据库页面大小。例如：1024
 </td></tr><tr><td valign="top" align="center">12</td><td valign="top" align="center">4
-    </td><td>Checkpoint sequence number
+    </td><td>检查点序列号
 </td></tr><tr><td valign="top" align="center">16</td><td valign="top" align="center">4
-    </td><td>Salt-1: random integer incremented with each checkpoint
+    </td><td>Salt-1：每次检查点递增的随机整数
 </td></tr><tr><td valign="top" align="center">20</td><td valign="top" align="center">4
-    </td><td>Salt-2: a different random number for each checkpoint
+    </td><td>Salt-2：每次检查点的另一个随机数
 </td></tr><tr><td valign="top" align="center">24</td><td valign="top" align="center">4
-    </td><td>Checksum-1: First part of a checksum on the first 24 bytes of header
+    </td><td>Checksum-1：头前 24 字节的校验和第一部分
 </td></tr><tr><td valign="top" align="center">28</td><td valign="top" align="center">4
-    </td><td>Checksum-2: Second part of the checksum on the first 24 bytes of header
+    </td><td>Checksum-2：头前 24 字节校验和的第二部分
 </td></tr></table>
 </center>
 
-<p>Immediately following the wal-header are zero or more frames. Each
-frame consists of a 24-byte frame-header followed by a <i>page-size</i> bytes
-of page data. The frame-header is six big-endian 32-bit unsigned 
-integer values, as follows:
+<p>紧随 WAL 头的是零个或多个帧。每个帧由 24 字节帧头与一个等于页面大小的页面数据组成。帧头包含六个大端 32 位无符号整数：</p>
 
 </p><center>
-<i>WAL Frame Header Format</i><br>
+<i>WAL 帧头格式</i><br>
 <table width="80%" border="1">
-<tr><th>Offset</th><th>Size</th><th>Description
+<tr><th>偏移</th><th>大小</th><th>说明
 </th></tr><tr><td valign="top" align="center">0</td><td valign="top" align="center">4
-    </td><td>Page number
+    </td><td>页码
 </td></tr><tr><td valign="top" align="center">4</td><td valign="top" align="center">4
-    </td><td>For commit records, the size of the database file in pages
-        after the commit.  For all other records, zero.
+    </td><td>对于提交记录，表示提交后数据库文件的页数；其他记录为 0。
 </td></tr><tr><td valign="top" align="center">8</td><td valign="top" align="center">4
-    </td><td>Salt-1 copied from the WAL header
+    </td><td>从 WAL 头复制的 Salt-1
 </td></tr><tr><td valign="top" align="center">12</td><td valign="top" align="center">4
-    </td><td>Salt-2 copied from the WAL header
+    </td><td>从 WAL 头复制的 Salt-2
 </td></tr><tr><td valign="top" align="center">16</td><td valign="top" align="center">4
-    </td><td>Checksum-1:  Cumulative checksum up through and including this page
+    </td><td>Checksum-1：累计校验和截止包含该页面
 </td></tr><tr><td valign="top" align="center">20</td><td valign="top" align="center">4
-    </td><td>Checksum-2:  Second half of the cumulative checksum.
+    </td><td>Checksum-2：累计校验和第二部分
 </td></tr></table>
 </center>
 
-<p>A frame is considered valid if and only if the following conditions are
-true:</p>
+<p>仅当符合以下条件时，帧才被视为有效：</p>
 
 <ol>
-<li><p>The salt-1 and salt-2 values in the frame-header match
-       salt values in the wal-header</p></li>
+<li><p>帧头中的 Salt-1 与 Salt-2 匹配 WAL 头中的值。</p></li>
 
-<li><p>The checksum values in the final 8 bytes of the frame-header
-       exactly match the checksum computed consecutively on the
-       first 24 bytes of the WAL header and the first 8 bytes and
-       the content of all frames
-       up to and including the current frame.</p></li>
+<li><p>帧头最后 8 字节的校验和与对 WAL 头前 24 字节及当前帧之前所有帧（含当前帧）的前 8 字节与内容连续计算所得校验和完全一致。</p></li>
 </ol>
 
 <a name="walcksm"></a>
 
-<h2 id="checksum_algorithm"><span>4.2. </span>Checksum Algorithm</h2>
+<h2 id="checksum_algorithm"><span>4.2. </span>校验和算法</h2>
 
-<p>The checksum is computed by interpreting the input as
-an even number of unsigned 32-bit integers: x(0) through x(N).
-The 32-bit integers are big-endian if the
-magic number in the first 4 bytes of the WAL header is 0x377f0683 and
-the integers are little-endian if the magic number is 0x377f0682.
-The checksum values are always stored in the frame header in a
-big-endian format regardless of which byte order is used to compute
-the checksum.</p>
+<p>校验和通过将输入视为偶数个无符号 32 位整数 x(0) 到 x(N) 计算得出。如果 WAL 头前 4 字节的魔术数字为 0x377f0683，则这些 32 位整数以大端表示；如果为 0x377f0682，则以小端表示。无论采用哪种字节顺序，帧头中的校验和均以大端格式存储。</p>
 
-<p>The checksum algorithm only works for content which is a multiple of
-8 bytes in length.  In other words, if the inputs are x(0) through x(N)
-then N must be odd.
-The checksum algorithm is as follows:
+<p>校验和算法仅适用于长度为 8 的倍数的内容。也就是说，如果输入为 x(0) 到 x(N)，则 N 必须为奇数。算法如下：</p>
 
 </p><blockquote><pre> 
 s0 = s1 = 0
@@ -2077,118 +1116,51 @@ endfor
 # result in s0 and s1
 </pre></blockquote>
 
-<p>The outputs s0 and s1 are both weighted checksums using Fibonacci weights
-in reverse order.  (The largest Fibonacci weight occurs on the first element
-of the sequence being summed.)  The s1 value spans all 32-bit integer
-terms of the sequence whereas s0 omits the final term.</p>
+<p>输出 s0 与 s1 均为加权校验和，使用倒序的斐波那契权重（序列中首项权重最大）。s1 涵盖所有 32 位整数项，而 s0 忽略最后一项。</p>
 
-<h2 id="checkpoint_algorithm"><span>4.3. </span>Checkpoint Algorithm</h2>
+<h2 id="checkpoint_algorithm"><span>4.3. </span>检查点算法</h2>
 
-<p>On a <a href="wal.html#ckpt">checkpoint</a>, the WAL is first flushed to persistent storage using
-the xSync method of the <a href="c3ref/io_methods.html">VFS</a>. 
-Then valid content of the WAL is transferred into the database file.
-Finally, the database is flushed to persistent storage using another
-xSync method call.
-The xSync operations serve as write barriers - all writes launched
-before the xSync must complete before any write that launches after the
-xSync begins.</p>
+<p>在<a href="wal.html#ckpt">检查点</a>过程中，首先通过<a href="c3ref/io_methods.html">VFS</a>的 xSync 方法将 WAL 刷入持久存储。然后将 WAL 中有效内容转回数据库文件。最后再次调用 xSync 将数据库刷入持久存储。xSync 操作用作写屏障——所有在 xSync 启动前发起的写入必须完成后，才可启动 xSync 之后的写入。</p>
 
-<p>A checkpoint need not run to completion.  It might be that some
-readers are still using older transactions with data that is contained
-in the database file.  In that case, transferring content for newer
-transactions from the WAL file into the database would delete the content
-out from under readers still using the older transactions.  To avoid that,
-checkpoints only run to completion if all reader are using the
-last transaction in the WAL.
+<p>检查点不必运行至完成。可能仍有读取者使用包含在数据库文件中的旧事务数据。在这种情况下，将 WAL 中更新事务的内容转回数据库会删除读取者仍在使用的数据。为避免这种情况，只有当所有读取者都使用 WAL 中的最后一个事务时，检查点才会完整执行。</p>
 
 <a name="walreset"></a>
 
-</p><h2 id="wal_reset"><span>4.4. </span>WAL Reset</h2>
+</p><h2 id="wal_reset"><span>4.4. </span>WAL 重置</h2>
 
-<p>After a complete checkpoint, if no other connections are in transactions
-that use the WAL, then subsequent write transactions can
-overwrite the WAL file from the beginning.  This is called "resetting the
-WAL".  At the start of the first new
-write transaction, the WAL header salt-1 value is incremented
-and the salt-2 value is randomized.  These changes to the salts invalidate
-old frames in the WAL that have already been checkpointed but not yet
-overwritten, and prevent them from being checkpointed again.</p>
+<p>完成完整检查点后，如果没有其他连接处于使用 WAL 的事务中，那么后续写事务可以从头开始覆盖 WAL 文件。此过程称为“重置 WAL”。在第一次新的写事务开始时，WAL 头中的 Salt-1 值递增，Salt-2 值重新随机。对盐值的更改使得已检查点但尚未被覆盖的旧帧失效，防止它们再次被检查点。</p>
 
-<p>The WAL file can optionally be truncated on a reset, but it need not be.
-Performance is usually a little better if the WAL is not truncated, since
-filesystems generally will overwrite an existing file faster than they
-will grow a file.
+<p>重置时 WAL 文件可以选择性截断，但不一定需要。通常不截断性能略好，因为文件系统重写现有文件比增长文件更快。</p>
 
 <a name="walread"></a>
 
-</p><h2 id="reader_algorithm"><span>4.5. </span>Reader Algorithm</h2>
+</p><h2 id="reader_algorithm"><span>4.5. </span>读取者算法</h2>
 
-<p>To read a page from the database (call it page number P), a reader
-first checks the WAL to see if it contains page P.  If so, then the
-last valid instance of page P that is followed by a commit frame
-or is a commit frame itself becomes the value read.  If the WAL
-contains no copies of page P that are valid and which are a commit
-frame or are followed by a commit frame, then page P is read from
-the database file.</p>
+<p>要读取数据库页面 P，读取者首先检查 WAL 是否包含该页面。如果包含，则 WAL 中最后一个有效的、后面跟随提交帧或本身为提交帧的页面 P 实例即为读取值。如果 WAL 中没有满足条件的页面 P，则从数据库文件中读取。</p>
 
-<p>To start a read transaction, the reader records the number of value
-frames in the WAL as "mxFrame".  (<a href="walformat.html#mxframe">More detail</a>)
-The reader uses this recorded mxFrame value
-for all subsequent read operations.  New transactions can be appended
-to the WAL, but as long as the reader uses its original mxFrame value
-and ignores subsequently appended content, the reader will see a 
-consistent snapshot of the database from a single point in time.  
-This technique allows multiple concurrent readers to view different 
-versions of the database content simultaneously.</p>
+<p>为了开始读取事务，读取者记录 WAL 中写入的帧数为“mxFrame”。（<a href="walformat.html#mxframe">更多细节</a>）读取者在后续所有读取中都使用该 mxFrame 值。虽然允许向 WAL 中追加新事务，但只要读取者使用最初的 mxFrame 值并忽略后续追加内容，就能查看某一时间点一致的数据库快照。这项技术允许多个并发读取者同时查看不同版本的数据库内容。</p>
 
-<p>The reader algorithm in the previous paragraphs works correctly, but 
-because frames for page P can appear anywhere within the WAL, the
-reader has to scan the entire WAL looking for page P frames.  If the
-WAL is large (multiple megabytes is typical) that scan can be slow,
-and read performance suffers.  To overcome this problem, a separate
-data structure called the wal-index is maintained to expedite the
-search for frames of a particular page.</p>
+<p>上述读取者算法是正确的，但由于页面 P 的帧可能散布在 WAL 中任意位置，因此读取者必须扫描整个 WAL 查找页面 P 的帧。如果 WAL 很大（通常有数 MB），这种扫描会很慢，读取性能下降。为解决该问题，维护了一个称为 wal-index 的独立数据结构，加快查找特定页面帧。</p>
 
 <a name="walindexformat"></a>
 
-<h2 id="wal_index_format"><span>4.6. </span>WAL-Index Format</h2>
+<h2 id="wal_index_format"><span>4.6. </span>WAL-索引格式</h2>
 
-<p>Conceptually, the wal-index is shared memory, though the current
-VFS implementations use a memory-mapped file for operating-system
-portability.  The memory-mapped
-file is in the same directory as the database and has the same name
-as the database with a "<tt>-shm</tt>" suffix appended.  Because
-the wal-index is shared memory, SQLite does not support 
-<a href="pragma.html#pragma_journal_mode">journal_mode=WAL</a> 
-on a network filesystem when clients are on different machines, as
-all clients of the database must be able to share the same memory.</p>
+<p>概念上 wal-index 是共享内存，但当前的 VFS 实现使用内存映射文件以兼容不同操作系统。该内存映射文件位于数据库所在目录，文件名为数据库名加上“-shm”后缀。由于 wal-index 是共享内存，SQLite 不支持<a href="pragma.html#pragma_journal_mode">journal_mode=WAL</a>在多机器的网络文件系统上运行，因为所有客户端必须共享同一内存。</p>
 
-<p>The purpose of the wal-index is to answer this question quickly:</p>
+<p>wal-index 的目的是快速回答以下问题：</p>
 
 <blockquote><i>
-Given a page number P and a maximum WAL frame index M,
-return the largest WAL frame index for page P that does not exceed M, 
-or return NULL if there are no frames for page P that do not exceed M.
+给定页面号 P 与最大 WAL 帧索引 M，返回页面 P 在不超过 M 的 WAL 帧中的最大帧索引；若不存在则返回 NULL。
 </i></blockquote>
 
-<p>The <i>M</i> value in the previous paragraph is the "mxFrame" value
-defined in <a href="fileformat2.html#walread">section 4.4</a> that is read at the start 
-of a transaction and which defines the maximum frame from the WAL that 
-the reader will use.</p>
+<p>上面段落中的 <i>M</i> 是在<a href="fileformat2.html#walread">第 4.5 节</a>中定义的“mxFrame”值，在事务开始时读取并定义读取者将使用的 WAL 最大帧。</p>
 
-<p>The wal-index is transient.  After a crash, the wal-index is
-reconstructed from the original WAL file.  The VFS is required
-to either truncate or zero the header of the wal-index when the last
-connection to it closes.  Because the wal-index is transient, it can
-use an architecture-specific format; it does not have to be cross-platform.
-Hence, unlike the database and WAL file formats which store all values
-as big endian, the wal-index stores multi-byte values in the native
-byte order of the host computer.</p>
+<p>wal-index 是瞬时的。崩溃后，wal-index 从原 WAL 文件重建。VFS 需要在最后一个连接关闭 wal-index 时截断或将其头归零。由于 wal-index 是瞬时结构，因此可以使用与具体架构相关的格式，无需跨平台支持。因此，与数据库与 WAL 文件始终使用大端不同，wal-index 中的多字节值采用主机的本地字节序。</p>
 
-<p>This document is concerned with the persistent state of the database
-file, and since the wal-index is a transient structure, no further 
-information about the format of the wal-index will be provided here.
-Additional details on the format of the wal-index are contained in
-the separate <a href="walformat.html#walidxfmt">WAL-index File Format</a> document.</p>
-<p align="center"><small><i>This page was last updated on 2025-12-25 10:33:36Z </small></i></p>
+<p>本文档关注数据库文件的持久状态，既然 wal-index 是瞬时结构，本文不再提供其格式的额外信息。关于 wal-index 格式的更多细节可参见单独的<a href="walformat.html#walidxfmt">WAL-index 文件格式</a>文档。</p>
+<p align="center"><small><i>本页最后更新于 2025-12-25 10:33:36Z </i></small></p>
 
+</div>
+</div>
+</body></html>

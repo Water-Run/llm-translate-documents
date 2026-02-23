@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="../sqlite.css" rel="stylesheet">
-<title>Obtain A Composite Changeset From A Changegroup</title>
+<title>从更改组获取组合更改集</title>
 <!-- path=../ -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,34 +121,19 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<a href="../session/intro.html"><h2>Session Module C Interface</h2></a><h2>Obtain A Composite Changeset From A Changegroup</h2><blockquote><pre>int sqlite3changegroup_output(
+<a href="../session/intro.html"><h2>会话模块C接口</h2></a><h2>从更改组获取组合更改集</h2><blockquote><pre>int sqlite3changegroup_output(
   sqlite3_changegroup*,
   int *pnData,                    /* OUT: Size of output buffer in bytes */
   void **ppData                   /* OUT: Pointer to output buffer */
 );
 </pre></blockquote><p>
-Obtain a buffer containing a changeset (or patchset) representing the
-current contents of the changegroup. If the inputs to the changegroup
-were themselves changesets, the output is a changeset. Or, if the
-inputs were patchsets, the output is also a patchset.</p>
+获取包含更改集（或补丁集）的缓冲区，该更改集表示更改组的当前内容。如果更改组的输入本身是更改集，则输出为更改集。或者，如果输入是补丁集，则输出也为补丁集。</p>
 
-<p>As with the output of the sqlite3session_changeset() and
-sqlite3session_patchset() functions, all changes related to a single
-table are grouped together in the output of this function. Tables appear
-in the same order as for the very first changeset added to the changegroup.
-If the second or subsequent changesets added to the changegroup contain
-changes for tables that do not appear in the first changeset, they are
-appended onto the end of the output changeset, again in the order in
-which they are first encountered.</p>
+<p>与 sqlite3session_changeset() 和 sqlite3session_patchset() 函数的输出一样，本函数的输出会将与同一表相关的所有更改组合在一起。表的顺序与最初添加到更改组的第一个更改集相同。如果随后加入更改组的第二个或以后的更改集包含在第一个更改集中未出现的表的更改，则这些表会按照首次遇到的顺序附加到输出更改集的末尾。</p>
 
-<p>If an error occurs, an SQLite error code is returned and the output
-variables (*pnData) and (*ppData) are set to 0. Otherwise, SQLITE_OK
-is returned and the output variables are set to the size of and a 
-pointer to the output buffer, respectively. In this case it is the
-responsibility of the caller to eventually free the buffer using a
-call to sqlite3_free().
-</p><p>See also lists of
-  <a href="../session/objlist.html">Objects</a>,
-  <a href="../session/constlist.html">Constants</a>, and
-  <a href="../session/funclist.html">Functions</a>.</p>
+<p>如果发生错误，则返回 SQLite 错误代码，并将输出变量 (*pnData) 和 (*ppData) 设为 0。否则返回 SQLITE_OK，并分别将输出变量设置为输出缓冲区的大小以及指针。在这种情况下，调用方有责任最终调用 sqlite3_free() 释放缓冲区。
+</p><p>另请参阅
+  <a href="../session/objlist.html">对象</a>、
+  <a href="../session/constlist.html">常量</a>，以及
+  <a href="../session/funclist.html">函数</a>。</p>
 

@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新记录</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,160 +124,84 @@ antiRobotDefense();
 
 
 
-<h1 align="center">Memory-Mapped I/O</h1>
+<h1 align="center">内存映射I/O</h1>
 
-<p>The default mechanism by which SQLite accesses and updates database disk
-files is the xRead() and xWrite() methods of the
-<a href="c3ref/io_methods.html">sqlite3_io_methods</a> VFS object.  These methods are typically implemented as
-"read()" and "write()" system calls which cause the operating system
-to copy disk content between the kernel buffer cache and user space.</p>
+<p>SQLite访问和更新数据库磁盘文件的默认机制是
+<a href="c3ref/io_methods.html">sqlite3_io_methods</a> VFS 对象的 xRead() 和 xWrite() 方法。
+这些方法通常实现为“read()”和“write()”系统调用，使操作系统能够在内核缓冲区缓存和用户空间之间复制磁盘内容。</p>
 
-<p>Beginning with <a href="releaselog/3_7_17.html">version 3.7.17</a> (2013-05-20), SQLite has the option of 
-accessing disk content directly using memory-mapped I/O and the new
-xFetch() and xUnfetch() methods on <a href="c3ref/io_methods.html">sqlite3_io_methods</a>.</p>
+<p>从
+<a href="releaselog/3_7_17.html">版本 3.7.17</a>（2013-05-20）开始，SQLite 提供了使用内存映射 I/O 直接访问磁盘内容的可选方案，以及
+在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 上的新 xFetch() 和 xUnfetch() 方法。</p>
 
-<p>There are advantages and disadvantages to using memory-mapped I/O.
-Advantages include:</p>
+<p>使用内存映射 I/O 有其优点和缺点。优点包括：</p>
 
 <ol>
-<li><p>Many operations, especially I/O intensive operations, can be
-    faster since content need not be copied between kernel space
-    and user space.</p>
+<li><p>许多操作，尤其是 I/O 密集型操作，可以更快，因为不需要在内核空间和用户空间之间复制内容。</p>
 
-<li><p>The SQLite library may need less RAM since it shares pages with
-    the operating-system page cache and does not always need its own copy of
-    working pages.</p>
+<li><p>SQLite 库可能需要更少的 RAM，因为它与操作系统页面缓存共享页，并不总是需要自己维护工作页的副本。</p>
 </ol>
 
-<p>But there are also disadvantages:</p>
+<p>但也有缺点：</p>
 
 <ol>
-<li><p>An I/O error on a memory-mapped file cannot be caught and dealt with by
-    SQLite.  Instead, the I/O error causes a signal which, if not caught
-    by the application, results in a program crash.</p>
+<li><p>内存映射文件上的 I/O 错误无法由 SQLite 捕获和处理。相反，该 I/O 错误会导致信号，如果应用未捕获该信号，则会导致程序崩溃。</p>
 
-<li><p>The operating system must have a unified buffer cache in order for
-    the memory-mapped I/O extension to work correctly, especially in
-    situations where two processes are accessing the same database
-    file and one process is using memory-mapped I/O while the other
-    is not.  Not all operating systems have a unified buffer cache.
-    In some operating systems that claim to have a unified buffer cache,
-    the implementation is buggy and can lead to corrupt databases.</p>
+<li><p>操作系统必须具有统一缓冲区缓存，内存映射 I/O 扩展才能正确工作，特别是在两个进程访问同一个数据库文件的情况下，其中一个进程使用内存映射 I/O，而另一个没有。并非所有操作系统都有统一缓冲区缓存。在某些声称拥有统一缓冲区缓存的操作系统中，其实现存在缺陷，可能导致数据库损坏。</p>
 
-<li><p>Performance does not always increase with memory-mapped I/O.  In fact,
-    it is possible to construct test cases where performance is reduced
-    by the use of memory-mapped I/O.</p>
+<li><p>性能并不总是随着内存映射 I/O 而提升。事实上，可以构造出使用内存映射 I/O 后性能下降的测试用例。</p>
 
-<li><p>Windows is unable to truncate a memory-mapped file.  Hence, on Windows,
-    if an operation such as <a href="lang_vacuum.html">VACUUM</a> or <a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a> tries to reduce the
-    size of a memory-mapped database file, the size reduction attempt will
-    silently fail, leaving unused space at the end of the database file.
-    No data is lost due to this problem, and the unused space will be
-    reused again the next time the database grows.  However if a version 
-    of SQLite prior to 3.7.0 runs <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> on such a 
-    database, it will (incorrectly) report database corruption due to 
-    the unused space at the end.  Or if a version of SQLite prior to 3.7.0
-    writes to the database while it still has unused space at the end, it
-    may make that unused space inaccessible and unavailable for reuse until
-    after the next <a href="lang_vacuum.html">VACUUM</a>.
+<li><p>Windows 无法截断内存映射文件。因此，在 Windows 上，如果像 <a href="lang_vacuum.html">VACUUM</a> 或 <a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a> 这样的操作尝试缩小内存映射数据库文件的大小，则缩小尝试会静默失败，留下文件末尾的未使用空间。此问题不会导致数据丢失，且当数据库再次增长时，未使用空间会被重新利用。但是，如果 3.7.0 之前的 SQLite 版本对这样的数据库运行 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a>，则会因为文件末尾的未使用空间而（错误地）报告数据库损坏。或者如果 3.7.0 之前的 SQLite 版本在数据库末尾仍有未使用空间的情况下写入数据，则可能使这部分未使用空间变得不可访问，并在下一次 <a href="lang_vacuum.html">VACUUM</a> 之前无法复用。</p>
 </ol>
 
-<p>Because of the potential disadvantages, memory-mapped I/O is disabled
-by default.  To activate memory-mapped I/O, use the <a href="pragma.html#pragma_mmap_size">mmap_size pragma</a>
-and set the mmap_size to some large number, usually 256MB or larger, depending
-on how much address space your application can spare.  The rest is
-automatic.  The <a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a> statement will be a silent no-op on
-systems that do not support memory-mapped I/O.</p>
+<p>由于存在潜在的缺点，内存映射 I/O 默认被禁用。要激活内存映射 I/O，可以使用
+<a href="pragma.html#pragma_mmap_size">mmap_size pragma</a> 并将 mmap_size 设置为某个较大的数值，通常至少为 256MB，具体取决于应用可以腾出的地址空间。剩下的全部由系统自动完成。
+在不支持内存映射 I/O 的系统上，<a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a> 语句将默默地不执行任何操作。</p>
 
-<h2>How Memory-Mapped I/O Works</h2>
+<h2>内存映射I/O如何工作</h2>
 
-<p>To read a page of database content using the legacy xRead() method,
-SQLite first allocates a page-size chunk of heap memory then invokes
-the xRead() method which causes the database page content to be copied
-into the newly allocated heap memory.  This involves (at a minimum)
-a copy of the entire page.</p>
+<p>使用传统的 xRead() 方法读取数据库页面时，SQLite 首先分配一个页面大小的堆内存块，然后调用 xRead() 方法将数据库页面内容复制到新分配的堆内存中。这至少涉及整个页面的复制。</p>
 
-<p>But if SQLite wants to access a page of the database file and
-memory mapped I/O is enabled, it first calls the xFetch() method.
-The xFetch() method asks the operating system to return a pointer to
-the requested page, if possible.  If the requested page has been or
-can be mapped into the application address space, then xFetch returns
-a pointer to that page for SQLite to use without having to copy anything.
-Skipping the copy step is what makes memory mapped I/O faster.</p>
+<p>但如果 SQLite 想访问数据库文件的某一页面，同时启用了内存映射 I/O，它会先调用 xFetch() 方法。
+xFetch() 方法请求操作系统返回所需页面的指针（如果可能的话）。如果所需页面已经被映射到应用地址空间，或者可以被映射，那么 xFetch() 会返回该页面的指针，供 SQLite 使用，而无需进行任何复制。
+正是省略复制步骤，使内存映射 I/O 更快。</p>
 
-<p>SQLite does not assume that the xFetch() method will work.  If
-a call to xFetch() returns a NULL pointer (indicating that the requested
-page is not currently mapped into the applications address space) then
-SQLite silently falls back to using xRead().  An error is only reported
-if xRead() also fails.</p>
+<p>SQLite 不假定 xFetch() 方法一定会成功。如果调用 xFetch() 返回空指针（表示所需页面当前未映射到应用地址空间），则 SQLite 会自动回退到使用 xRead()。只有在 xRead() 也失败时才会报告错误。</p>
 
-<p>When updating the database file, SQLite always makes a copy of the
-page content into heap memory before modifying the page.  This is necessary
-for two reasons.  First, changes to the database
-are not supposed to be visible to other processes until
-after the transaction commits and so the changes must occur in private memory.
-Second, SQLite uses a read-only memory map to prevent stray pointers in the 
-application from overwriting and corrupting the database file.
+<p>更新数据库文件时，SQLite 始终先将页面内容复制到堆内存，然后再修改该页面。这是必要的，原因有两点。首先，在事务提交之前，对数据库所做的更改不应对其他进程可见，因此更改必须发生在私有内存中。其次，SQLite 使用只读内存映射，以防止应用中的游离指针覆盖并损坏数据库文件。</p>
 
-<p>
-After all needed changes are completed, xWrite() is used to move the content
-back into the database file.
-Hence the use of memory mapped I/O does not significantly change the
-performance of database changes.
-Memory mapped I/O is mostly a benefit for queries.</p>
+<p>完成所有必要更改后，会使用 xWrite() 将内容写回数据库文件。因此，使用内存映射 I/O 并不会显著改变数据库更改的性能。内存映射 I/O 对查询才主要有利。</p>
 
-<h2>Configuring Memory-Mapped I/O</h2>
+<h2>配置内存映射I/O</h2>
 
-<p>The "mmap_size" is the maximum number of bytes of the database file that
-SQLite will try to map into the process address space at one time.  The
-mmap_size applies separately to each database file, so the total amount
-of process address space that could potentially be used is the mmap_size
-times the number of open database files.</p>
+<p>“mmap_size”是 SQLite 在一次操作中尝试映射到进程地址空间的数据库文件的最大字节数。
+mmap_size 对每个数据库文件分别应用，因此潜在使用的进程地址空间总量等于 mmap_size 乘以打开的数据库文件数。</p>
 
-<p>To activate memory-mapped I/O, an application can set the mmap_size to some
-large value.  For example:</p>
+<p>要启用内存映射 I/O，应用可以将 mmap_size 设置为某个较大的值。例如：</p>
 
 <blockquote><pre>
 PRAGMA mmap_size=268435456;
 </pre></blockquote>
 
-<p>To disable memory-mapped I/O, simply set the mmap_size to zero:</p>
+<p>要禁用内存映射 I/O，只需将 mmap_size 设置为零：</p>
 
 <blockquote><pre>
 PRAGMA mmap_size=0;
 </pre></blockquote>
 
-<p>If mmap_size is set to N then all current implementations map the first
-N bytes of the database file and use legacy xRead() calls for any content
-beyond N bytes.  If the database file is smaller than N bytes, then the entire
-file is mapped.  In the future, new OS interfaces could, in theory, map
-regions of the file other than the first N bytes, but no such 
-implementation currently exists.</p>
+<p>如果将 mmap_size 设置为 N，那么目前的所有实现都会映射数据库文件的前 N 个字节，并对 N 字节之外的内容使用传统的 xRead() 调用。如果数据库文件小于 N 字节，则整个文件都会被映射。未来新的操作系统接口理论上可以映射除前 N 个字节之外的文件区域，但目前还没有这样的实现。</p>
 
-<p>The mmap_size is set separately for each database file using the
-"<a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a>" statement.  The usual default mmap_size is zero,
-meaning that memory mapped I/O is disabled by default.  However, the
-default mmap_size can be increased either at compile-time using
-the <a href="compile.html#default_mmap_size">SQLITE_DEFAULT_MMAP_SIZE</a> macro or at start-time using the
-<a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a>,...) interface.</p>
+<p>mmap_size 是通过“<a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a>”语句分别为每个数据库文件设置的。通常默认的 mmap_size 为零，这意味着内存映射 I/O 默认被禁用。
+但是，默认 mmap_size 可以在编译时通过 <a href="compile.html#default_mmap_size">SQLITE_DEFAULT_MMAP_SIZE</a> 宏 或在运行时通过 <a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a>,...) 接口增加。</p>
 
-<p>SQLite also maintains a hard upper bound on the mmap_size.  Attempts
-to increase the mmap_size above this hard upper bound (using
-<a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a>) will automatically cap the mmap_size at the hard
-upper bound.  If the hard upper bound is zero, then memory mapped I/O
-is impossible.  The hard upper bound can be set at compile-time using
-the <a href="compile.html#max_mmap_size">SQLITE_MAX_MMAP_SIZE</a> macro.  If <a href="compile.html#max_mmap_size">SQLITE_MAX_MMAP_SIZE</a> is set to
-zero, then the code used to implement memory mapped I/O is omitted from
-the build.  The hard upper bound is automatically set to zero on certain
-platforms (ex: OpenBSD) where memory mapped I/O does not work due to the
-lack of a unified buffer cache.</p>
+<p>SQLite 还对 mmap_size 维持一个硬性上限。尝试将 mmap_size 增加到该硬性上限以上（通过
+<a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a>）会自动将 mmap_size 限制在硬性上限内。如果硬性上限为零，则无法实现内存映射 I/O。
+硬性上限可以在编译时通过 <a href="compile.html#max_mmap_size">SQLITE_MAX_MMAP_SIZE</a> 宏设置。
+如果将 <a href="compile.html#max_mmap_size">SQLITE_MAX_MMAP_SIZE</a> 设置为零，则实现内存映射 I/O 的代码将不会被编译进构建版本。在某些平台（例如 OpenBSD）上，由于缺乏统一缓冲区缓存，内存映射 I/O 无法工作，因此硬性上限会自动设置为零。</p>
 
-<p>If the hard upper bound on mmap_size is non-zero at compilation time,
-it may still be reduced or zeroed at start-time using the
-<a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a>,X,Y) interface.  The X and
-Y parameters must both be 64-bit signed integers. The X parameter
-is the default mmap_size of the process and the Y is the new hard upper bound.
-The hard upper bound cannot be increased above its compile-time setting
-using <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a> but it can be reduced or zeroed.</p>
-<p align="center"><small><i>This page was last updated on 2022-04-18 02:55:50Z </small></i></p>
+<p>如果在编译时 mmap_size 的硬性上限非零，仍然可以在运行时通过
+<a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a>,X,Y) 接口将其减少或置零。X 和 Y 参数必须都是 64 位有符号整数。X 参数是进程的默认 mmap_size，而 Y 是新的硬性上限。
+硬性上限不能通过 <a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a> 增大到其编译时设置以上，但可以减少或设置为零。</p>
+<p align="center"><small><i>本页面最后更新于 2022-04-18 02:55:50Z </small></i></p>
 
+</body></html>

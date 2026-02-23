@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>Recovering Data From A Corrupt SQLite Database</title>
+<title>从损坏的 SQLite 数据库恢复数据</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -118,17 +124,17 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-Recovering Data From A Corrupt SQLite Database
+从损坏的 SQLite 数据库恢复（部分）数据
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#recovering_some_data_from_a_corrupt_sqlite_database">1. Recovering (Some) Data From A Corrupt SQLite Database</a></div>
-<div class="fancy-toc2"><a href="#limitations">1.1. Limitations</a></div>
-<div class="fancy-toc1"><a href="#recovery_using_the_recover_command_in_the_cli">2. Recovery Using The ".recover" Command In The CLI</a></div>
-<div class="fancy-toc1"><a href="#building_the_recovery_api_into_an_application">3. Building The Recovery API Into An Application</a></div>
-<div class="fancy-toc2"><a href="#source_code_files">3.1. Source Code Files</a></div>
-<div class="fancy-toc2"><a href="#how_to_implement_recovery">3.2. How To Implement Recovery</a></div>
-<div class="fancy-toc2"><a href="#example_implementations">3.3. Example Implementations</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#recovering_some_data_from_a_corrupt_sqlite_database">1. 从损坏的 SQLite 数据库恢复（部分）数据</a></div>
+<div class="fancy-toc2"><a href="#limitations">1.1. 限制</a></div>
+<div class="fancy-toc1"><a href="#recovery_using_the_recover_command_in_the_cli">2. 在 CLI 中使用“.recover”命令恢复</a></div>
+<div class="fancy-toc1"><a href="#building_the_recovery_api_into_an_application">3. 将恢复 API 集成到应用程序</a></div>
+<div class="fancy-toc2"><a href="#source_code_files">3.1. 源代码文件</a></div>
+<div class="fancy-toc2"><a href="#how_to_implement_recovery">3.2. 如何实现恢复</a></div>
+<div class="fancy-toc2"><a href="#example_implementations">3.3. 示例实现</a></div>
 </div>
 </details>
 </div>
@@ -136,142 +142,76 @@ Recovering Data From A Corrupt SQLite Database
 
 
 
-<h1 id="recovering_some_data_from_a_corrupt_sqlite_database"><span>1. </span>Recovering (Some) Data From A Corrupt SQLite Database</h1>
+<h1 id="recovering_some_data_from_a_corrupt_sqlite_database"><span>1. </span>从损坏的 SQLite 数据库恢复（部分）数据</h1>
 
 <p>
-SQLite databases are remarkably robust.  Application faults and
-power failures typically leave the content of the database intact.
-However, it is possible to <a href="howtocorrupt.html">corrupt an SQLite database</a>.
-For example, hardware malfunctions can damage the database file, or a
-rogue process can open the database and overwrite parts of it.
-
+SQLite 数据库异常稳健。应用程序故障和电源中断通常不会破坏数据库的内容。尽管如此，仍然有可能<a href="howtocorrupt.html">损坏 SQLite 数据库</a>。例如，硬件故障可能会损坏数据库文件，或者某个异常进程可能打开数据库并覆盖其中的部分内容。
 </p><p>
-Given a corrupt database file, it is sometimes desirable to try to
-salvage as much data from the file as possible.  The recovery API
-is designed to facilitate this.
-
-</p><h2 id="limitations"><span>1.1. </span>Limitations</h2>
+面对损坏的数据库文件时，有时希望尽可能多地从中挽救数据。恢复 API 的设计就是为了便于完成这项工作。
+</p><h2 id="limitations"><span>1.1. </span>限制</h2>
 
 <p>
-It is sometimes possible to perfectly restore a database that has
-gone corrupt, but that is the exception.  Usually
-the recovered database will be defective in a number of ways:
-
+有时可以完美恢复已经损坏的数据库，但那只是例外。通常恢复后的数据库在多个方面都会存在瑕疵：
 </p><ul>
 <li><p>
-Some content might be permanently deleted and unrecoverable.
-This can happen, for example, if a rogue process overwrites part
-of the database file.
-
+部分内容可能永久丢失且无法恢复。比如某个异常进程覆盖了数据库文件的一部分时，就会发生这种情况。
 </p></li><li><p>
-Previously deleted content might reappear.  Normally when SQLite
-does a DELETE operation, it does not actually overwrite the old content
-but instead remembers that space is available for reuse during the next
-INSERT.  If such deleted content is still in the file when a recovery
-is attempted, it might be extracted and "resurrected".
-
+之前已删除的内容可能会重新出现。通常当 SQLite 执行 DELETE 操作时，它并不会真正覆盖旧内容，而是记住该空间可以在下一次 INSERT 时重用。如果在尝试恢复时此类已删除内容仍存在于文件中，就可能被提取出来并“复活”。
 </p></li><li><p>
-Recovered content might be altered.
-For example, the value stored in a particular row
-might change from 48 to 49.  Or it might change from an integer into
-a string or blob.  A value that was NULL might become an integer.
-A string value might become a BLOB.  And so forth.
-
+恢复得到的内容可能被修改。例如，某行中存储的值可能从 48 变成 49，或者从整数变成字符串或 BLOB。原本为 NULL 的值可能变成整数，字符串值可能变成 BLOB，以此类推。
 </p></li><li><p>
-Constraints may not be valid after recovery.  CHECK constraints, 
-FOREIGN KEY constraints, UNIQUE constraints, type constraints on
-<a href="stricttables.html">STRICT tables</a> - any of these might be violated in the recovered
-database.
-
+恢复之后约束可能不再有效。CHECK 约束、FOREIGN KEY 约束、UNIQUE 约束、<a href="stricttables.html">STRICT 表</a>上的类型约束——恢复后的数据库可能违反其中任意一项。
 </p></li><li><p>
-Content might be moved from one table into another.
+内容可能会从一个表移动到另一个表。
 </p></li></ul>
 
 <p>
-The recovery API does as good of a job as it can at restoring a database,
-but the results will always be suspect.  Sometimes (for example if the
-corruption is restricted to indexes) the recovery will perfectly restore
-the database content.  However in other cases, the recovery will be imperfect.
-The impact of this imperfection depends on the application.  A database that
-holds a list of bookmarks is still a list of bookmarks after recovery.
-A few bookmarks might be missing or added or altered after recovery, but
-the list is "fuzzy" and imperfect to begin with so adding a bit more
-uncertainty will not be fatal to the application.  But if an accounting
-database goes corrupt and is subsequently recovered, the books might be
-out of balance.
-
+恢复 API 会尽可能恢复数据库，但结果始终值得怀疑。有时（例如损坏仅限于索引）恢复可以完美地还原数据库内容。但在其他情况下，恢复可能并不完美。这种不完美的影响取决于应用场景。保存书签列表的数据库在恢复之后仍旧是书签列表。恢复后可能会缺失、添加或修改少数书签，但该列表本来就“模糊”且不完美，因此再增加一点不确定性通常不会对应用造成致命影响。但是如果会计数据库损坏后恢复，账目可能会不平衡。
 </p><p>
-It is best to think of the recovery API as a salvage undertaking.
-Recovery will extract as much usable data as it can from the wreck
-of the old database, but some parts may be damaged beyond repair and
-some rework and testing should be performed prior to returning the
-recovered database to service.
-
-</p><h1 id="recovery_using_the_recover_command_in_the_cli"><span>2. </span>Recovery Using The ".recover" Command In The CLI</h1>
+最好把恢复 API 看作一次打捞行动。恢复会从旧数据库的残骸中提取尽可能多的可用数据，但有些部分可能已经损坏得无法修复。在将恢复后的数据库投入使用前，应对其进行一些修复和测试。
+</p><h1 id="recovery_using_the_recover_command_in_the_cli"><span>2. </span>在 CLI 中使用“.recover”命令恢复</h1>
 
 <p>
-The easiest way to manually recover a corrupt database is using
-the <a href="cli.html">Command Line Interface</a> or "CLI" for SQLite.  The CLI is a program
-named "sqlite3".  Use it to recover a corrupt database file using
-a command similar to the following:
-
+手动恢复损坏数据库最简单的方法是使用 <a href="cli.html">命令行界面</a>（CLI）。SQLite 的 CLI 程序名为“sqlite3”。使用类似下面的命令从损坏的数据库文件中恢复数据：
 </p><div class="codeblock"><pre>sqlite3 corrupt.db .recover &gt;data.sql
 </pre></div>
 
 <p>
-This will generate SQL text in the file named "data.sql" that can be used
-to reconstruct the original database:
-
+这将会在名为“data.sql”的文件中生成 SQL 文本，可用于重新构建原始数据库：
 </p><div class="codeblock"><pre>sqlite3 recovered.db &lt;data.sql
 </pre></div>
 
 <p>
-The ".recover" option is actually a command that is issued to the
-CLI.  That command can accept arguments.  For example, by running:
-
+“.recover”选项实际上是一条发送给 CLI 的命令。该命令可以接受参数。例如，运行：
 </p><div class="codeblock"><pre>sqlite3 corruptdb ".recover --ignore-freelist" &gt;data.sql
 </pre></div>
 
 <p>
-Notice that the ".recover" command and its arguments must be contained
-in quotes.  The following options are supported:
-
+请注意，“.recover”命令及其参数必须包含在引号中。支持以下选项：
 </p><p>
 </p><blockquote>
 <dt>--ignore-freelist</dt>
 <dd><p>
-Ignore pages of the database that appear to be part of the
-freelist.  Normally the freelist is scanned, and if it contains
-pages that look like they have content, that content is output.
-But if the page really is on the freelist, that can mean that
-previously deleted information is reintroduced into the database.
+忽略看起来属于空闲列表（freelist）的数据库页。通常会扫描空闲列表，如果其中包含看起来有内容的页，就会输出这些内容。但如果该页确实在空闲列表中，这可能意味着之前被删除的信息会重新写回数据库。
 </p></dd>
 
 <dt>--lost-and-found <i>TABLE</i></dt>
 <dd><p>
-If content is found during recovery that cannot be associated
-with a particular table, it is put into the "lost_and_found"
-table.  Use this option to change the name of the
-"lost_and_found" table to "TABLE".
+如果在恢复过程中发现的内容无法关联到特定表，就会被放入“lost_and_found”表。使用此选项可将“lost_and_found”表的名称更改为“TABLE”。
 </p></dd>
 
 <dt>--no-rowids</dt>
 <dd><p>
-If this option is provided, then rowid values that are not also
-INTEGER PRIMARY KEY values are not extracted from the
-corrupt database.
+如果提供此选项，则不会从损坏的数据库中提取那些既不是 INTEGER PRIMARY KEY 的 rowid 值。
 </p></dd>
 
 </blockquote>
 
-<h1 id="building_the_recovery_api_into_an_application"><span>3. </span>Building The Recovery API Into An Application</h1>
+<h1 id="building_the_recovery_api_into_an_application"><span>3. </span>将恢复 API 集成到应用程序</h1>
 
-<h2 id="source_code_files"><span>3.1. </span>Source Code Files</h2>
+<h2 id="source_code_files"><span>3.1. </span>源代码文件</h2>
 
-<p>If you want to build the recovery API into your application, you will
-need to add some source files to your build, above and beyond the usual
-"sqlite3.c" and "sqlite3.h" source files.  You will need:
-
+<p>如果希望将恢复 API 集成到应用程序中，则除了常规的 “sqlite3.c” 和 “sqlite3.h” 源文件之外，还需要将一些源文件添加到构建中。需要的文件有：
 </p><p>
 </p><blockquote>
 <table border="0" cellpadding="20">
@@ -279,7 +219,7 @@ need to add some source files to your build, above and beyond the usual
 <td>
 <a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.c">sqlite3recover.c</a>
 </td><td>
-This is the main source file that implements the recovery API.
+这是实现恢复 API 的主源文件。
 </td>
 </tr>
 
@@ -287,7 +227,7 @@ This is the main source file that implements the recovery API.
 <td>
 <a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.h">sqlite3recover.h</a>
 </td><td>
-This is the header file that goes with sqlite3recover.h.
+这是与 sqlite3recover.h 搭配使用的头文件。
 </td>
 </tr>
 
@@ -295,81 +235,50 @@ This is the header file that goes with sqlite3recover.h.
 <td>
 <a href="https://sqlite.org/src/file/ext/recover/dbdata.c">dbdata.c</a>
 </td><td>
-This file implements two virtual tables name "sqlite_dbdata" and
-"sqlite_dbptr" that are required by sqlite3recover.c.
+该文件实现了名为 “sqlite_dbdata” 和 “sqlite_dbptr” 的两个虚拟表，sqlite3recover.c 需要它们。
 </td>
 </tr>
 </table>
 </blockquote>
 
 <p>
-The two C source files above need to be linked into your application in the
-same way as "sqlite3.c" is linked in.  And the header file needs to be
-accessible to the compiler when the C files are being compiled.
-
+上述两个 C 源文件需要以与 “sqlite3.c” 相同的方式链接到应用程序中。头文件在编译这些 C 文件时也必须能够被编译器访问。
 </p><p>
-Additionally, the application, or more specifically the sqlite3.c linked
-into the application, must be compiled with the following option:
+另外，应用程序，或更准确地说链接进去的 sqlite3.c，必须使用以下选项进行编译：
 </p><pre>
         -DSQLITE_ENABLE_DBPAGE_VTAB
 </pre>
 
-<h2 id="how_to_implement_recovery"><span>3.2. </span>How To Implement Recovery</h2>
+<h2 id="how_to_implement_recovery"><span>3.2. </span>如何实现恢复</h2>
 
-<p>These are the basic steps needed to recover content from a corrupt
-database:
-
+<p>从损坏的数据库中恢复内容的基本步骤如下：
 </p><ol>
 <li><p>
-Creates an sqlite3_recover handle by calling either
-sqlite3_recover_init() or sqlite3_recover_init_sql().
-Use sqlite3_recover_init() to store the recovered content
-in a separate database and use sqlite3_recover_init_sql()
-to generate SQL text that will reconstruct the database.
-
+通过调用 sqlite3_recover_init() 或 sqlite3_recover_init_sql() 创建一个 sqlite3_recover 句柄。使用 sqlite3_recover_init() 将恢复的内容存放到一个单独的数据库中，使用 sqlite3_recover_init_sql() 生成可重建数据库的 SQL 文本。
 </p></li><li><p>
-Make zero or more calls to sqlite3_recover_config() to set
-options on the new sqlite3_recovery handle.
-
+对新的 sqlite3_recovery 句柄进行零次或多次 sqlite3_recover_config() 调用，以设置选项。
 </p></li><li><p>
-Invoke sqlite3_recover_step() repeatedly
-until it returns something other than SQLITE_OK. If it
-returns SQLITE_DONE, then the recovery operation completed without 
-error. If it returns some other non-SQLITE_OK value, then an error 
-has occurred.  The sqlite3_recover_run() interface is also
-available as a convenience wrapper that simply invokes
-sqlite3_recover_step() repeatedly until it returns something other
-than SQLITE_DONE.
-
+重复调用 sqlite3_recover_step()，直到其返回不是 SQLITE_OK 的值。如果它返回 SQLITE_DONE，则恢复操作已无错误地完成。如果返回其他非 SQLITE_OK 值，则说明发生了错误。sqlite3_recover_run() 接口也可用，作为一个便利的包装，它会重复调用 sqlite3_recover_step()，直到返回不是 SQLITE_DONE 的值。
 </p></li><li><p>
-Retrieves any error code and English language error message using the
-sqlite3_recover_errcode() and sqlite3_recover_errmsg() interfaces,
-respectively.
-
+使用 sqlite3_recover_errcode() 和 sqlite3_recover_errmsg() 接口分别检索任何错误代码和英文错误消息。
 </p></li><li><p>
-Invoke sqlite3_recover_finish() to destroy the sqlite3_recover object.
+调用 sqlite3_recover_finish() 来销毁 sqlite3_recover 对象。
 </p></li></ol>
 
 <p>
-Details of the interface are described in comments in the
-<a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.h">sqlite3_recover.h header file</a>.
-
-</p><h2 id="example_implementations"><span>3.3. </span>Example Implementations</h2>
+接口的详细信息记录在 <a href="https://sqlite.org/src/file/ext/recover/sqlite3recover.h">sqlite3_recover.h 头文件</a> 的注释中。
+</p><h2 id="example_implementations"><span>3.3. </span>示例实现</h2>
 
 
 <p>
-Examples of how the recovery extension is used by SQLite itself
-can be seen at the following links:
-
+可以在以下链接看到 SQLite 本身使用恢复扩展的示例：
 </p><ul>
 <li><p><a href="https://sqlite.org/src/info/30475c820dc5ab8a8?ln=999,1026">https://sqlite.org/src/info/30475c820dc5ab8a8?ln=999,1026</a>
 </p><p>
-An example of the recovery extension found in the 
-"fuzzcheck" testing utility in the SQLite tree.
-
+恢复扩展在 SQLite 树中 “fuzzcheck” 测试实用程序中的示例。
 </p></li><li><p><a href="https://sqlite.org/src/info/84bb08d8762920285f08f1c0?ln=7299,7361">https://sqlite.org/src/info/84bb08d8762920285f08f1c0?ln=7299,7361</a>
 </p><p>
-The code that implements the ".recover" command in the <a href="cli.html">CLI</a>.
+CLI 中实现 “.recover” 命令的代码。
 </p></li></ul>
-<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
+<p align="center"><small><i>本页最后更新时间：2025-05-31 13:08:22Z </small></i></p>
 

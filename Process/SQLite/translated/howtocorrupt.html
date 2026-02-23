@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>How To Corrupt An SQLite Database File</title>
+<title>如何损坏SQLite数据库文件</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right; padding-right:1em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,43 +124,43 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-How To Corrupt An SQLite Database File
+如何损坏SQLite数据库文件
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#_file_overwrite_by_a_rogue_thread_or_process">1.  File overwrite by a rogue thread or process</a></div>
-<div class="fancy-toc2"><a href="#_continuing_to_use_a_file_descriptor_after_it_has_been_closed">1.1.  Continuing to use a file descriptor after it has been closed</a></div>
-<div class="fancy-toc2"><a href="#_backup_or_restore_while_a_transaction_is_active">1.2.  Backup or restore while a transaction is active</a></div>
-<div class="fancy-toc2"><a href="#_deleting_a_hot_journal">1.3.  Deleting a hot journal</a></div>
-<div class="fancy-toc2"><a href="#_mispairing_database_files_and_hot_journals_">1.4.  Mispairing database files and hot journals </a></div>
-<div class="fancy-toc1"><a href="#_file_locking_problems">2.  File locking problems</a></div>
-<div class="fancy-toc2"><a href="#_filesystems_with_broken_or_missing_lock_implementations">2.1.  Filesystems with broken or missing lock implementations</a></div>
-<div class="fancy-toc2"><a href="#_posix_advisory_locks_canceled_by_a_separate_thread_doing_close_">2.2.  Posix advisory locks canceled by a separate thread doing close()</a></div>
-<div class="fancy-toc2"><a href="#multiple_copies_of_sqlite_linked_into_the_same_application">2.3. Multiple copies of SQLite linked into the same application</a></div>
-<div class="fancy-toc2"><a href="#_two_processes_using_different_locking_protocols">2.4.  Two processes using different locking protocols</a></div>
-<div class="fancy-toc2"><a href="#_unlinking_or_renaming_a_database_file_while_in_use">2.5.  Unlinking or renaming a database file while in use</a></div>
-<div class="fancy-toc2"><a href="#_multiple_links_to_the_same_file">2.6.  Multiple links to the same file</a></div>
-<div class="fancy-toc2"><a href="#_carrying_an_open_database_connection_across_a_fork_">2.7.  Carrying an open database connection across a fork() </a></div>
-<div class="fancy-toc1"><a href="#_failure_to_sync">3.  Failure to sync</a></div>
-<div class="fancy-toc2"><a href="#_disk_drives_that_do_not_honor_sync_requests">3.1.  Disk drives that do not honor sync requests</a></div>
-<div class="fancy-toc2"><a href="#_disabling_sync_using_pragmas">3.2.  Disabling sync using PRAGMAs</a></div>
-<div class="fancy-toc1"><a href="#_disk_drive_and_flash_memory_failures">4.  Disk Drive and Flash Memory Failures</a></div>
-<div class="fancy-toc2"><a href="#_non_powersafe_flash_memory_controllers">4.1.  Non-powersafe flash memory controllers</a></div>
-<div class="fancy-toc2"><a href="#_fake_capacity_usb_sticks">4.2.  Fake capacity USB sticks</a></div>
-<div class="fancy-toc1"><a href="#_memory_corruption">5.  Memory corruption</a></div>
-<div class="fancy-toc1"><a href="#_other_operating_system_problems">6.  Other operating system problems</a></div>
-<div class="fancy-toc2"><a href="#_linux_threads">6.1.  Linux Threads</a></div>
-<div class="fancy-toc2"><a href="#_failures_of_mmap_on_qnx">6.2.  Failures of mmap() on QNX</a></div>
-<div class="fancy-toc2"><a href="#_filesystem_corruption">6.3.  Filesystem Corruption</a></div>
-<div class="fancy-toc1"><a href="#sqlite_configuration_errors">7. SQLite Configuration Errors</a></div>
-<div class="fancy-toc1"><a href="#_bugs_in_sqlite">8.  Bugs in SQLite</a></div>
-<div class="fancy-toc2"><a href="#_false_corruption_reports_due_to_database_shrinkage">8.1.  False corruption reports due to database shrinkage</a></div>
-<div class="fancy-toc2"><a href="#_corruption_following_switches_between_rollback_and_wal_modes">8.2.  Corruption following switches between rollback and WAL modes</a></div>
-<div class="fancy-toc2"><a href="#_i_o_error_while_obtaining_a_lock_leads_to_corruption">8.3.  I/O error while obtaining a lock leads to corruption</a></div>
-<div class="fancy-toc2"><a href="#_database_pages_leak_from_the_free_page_list">8.4.  Database pages leak from the free page list</a></div>
-<div class="fancy-toc2"><a href="#_corruption_following_alternating_writes_from_3_6_and_3_7">8.5.  Corruption following alternating writes from 3.6 and 3.7</a></div>
-<div class="fancy-toc2"><a href="#_race_condition_in_recovery_on_windows_systems">8.6.  Race condition in recovery on Windows systems</a></div>
-<div class="fancy-toc2"><a href="#_boundary_value_error_in_the_secondary_journals_used_by_nested_transactions">8.7.  Boundary value error in the secondary journals used by nested transactions</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#_file_overwrite_by_a_rogue_thread_or_process">1.  恶意线程或进程覆盖文件</a></div>
+<div class="fancy-toc2"><a href="#_continuing_to_use_a_file_descriptor_after_it_has_been_closed">1.1.  在文件描述符关闭后继续使用它</a></div>
+<div class="fancy-toc2"><a href="#_backup_or_restore_while_a_transaction_is_active">1.2.  在事务活动期间备份或恢复</a></div>
+<div class="fancy-toc2"><a href="#_deleting_a_hot_journal">1.3.  删除活动日志</a></div>
+<div class="fancy-toc2"><a href="#_mispairing_database_files_and_hot_journals_">1.4.  数据库文件与活动日志不匹配</a></div>
+<div class="fancy-toc1"><a href="#_file_locking_problems">2.  文件锁定问题</a></div>
+<div class="fancy-toc2"><a href="#_filesystems_with_broken_or_missing_lock_implementations">2.1.  锁实现有缺陷或缺失的文件系统</a></div>
+<div class="fancy-toc2"><a href="#_posix_advisory_locks_canceled_by_a_separate_thread_doing_close_">2.2.  另一个线程调用 close() 取消 POSIX 建议锁</a></div>
+<div class="fancy-toc2"><a href="#multiple_copies_of_sqlite_linked_into_the_same_application">2.3. 同一应用链接多份SQLite</a></div>
+<div class="fancy-toc2"><a href="#_two_processes_using_different_locking_protocols">2.4.  两个进程使用不同锁协议</a></div>
+<div class="fancy-toc2"><a href="#_unlinking_or_renaming_a_database_file_while_in_use">2.5.  使用时取消链接或重命名数据库文件</a></div>
+<div class="fancy-toc2"><a href="#_multiple_links_to_the_same_file">2.6.  同一文件的多个链接</a></div>
+<div class="fancy-toc2"><a href="#_carrying_an_open_database_connection_across_a_fork_">2.7.  在 fork() 过程中携带打开的数据库连接</a></div>
+<div class="fancy-toc1"><a href="#_failure_to_sync">3.  同步失败</a></div>
+<div class="fancy-toc2"><a href="#_disk_drives_that_do_not_honor_sync_requests">3.1.  不遵守同步请求的磁盘</a></div>
+<div class="fancy-toc2"><a href="#_disabling_sync_using_pragmas">3.2.  通过 PRAGMA 禁用同步</a></div>
+<div class="fancy-toc1"><a href="#_disk_drive_and_flash_memory_failures">4.  磁盘和闪存故障</a></div>
+<div class="fancy-toc2"><a href="#_non_powersafe_flash_memory_controllers">4.1.  非安全断电的闪存控制器</a></div>
+<div class="fancy-toc2"><a href="#_fake_capacity_usb_sticks">4.2.  虚假容量 USB 盘</a></div>
+<div class="fancy-toc1"><a href="#_memory_corruption">5.  内存损坏</a></div>
+<div class="fancy-toc1"><a href="#_other_operating_system_problems">6.  其他操作系统问题</a></div>
+<div class="fancy-toc2"><a href="#_linux_threads">6.1.  Linux 线程</a></div>
+<div class="fancy-toc2"><a href="#_failures_of_mmap_on_qnx">6.2.  QNX 上 mmap() 的失败</a></div>
+<div class="fancy-toc2"><a href="#_filesystem_corruption">6.3.  文件系统损坏</a></div>
+<div class="fancy-toc1"><a href="#sqlite_configuration_errors">7. SQLite 配置错误</a></div>
+<div class="fancy-toc1"><a href="#_bugs_in_sqlite">8.  SQLite 中的缺陷</a></div>
+<div class="fancy-toc2"><a href="#_false_corruption_reports_due_to_database_shrinkage">8.1.  数据库收缩导致的错误损坏报告</a></div>
+<div class="fancy-toc2"><a href="#_corruption_following_switches_between_rollback_and_wal_modes">8.2.  在回滚与 WAL 模式之间切换导致的损坏</a></div>
+<div class="fancy-toc2"><a href="#_i_o_error_while_obtaining_a_lock_leads_to_corruption">8.3.  获取锁时的 I/O 错误导致损坏</a></div>
+<div class="fancy-toc2"><a href="#_database_pages_leak_from_the_free_page_list">8.4.  数据库页从空闲页列表泄露</a></div>
+<div class="fancy-toc2"><a href="#_corruption_following_alternating_writes_from_3_6_and_3_7">8.5.  3.6 与 3.7 交替写入导致的损坏</a></div>
+<div class="fancy-toc2"><a href="#_race_condition_in_recovery_on_windows_systems">8.6.  Windows 系统恢复中的竞争条件</a></div>
+<div class="fancy-toc2"><a href="#_boundary_value_error_in_the_secondary_journals_used_by_nested_transactions">8.7.  嵌套事务次级日志的边界值错误</a></div>
 </div>
 </details>
 </div>
@@ -162,668 +168,509 @@ How To Corrupt An SQLite Database File
 
 
 
-<h2 style="margin-left:1.0em" notoc="1" id="overview"> Overview</h2> 
+<h2 style="margin-left:1.0em" notoc="1" id="overview"> 概述</h2> 
 
-<p>An SQLite database is highly resistant to corruption.
-If an application crash, or an operating-system crash, or even
-a power failure occurs in the middle of a transaction, the partially
-written transaction should be automatically rolled back the next time
-the database file is accessed.  The recovery process is fully
-automatic and does not require any action on the part of the user
-or the application.
+<p>SQLite 数据库对于损坏具有很高的抗性。
+如果在事务中发生应用崩溃、操作系统崩溃甚至断电，
+在下一次访问数据库文件时，部分写入的事务应该会自动回滚。
+恢复过程是完全自动的，不需要用户或应用的任何操作。
 </p>
 
-<p>Though SQLite is resistant to database corruption, it is not immune.
-This document describes the various ways that an SQLite database might
-go corrupt.</p>
+<p>虽然 SQLite 对数据库损坏具有抗性，但并非万无一失。
+本文档描述了 SQLite 数据库可能损坏的各种方式。</p>
 
-<h1 id="_file_overwrite_by_a_rogue_thread_or_process"><span>1. </span> File overwrite by a rogue thread or process</h1>
+<h1 id="_file_overwrite_by_a_rogue_thread_or_process"><span>1. </span> 恶意线程或进程覆盖文件</h1>
 
-<p>SQLite database files are ordinary disk files.
-That means that any process can open the file and 
-overwrite it with garbage.  There is nothing that the SQLite
-library can do to defend against this.</p>
+<p>SQLite 数据库文件是普通磁盘文件。
+这意味着任何进程都可以打开该文件，并用垃圾内容覆盖它。
+SQLite 库无法对此提供防护。</p>
 
 <a name="stalefd"></a>
 
-<h2 id="_continuing_to_use_a_file_descriptor_after_it_has_been_closed"><span>1.1. </span> Continuing to use a file descriptor after it has been closed</h2>
+<h2 id="_continuing_to_use_a_file_descriptor_after_it_has_been_closed"><span>1.1. </span> 在文件描述符关闭后继续使用它</h2>
 
-<p>We have seen multiple cases where a file descriptor was open on a file,
-then that file descriptor was closed and reopened on an SQLite database.
-Later, some other thread continued to write into the
-old file descriptor, not realizing that the original file had been closed
-already.  But because the file descriptor had been reopened by SQLite,
-the information that was intended to go into the original file ended up
-overwriting parts of the SQLite database, leading to corruption of the
-database.</p>
+<p>我们看到多个案例中，一个文件的文件描述符被打开，
+随后该文件描述符被关闭并在 SQLite 数据库上重新打开。
+之后，某个其他线程继续向旧的文件描述符写入数据，
+没有意识到原始文件已经关闭。
+但是因为 SQLite 已重新打开该文件描述符，
+原计划写入原始文件的信息最终覆盖了 SQLite 数据库的一部分，
+导致数据库损坏。</p>
 
-<p>One example of this occurred circa 2013-08-30 on the canonical repository
-for the <a href="http://www.fossil-scm.org/">Fossil DVCS</a>.  In that event,
-file descriptor 2 (standard error) was being erroneously closed (by
-<a href="http://www.stunnel.org/">stunnel</a>, we suspect) prior to 
-<a href="c3ref/open.html">sqlite3_open_v2()</a> so that the file descriptor used for the
-repository database file was 2.  Later, an application 
-bug caused an assert() statement to emit
-an error message by invoking write(2,...).  But since file descriptor 2 was 
-now connected to a database file, the error message
-overwrote part of the database.  To guard against this kind of problem,
-SQLite <a href="releaselog/3_8_1.html">version 3.8.1</a> (2013-10-17)
-and later refuse to use low-numbered file descriptors
-for database files. 
-(See <a href="compile.html#minimum_file_descriptor">SQLITE_MINIMUM_FILE_DESCRIPTOR</a> for additional information.)</p>
+<p>一个示例发生在 2013-08-30 左右，出现在
+<a href="http://www.fossil-scm.org/">Fossil DVCS</a> 的规范仓库中。
+在该事件中，文件描述符 2（标准错误）在
+<a href="http://www.stunnel.org/">stunnel</a>（我们推测）在
+<a href="c3ref/open.html">sqlite3_open_v2()</a> 之前错误地被关闭，
+因此用于仓库数据库文件的文件描述符是 2。
+后来，一个应用程序错误导致 assert() 语句通过调用 write(2,...) 输出错误信息。
+但是因为文件描述符 2 此时已连接到数据库文件，
+错误信息覆盖了数据库的一部分。为了防止此类问题，
+SQLite 从 <a href="releaselog/3_8_1.html">版本 3.8.1</a>（2013-10-17）起
+拒绝将低编号的文件描述符用于数据库文件。
+（更多信息见 <a href="compile.html#minimum_file_descriptor">SQLITE_MINIMUM_FILE_DESCRIPTOR</a>。）</p>
 
-<p>Another example of corruption caused by using a closed file
-descriptor was 
-<a href="https://code.facebook.com/posts/313033472212144/debugging-file-corruption-on-ios/">reported by facebook engineers</a> in a blog post on 2014-08-12.</p>
+<p>另一个因使用已关闭文件描述符而导致损坏的示例
+在 2014-08-12 由 <a href="https://code.facebook.com/posts/313033472212144/debugging-file-corruption-on-ios/">Facebook 工程师报告</a>。</p>
 
-<p>Another example of this error was reported against
-<a href="https://fossil-scm.org/">Fossil</a> on 2019-07-11.  A file descriptor would
-be opened for debugging output, but then closed and reopened by SQLite.
-But the debugging logic continued to write into the original file
-descriptor. See the
-<a href="https://fossil-scm.org/forum/forumpost/c51b9a1169">forum discussion</a>
-for the bug report and a link to the fix.
+<p>另一个错误示例在 2019-07-11 针对
+<a href="https://fossil-scm.org/">Fossil</a> 报告。一个文件描述符被打开用于调试输出，
+但随后被关闭并由 SQLite 重新打开。
+然而调试逻辑继续向原始文件描述符写入。
+参见<a href="https://fossil-scm.org/forum/forumpost/c51b9a1169">论坛讨论</a>了解该漏洞报告及修复链接。</p>
 
-</p><h2 id="_backup_or_restore_while_a_transaction_is_active"><span>1.2. </span> Backup or restore while a transaction is active</h2>
+<h2 id="_backup_or_restore_while_a_transaction_is_active"><span>1.2. </span> 在事务活动期间备份或恢复</h2>
 
-<p>Systems that run automatic backups in the background might try to
-make a backup copy of an SQLite database file while it is in the middle
-of a transaction.  The backup copy then might contain some old and some
-new content, and thus be corrupt.</p>
+<p>在后台运行自动备份的系统可能会试图在事务进行中
+复制 SQLite 数据库文件。
+备份副本可能包含旧内容和新内容，从而导致损坏。</p>
 
-<p>There are multiple safe approaches to making backup copies of
-SQLite databases - safe in the sense that they are generate a correct,
-uncorrupted backup.  In no particular order:
-
-</p><ol>
+<p>有多种安全的方法来复制 SQLite 数据库——安全是指生成正确且
+未损坏的备份。以下不分先后：</p>
+<ol>
 <li><p>
-      The <a href="rsync.html">sqlite3_rsync</a> utility program (available beginning with
-      SQLite 3.47.0 (2024-10-21) and later) will make a copy
-      of a live SQLite over SSH using a bandwidth-efficient protocol.
+      <a href="rsync.html">sqlite3_rsync</a> 工具程序（从 SQLite 3.47.0（2024-10-21）起提供）
+      将通过带宽高效的协议在 SSH 上复制正在运行的 SQLite 数据库。
+</p></li>
+<li><p>
+      <a href="lang_vacuum.html#vacuuminto">VACUUM INTO <i>filename</i></a> 命令将
+      当前 SQLite 数据库的状态复制到单独的文件中。
+</p></li>
+<li><p>
+      <a href="backup.html">备份 API</a> 是一个 C 语言接口，可以创建一致的 SQLite 数据库副本。
+</p></li>
+</ol>
 
-</p></li><li><p>
-      The <a href="lang_vacuum.html#vacuuminto">VACUUM INTO <i>filename</i></a> command copies out
-      the current state of an SQLite database into a separate file.
-
-</p></li><li><p>
-      The <a href="backup.html">backup API</a> is a C-language interface that can make a
-      consistent copy of an SQLite database.
-</p></li></ol>
-
-<p>
-Any of the above approaches will work even on a live database.
-It is also safe to make a copy of an SQLite database file
-as long as there are no transactions in progress while the copy
-is taking place.
-If the previous write transaction failed, then it is important that
-any rollback journal (the <tt>*-journal</tt> file) or write-ahead log
-(the <tt>*-wal</tt> file) be copied together with the database file
-itself.</p>
+<p>上述任一方法即使在数据库仍在运行时也适用。
+只要复制期间没有事务在进行，就可以安全地复制 SQLite 数据库文件。
+如果前一个写事务失败，那么必须确保任何回滚日志（<tt>*-journal</tt> 文件）
+或写前日志（<tt>*-wal</tt> 文件）与数据库文件一起被复制。</p>
 
 <a name="delhotjrnl"></a>
 
-<h2 id="_deleting_a_hot_journal"><span>1.3. </span> Deleting a hot journal</h2>
+<h2 id="_deleting_a_hot_journal"><span>1.3. </span> 删除活动日志</h2>
 
-<p>SQLite normally stores all content in a single disk file.  However,
-while performing a transaction, information necessary to recover the
-database following a crash or power failure is stored in auxiliary
-journal files.  Such journal files are described as <a href="fileformat2.html#hotjrnl">"hot"</a>.
-The journal files have the same name as the
-original database file with the addition
-of <tt>-journal</tt> or <tt>-wal</tt> suffix.</p>
+<p>SQLite 通常将所有内容存储在单个磁盘文件中。
+然而，在执行事务期间，用于在崩溃或断电后恢复数据库的信息
+会存储在辅助日志文件中。这样的日志文件被描述为
+<a href="fileformat2.html#hotjrnl">“活动”</a>。
+日志文件的名称与原数据库文件相同，仅加上
+<tt>-journal</tt> 或 <tt>-wal</tt> 后缀。</p>
 
-<p>SQLite must see the journal files in order to recover from a crash
-or power failure.  If the <a href="fileformat2.html#hotjrnl">hot journal files</a> are moved, deleted, or renamed
-after a crash or power failure, then automatic recovery will not work
-and the database may go corrupt.</p>
+<p>SQLite 必须看到这些日志文件才能在崩溃或断电后恢复。
+如果这些
+<a href="fileformat2.html#hotjrnl">活动日志文件</a> 在崩溃或断电后被移动、删除或重命名，
+则自动恢复无法进行，数据库可能损坏。</p>
 
-<p>Another manifestation of this problem is
-<a href="shortnames.html#db83corrupt">database corruption caused by inconsistent use of 8+3 filenames</a>.</p>
+<p>此问题的另一种表现为
+<a href="shortnames.html#db83corrupt">因 8+3 文件名使用不一致导致的数据库损坏</a>。</p>
 
 <a name="roguejrnl"></a>
 
-<h2 id="_mispairing_database_files_and_hot_journals_"><span>1.4. </span> Mispairing database files and hot journals </h2>
+<h2 id="_mispairing_database_files_and_hot_journals_"><span>1.4. </span> 数据库文件与活动日志不匹配</h2>
 
-<p> The previous example is a specific case of a more general problem:
-The state of an SQLite database is controlled by both the
-database file and the journal file.  In a quiescent state, the journal
-file does not exist and only the database file matters.
-But if the journal file does exist, it must be
-kept together with the database to avoid corruption.  The following
-actions are all likely to lead to corruption:
-</p><ul>
-<li> Swapping journal files between two different databases.
-</li><li> Overwriting a journal file with a different journal file.
-</li><li> Moving a journal file from one database to another.
-</li><li> Copying a database file without also copying its journal.
-</li><li> Overwriting a database file with another without also
-     deleting any hot journal associated with the original database.
-</li></ul>
+<p>前面的示例是一个更普遍问题的特例：
+SQLite 数据库的状态由数据库文件和日志文件共同控制。
+在静止状态下，日志文件不存在，只有数据库文件起作用。
+但如果日志文件存在，它必须与数据库一起保留以避免损坏。
+以下操作都可能导致损坏：</p>
+<ul>
+<li>在两个不同数据库间交换日志文件。</li>
+<li>用不同日志文件覆盖原有日志文件。</li>
+<li>将日志文件从一个数据库移动到另一个。</li>
+<li>复制数据库文件时未同时复制其日志。</li>
+<li>用另一个数据库文件覆盖原有文件却不删除原数据库的活动日志。</li>
+</ul>
 
-<h1 id="_file_locking_problems"><span>2. </span> File locking problems</h1>
+<h1 id="_file_locking_problems"><span>2. </span> 文件锁定问题</h1>
 
-<p>SQLite uses file locks on the database file, and on the 
-<a href="wal.html">write-ahead log</a> or <a href="wal.html">WAL</a> file, to coordinate access between concurrent
-processes.  Without coordination, two threads or processes might try
-to make incompatible changes to a database file at the same time,
-resulting in database corruption.</p>
+<p>SQLite 在数据库文件与
+<a href="wal.html">写前日志</a> 或 <a href="wal.html">WAL</a> 文件上使用文件锁，
+以协调并发进程之间的访问。
+若没有协调，两个线程或进程可能会同时对数据库文件进行不兼容的修改，从而导致损坏。</p>
 
-<h2 id="_filesystems_with_broken_or_missing_lock_implementations"><span>2.1. </span> Filesystems with broken or missing lock implementations</h2>
+<h2 id="_filesystems_with_broken_or_missing_lock_implementations"><span>2.1. </span> 锁实现有缺陷或缺失的文件系统</h2>
 
-<p>SQLite depends on the underlying filesystem to do locking as the
-documentation says it will.  But some filesystems contain bugs in their
-locking logic such that the locks do not always behave as advertised.
-This is especially true of network filesystems and NFS in particular.
-If SQLite is used on a filesystem where the locking primitives contain
-bugs, and if two or more threads or processes try to access the same
-database at the same time, then database corruption might result.</p>
+<p>SQLite 依赖底层文件系统按照文档所述执行锁定。
+但一些文件系统在锁定逻辑上存在缺陷，使得锁并不总是按预期工作。
+尤其是网络文件系统，尤其是 NFS。
+如果在有缺陷的锁原语的文件系统上使用 SQLite，并且两个或更多线程或进程同时尝试访问同一数据库，
+则可能导致数据库损坏。</p>
 
 <a name="posix_close_bug"></a>
 
-<h2 id="_posix_advisory_locks_canceled_by_a_separate_thread_doing_close_"><span>2.2. </span> Posix advisory locks canceled by a separate thread doing close()</h2>
+<h2 id="_posix_advisory_locks_canceled_by_a_separate_thread_doing_close_"><span>2.2. </span> 另一个线程调用 close() 取消 POSIX 建议锁</h2>
 
-<p>The default locking mechanism used by SQLite on unix platforms is
-POSIX advisory locking.  Unfortunately, POSIX advisory locking has design
-quirks that make it prone to misuse and failure. In particular, any
-thread in the same process with a file descriptor that is holding a POSIX
-advisory lock can override that lock using a different file descriptor.
-One particularly pernicious problem is that the <tt>close()</tt> system
-call will cancel all POSIX advisory locks on the same file for all
-threads and all file descriptors in the process.</p>
+<p>SQLite 在 unix 平台默认使用 POSIX 建议锁。
+不幸的是，POSIX 建议锁设计上有一些奇怪之处，容易被误用或失效。
+特别的是，任何在同一进程中持有文件描述符的线程，都可以使用另一个文件描述符覆盖该锁。
+一个特别恶性的情况是 <tt>close()</tt> 系统调用会取消该进程中所有线程和所有文件描述符对同一文件的 POSIX 建议锁。</p>
 
-<p>So, for example, suppose a multi-thread process has
-two or more threads with separate SQLite database connections to the
-same database file.  Then a third thread comes along and wants to read
-something out of that same database file on its own, without using the 
-SQLite library.  Maybe the third thread wants to make a backup copy
-of the database.  Or maybe the third thread is just trying to identify
-the file type and hences tries to read the first 16 bytes to determine
-if it really is an SQLite database.  Regardless of the reason,
-the third thread does an <tt>open()</tt>, a <tt>read()</tt> and then
-a <tt>close()</tt>.
-One would think this would be harmless.
-But the <tt>close()</tt> system call caused the
-locks held on the database by all the other threads to be dropped.  Those
-other threads have no way of knowing that their locks have just been
-trashed (POSIX does not provide any mechanism to determine this) and so
-they keep on running under the assumption that their locks are still valid.
-This can lead to two or more threads or processes trying to write to the
-database at the same time, resulting in database corruption.</p>
+<p>例如，假设一个多线程进程有两个或更多线程分别通过独立 SQLite 数据库连接访问同一数据库文件。
+然后第三个线程出现，希望在不使用 SQLite 库的情况下从同一数据库文件中读取内容。
+也许第三个线程想备份数据库，也许第三个线程只是试图识别文件类型，因此尝试读取前 16 个字节以确定它是否为 SQLite 数据库。
+无论原因如何，第三个线程调用 <tt>open()</tt>、<tt>read()</tt> 然后 <tt>close()</tt>。
+看起来这似乎无害。
+但 <tt>close()</tt> 系统调用会导致该数据库上所有其他线程持有的锁被释放。
+那些线程无法得知它们的锁刚被破坏（POSIX 不提供相关机制），
+因此它们继续假设锁仍然有效。
+这可能导致两个或更多线程或进程同时尝试写入数据库，从而导致数据库损坏。</p>
 
-<p>Note that it is perfectly safe for two or more threads to access the
-same SQLite database file using the SQLite library.  The unix drivers for
-SQLite know about the POSIX advisory locking quirks and work around them.
-This problem only arises when a thread tries to bypass the SQLite library
-and read the database file directly.</p>
+<p>注意：多个线程使用 SQLite 库访问同一数据库文件是完全安全的。
+SQLite 的 unix 驱动了解 POSIX 建议锁的问题并进行了规避。
+该问题仅在线程试图绕过 SQLite 库直接读取数据库文件时发生。</p>
 
-<p>Beginning with SQLite version 3.51.0 (2025-11-04), SQLite implements
-additional defenses to try to avoid problems caused by locks that are
-broken by <tt>close()</tt>.  These new defenses help when the database
-is in <a href="wal.html">WAL mode</a> and is being accessed from multiple processes.  But
-they are not a cure-all.  To avoid corruptions, developers should be
-careful to never use <tt>close()</tt> on an SQLite database file
-while one or more database connections are open, even in other threads.
+<p>从 SQLite <a href="releaselog/3_51_0.html">版本 3.51.0</a>（2025-11-04）起，
+SQLite 实现了额外防御措施，以尽量避免因 <tt>close()</tt> 破坏锁而导致的问题。
+这些新防御在数据库处于 <a href="wal.html">WAL 模式</a> 且被多个进程访问时有所帮助。
+但它们不是万能良方。
+为了避免损坏，开发者务必小心，切勿在一个或多个数据库连接仍打开时在任一线程中对 SQLite 数据库文件调用 <tt>close()</tt>。</p>
 
-</p><h2 id="multiple_copies_of_sqlite_linked_into_the_same_application"><span>2.3. </span>Multiple copies of SQLite linked into the same application</h2>
+<h2 id="multiple_copies_of_sqlite_linked_into_the_same_application"><span>2.3. </span> 同一应用链接多份SQLite</h2>
 
-<p>As pointed out in the previous section, SQLite takes steps to work
-around the quirks of POSIX advisory locking.  Part of that work-around involves
-keeping a global list (mutex protected) of open SQLite database files.
-But, if multiple copies of SQLite are linked into the same application,
-then there will be multiple instances of this global list.
-Database connections opened using one copy of the SQLite library
-will be unaware of database connections opened using the other copy,
-and will be unable to work around the POSIX advisory locking quirks.
-A <tt>close()</tt> operation on one connection might unknowingly 
-clear the locks on a different database connection, leading to database
-corruption.</p>
+<p>如前一节所述，SQLite 会采取措施规避 POSIX 建议锁的怪癖。
+其中一部分措施是维护一个全局列表（由互斥锁保护），列出所有已打开的 SQLite 数据库文件。
+但如果同一应用链接了多个 SQLite 副本，就会存在多个这样的全局列表。
+使用一个副本打开的数据库连接不会意识到使用另一副本打开的连接，
+也无法规避 POSIX 建议锁的问题。
+在一个连接上执行 <tt>close()</tt> 可能无意中清除了另一个连接上的锁，从而导致数据库损坏。</p>
 
-<p>The scenario above sounds far-fetched.
-But the SQLite developers are aware of at 
-least one commercial product that was released
-with exactly this bug.  The vendor came to the SQLite developers seeking
-help in tracking down some infrequent database corruption issues they were
-seeing on Linux and Mac.  The problem was eventually traced to the
-fact that the application was linking against two separate copies of SQLite.
-The solution was to change the application build procedures to link against
-just one copy of SQLite instead of two.</p>
+<p>上述场景听起来有些牵强。
+但 SQLite 开发者确实知道至少有一个商业产品正是因为该 bug 而发布。
+该厂商向 SQLite 开发者寻求帮助，追查在 Linux 和 Mac 上出现的偶发性数据库损坏问题。
+最终发现问题源于应用同时链接了两份 SQLite。
+解决方案是更改构建流程，只链接一份 SQLite 而不是两份。</p>
 
-<h2 id="_two_processes_using_different_locking_protocols"><span>2.4. </span> Two processes using different locking protocols</h2>
+<h2 id="_two_processes_using_different_locking_protocols"><span>2.4. </span> 两个进程使用不同锁协议</h2>
 
-<p>The default locking mechanism used by SQLite on unix platforms is
-POSIX advisory locking, but there are other options.  By selecting an
-alternative <a href="c3ref/vfs.html">sqlite3_vfs</a> using the <a href="c3ref/open.html">sqlite3_open_v2()</a> interface, an
-application can make use of other locking protocols that might be more
-appropriate to certain filesystems.  For example, dot-file locking might
-be selected for use in an application that has to run on an NFS filesystem
-that does not support POSIX advisory locking.</p>
+<p>SQLite 在 unix 平台默认使用 POSIX 建议锁，但还可以选择其他方式。
+通过使用 <a href="c3ref/open.html">sqlite3_open_v2()</a> 接口选择替代的
+<a href="c3ref/vfs.html">sqlite3_vfs</a>，应用可以使用可能更适合某些文件系统的锁协议。
+例如，在不能使用 POSIX 建议锁的 NFS 文件系统上运行的应用可能会选择点文件锁。</p>
 
-<p>It is important that all connections to the same database file use 
-the same locking protocol.
-If one application is using POSIX advisory locks and another application
-is using dot-file locking, then the two applications will not see each
-other's locks and will not be able to coordinate database access, possibly
-leading to database corruption.</p>
+<p>同一数据库文件的所有连接必须使用相同的锁协议。
+如果一个应用使用 POSIX 建议锁而另一个使用点文件锁，
+那么两个应用无法看到彼此的锁，也无法协调数据库访问，
+可能导致数据库损坏。</p>
 
 <a name="unlink"></a>
 
-<h2 id="_unlinking_or_renaming_a_database_file_while_in_use"><span>2.5. </span> Unlinking or renaming a database file while in use</h2>
+<h2 id="_unlinking_or_renaming_a_database_file_while_in_use"><span>2.5. </span> 使用时取消链接或重命名数据库文件</h2>
 
-<p>If two processes have open connections to the same database file and
-one process closes its connection, unlinks the file, then creates a new
-database file in its place with the same name and reopens the new file,
-then the two processes will be talking to different database files with 
-the same name.  (Note that this is only possible on Posix and Posix-like
-systems that permit a file to be unlinked while it is still open for
-reading and writing.  Windows does not allow this to occur.)
-Since rollback journals and WAL files are based on the name of the database
-file, the two different database files will share the same rollback
-journal or WAL file.  A rollback or recovery for one of the databases
-might use content from the other database, resulting in corruption.
-A similar problem occurs if a database file is renamed while it is
-opened and a new file is created with the old name.</p>
+<p>如果两个进程同时打开同一数据库文件，
+其中一个进程关闭连接、取消链接该文件，然后用相同名称创建新文件并重新打开它，
+那么这两个进程实际上访问的是不同的数据库文件但名称相同。
+（注意：这只可能发生在 Posix 或类似系统上，这些系统允许在文件仍被读写时取消链接。
+Windows 不允许这种情况。）
+由于回滚日志和 WAL 文件基于数据库文件名称，
+这两个不同数据库文件将共享相同的回滚日志或 WAL 文件。
+其中一个数据库的回滚或恢复可能使用来自另一个数据库的内容，
+导致损坏。
+如果在打开数据库文件时重命名它，并用旧名称创建一个新文件，会发生类似的问题。</p>
 
-<p>In other words, unlinking or renaming an open database file 
-results in behavior that is undefined and probably undesirable.</p>
+<p>换句话说，对打开的数据库文件执行取消链接或重命名会导致未定义且可能不受欢迎的行为。</p>
 
-<p>Beginning with SQLite <a href="releaselog/3_7_17.html">version 3.7.17</a> (2013-05-20),
-the unix OS interface will
-send SQLITE_WARNING messages to the <a href="errlog.html">error log</a> if a database file is unlinked
-while it is still in use.</p>
+<p>从 SQLite <a href="releaselog/3_7_17.html">版本 3.7.17</a>（2013-05-20）起，
+unix OS 接口如果在数据库文件仍在使用时取消链接它，会向
+<a href="errlog.html">错误日志</a>发送 SQLITE_WARNING 消息。</p>
 
 <a name="alias"></a>
 
-<h2 id="_multiple_links_to_the_same_file"><span>2.6. </span> Multiple links to the same file</h2>
+<h2 id="_multiple_links_to_the_same_file"><span>2.6. </span> 同一文件的多个链接</h2>
 
-<p>If a single database file has multiple links (either hard or soft links)
-then that is just another way of saying that the file has multiple names.
-If two or more processes open the database using different names, then
-they will use different rollback journals and WAL files.  That means that
-if one process crashes, the other process will be unable to recover the
-transaction in progress because it will be looking in the wrong place
-for the appropriate journal.</p>
+<p>如果单个数据库文件有多个链接（无论是硬链接还是软链接），
+那么这就意味着该文件有多个名称。
+如果两个或更多进程使用不同名称打开数据库，
+那么它们将使用不同的回滚日志和 WAL 文件。
+这意味着如果一个进程崩溃，另一个进程将无法恢复正在进行的事务，
+因为它将寻找错误的日志。</p>
 
-<p>In other words, opening and using a database file that has two or
-more names results in behavior that is undefined and probably undesirable.</p>
+<p>换句话说，打开并使用具有两个或更多名称的数据库文件将导致未定义且可能不受欢迎的行为。</p>
 
-<p>Beginning with SQLite <a href="releaselog/3_7_17.html">version 3.7.17</a> (2013-05-20),
-the unix OS interface will
-send SQLITE_WARNING messages to the <a href="errlog.html">error log</a> if a database file has 
-multiple hard links.</p>
+<p>从 SQLite <a href="releaselog/3_7_17.html">版本 3.7.17</a>（2013-05-20）起，
+unix OS 接口如果数据库文件有多个硬链接，会向
+<a href="errlog.html">错误日志</a>发送 SQLITE_WARNING 消息。</p>
 
-<p>Beginning with SQLite <a href="releaselog/3_10_0.html">version 3.10.0</a> (2016-01-06), 
-the unix OS interface will
-attempt to resolve symbolic links and open the database file by its
-canonical name.  Prior to version 3.10.0, opening a database file 
-through a symbolic link was similar to opening a database file
-that had multiple hard links and resulted in undefined behavior.</p>
+<p>从 SQLite <a href="releaselog/3_10_0.html">版本 3.10.0</a>（2016-01-06）起，
+unix OS 接口会尝试解析符号链接，并通过其规范名称打开数据库文件。
+在 3.10.0 之前，通过符号链接打开数据库文件类似于通过多个硬链接打开文件，行为未定义。</p>
 
 <a name="fork"></a>
 
-<h2 id="_carrying_an_open_database_connection_across_a_fork_"><span>2.7. </span> Carrying an open database connection across a fork() </h2>
+<h2 id="_carrying_an_open_database_connection_across_a_fork_"><span>2.7. </span> 在 fork() 过程中携带打开的数据库连接</h2>
 
-<p> Do not open an SQLite database connection, then fork(), then try
-to use that database connection in the child process.  All kinds of
-locking problems will result and you can easily end up with a corrupt
-database.  SQLite is not designed to support that kind of behavior.
-Any database connection that is used in a child process must be opened
-in the child process, not inherited from the parent.
+<p>不要打开 SQLite 数据库连接，然后 fork()，再在子进程中使用该连接。
+这会导致各种锁定问题，极易造成数据库损坏。
+SQLite 无法设计用于这种行为。
+任何在子进程中使用的数据库连接都必须在子进程中打开，而不是从父进程继承。</p>
 
-</p><p> Do not even call <a href="c3ref/close.html">sqlite3_close()</a> on a database connection from a
-child process if the connection was opened in the parent.  It is safe
-to close the underlying file descriptor, but the <a href="c3ref/close.html">sqlite3_close()</a>
-interface might invoke cleanup activities that will delete content out
-from under the parent, leading to errors and perhaps even database
-corruption.
+<p>即便如此，如果连接在父进程中打开，也不要在子进程中调用
+<a href="c3ref/close.html">sqlite3_close()</a>。
+关闭底层文件描述符是安全的，但 <a href="c3ref/close.html">sqlite3_close()</a> 可能会触发清理操作，
+从而删除父进程正在使用的内容，导致错误甚至数据库损坏。</p>
 
-</p><h1 id="_failure_to_sync"><span>3. </span> Failure to sync</h1>
+<h1 id="_failure_to_sync"><span>3. </span> 同步失败</h1>
 
-<p>In order to guarantee that database files are always consistent, SQLite
-will occasionally ask the operating system to flush all pending writes to
-persistent storage then wait for that flush to complete.  This is 
-accomplished using the <tt>fsync()</tt> system call under unix and
-<tt>FlushFileBuffers()</tt> under Windows.  We call this flush of
-pending writes a "sync".</p>
+<p>为了保证数据库文件始终一致，SQLite 会偶尔请求操作系统将所有待写内容刷新到持久存储，
+然后等待刷新完成。
+在 unix 上使用 <tt>fsync()</tt> 系统调用，在 Windows 上使用 <tt>FlushFileBuffers()</tt>。
+我们把这种待写刷新称为“同步”。</p>
 
-<p>Actually, if one is only concerned with atomic and consistent writes and
-is willing to forego durable writes, the sync operation does not need
-to wait until the content is completely stored on persistent media.  Instead,
-the sync operation can be thought of as an I/O barrier.  As long as all
-writes that occur before the sync are completed before any write that happens
-after the sync, no database corruption will occur.  If sync is operating as
-an I/O barrier and not as a true sync, then a power failure or system crash
-might cause one or more previously committed transactions to roll back
-(in violation of the "durable" property of "ACID") but the database will at
-least continue to be consistent, and that is what most people care about.</p>
+<p>实际上，如果只关心原子性与一致性，并且愿意放弃耐久性，
+同步操作无需等待内容完全写入持久介质。
+同步操作可以被视为 I/O 障碍。
+只要同步之前的所有写入在同步之后的任何写入发生之前完成，就不会发生数据库损坏。
+如果同步作为 I/O 障碍而非真正同步运行，
+那么断电或系统崩溃可能会使一个或多个先前提交的事务回滚
+（违反“ACID”中的“持久性”），但数据库至少仍将保持一致，
+而这正是多数人关心的。</p>
 
-<h2 id="_disk_drives_that_do_not_honor_sync_requests"><span>3.1. </span> Disk drives that do not honor sync requests</h2>
+<h2 id="_disk_drives_that_do_not_honor_sync_requests"><span>3.1. </span> 不遵守同步请求的磁盘</h2>
 
-<p>Unfortunately, most consumer-grade mass storage devices lie about
-syncing.  Disk drives will report that content is safely on persistent
-media as soon as it reaches the track buffer and before actually being
-written to oxide.  This makes the disk drives seem to operate faster
-(which is vitally important to the manufacturer so that they can show
-good benchmark numbers in trade magazines).  And in fairness, the lie
-normally causes no harm, as long as there is no power loss or hard reset
-prior to the track buffer actually being written to oxide.  But if a
-power loss or hard reset does occur, and if that results in content that
-was written after a sync reaching oxide while content written before
-the sync is still in a track buffer, then database corruption can occur.</p>
+<p>不幸的是，大多数消费级大容量存储设备都在同步方面撒谎。
+磁盘驱动器会在内容到达磁道缓冲区后而未写入氧化层之前，报告其已经安全存储在持久介质中。
+这使磁盘看似运行更快（对制造商而言非常重要，以便在行业期刊上展示优良基准）。
+公平地说，这种谎言通常不会造成伤害，只要在磁道缓冲区实际写入氧化层之前没有发生断电或硬复位。
+但如果断电或硬复位确实发生，且导致同步之后写入的内容已写入氧化层，
+而同步之前写入的内容仍在磁道缓冲区中，就可能导致数据库损坏。</p>
 
-<p>USB flash memory sticks seem to be especially pernicious liars 
-regarding sync requests.  One can easily see this by committing a large
-transaction to an SQLite database on a USB memory stick.  The COMMIT
-command will return relatively quickly, indicating that the memory stick
-has told the operating system and the operating system has told SQLite that
-all content is safely in persistent storage, and yet the LED on the end
-of the memory stick will continue flashing for several more seconds. 
-Pulling out the memory stick while the LED is still flashing will frequently
-result in database corruption.</p>
+<p>USB 闪存盘在同步请求方面尤其容易撒谎。
+可以通过向 USB 闪存盘上的 SQLite 数据库提交一个大事务来观察到这一点。
+COMMIT 命令返回较快，说明闪存告诉操作系统，操作系统又告诉 SQLite 所有内容已安全写入持久存储，
+但闪存盘尾部的 LED 灯会继续闪烁几秒钟。
+在 LED 仍闪烁时拔出闪存盘通常会导致数据库损坏。</p>
 
-<p>Note that SQLite must believe whatever the operating system and hardware
-tell it about the status of sync requests.  There is no way for SQLite to
-detect that either is lying and that writes might be occurring out-of-order.
-However, SQLite in <a href="wal.html">WAL mode</a> is far more forgiving of
-out-of-order writes than in the default rollback journal modes.  In WAL
-mode, the only time that a failed sync operation can cause database corruption
-is during a <a href="wal.html#ckpt">checkpoint</a> operation.  A sync failure during a COMMIT might
-result in loss of durability but not in a corrupt database file.  Hence,
-one line of defense against database corruption due to failed sync operations
-is to use SQLite in WAL mode and to checkpoint as infrequently as possible.</p>
+<p>请注意，SQLite 必须相信操作系统和硬件关于同步请求状态的信息。
+SQLite 无法检测它们是否在撒谎以及写入是否可能乱序。
+然而，在 <a href="wal.html">WAL 模式</a> 中的 SQLite 对乱序写入要宽容得多。
+在 WAL 模式中，唯一次同步失败可能导致数据库损坏的情况是在
+<a href="wal.html#ckpt">检查点</a> 操作期间。
+COMMIT 中的同步失败可能导致耐久性丢失，但不会导致数据库文件损坏。
+因此，应对同步失败导致数据库损坏的一条防线是使用 WAL 模式，并尽可能少做检查点。</p>
 
-<h2 id="_disabling_sync_using_pragmas"><span>3.2. </span> Disabling sync using PRAGMAs</h2>
+<h2 id="_disabling_sync_using_pragmas"><span>3.2. </span> 通过 PRAGMA 禁用同步</h2>
 
-<p>The sync operations that SQLite performs to help ensure integrity
-can be disabled at run-time using the <a href="pragma.html#pragma_synchronous">synchronous pragma</a>.  By setting
-PRAGMA synchronous=OFF, all sync operations are omitted.  This makes
-SQLite seem to run faster, but it also allows the operating system to freely
-reorder writes, which could result in database corruption if a power failure
-or hard reset occurs prior to all content reaching persistent storage.</p>
+<p>SQLite 为确保完整性所执行的同步操作可以通过
+<a href="pragma.html#pragma_synchronous">同步 PRAGMA</a> 在运行时禁用。
+将 PRAGMA synchronous=OFF 设置后，所有同步操作都会被省略。
+这使得 SQLite 运行得更快，但也允许操作系统随意重新排序写入，
+如果在所有内容到达持久存储之前发生断电或硬复位，可能会导致数据库损坏。</p>
 
-<p>For maximum reliability and for robustness against database corruption,
-SQLite should always be run with its default synchronous setting of FULL.</p>
+<p>为了获得最大可靠性和对数据库损坏的弹性，
+SQLite 应始终以默认的 FULL 同步设置运行。</p>
 
 <a name="hardwarefault"></a>
 
-<h1 id="_disk_drive_and_flash_memory_failures"><span>4. </span> Disk Drive and Flash Memory Failures</h1>
+<h1 id="_disk_drive_and_flash_memory_failures"><span>4. </span> 磁盘和闪存故障</h1>
 
-<p>An SQLite database can become corrupt if the file content changes 
-due to a disk drive or flash memory failure.  It is very rare, but disks 
-will occasionally flip a bit in the middle of a sector.</p>
+<p>如果文件内容因磁盘或闪存故障而发生变化，SQLite 数据库可能会损坏。
+这很罕见，但磁盘有时会在扇区中间翻转某一位。</p>
 
-<h2 id="_non_powersafe_flash_memory_controllers"><span>4.1. </span> Non-powersafe flash memory controllers</h2>
+<h2 id="_non_powersafe_flash_memory_controllers"><span>4.1. </span> 非安全断电的闪存控制器</h2>
 
-<p>We are told that in some flash memory controllers the wear-leveling logic
-can cause random filesystem damage if power is interrupted during a write.
-This can manifest, for example, as random changes in the middle of a file
-that was not even open at the time of the power loss.  So, for example,
-a device would be writing content into an MP3 file in flash memory when a
-power loss occurs, and that could result in an SQLite database being
-corrupted even though the database was not even in use at the time of the
-power loss.</p>
+<p>据说在某些闪存控制器中，如果写入过程中断电，磨损均衡逻辑可能会导致随机的文件系统损坏。
+这可能表现为文件中随机位置的变化，该文件当时甚至都没有被打开。
+例如，设备正在向闪存中的 MP3 文件写入内容时断电，
+则即便 SQLite 数据库未被使用，也可能被损坏。</p>
 
 <a name="fakeusb"></a>
 
-<h2 id="_fake_capacity_usb_sticks"><span>4.2. </span> Fake capacity USB sticks</h2>
+<h2 id="_fake_capacity_usb_sticks"><span>4.2. </span> 虚假容量 USB 盘</h2>
 
-<p>There are many fraudulent USB sticks in circulation that report to have
-a high capacity (ex: 8GB) but are really only capable of storing a much
-smaller amount (ex: 1GB).   Attempts to write on these devices will
-often result in unrelated files being overwritten.  Any use of a fraudulent
-flash memory device can easily lead to database corruption, therefore.
-Internet searches such as "fake capacity usb" will turn up lots of
-disturbing information about this problem.
+<p>市场上流通着许多声称具有高容量（如 8GB）但实际上只能存储更小容量（如 1GB）的诈欺 USB 盘。
+在这些设备上写入通常会覆盖其他文件。
+使用此类虚假闪存设备极易导致数据库损坏。
+搜索“fake capacity usb”可以找到大量关于该问题的令人不安的信息。</p>
 
-</p><h1 id="_memory_corruption"><span>5. </span> Memory corruption</h1>
+<h1 id="_memory_corruption"><span>5. </span> 内存损坏</h1>
 
-<p>SQLite is a C-library that runs in the same address space as the 
-application that it serves.  That means that stray pointers, buffer
-overruns, heap corruption, or other malfunctions in the application can
-corrupt internal SQLite data structure and ultimately result in a
-corrupt database file.  Normally these kinds of problems manifest themselves
-as segfaults prior to any database corruption occurring, but there have
-been instances where application code errors have caused SQLite to
-malfunction subtly so as to corrupt the database file rather than
-panicking.</p>
+<p>SQLite 是一个 C 库，运行于它所服务的应用的相同地址空间。
+这意味着应用中的野指针、缓冲区溢出、堆损坏或其他故障可能破坏 SQLite 的内部数据结构，最终产生损坏的数据库文件。
+通常这类问题会先表现为段错误，然后才导致数据库损坏，但也曾有应用代码错误使 SQLite 微妙地异常，导致数据库文件损坏而非崩溃。</p>
 
-<p>The memory corruption problem becomes more acute when
-using <a href="mmap.html">memory-mapped I/O</a>.
-When all or part of the database file is mapped into the application's
-address space, then a stray pointer that overwrites any part of that
-mapped space will immediately corrupt the database file, without
-requiring the application to do a subsequent write() system call.</p>
+<p>当使用 <a href="mmap.html">内存映射 I/O</a> 时，内存损坏问题更为严重。
+当数据库文件的全部或部分映射到应用地址空间后，任何野指针覆盖映射区域的任意部分都会立即损坏数据库文件，而无需应用再做写入系统调用。</p>
 
-<h1 id="_other_operating_system_problems"><span>6. </span> Other operating system problems</h1>
+<h1 id="_other_operating_system_problems"><span>6. </span> 其他操作系统问题</h1>
 
-<p>Sometimes operating systems will exhibit non-standard behavior which
-can lead to problems.  Sometimes this non-standard behavior is deliberate,
-and sometimes it is a mistake in the implementation.  But in any event,
-if the operating performs differently from they way SQLite expects it to
-perform, the possibility of database corruption exists.</p>
+<p>有时操作系统会表现出非标准行为，导致问题。
+有时这种非标准行为是故意的，有时是实现中的错误。
+但无论如何，如果操作系统的表现不同于 SQLite 期望的行为，就存在数据库损坏的可能性。</p>
 
-<h2 id="_linux_threads"><span>6.1. </span> Linux Threads</h2>
+<h2 id="_linux_threads"><span>6.1. </span> Linux 线程</h2>
 
-<p>Some older versions of Linux used the LinuxThreads library for thread
-support.  LinuxThreads is similar to Pthreads, but is subtly different
-with respect to handling of POSIX advisory locks.  SQLite versions
-2.2.3 through 3.6.23 recognized that LinuxThreads were being used at
-runtime and took appropriate action to work around the non-standard
-behavior of LinuxThreads.  But most modern Linux implementations make
-use of the newer, and correct, NPTL implementation of Pthreads.  Beginning
-with SQLite <a href="releaselog/3_7_0.html">version 3.7.0</a> (2010-07-21), the use of NPTL is assumed.
-No checks are 
-made.  Hence, recent versions of SQLite will subtly malfunction and may 
-corrupt database files if used in multi-threaded application that run
-on older linux systems that make use of LinuxThreads.</p>
+<p>一些较旧版本的 Linux 使用 LinuxThreads 库支持线程。
+LinuxThreads 类似于 Pthreads，但在处理 POSIX 建议锁方面稍有不同。
+SQLite 2.2.3 到 3.6.23 版本会在运行时检测到使用 LinuxThreads，并采取相应措施以应对其非标准行为。
+但大多数现代 Linux 实现使用更新的、正确的 NPTL 实现 Pthreads。
+从 SQLite <a href="releaselog/3_7_0.html">版本 3.7.0</a>（2010-07-21）起，默认使用 NPTL，不再检查。
+因此，较新版本的 SQLite 在运行于使用 LinuxThreads 的旧 Linux 系统的多线程应用中可能会表现异常并损坏数据库文件。</p>
 
-<h2 id="_failures_of_mmap_on_qnx"><span>6.2. </span> Failures of mmap() on QNX</h2>
+<h2 id="_failures_of_mmap_on_qnx"><span>6.2. </span> QNX 上 mmap() 的失败</h2>
 
-<p>There exists some subtle problem with mmap() on QNX such that making
-a second mmap() call against a single file descriptor can cause
-the memory obtained from the first mmap() call to be zeroed.  SQLite on
-unix uses mmap() to create a shared memory region for transaction 
-coordination in <a href="wal.html">WAL mode</a>, and it will call mmap() multiple times
-for large transactions.  The QNX mmap() has been demonstrated to corrupt
-database file under that scenario.  QNX engineers are aware of this problem
-and are working on a solution; the problem may have already been fixed by
-the time you read this.</p>
+<p>在 QNX 上，mmap() 存在一个微妙的问题：
+对同一个文件描述符进行第二次 mmap() 调用可能会导致第一次 mmap() 得到的内存被清零。
+Unix 下的 SQLite 使用 mmap() 为 <a href="wal.html">WAL 模式</a> 中的事务协调创建共享内存区域，
+并在处理大事务时多次调用 mmap()。
+已证实，在这种场景中 QNX 的 mmap() 会损坏数据库文件。
+QNX 工程师已意识到该问题并正在解决；在你阅读本文时问题可能已修复。</p>
 
-<p>When running on QNX, it is recommended that <a href="mmap.html">memory-mapped I/O</a> never
-be used.  Furthermore, to use <a href="wal.html">WAL mode</a>, it is recommended that applications
-employ the <a href="pragma.html#pragma_locking_mode">exclusive locking mode</a> in order to 
-use <a href="wal.html#noshm">WAL without shared memory</a>.
-
+<p>在 QNX 上运行时，建议不要使用 <a href="mmap.html">内存映射 I/O</a>。
+此外，如需使用 <a href="wal.html">WAL 模式</a>，建议应用采用
+<a href="pragma.html#pragma_locking_mode">独占锁模式</a>，以便使用
+<a href="wal.html#noshm">无共享内存的 WAL</a>。</p>
 
 <a name="fscorruption"></a>
 
-</p><h2 id="_filesystem_corruption"><span>6.3. </span> Filesystem Corruption</h2>
+<h2 id="_filesystem_corruption"><span>6.3. </span> 文件系统损坏</h2>
 
-<p>Since SQLite databases are ordinary disk files, any malfunction in the
-filesystem can corrupt the database.  Filesystems in modern operating systems
-are very reliable, but errors do still occur.  For example, on 2013-10-01
-the SQLite database that holds the
-<a href="http://wiki.tcl-lang.org/">Wiki for Tcl/Tk</a> went corrupt a few days
-after the host computer was moved to a dodgy build of the (linux) kernel
-that had issues in the filesystem layer.  In that event, the filesystem
-eventually became so badly corrupted that the machine was unusable, but
-the earliest symptom of trouble was the corrupted SQLite database.</p>
+<p>由于 SQLite 数据库是普通磁盘文件，任何文件系统故障都可能损坏数据库。
+现代操作系统中的文件系统非常可靠，但仍然会出错。
+例如，2013-10-01，保存
+<a href="http://wiki.tcl-lang.org/">Tcl/Tk 维基</a> 的 SQLite 数据库在托管计算机迁移到一个有文件系统层问题的（Linux）内核后几天就损坏了。
+当时文件系统最终损坏严重到无法使用，但最早的症状就是 SQLite 数据库损坏。</p>
 
 <a name="cfgerr"></a>
 
-<h1 id="sqlite_configuration_errors"><span>7. </span>SQLite Configuration Errors</h1>
+<h1 id="sqlite_configuration_errors"><span>7. </span> SQLite 配置错误</h1>
 
-<p>SQLite has many built-in protections against database corruption.
-But many of these protections can be disabled by configuration options.
-If protections are disabled, database corruption may occur.
+<p>SQLite 拥有许多内建保护来防止数据库损坏。
+但许多保护机制可以通过配置选项禁用。
+如果保护被禁用，则可能发生数据库损坏。</p>
 
-</p><p>The following are examples of disabling the built-in protection
-mechanisms of SQLite:
+<p>以下是禁用 SQLite 内建保护机制的一些示例：</p>
+<ul>
+<li><p>将 <a href="pragma.html#pragma_synchronous">PRAGMA synchronous=OFF</a> 设置为 OFF，
+在操作系统崩溃或断电时可能导致数据库损坏，尽管该设置对于应用崩溃是安全的。</p></li>
+<li><p>在其他数据库连接仍打开时更改 <a href="pragma.html#pragma_schema_version">PRAGMA schema_version</a>。</p></li>
+<li><p>使用 <a href="pragma.html#pragma_journal_mode">PRAGMA journal_mode=OFF</a> 或
+<a href="pragma.html#pragma_journal_mode">PRAGMA journal_mode=MEMORY</a>，
+并在写事务进行中发生应用崩溃。</p></li>
+<li><p>设置 <a href="pragma.html#pragma_writable_schema">PRAGMA writable_schema=ON</a>，然后通过 DML 语句更改数据库模式，
+如果操作不慎可能导致数据库完全不可读。</p></li>
+</ul>
 
-</p><ul>
-<li><p>Setting <a href="pragma.html#pragma_synchronous">PRAGMA synchronous=OFF</a> can cause the database to
-go corrupt if there is an operating-system crash or power failure,
-though this setting is safe from damage due to application crashes.
+<h1 id="_bugs_in_sqlite"><span>8. </span> SQLite 中的缺陷</h1>
 
-</p></li><li><p>Changing the <a href="pragma.html#pragma_schema_version">PRAGMA schema_version</a> while other database
-connections are open.
+<p>SQLite 经过
+<a href="testing.html">非常严格的测试</a>，以确保尽可能无缺陷。
+每个 SQLite 版本都有大量测试，用以模拟断电、I/O 错误和内存不足（OOM）错误，
+以验证在这些情况下不会发生数据库损坏。
+SQLite 在约二十亿个活跃部署中也得到了实地验证，没有出现严重问题。</p>
 
-</p></li><li><p>Using <a href="pragma.html#pragma_journal_mode">PRAGMA journal_mode=OFF</a> or <a href="pragma.html#pragma_journal_mode">PRAGMA journal_mode=MEMORY</a>
-and taking an application crash in the middle of a write transaction.
+<p>尽管如此，没有软件是百分之百完美的。
+SQLite 曾有一些历史缺陷（现已修复），可能导致数据库损坏。
+也许仍有未发现的问题。
+由于 SQLite 广泛测试与广泛使用，导致数据库损坏的缺陷往往非常隐蔽。
+应用遇到 SQLite 缺陷的概率很小。
+为了说明这一点，下面给出了一个帐目，
+列出了在 2009-04-01 至 2013-04-15 四年期间发现的所有数据库损坏缺陷。
+这份帐目应该能让读者直观理解那些成功躲过测试并进入发行版的 SQLite 缺陷类型。</p>
 
-</p></li><li><p>Setting <a href="pragma.html#pragma_writable_schema">PRAGMA writable_schema=ON</a> and then changing the
-database schema using DML statements can render the database completely
-unreadable, if not done carefully.
-</p></li></ul>
+<h2 id="_false_corruption_reports_due_to_database_shrinkage"><span>8.1. </span> 数据库收缩导致的错误损坏报告</h2>
 
-<h1 id="_bugs_in_sqlite"><span>8. </span> Bugs in SQLite</h1>
+<p>如果一个数据库先由 SQLite 3.7.0 或更高版本写入，
+然后以某种方式被 SQLite 3.6.23 或更早版本再次写入，使数据库文件大小减小，
+那么下次 SQLite 3.7.0 访问该文件时，可能会报告数据库文件已损坏。
+然而数据库文件实际上并未损坏。
+只是 3.7.0 版本在损坏检测上过于激进。</p>
 
-<p>SQLite is <a href="testing.html">very carefully tested</a> to help ensure that it is
-as bug-free as possible.  Among the many tests that are carried out for
-every SQLite version are tests that simulate power failures, I/O errors,
-and out-of-memory (OOM) errors to verify that no database corruption occurs
-during any of these events.  SQLite is also field-proven with approximately
-two billion active deployments with no serious problems.</p>
+<p>该问题于 2011-02-20 解决。
+修复首次出现在 SQLite <a href="releaselog/3_7_6.html">版本 3.7.6</a>（2011-04-12）。</p>
 
-<p>Nevertheless, no software is 100% perfect.  There have been a few
-historical bugs in SQLite (now fixed) that could cause database corruption.
-And there may be yet a few more that remain undiscovered.  Because of the
-extensive testing and widespread use of SQLite, bugs that result in
-database corruption tend to be very obscure.  The likelihood
-of an application encountering an SQLite bug is small.  To illustrate this,
-an account is given below 
-of all database-corruption bugs found in SQLite during the
-four-year period from 2009-04-01 to 2013-04-15.
-This account should give the reader an intuitive sense of the
-kinds of bugs in SQLite that manage to slip through testing procedures
-and make it into a release.</p>
+<h2 id="_corruption_following_switches_between_rollback_and_wal_modes"><span>8.2. </span> 在回滚与 WAL 模式之间切换导致的损坏</h2>
 
+<p>在单个线程或进程中反复在 <a href="wal.html">WAL 模式</a> 和普通模式之间切换，
+并在切换间运行 <a href="lang_vacuum.html">VACUUM</a> 命令，
+可能会导致另一个进程或线程在其打开数据库的同时未察觉数据库已更改。
+该进程或线程随后可能尝试使用过时缓存修改数据库，
+从而导致损坏。</p>
 
-<h2 id="_false_corruption_reports_due_to_database_shrinkage"><span>8.1. </span> False corruption reports due to database shrinkage</h2>
+<p>该问题在内部测试中发现，未曾在实际环境中观察到。
+问题于 2011-01-27 被发现，并在版本 3.7.5 中修复。</p>
 
-<p>If a database is written by SQLite version 3.7.0 or later and then
-written again by SQLite version 3.6.23 or earlier in such a way as to
-make the size of the database file decrease, then the next time that
-SQLite version 3.7.0 accesses the database file, it might report that the
-database file is corrupt.  The database file is not really corrupt, however.
-Version 3.7.0 was simply being overly zealous in its corruption detection.</p>
+<h2 id="_i_o_error_while_obtaining_a_lock_leads_to_corruption"><span>8.3. </span> 获取锁时的 I/O 错误导致损坏</h2>
 
-<p>The problem was fixed on 2011-02-20.  The fix first appears in
-SQLite <a href="releaselog/3_7_6.html">version 3.7.6</a> (2011-04-12).</p>
+<p>如果操作系统在尝试获取 <a href="wal.html">WAL 模式</a> 中共享内存的某个锁时返回 I/O 错误，
+则 SQLite 可能无法重置其缓存，
+如果随后尝试写入，可能导致数据库损坏。</p>
 
-<h2 id="_corruption_following_switches_between_rollback_and_wal_modes"><span>8.2. </span> Corruption following switches between rollback and WAL modes</h2>
+<p>请注意，该问题仅在获取锁的尝试返回 I/O 错误时发生。
+如果锁只是未被授予（因为另一个线程或进程已经持有冲突锁），则永远不会发生损坏。
+我们不知道有哪个操作系统在尝试获取共享内存文件锁时会以 I/O 错误失败。
+因此这是一个理论问题，而非现实问题。
+可以肯定的是，该问题从未在实际环境中观察到。
+该问题是在使用模拟 I/O 错误的测试平台进行 SQLite 压力测试时发现的。</p>
 
-<p>Repeatedly switching an SQLite database in and out of <a href="wal.html">WAL mode</a>
-and running the <a href="lang_vacuum.html">VACUUM</a> command in between switches, in one process or
-thread, can cause another process or thread that has the database file
-open to miss the fact that the database has changed.  That second process
-or thread might then try to modify the database using a stale cache and
-cause database corruption.</p>
+<p>该问题在 2010-09-20 被修复，针对 SQLite 版本 3.7.3。</p>
 
-<p>This problem was discovered during internal testing and has never been
-observed in the wild.  The problem was fixed on 2011-01-27 and in version
-3.7.5.</p>
+<h2 id="_database_pages_leak_from_the_free_page_list"><span>8.4. </span> 数据库页从空闲页列表泄露</h2>
 
-<h2 id="_i_o_error_while_obtaining_a_lock_leads_to_corruption"><span>8.3. </span> I/O error while obtaining a lock leads to corruption</h2>
+<p>当从 SQLite 数据库中删除内容时，不再使用的页面会加入空闲列表，
+并被后续插入重用。
+存在于 SQLite 3.6.16 到 3.7.2 版本中的一个错误可能导致在使用
+<a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a> 时，
+空闲列表中的页面丢失。
+这不会导致数据丢失，但会导致数据库文件比必要的要大。
+并且会导致 <a href="pragma.html#pragma_integrity_check">integrity_check pragma</a> 报告空闲列表中缺失页面。
+</p>
 
-<p>If the operating system returns an I/O error while attempting to obtain
-a certain lock on shared memory in <a href="wal.html">WAL mode</a> then SQLite might fail 
-to reset its cache,
-which could lead to database corruption if subsequent writes are attempted.</p>
+<p>该问题在 2010-08-23 被修复，针对 SQLite 版本 3.7.2。</p>
 
-<p>Note that this problem only occurs if the attempt to acquire the lock
-resulted in an I/O error.  If the lock is simply not granted (because some
-other thread or process is already holding a conflicting lock) then no
-corruption will ever occur.  We are not aware of any operating systems that
-will fail with an I/O error while attempting to get a file lock on shared
-memory.  So this is a theoretical problem rather than a real problem.
-Needless to say, this problem has never been observed in the wild.  The
-problem was discovered while doing stress testing of SQLite in a test
-harness that simulates I/O errors.</p>
+<h2 id="_corruption_following_alternating_writes_from_3_6_and_3_7"><span>8.5. </span> 3.6 与 3.7 交替写入导致的损坏</h2>
 
-<p>This problem was fixed on 2010-09-20 for SQLite version 3.7.3.</p>
+<p>SQLite 3.7.0 版本在 SQLite 数据库文件格式上引入了许多新特性（例如但不限于 <a href="wal.html">WAL</a>）。
+3.7.0 是这些新特性的试运行版本。
+我们预期会发现问题，也确实发现了。</p>
 
-<h2 id="_database_pages_leak_from_the_free_page_list"><span>8.4. </span> Database pages leak from the free page list</h2>
+<p>如果数据库最初由 SQLite 3.7.0 创建，
+然后由 SQLite 3.6.23.1 写入，使数据库文件大小增加，
+再由 SQLite 3.7.0 写入，
+则数据库文件可能会损坏。</p>
 
-<p>When content is deleted from an SQLite database, pages that are no
-longer used are added to a free list and are reused to hold content
-added by subsequent inserts.  A bug in SQLite that was present in
-version 3.6.16 through 3.7.2 might cause pages to go missing out of
-the free list when <a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a> was used.  This would not cause
-data loss.  But it would result in the database file being larger than
-necessary.  And it would cause the <a href="pragma.html#pragma_integrity_check">integrity_check pragma</a> to report
-pages missing from the free list.</p>
+<p>该问题在 2010-08-04 被修复，针对 SQLite 版本 3.7.1。</p>
 
-<p>This problem was fixed on 2010-08-23 for SQLite version 3.7.2.</p>
+<h2 id="_race_condition_in_recovery_on_windows_systems"><span>8.6. </span> Windows 系统恢复中的竞争条件</h2>
 
-<h2 id="_corruption_following_alternating_writes_from_3_6_and_3_7"><span>8.5. </span> Corruption following alternating writes from 3.6 and 3.7</h2>
-
-<p>SQLite version 3.7.0 introduced a number of new enhancements to
-the SQLite database file format (such as but not limited to <a href="wal.html">WAL</a>).
-The 3.7.0 release was a shake-out release for these new features.
-We expected to find problems and were not disappointed.</p>
-
-<p>If a database were originally created using SQLite version 3.7.0,
-then written by SQLite version 3.6.23.1 such that the size of the database
-file increased, then written again by SQLite version 3.7.0, the database
-file could go corrupt.</p>
-
-<p>This problem was fixed on 2010-08-04 for SQLite version 3.7.1.</p>
-
-<h2 id="_race_condition_in_recovery_on_windows_systems"><span>8.6. </span> Race condition in recovery on Windows systems</h2>
-
-<p>SQLite version 3.7.16.2 fixes a subtle race condition in the locking
-logic on Windows systems.  When a database file is in need
-of recovery because the previous process writing to it crashed in the
-middle of a transaction and two or more processes try to open the 
-that database at the same time, then the race condition might cause
-one of those processes to get a false indication that the recovery 
-has already completed, allowing that process to continue using the
-database file without running recovery first.  If that process writes
-to the file, then the file might go corrupt.  This race condition
-had apparently existed in all prior versions of SQLite for Windows going
-back to 2004.  But the race was very tight.  Practically speaking, you
-need a fast multi-core machine in which you launch two processes to run
-recovery at the same moment on two separate cores.  This defect was
-on Windows systems only and did not affect the posix OS interface.</p>
+<p>SQLite 3.7.16.2 修复了 Windows 系统锁定逻辑中的一个微妙竞争条件。
+当数据库文件需要恢复（前一个写入该文件的进程在事务中途崩溃），
+且两个或更多进程同时尝试打开该数据库时，竞争条件可能导致其中一个进程错误地认为恢复已完成，从而继续使用该数据库而未先运行恢复。
+如果该进程写入文件，则可能导致文件损坏。
+此竞争条件从 2004 年起在所有旧版本 Windows 的 SQLite 中存在。
+但竞争窗口非常狭窄。
+实际上，你需要在一台快速多核机器上同时在两个核心上启动两个进程运行恢复。
+此缺陷仅影响 Windows 系统，不影响 posix OS 接口。</p>
 
 <a name="svptbug"></a>
 
-<h2 id="_boundary_value_error_in_the_secondary_journals_used_by_nested_transactions"><span>8.7. </span> Boundary value error in the secondary journals used by nested transactions</h2>
+<h2 id="_boundary_value_error_in_the_secondary_journals_used_by_nested_transactions"><span>8.7. </span> 嵌套事务次级日志的边界值错误</h2>
 
-<p>When a nested transaction is started using <a href="lang_savepoint.html">SAVEPOINT</a>, SQLite uses
-a secondary rollback journal to track the changes for the nested
-transaction, in case the inner transaction needs to be rolled back.  Secondary
-journals are not involved in protecting the database from corruption due
-to program crashes or power outages.  The secondary journals only come into
-play when rolling back an inner transaction of a nested transaction.
+<p>当使用 <a href="lang_savepoint.html">SAVEPOINT</a> 启动嵌套事务时，
+SQLite 使用次级回滚日志来追踪嵌套事务的变更，以便在需要回滚内部事务时使用。
+次级日志并不用于在程序崩溃或断电时保护数据库。
+它们仅在回滚嵌套事务的内部事务时发挥作用。</p>
 
-</p><p>These secondary journals can be held either in memory or as temporary
-files on disk.  The default behavior is to store them on disk.  But that 
-can be changed using the <a href="compile.html#temp_store">-DSQLITE_TEMP_STORE</a> compile-time option,
-or at run-time using the <a href="pragma.html#pragma_temp_store">PRAGMA temp_store</a> statement.  The bug
-only arises when secondary journals are held in memory.
+<p>这些次级日志可以保存在内存中，也可以作为磁盘临时文件。
+默认行为是在磁盘上存储。
+但可以通过编译时选项 <a href="compile.html#temp_store">-DSQLITE_TEMP_STORE</a>
+或运行时的 <a href="pragma.html#pragma_temp_store">PRAGMA temp_store</a> 更改。
+该缺陷仅在次级日志保存在内存中时出现。</p>
 
-</p><p>In SQLite <a href="releaselog/3_35_0.html">version 3.35.0</a> (2021-03-12), a new optimization was
-added so that when SQLite is holding secondary journals in memory,
-less memory will be used. Unfortunately, a boundary check in
-the new logic was coded incorrectly.
-What should have been a "&lt;" operator was coded as "&lt;=".  This
-error might cause the secondary journal to enter an inconsistent state
-if it is ever rolled back.  If additional changes are made and the
-outer transaction eventually commits, the database might be left in
-an inconsistent state.
+<p>在 SQLite <a href="releaselog/3_35_0.html">版本 3.35.0</a>（2021-03-12）中，
+添加了一个新优化：当 SQLite 在内存中保存次级日志时，会使用更少的内存。
+不幸的是，新逻辑中的边界检查写错了。
+本应是 “&lt;” 的地方写成了 “&lt;=”。
+该错误可能导致次级日志在回滚时进入不一致状态。
+如果之后有更多改变并且外层事务最终提交，数据库可能会处于不一致状态。</p>
 
-</p><p>This problem was discovered by an 
-<a href="https://sqlite.org/forum/forumpost/b03d86f9516cb3a2">independent researcher</a>
-who was attempting to find bugs in SQLite using a fuzzer.  The fuzzer found a
-failure in an <a href="assert.html">assert() statement</a> that is used
-to help verify the internal state of the secondary journal.  The bug was a
-sufficiently obscure corner-case that it might have gone unnoticed for many
-years, had it not been for the intensive use of assert() statements in SQLite,
-the persistence and tenacity of the security researchers, and their
-customized state-of-the-art fuzzer.
+<p>该问题由一位
+<a href="https://sqlite.org/forum/forumpost/b03d86f9516cb3a2">独立研究人员</a>发现，
+他使用模糊测试器搜索 SQLite 缺陷。
+模糊测试器触发了一个用于验证次级日志内部状态的
+<a href="assert.html">assert()</a> 语句失败。
+该缺陷属于极其隐蔽的边界情况，如果不是因为 SQLite 中广泛使用的 assert() 语句、
+安全研究人员坚持不懈，以及他们定制的尖端模糊测试器，可能多年都不会被发现。</p>
 
-</p><p>This problem was <a href="https://sqlite.org/src/info/73c2b50211d3ae26">fixed</a>
-in <a href="releaselog/3_37_2.html">version 3.37.2</a> (2022-01-06).
-</p><p align="center"><small><i>This page was last updated on 2025-11-13 07:12:58Z </small></i></p>
-
+<p>该问题在 <a href="https://sqlite.org/src/info/73c2b50211d3ae26">修复提交</a>
+在 <a href="releaselog/3_37_2.html">版本 3.37.2</a>（2022-01-06）中被修复。</p>
+<p align="center"><small><i>本页面最后更新于 2025-11-13 07:12:58Z </i></small></p>

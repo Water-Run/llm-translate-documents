@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translate-credit desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。<br>任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -127,12 +133,10 @@ Indexes On Expressions
 
 
 <p>
-Normally, an SQL index references columns of a table.  But an index
-can also be formed on expressions involving table columns.
+通常，SQL 索引引用表的列。但索引也可以建立在包含表列的表达式上。
 
 </p><p>
-As an example, consider the following table that tracks
-dollar-amount changes on various "accounts":
+例如，考虑下列表记录各种“账户”的美元金额变动：
 
 </p><div class="codeblock"><pre>CREATE TABLE account_change(
   chng_id INTEGER PRIMARY KEY,
@@ -146,120 +150,78 @@ CREATE INDEX acctchng_magnitude ON account_change(acct_no, abs(amt));
 </pre></div>
 
 <p>
-Each entry in the account_change table records a deposit or a withdrawal
-into an account.  Deposits have a positive "amt" and withdrawals have
-a negative "amt".
+account_change 表中的每条记录都记录账户的存款或取款。存款的 amt 为正，取款的 amt 为负。
 
 </p><p>
-The acctchng_magnitude index is over the account number ("acct_no") and
-on the absolute value of the amount.  This index allows one to do 
-efficient queries over the magnitude of a change to the account.
-For example, to list all changes to account number $xyz that are
-more than $100.00, one can say:
-
+acctchng_magnitude 索引覆盖账户编号（acct_no）和金额的绝对值。该索引可以针对变动幅度进行高效查询。例如，若要列出账户编号为 $xyz 的所有超过 $100.00 的变动，可以写：
 
 </p><div class="codeblock"><pre>SELECT * FROM account_change WHERE acct_no=$xyz AND abs(amt)>=10000;
 </pre></div>
 
 <p>
-Or, to list all changes to one particular account ($xyz) in order of
-decreasing magnitude, one can write:
+或者，要按变动幅度递减顺序列出某个特定账户（$xyz）的所有变动，可以这样写：
 
 </p><div class="codeblock"><pre>SELECT * FROM account_change WHERE acct_no=$xyz
  ORDER BY abs(amt) DESC;
 </pre></div>
 
 <p>
-Both of the above example queries would work fine without the
-acctchng_magnitude index.
-The acctchng_magnitude index merely helps the queries to run
-faster, especially on databases where there are many entries in
-the table for each account.
+上述示例查询即使没有 acctchng_magnitude 索引也能正常工作。acctchng_magnitude 索引只不过是让查询运行得更快，特别是在每个账户在表中有很多记录的数据库上。
 
-</p><h1 id="how_to_use_indexes_on_expressions"><span>1. </span>How To Use Indexes On Expressions</h1>
+</p><h1 id="how_to_use_indexes_on_expressions"><span>1. </span>如何使用表达式索引</h1>
 
 <p>
-Use a <a href="lang_createindex.html">CREATE INDEX</a> statement to create a new index on one or more
-expressions just like you would to create an index on columns.  The only
-difference is that expressions are listed as the elements to be indexed
-rather than column names.
+使用 <a href="lang_createindex.html">CREATE INDEX</a> 语句像创建列索引一样在一个或多个表达式上创建新索引。唯一的区别是要索引的元素是表达式而不是列名。
 
 </p><p>
-The SQLite query planner will consider using an index on an expression
-when the expression that is indexed appears in the WHERE clause or in
-the ORDER BY clause of a query, <i>exactly</i> as it is written in the
-CREATE INDEX statement.  The query planner does not do algebra.  In order
-to match WHERE clause constraints and ORDER BY terms to indexes, SQLite
-requires that the expressions be the same, except for minor syntactic
-differences such as white-space changes.  So if you have:
+当索引的表达式在查询的 WHERE 子句或 ORDER BY 子句中以 CREATE INDEX 语句中书写的 <i>完全相同</i> 方式出现时，SQLite 查询优化器才会考虑使用表达式索引。查询优化器不会做代数运算。为了将 WHERE 约束和 ORDER BY 项匹配到索引，SQLite 要求表达式相同，除了诸如空白字符差异等细微语法差异。所以如果你有：
 
 </p><div class="codeblock"><pre>CREATE TABLE t2(x,y,z);
 CREATE INDEX t2xy ON t2(x+y);
 </pre></div>
 
 <p>
-And then you run the query:
+然后你运行查询：
 
 </p><div class="codeblock"><pre>SELECT * FROM t2 WHERE y+x=22;
 </pre></div>
 
 <p>
-Then the index will <u>not</u> be used because 
-the expression on the CREATE INDEX
-statement (x+y) is not the same as the expression as it appears in the 
-query (y+x).  The two expressions might be mathematically equivalent, but
-the SQLite query planner insists that they be the same, not merely
-equivalent.  Consider rewriting the query thusly:
+那么该索引将 <u>不会</u> 被使用，因为 CREATE INDEX 语句中的表达式 (x+y) 与查询中出现的表达式 (y+x) 不相同。两个表达式在数学上可能等价，但 SQLite 查询优化器坚持它们必须完全相同，而不能仅仅等价。考虑将查询重写如下：
 
 </p><div class="codeblock"><pre>SELECT * FROM t2 WHERE x+y=22;
 </pre></div>
 
 <p>
-This second query will likely use the index because now the expression
-in the WHERE clause (x+y) matches the expression in the index exactly.
+这个第二个查询可能会使用索引，因为现在 WHERE 子句中的表达式 (x+y) 与索引中的表达式完全匹配。
 
-
-</p><h1 id="restrictions"><span>2. </span>Restrictions</h1>
+</p><h1 id="restrictions"><span>2. </span>限制条件</h1>
 
 <p>
-There are certain reasonable restrictions on expressions that appear in
-CREATE INDEX statements:
+CREATE INDEX 语句中的表达式存在一些合理的限制：
 
 </p><ol>
 <li><p>
-Expressions in CREATE INDEX statements
-may only refer to columns of the table being indexed, not to
-columns in other tables.
+CREATE INDEX 语句中的表达式只能引用正在索引的表的列，而不能引用其他表的列。
 
 </p></li><li><p>
-Expressions in CREATE INDEX statements
-may contain function calls, but only to functions whose output
-is always determined completely by its input parameters (a.k.a.:
-<a href="deterministic.html">deterministic functions</a>).  Obviously, functions like <a href="lang_corefunc.html#random">random()</a> will not
-work well in an index.  But also functions like <a href="lang_corefunc.html#sqlite_version">sqlite_version()</a>, though
-they are constant across any one database connection, are not constant
-across the life of the underlying database file, and hence may not be
-used in a CREATE INDEX statement.
+CREATE INDEX 语句中的表达式可以包含函数调用，但只能调用其输出始终完全由输入参数决定的函数（即<a href="deterministic.html">确定性函数</a>）。显然，像 <a href="lang_corefunc.html#random">random()</a> 这样的函数在索引中效果不好。另外，像 <a href="lang_corefunc.html#sqlite_version">sqlite_version()</a> 这样的函数虽然在任何一个数据库连接中是常量，但在底层数据库文件的整个生命周期中并非常量，因此不能在 CREATE INDEX 语句中使用。
 
 </p><p>
-Note that <a href="appfunc.html">application-defined SQL functions</a> are by default considered
-non-deterministic and may not be used in a CREATE INDEX statement unless
-the <a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a> flag is used when the function is registered.
+注意，<a href="appfunc.html">应用程序定义的 SQL 函数</a>默认被视为非确定性的，除非在注册函数时使用了 <a href="c3ref/c_deterministic.html#sqlitedeterministic">SQLITE_DETERMINISTIC</a> 标志，否则不能在 CREATE INDEX 语句中使用。
 
 </p></li><li><p>
-Expressions in CREATE INDEX statements may not use subqueries.
+CREATE INDEX 语句中的表达式不得使用子查询。
 
 </p></li><li><p>
-Expressions may only be used in CREATE INDEX statements, not within
-<a href="lang_createtable.html#uniqueconst">UNIQUE</a> or <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> constraints within the <a href="lang_createtable.html">CREATE TABLE</a> statement.
+表达式只能在 CREATE INDEX 语句中使用，而不能在 <a href="lang_createtable.html#uniqueconst">UNIQUE</a> 或 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> 约束中（这些约束位于 <a href="lang_createtable.html">CREATE TABLE</a> 语句中）。
+
 </p></li></ol>
 
 
-<h1 id="compatibility"><span>3. </span>Compatibility</h1>
+<h1 id="compatibility"><span>3. </span>兼容性</h1>
 
 <p>
-The ability to index expressions was added to SQLite with 
-<a href="releaselog/3_9_0.html">version 3.9.0</a> (2015-10-14).  A database that uses an index on
-expressions will not be usable by earlier versions of SQLite.
-</p><p align="center"><small><i>This page was last updated on 2023-02-11 20:57:33Z </small></i></p>
+表达式索引的能力在 SQLite 的 <a href="releaselog/3_9_0.html">3.9.0 版本</a>（2015-10-14）中被加入。使用表达式索引的数据库无法由更早版本的 SQLite 使用。
+</p><p align="center"><small><i>本页面最后更新于 2023-02-11 20:57:33Z </small></i></p>
 

@@ -1,9 +1,10 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link href="sqlite.css" rel="stylesheet">
-<title>The ON CONFLICT Clause</title>
+<title>ON CONFLICT 子句</title>
 <!-- path= -->
 </head>
 <body>
@@ -12,40 +13,45 @@
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly" style="text-align:right;font-size:0.8em;">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -118,7 +124,7 @@ antiRobotDefense();
 <div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The ON CONFLICT Clause
+ON CONFLICT 子句
 </div>
 </div>
 
@@ -126,7 +132,7 @@ The ON CONFLICT Clause
 
 
 <p><b><a href="syntax/conflict-clause.html">conflict-clause:</a></b>
-<button id='x04db8a56' onclick='hideorshow("x04db8a56","xbed20bda")'>hide</button></p>
+<button id='x04db8a56' onclick='hideorshow("x04db8a56","xbed20bda")'>隐藏</button></p>
  <div id='xbed20bda' class='imgcontainer'>
  <div style="max-width:451px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 451.517 205.2" data-pikchr-date="20250319161943">
 <circle cx="5.76" cy="6.48" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
@@ -185,110 +191,59 @@ The ON CONFLICT Clause
 </div>
 
 
-<p>The ON CONFLICT clause is a
-non-standard extension specific to SQLite 
-that can appear in many other SQL commands.
-It is given its own section in this document because it is not
-part of standard SQL and therefore might not be familiar.</p>
+<p>ON CONFLICT 子句是 SQLite 独有的非标准扩展，可出现在许多其他 SQL 命令中。
+由于它不是标准 SQL 的一部分，因此可能并不熟悉，所以本文档为它单独设置了一节。</p>
 
-<p>The ON CONFLICT clause described here has been a part of
-SQLite since before version 3.0.0 (2004-06-18).  The phrase
-"ON&nbsp;CONFLICT" is also part of <a href="lang_upsert.html">UPSERT</a>, which is an extension
-to <a href="lang_insert.html">INSERT</a> added in version 3.24.0 (2018-06-04).  Do not
-confuse these two separate uses of the "ON&nbsp;CONFLICT" phrase.
+<p>本文所述的 ON CONFLICT 子句自 SQLite 3.0.0（2004-06-18）之前即已存在。
+“ON&nbsp;CONFLICT”短语也是<a href="lang_upsert.html">UPSERT</a>的一部分，而 UPSERT 是在 3.24.0（2018-06-04）版本中添加到<a href="lang_insert.html">INSERT</a>的扩展。
+不要将这两个不同场合的“ON&nbsp;CONFLICT”用法混淆。</p>
 
-</p><p>The syntax for the ON CONFLICT clause is as shown above for
-the CREATE TABLE command.  For the INSERT and
-UPDATE commands, the keywords "ON CONFLICT" are replaced by "OR" so that
-the syntax reads more naturally.  For example, instead of
-"INSERT ON CONFLICT IGNORE" we have "INSERT OR IGNORE".
-The keywords change but the meaning of the clause is the same
-either way.</p>
+<p>ON CONFLICT 子句的语法如上文 CREATE TABLE 命令所示。
+对于 INSERT 与 UPDATE 命令，关键字“ON CONFLICT”被替换为“OR”，以使语法更为通顺。
+例如，不是写“INSERT ON CONFLICT IGNORE”，而是写“INSERT OR IGNORE”。
+关键字虽然变化，但子句的含义保持不变。</p>
 
-<p>The ON CONFLICT clause is allowed on <a href="lang_createtable.html#uniqueconst">UNIQUE</a>, <a href="lang_createtable.html#notnullconst">NOT NULL</a>,
-and <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> constraints only.
-The ON CONFLICT clause is not allowed on
-<a href="lang_createtable.html#ckconst">CHECK</a> and <a href="foreignkeys.html">FOREIGN KEY constraints</a>.
-There are five conflict resolution algorithm choices:
-ROLLBACK, ABORT, FAIL, IGNORE, and REPLACE.
-The default conflict resolution algorithm is ABORT.  This
-is what they mean:</p>
+<p>ON CONFLICT 子句只允许出现在<a href="lang_createtable.html#uniqueconst">UNIQUE</a>、<a href="lang_createtable.html#notnullconst">NOT NULL</a>和<a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>约束上。
+ON CONFLICT 子句不允许用于<a href="lang_createtable.html#ckconst">CHECK</a>和<a href="foreignkeys.html">FOREIGN KEY 约束</a>。
+有五种冲突处理算法可选：ROLLBACK、ABORT、FAIL、IGNORE 和 REPLACE。
+默认的冲突处理策略是 ABORT。
+其含义如下：</p>
 
 <dl>
 <dt><b>ROLLBACK</b></dt>
-<dd><p> When an applicable constraint violation occurs, the ROLLBACK
-resolution algorithm aborts the current SQL statement with
-an SQLITE_CONSTRAINT error and rolls back the current transaction.
-If no transaction is
-active (other than the implied transaction that is created on every
-command) then the ROLLBACK resolution algorithm works the same as the
-ABORT algorithm.</p></dd>
+<dd><p>当发生适用的约束违例时，ROLLBACK 算法会使当前 SQL 语句因 SQLITE_CONSTRAINT 错误而终止，并回滚当前事务。
+如果当前没有显式事务（仅有每条命令隐含创建的事务），ROLLBACK 的行为与 ABORT 相同。</p></dd>
 
 <dt><b>ABORT</b></dt>
-<dd><p> When an applicable constraint violation occurs, the ABORT
-resolution algorithm aborts the current SQL statement
-with an SQLITE_CONSTRAINT error and backs out any changes
-made by the current SQL statement; but changes caused
-by prior SQL statements within the same transaction are preserved and the
-transaction remains active.
-This is the default behavior and the behavior specified by the SQL
-standard.</p></dd>
+<dd><p>当发生适用的约束违例时，ABORT 算法会使当前 SQL 语句因 SQLITE_CONSTRAINT 错误而终止，并撤销当前语句所做的更改；
+但同一事务中先前语句所做的更改会保留，事务仍保持活跃。
+这就是默认行为，也是 SQL 标准所定义的行为。</p></dd>
 
 <dt><b>FAIL</b></dt>
-<dd><p> When an applicable constraint violation occurs, the FAIL
-resolution algorithm aborts the current SQL statement with an
-SQLITE_CONSTRAINT error.  But the FAIL resolution does not
-back out prior changes of the SQL statement that failed nor does
-it end the transaction.
-For example, if an UPDATE
-statement encountered a constraint violation on the 100th row that
-it attempts to update, then the first 99 row changes are preserved
-but changes to rows 100 and beyond never occur.</p>
+<dd><p>当发生适用的约束违例时，FAIL 算法会使当前 SQL 语句因 SQLITE_CONSTRAINT 错误而终止。但 FAIL 不会撤销该语句之前所做的更改，也不会结束事务。
+例如，如果某个 UPDATE 语句在第 100 行遇到约束违例，那么前 99 行的更改会保留，而第 100 行及后续的更改则不会执行。</p>
 
-<p>The FAIL behavior only works for uniqueness, NOT NULL, and CHECK 
-constraints.  A <a href="foreignkeys.html">foreign key constraint</a> violation causes an ABORT.
-</p></dd>
+<p>FAIL 行为仅适用于唯一性、NOT NULL 和 CHECK 约束。
+<a href="foreignkeys.html">外键</a>违例将导致 ABORT。</p></dd>
 
 <dt><b>IGNORE</b></dt>
-<dd><p> When an applicable constraint violation occurs, 
-the IGNORE resolution algorithm skips the one row that contains
-the constraint violation and continues processing subsequent rows
-of the SQL statement as if nothing went wrong.
-Other rows before and after the row that
-contained the constraint violation are inserted or updated
-normally. No error is returned for uniqueness, NOT NULL, and
-UNIQUE constraint errors when the IGNORE conflict resolution
-algorithm is used.  However, the IGNORE conflict resolution
-algorithm works like ABORT for <a href="foreignkeys.html">foreign key constraint</a> errors.
-</p>
+<dd><p>当发生适用的约束违例时，IGNORE 算法会跳过包含违例的那一行，继续处理 SQL 语句的后续行，就好像没有出错一样。
+违例之前和之后的其他行会正常插入或更新。
+使用 IGNORE 冲突算法时，唯一性、NOT NULL 和 UNIQUE 约束错误不会返回错误。但 IGNORE 对<a href="foreignkeys.html">外键</a>错的处理方式与 ABORT 相同。</p>
 </dd>
 
 <dt><b>REPLACE</b></dt>
-<dd><p> When a <a href="lang_createtable.html#uniqueconst">UNIQUE</a> or <a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a> constraint violation occurs, 
-the REPLACE algorithm
-deletes pre-existing rows that are causing the constraint violation
-prior to inserting or updating the current row and the command continues 
-executing normally.
-If a <a href="lang_createtable.html#notnullconst">NOT NULL</a> constraint violation occurs, the REPLACE conflict
-resolution replaces the NULL value with
-the default value for that column, or if the column has no default
-value, then the ABORT algorithm is used.
-If a <a href="lang_createtable.html#ckconst">CHECK constraint</a> or <a href="foreignkeys.html">foreign key constraint</a> violation occurs, 
-the REPLACE conflict resolution algorithm works like ABORT.</p>
+<dd><p>当发生<a href="lang_createtable.html#uniqueconst">UNIQUE</a>或<a href="lang_createtable.html#primkeyconst">PRIMARY KEY</a>约束违例时，REPLACE 算法会先删除导致违例的现有行，然后再插入或更新当前行，命令继续正常执行。
+如果发生<a href="lang_createtable.html#notnullconst">NOT NULL</a>违例，REPLACE 会将 NULL 替换为该列的默认值；如果该列没有默认值，则使用 ABORT 算法。
+如果发生<a href="lang_createtable.html#ckconst">CHECK</a>或<a href="foreignkeys.html">外键</a>违例，REPLACE 的行为与 ABORT 相同。</p>
 
-<p>When the REPLACE conflict resolution strategy deletes rows in order to
-satisfy a constraint, <a href="lang_createtrigger.html">delete triggers</a> fire if and only if
-<a href="pragma.html#pragma_recursive_triggers">recursive triggers</a> are enabled.</p>
+<p>当 REPLACE 冲突策略为了满足约束而删除行时，仅在启用了<a href="pragma.html#pragma_recursive_triggers">递归触发器</a>的情况下才会触发<a href="lang_createtrigger.html">删除触发器</a>。</p>
 
-<p>The <a href="c3ref/update_hook.html">update hook</a> is not invoked for rows that
-are deleted by the REPLACE conflict resolution strategy.  Nor does
-REPLACE increment the <a href="c3ref/changes.html">change counter</a>.
-The exceptional behaviors defined in this paragraph might change 
-in a future release.</p>
+<p><a href="c3ref/update_hook.html">update hook</a>不会因 REPLACE 删除的行而触发。REPLACE 也不会增加<a href="c3ref/changes.html">更改计数器</a>。
+本段所述的例外行为可能在未来版本中发生变化。</p>
 </dd></dl>
 
-<p>The algorithm specified in the OR clause of an INSERT or UPDATE
-overrides any algorithm specified in a CREATE TABLE.
-If no algorithm is specified anywhere, the ABORT algorithm is used.</p>
-<p align="center"><small><i>This page was last updated on 2025-11-22 13:15:11Z </small></i></p>
+<p>INSERT 或 UPDATE 的 OR 子句中指定的算法会覆盖 CREATE TABLE 中指定的任何算法。
+如果任何地方都没有指定算法，则使用 ABORT。</p>
+<p align="center"><small><i>本页最后更新于 2025-11-22 13:15:11Z </i></small></p>
 

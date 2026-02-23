@@ -1,3 +1,4 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,40 +13,45 @@
 <img class="logo" src="../images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+小巧。快速。可靠。随意任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="../index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='../about.html'>About</a>
-<li class='desktoponly'><a href="../docs.html">Documentation</a>
-<li class='desktoponly'><a href="../download.html">Download</a>
-<li class='wideonly'><a href='../copyright.html'>License</a>
-<li class='desktoponly'><a href="../support.html">Support</a>
-<li class='desktoponly'><a href="../prosupport.html">Purchase</a>
+<li><a href="../index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='../about.html'>关于</a>
+<li class='desktoponly'><a href="../docs.html">文档</a>
+<li class='desktoponly'><a href="../download.html">下载</a>
+<li class='wideonly'><a href='../copyright.html'>许可证</a>
+<li class='desktoponly'><a href="../support.html">支持</a>
+<li class='desktoponly'><a href="../prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='../about.html'>About</a>
-<li><a href='../docs.html'>Documentation</a>
-<li><a href='../download.html'>Download</a>
-<li><a href='../support.html'>Support</a>
-<li><a href='../prosupport.html'>Purchase</a>
+<li><a href='../about.html'>关于</a>
+<li><a href='../docs.html'>文档</a>
+<li><a href='../download.html'>下载</a>
+<li><a href='../support.html'>支持</a>
+<li><a href='../prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="../search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -115,83 +121,38 @@ antiRobotGo();
 }
 antiRobotDefense();
 </script>
-<h2>SQLite Release 3.24.0 On 2018-06-04</h2><p><ol class='lessindent'>
-<li> Add support for PostgreSQL-style <a href="../lang_upsert.html">UPSERT</a>.
-<li> Add support for <a href="../rtree.html#auxcol">auxiliary columns in r-tree tables</a>.
-<li> Add C-language APIs for discovering SQL keywords used by
-     SQLite: <a href="../c3ref/keyword_check.html">sqlite3_keyword_count()</a>, <a href="../c3ref/keyword_check.html">sqlite3_keyword_name()</a>, and
-     <a href="../c3ref/keyword_check.html">sqlite3_keyword_check()</a>.
-<li> Add C-language APIs for dynamic strings based on the
-     <a href="../c3ref/str.html">sqlite3_str</a> object.
-<li> Enhance <a href="../lang_altertable.html">ALTER TABLE</a> so that it recognizes "true" and "false" as
-     valid arguments to DEFAULT.
-<li> Add the sorter-reference optimization as a compile-time option.
-     Only available if compiled with SQLITE_ENABLE_SORTER_REFERENCES.
-<li> Improve the format of the <a href="../eqp.html">EXPLAIN QUERY PLAN</a> raw output, so that
-     it gives better information about the query plan and about the
-     relationships between the various components of the plan.
-<li> Added the <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase">SQLITE_DBCONFIG_RESET_DATABASE</a> option to the
-     <a href="../c3ref/db_config.html">sqlite3_db_config()</a> API.
-<p><b><a href="../cli.html">CLI</a> Enhancements:</b>
-<li> Automatically intercepts the raw <a href="../eqp.html">EXPLAIN QUERY PLAN</a>
-     output and reformats it into an ASCII-art graph.
-<li> Lines that begin with "#" and that are not in the middle of an
-     SQL statement are interpreted as comments.
-<li> Added the --append option to the ".backup" command.
-<li> Added the ".dbconfig" command.
-<p><b>Performance:</b>
-<li> <a href="../lang_update.html">UPDATE</a> avoids unnecessary low-level disk writes when the contents
-     of the database file do not actually change.
-     For example, "UPDATE t1 SET x=25 WHERE y=?" generates no extra
-     disk I/O if the value in column x is already 25.  Similarly,
-     when doing <a href="../lang_update.html">UPDATE</a> on records that span multiple pages, only
-     the subset of pages that actually change are written to disk.
-     This is a low-level performance optimization only and does not
-     affect the behavior of TRIGGERs or other higher level SQL
-     structures.
-<li> Queries that use ORDER BY and LIMIT now try to avoid computing
-     rows that cannot possibly come in under the LIMIT. This can greatly
-     improve performance of ORDER BY LIMIT queries, especially when the
-     LIMIT is small relative to the number of unrestricted output rows.
-<li> The <a href="../optoverview.html#or_opt">OR optimization</a> is allowed to proceed
-     even if the OR expression has also been converted into an IN
-     expression.  Uses of the OR optimization are now also
-     <a href="../eqp.html#or-opt">more clearly shown</a> in the <a href="../eqp.html">EXPLAIN QUERY PLAN</a> output.
-<li> The query planner is more aggressive about using
-     <a href="../optoverview.html#autoindex">automatic indexes</a> for views and subqueries for which it is
-     not possible to create a persistent index.
-<li> Make use of the one-pass UPDATE and DELETE query plans in the
-     <a href="../rtree.html">R-Tree extension</a> where appropriate.
-<li> Performance improvements in the LEMON-generated parser.
-<p><b>Bug fixes:</b>
-<li> For the right-hand table of a LEFT JOIN, compute the values
-     of expressions directly rather than loading precomputed values
-     out of an <a href="../expridx.html">expression index</a> as the expression index might
-     not contain the correct value.  Ticket
-     <a href="https://sqlite.org/src/info/7fa8049685b50b5aeb0c2">7fa8049685b50b5aeb0c2</a>
-<li> Do not attempt to use terms from the WHERE clause to enable
-     indexed lookup of the right-hand table of a LEFT JOIN.  Ticket
-     <a href="https://sqlite.org/src/info/4ba5abf65c5b0f9a96a7a">4ba5abf65c5b0f9a96a7a</a>
-<li> Fix a memory leak that can occur following a failure to open error
-     in the <a href="../csv.html">CSV virtual table</a>
-<li> Fix a long-standing problem wherein a corrupt schema on the
-     <a href="../fileformat2.html#seqtab">sqlite_sequence</a> table used by <a href="../autoinc.html">AUTOINCREMENT</a> can lead to
-     a crash. Ticket
-     <a href="https://sqlite.org/src/info/d8dc2b3a58cd5dc29">d8dc2b3a58cd5dc2918a1</a>
-<li> Fix the <a href="../json1.html#jeach">json_each()</a> function so that it returns
-     valid results on its "fullkey" column when the input is a simple value
-     rather than an array or object.
-<p><b>Hashes:</b>
+<h2>SQLite 3.24.0 版本 发布于 2018-06-04</h2><p><ol class='lessindent'>
+<li> 添加对 PostgreSQL 风格的 <a href="../lang_upsert.html">UPSERT</a> 的支持。
+<li> 添加对 <a href="../rtree.html#auxcol">R 树表中辅助列</a> 的支持。
+<li> 添加用于发现 SQLite 所使用 SQL 关键字的 C 语言 API：<a href="../c3ref/keyword_check.html">sqlite3_keyword_count()</a>、<a href="../c3ref/keyword_check.html">sqlite3_keyword_name()</a> 和 <a href="../c3ref/keyword_check.html">sqlite3_keyword_check()</a>。
+<li> 添加基于 <a href="../c3ref/str.html">sqlite3_str</a> 对象的动态字符串 C 语言 API。
+<li> 增强 <a href="../lang_altertable.html">ALTER TABLE</a>，使其将 “true” 与 “false” 识别为 DEFAULT 的有效参数。
+<li> 将 sorter-reference 优化作为编译时选项添加。 仅在使用 SQLITE_ENABLE_SORTER_REFERENCES 编译时可用。
+<li> 改进 <a href="../eqp.html">EXPLAIN QUERY PLAN</a> 原始输出的格式，使其在查询计划以及计划各组成部分之间的关系方面提供更清晰的信息。
+<li> 在 <a href="../c3ref/db_config.html">sqlite3_db_config()</a> API 中添加了 <a href="../c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase">SQLITE_DBCONFIG_RESET_DATABASE</a> 选项。
+<p><b><a href="../cli.html">命令行工具 (CLI)</a> 增强：</b>
+<li> 自动截取原始 <a href="../eqp.html">EXPLAIN QUERY PLAN</a> 输出并将其重新格式化为 ASCII 艺术图形。
+<li> 以 “#” 开头且不在 SQL 语句中间的行会被解释为注释。
+<li> 向 “.backup” 命令添加了 --append 选项。
+<li> 添加了 “.dbconfig” 命令。
+<p><b>性能改进：</b>
+<li> <a href="../lang_update.html">UPDATE</a> 在数据库文件内容实际未改变时避免执行不必要的底层磁盘写入。例如，当 x 列的值已经是 25 时，"UPDATE t1 SET x=25 WHERE y=?" 不会产生额外的磁盘 I/O。同样地，在对跨多个页面的记录执行 <a href="../lang_update.html">UPDATE</a> 时，仅对实际发生变化的页面子集写入磁盘。这是仅针对底层性能的优化，不会影响触发器或其他更高层 SQL 结构的行为。
+<li> 使用 ORDER BY 与 LIMIT 的查询现在会尝试避免计算那些不可能在 LIMIT 限制下出现的行。这可以大幅提升 ORDER BY LIMIT 查询的性能，尤其是在 LIMIT 相对于无限制输出行数量较小时。
+<li> 即使 OR 表达式已转换为 IN 表达式，<a href="../optoverview.html#or_opt">OR 优化</a> 仍被允许继续执行。OR 优化的使用现在也在 <a href="../eqp.html">EXPLAIN QUERY PLAN</a> 输出中<a href="../eqp.html#or-opt">显示得更清晰</a>。
+<li> 查询规划器在无法创建持久索引的视图与子查询上更积极地使用 <a href="../optoverview.html#autoindex">自动索引</a>。
+<li> 在适当的时候，在 <a href="../rtree.html">R 树扩展</a> 中利用一次性 UPDATE 与 DELETE 查询计划。
+<li> LEMON 生成的解析器性能得到改进。
+<p><b>错误修复：</b>
+<li> 对于 LEFT JOIN 的右侧表，直接计算表达式的值，而不是从 <a href="../expridx.html">表达式索引</a> 中读取预计算值，因为表达式索引可能不包含正确的值。工单 <a href="https://sqlite.org/src/info/7fa8049685b50b5aeb0c2">7fa8049685b50b5aeb0c2</a>
+<li> 不再尝试使用 WHERE 子句中的术语来启用 LEFT JOIN 右侧表的索引查找。工单 <a href="https://sqlite.org/src/info/4ba5abf65c5b0f9a96a7a">4ba5abf65c5b0f9a96a7a</a>
+<li> 修复在打开失败错误之后可能发生的 <a href="../csv.html">CSV 虚拟表</a> 内存泄露问题。
+<li> 修复一个长期存在的问题：由 <a href="../autoinc.html">AUTOINCREMENT</a> 使用的 <a href="../fileformat2.html#seqtab">sqlite_sequence</a> 表架构损坏可能导致崩溃的情况。工单 <a href="https://sqlite.org/src/info/d8dc2b3a58cd5dc29">d8dc2b3a58cd5dc2918a1</a>
+<li> 修复 <a href="../json1.html#jeach">json_each()</a> 函数，使其在输入为简单值而非数组或对象时，其 “fullkey” 列也能返回有效结果。
+<p><b>哈希值：</b>
 <li>SQLITE_SOURCE_ID: "2018-06-04 19:24:41 c7ee0833225bfd8c5ec2f9bf62b97c4e04d03bd9566366d5221ac8fb199a87ca"
-<li>SHA3-256 for sqlite3.c: 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
+<li>SHA3-256（sqlite3.c）: 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
 
 </ol></p>
 
-      <p>A <a href="../changes.html">complete list of SQLite releases</a>
-      in a single page and a <a href="../chronology.html">chronology</a> are both also available.
-      A detailed history of every
-      check-in is available at
-      <a href="https://sqlite.org/src/timeline">
-      SQLite version control site</a>.</p>
+      <p><a href="../changes.html">完整的 SQLite 发行版本列表</a> 也可在单页中查阅，同时还提供了<a href="../chronology.html">时间轴</a>。每一次提交的详细历史记录可在 <a href="https://sqlite.org/src/timeline">SQLite 版本控制站点</a> 获取。</p>
     
-
