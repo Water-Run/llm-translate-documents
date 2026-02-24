@@ -1,0 +1,754 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>How SQLite Is Tested</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>随意选择其中三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 的测试方式
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. 介绍</a></div>
+<div class="fancy-toc2"><a href="#executive_summary">1.1. 执行摘要</a></div>
+<div class="fancy-toc1"><a href="#test_harnesses">2. 测试平台</a></div>
+<div class="fancy-toc1"><a href="#anomaly_testing">3. 异常测试</a></div>
+<div class="fancy-toc2"><a href="#out_of_memory_testing">3.1. 内存耗尽测试</a></div>
+<div class="fancy-toc2"><a href="#i_o_error_testing">3.2. I/O 错误测试</a></div>
+<div class="fancy-toc2"><a href="#crash_testing">3.3. 崩溃测试</a></div>
+<div class="fancy-toc2"><a href="#compound_failure_tests">3.4. 复合故障测试</a></div>
+<div class="fancy-toc1"><a href="#fuzz_testing">4. 模糊测试</a></div>
+<div class="fancy-toc2"><a href="#sql_fuzz">4.1. SQL Fuzz</a></div>
+<div class="fancy-toc3"><a href="#sql_fuzz_using_the_american_fuzzy_lop_fuzzer">4.1.1. 使用 American Fuzzy Lop Fuzzer 的 SQL Fuzz</a></div>
+<div class="fancy-toc3"><a href="#google_oss_fuzz">4.1.2. Google OSS Fuzz</a></div>
+<div class="fancy-toc3"><a href="#the_dbsqlfuzz_and_jfuzz_fuzzers">4.1.3. dbsqlfuzz 与 jfuzz 欺骗器</a></div>
+<div class="fancy-toc3"><a href="#other_third_party_fuzzers">4.1.4. 其他第三方模糊测试器</a></div>
+<div class="fancy-toc3"><a href="#the_fuzzcheck_test_harness">4.1.5. fuzzcheck 测试平台</a></div>
+<div class="fancy-toc3"><a href="#tension_between_fuzz_testing_and_100_mc_dc_testing">4.1.6. 模糊测试与 100% MC/DC 测试之间的张力</a></div>
+<div class="fancy-toc2"><a href="#malformed_database_files">4.2. 格式破损的数据库文件</a></div>
+<div class="fancy-toc2"><a href="#boundary_value_tests">4.3. 边界值测试</a></div>
+<div class="fancy-toc1"><a href="#regression_testing">5. 回归测试</a></div>
+<div class="fancy-toc1"><a href="#automatic_resource_leak_detection">6. 自动资源泄漏检测</a></div>
+<div class="fancy-toc1"><a href="#test_coverage">7. 测试覆盖率</a></div>
+<div class="fancy-toc2"><a href="#statement_versus_branch_coverage">7.1. 语句与分支覆盖率</a></div>
+<div class="fancy-toc2"><a href="#coverage_testing_of_defensive_code">7.2. 防御代码的覆盖测试</a></div>
+<div class="fancy-toc2"><a href="#forcing_coverage_of_boundary_values_and_boolean_vector_tests">7.3. 强制覆盖边界值和布尔向量测试</a></div>
+<div class="fancy-toc2"><a href="#branch_coverage_versus_mc_dc">7.4. 分支覆盖率与 MC/DC</a></div>
+<div class="fancy-toc2"><a href="#measuring_branch_coverage">7.5. 测量分支覆盖率</a></div>
+<div class="fancy-toc2"><a href="#mutation_testing">7.6. 变异测试</a></div>
+<div class="fancy-toc2"><a href="#experience_with_full_test_coverage">7.7. 全覆盖测试经验</a></div>
+<div class="fancy-toc1"><a href="#dynamic_analysis">8. 动态分析</a></div>
+<div class="fancy-toc2"><a href="#assert">8.1. Assert</a></div>
+<div class="fancy-toc2"><a href="#valgrind">8.2. Valgrind</a></div>
+<div class="fancy-toc2"><a href="#memsys2">8.3. Memsys2</a></div>
+<div class="fancy-toc2"><a href="#mutex_asserts">8.4. Mutex Asserts</a></div>
+<div class="fancy-toc2"><a href="#journal_tests">8.5. Journal Tests</a></div>
+<div class="fancy-toc2"><a href="#undefined_behavior_checks">8.6. 未定义行为检查</a></div>
+<div class="fancy-toc1"><a href="#disabled_optimization_tests">9. 禁用优化测试</a></div>
+<div class="fancy-toc1"><a href="#checklists">10. 清单</a></div>
+<div class="fancy-toc1"><a href="#static_analysis">11. 静态分析</a></div>
+<div class="fancy-toc1"><a href="#summary">12. 总结</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+
+
+<h1 id="introduction"><span>1. </span>介绍</h1>
+
+<p>SQLite 的可靠性和健壮性部分来自于彻底而细致的测试。</p>
+
+<p>截至 <a href="releaselog/3_42_0.html">version 3.42.0</a> (2023-05-16)，SQLite 库大约包含 155.8 KSLOC 的 C 代码。（KSLOC 表示“源代码行数”的千位，换句话说，就是不包括空行与注释的代码行数。）相比之下，该项目拥有 590 倍多的测试代码和测试脚本——总计 92053.1 KSLOC。</p>
+
+<h2 id="executive_summary"><span>1.1. </span>执行摘要</h2>
+
+<ul>
+<li> 四个独立开发的测试平台
+</li><li> 在部署配置下实现 100% 分支测试覆盖率
+</li><li> 数以百万计的测试用例
+</li><li> 内存耗尽测试
+</li><li> I/O 错误测试
+</li><li> 崩溃和断电测试
+</li><li> 模糊测试
+</li><li> 边界值测试
+</li><li> 禁用优化测试
+</li><li> 回归测试
+</li><li> 格式破损数据库测试
+</li><li> 广泛使用 assert() 和运行时检查
+</li><li> Valgrind 分析
+</li><li> 未定义行为检查
+</li><li> 清单
+</li></ul>
+
+<a name="harnesses"></a>
+
+<h1 id="test_harnesses"><span>2. </span>测试平台</h1>
+
+<p>有四个独立的测试平台用于测试 SQLite 核心库。每个测试平台都是独立设计、维护和管理的。</p>
+
+<ol>
+<li><p>
+<a name="tcl"></a>
+
+<b>TCL Tests</b> 是 SQLite 的原始测试。它们与 SQLite 核心源码位于同一个源码树中，并且与 SQLite 核心一样属于公有领域。TCL Tests 是开发过程中主要使用的测试。TCL 测试使用 <a href="http://www.tcl-lang.org/">TCL 脚本语言</a> 编写。TCL 测试平台本身由 27.2 KSLOC 的 C 代码组成，用于创建 TCL 接口。测试脚本包含在 1390 个文件中，总计 23.2MB。共有 51445 个不同测试用例，但许多测试用例是参数化的，并且使用不同参数多次运行，因此完整测试运行时会执行数百万个独立测试。
+</p>
+</li>
+
+<li><p>
+<b><a href="th3.html">TH3</a></b> 测试平台是一组专有测试，用 C 编写，提供 SQLite 核心库的 100% 分支测试覆盖率（以及 <a href="testing.html#mcdc">100% MC/DC 测试覆盖率</a>）。TH3 测试旨在在嵌入式和特殊平台上运行，这些平台可能不易支持 TCL 或其他工作站服务。TH3 测试仅使用已发布的 SQLite 接口。TH3 包含约 76.9MB 或 1055.4 KSLOC 的 C 代码，实施了 50362 个不同测试用例。TH3 测试高度参数化，因此完整覆盖测试会运行约 240 万个不同的测试实例。提供 100% 分支测试覆盖率的案例只是 TH3 测试套件的一个子集。一次发布前的浸泡测试会执行约 248.5 百万次测试。有关 TH3 的更多信息 <a href="th3.html">另行提供</a>。</p></li>
+
+<li><p>
+<a name="slt"></a>
+
+<a href="https://sqlite.org/sqllogictest"><b>SQL Logic Test</b></a>（或 SLT 测试平台）用于对 SQLite 与多个其他 SQL 数据库引擎执行大量 SQL 语句，并验证它们是否得出相同答案。SLT 目前将 SQLite 与 PostgreSQL、MySQL、Microsoft SQL Server 和 Oracle 10g 进行比较。SLT 执行 720 万个查询，包含 1.12GB 的测试数据。
+</p></li>
+
+<li><p>
+<a href="#dbsqlfuzz"><b>dbsqlfuzz</b></a> 引擎是一种专有模糊测试器。其他 <a href="testing.html#fuzztesting">SQLite 模糊测试器</a>会变异 SQL 输入或数据库文件。Dbsqlfuzz 同时变异 SQL 与数据库文件，因此能够到达新的错误状态。Dbsqlfuzz 使用 LLVM 的 <a href="http://llvm.org/docs/LibFuzzer.html">libFuzzer</a> 框架与自定义突变器构建。共有 336 个种子文件。dbsqlfuzz 每天大约运行 10 亿次测试突变。Dbsqlfuzz 有助于确保 SQLite 能够抵御恶意 SQL 或数据库输入的攻击。
+</p></li></ol>
+
+<p>除了上述四个主要测试平台之外，还有许多实现专门测试的小程序。以下是几个示例：</p><ol>
+<li value="5">"speedtest1.c" 程序用于估算 SQLite 在典型工作负载下的性能。
+</li><li>"mptester.c" 程序是一个压力测试，模拟多个进程同时读取和写入单个数据库。
+</li><li>"threadtest3.c" 程序是一个压力测试，模拟多个线程同时使用 SQLite。
+</li><li>"fuzzershell.c" 程序用于运行一些 <a href="#fuzztesting">模糊测试</a>。
+</li><li>"jfuzz" 程序是一个基于 libfuzzer 的模糊测试器，用于 <a href="json1.html#jsonbx">JSONB</a> 输入到 <a href="json1.html">JSON SQL 函数</a>。
+</li></ol>
+
+
+<p>以上所有测试必须在多个平台和多个编译时配置下成功运行，方可发布每个 SQLite 版本。</p>
+
+<p>在每次向 SQLite 源代码树提交之前，开发者通常会运行称为 “veryquick” 的 Tcl 测试子集，包含约 304.7 千个测试用例。veryquick 测试包含除了异常、模糊和浸泡测试以外的大多数测试。veryquick 测试的理念是：它们足以捕捉大多数错误，但运行时间只有几分钟，而不是几个小时。</p>
+
+<a name="anomaly"></a>
+
+<h1 id="anomaly_testing"><span>3. </span>异常测试</h1>
+
+<p>异常测试旨在验证当出现故障时 SQLite 是否能正确行为。在完全正常的计算机上构建一个在格式良好的输入上表现正确的 SQL 数据库引擎相对容易。但构建一个在面对无效输入并在系统故障后仍能正常运行的系统则更具挑战性。异常测试就是为了验证后者的行为。</p>
+
+<a name="oomtesting"></a>
+
+<h2 id="out_of_memory_testing"><span>3.1. </span>内存耗尽测试</h2>
+
+<p>SQLite 与所有 SQL 数据库引擎一样，广泛使用 malloc()。（详见<a href="malloc.html">SQLite 中的动态内存分配</a>报告。）在服务器和工作站上，malloc() 实际上很少失败，因此对内存耗尽（OOM）错误的正确处理并不是特别重要。但在嵌入式设备上，OOM 错误非常常见，而由于 SQLite 常用于嵌入式设备，因此 SQLite 能够优雅地处理 OOM 错误非常重要。</p>
+
+<p>OOM 测试通过模拟 OOM 错误实现。SQLite 允许应用程序通过 <a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmalloc">SQLITE_CONFIG_MALLOC</a>,...) 接口替换 malloc() 实现。TCL 与 TH3 测试平台都能够插入一个修改过的 malloc()，允许在一定次数分配后设置失败。这些带检测的 malloc 可以设置为只失败一次然后恢复正常，或在首次失败后持续失败。OOM 测试在循环中进行。循环的第一次迭代中，检测 malloc 设置为在第一次分配时失败。然后执行某个 SQLite 操作，并检查 SQLite 是否正确处理了 OOM 错误。接着将检测 malloc 的失败计数加一，再重复测试。循环持续进行，直到整个操作在未遭遇模拟 OOM 失败的情况下完成。此类测试运行两次，一次检测 malloc 设置为只失败一次，另一次设置为在首次失败后持续失败。</p>
+
+<a name="ioerrtesting"></a>
+
+<h2 id="i_o_error_testing"><span>3.2. </span>I/O 错误测试</h2>
+
+<p>I/O 错误测试旨在验证 SQLite 是否能理智地应对失败的 I/O 操作。I/O 错误可能由硬盘满、磁盘硬件故障、使用网络文件系统时的网络中断、在 SQL 操作中间发生的系统配置或权限变化，或其他硬件或操作系统故障引起。不论原因如何，重要的是 SQLite 必须能正确响应这些错误，而 I/O 错误测试正是为了验证这一点。</p>
+
+<p>I/O 错误测试的概念与 OOM 测试类似；模拟 I/O 错误，并检查 SQLite 是否对这些模拟错误做出正确响应。TCL 和 TH3 测试平台都通过插入一个经过特殊设置的 <a href="c3ref/vfs.html">虚拟文件系统对象</a>，在一定次数 I/O 操作后模拟 I/O 错误。与 OOM 错误测试一样，I/O 错误模拟器可以设置为仅失败一次，或在首次失败后持续失败。测试在循环中运行，逐渐提高故障点，直到测试用例在无错误的情况下完成。循环运行两次，一次模拟器设置为仅模拟一次失败，另一次设置为在首次失败后使所有 I/O 操作失败。</p>
+
+<p>在 I/O 错误测试中，在禁用 I/O 错误模拟后，会使用 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 检查数据库，以确保 I/O 错误没有引入数据库损坏。</p>
+
+<a name="crashtesting"></a>
+
+<h2 id="crash_testing"><span>3.3. </span>崩溃测试</h2>
+
+<p>崩溃测试旨在证明 SQLite 数据库在应用或操作系统崩溃，或在数据库更新过程中断电时不会损坏。另一份白皮书 <a href="atomiccommit.html">SQLite 中的原子提交</a> 介绍了 SQLite 在崩溃后防止数据库损坏所采取的防御措施。崩溃测试努力验证这些防御措施是否正常工作。</p>
+
+<p>当然，使用真实断电进行崩溃测试是不现实的，因此崩溃测试采用仿真。插入一个替代的 <a href="c3ref/vfs.html">虚拟文件系统</a>，允许测试平台模拟崩溃后数据库文件的状态。</p>
+
+<p>在 TCL 测试平台中，崩溃模拟在一个单独的进程中完成。主测试进程产生一个子进程，子进程运行某个 SQLite 操作，并在写操作过程中随机崩溃。一个特殊的 <a href="vfs.html">VFS</a> 随机重新排序并破坏未同步的写操作，以模拟缓冲文件系统的效果。子进程终止后，原始测试进程打开并读取测试数据库，验证子进程尝试的修改要么成功完成，要么完全回滚。<a href="pragma.html#pragma_integrity_check">integrity_check</a> <a href="pragma.html#syntax">PRAGMA</a> 被用来确保没有发生数据库损坏。</p>
+
+<p>TH3 测试平台需要在可能无法生成子进程的嵌入式系统上运行，因此它使用一个内存中的 <a href="vfs.html">VFS</a> 来模拟崩溃。内存中的 <a href="vfs.html">VFS</a> 可以在一定次数 I/O 操作后制作整个文件系统的快照。崩溃测试在循环中运行。循环的每次迭代都会推进快照制作的点，直到正在测试的 SQLite 操作在未触及快照的情况下完成。在循环内部，在被测试的 SQLite 操作完成后，文件系统回退到快照，并引入符合断电后典型损坏特征的随机文件损坏。然后打开数据库并检查其是否格式良好，并确认事务要么完成，要么完全回滚。循环内部会针对每个快照重复多次，每次引入不同的随机损坏。</p>
+
+<a name="multifail"></a>
+
+<h2 id="compound_failure_tests"><span>3.4. </span>复合故障测试</h2>
+
+<p>SQLite 的测试套件还会探索叠加多个故障的结果。例如，会运行测试以确保在尝试从先前崩溃恢复时发生 I/O 错误或 OOM 故障时仍能正确行为。
+
+<a name="fuzztesting"></a>
+
+</p><h1 id="fuzz_testing"><span>4. </span>模糊测试</h1>
+
+<p><a href="http://en.wikipedia.org/wiki/Fuzz_testing">模糊测试</a> 旨在确认 SQLite 对无效、超出范围或格式异常的输入是否能够正确响应。</p>
+
+<h2 id="sql_fuzz"><span>4.1. </span>SQL Fuzz</h2>
+
+<p>SQL 模糊测试包括创建语法正确但逻辑荒诞的 SQL 语句，并将它们提交给 SQLite，观察其响应。通常会返回某种错误（例如 “no such table”）。有时，纯粹偶然地，SQL 语句也可能在语义上正确。在这种情况下，会运行生成的准备语句以确保其给出合理结果。</p>
+
+<a name="aflfuzz"></a>
+
+<h3 id="sql_fuzz_using_the_american_fuzzy_lop_fuzzer"><span>4.1.1. </span>使用 American Fuzzy Lop Fuzzer 的 SQL Fuzz</h3>
+
+<p>模糊测试的概念已经存在数十年，但直到 2014 年 Michal Zalewski 发明了第一个实用的基于配置文件的模糊测试器 <a href="http://lcamtuf.coredump.cx/afl/">American Fuzzy Lop</a>（或 “AFL”）之后，模糊测试才真正成为寻找缺陷的有效方式。与此前盲目生成随机输入的模糊测试器不同，AFL 会对被测试程序进行插装（通过修改 C 编译器生成的汇编输出），并使用该插装结果检测某个输入是否导致程序行为不同——例如走上一条新的控制路径或者循环次数不同。诱发新行为的输入会被保留并进一步变异。通过这种方式，AFL 能够“发现”被测试程序的新行为，包括设计者从未设想的行为。</p>
+
+<p>AFL 在发现 SQLite 中隐晦错误方面表现出色。大多数发现是 assert() 语句在晦涩环境下条件为假。但 AFL 也发现了不少 SQLite 的崩溃错误，甚至一些计算出错误结果的情况。</p>
+
+<p>由于过去的成功，AFL 从 <a href="releaselog/3_8_10.html">version 3.8.10</a> (2015-05-07) 起成为 SQLite 测试策略的标准组成部分，直到在 <a href="releaselog/3_29_0.html">version 3.29.0</a> (2019-07-10) 被更好的模糊测试器取代。
+
+<a name="ossfuzz"></a>
+
+</p><h3 id="google_oss_fuzz"><span>4.1.2. </span>Google OSS Fuzz</h3>
+
+<p>自 2016 年起，Google 的一组工程师启动了 <a href="https://github.com/google/oss-fuzz">OSS Fuzz</a> 项目。OSS Fuzz 使用类似 AFL 的引导模糊测试器，在 Google 基础设施上运行。该模糊测试器会自动下载参与项目的最新提交，对其进行模糊测试，并通过电子邮件向开发者报告任何问题。当修复提交后，模糊测试器会自动检测到该变更并发送确认邮件给开发者。</p>
+
+<p>SQLite 是 OSS Fuzz 测试的众多开源项目之一。SQLite 仓库中的 <a href="https://sqlite.org/src/file/test/ossfuzz.c">test/ossfuzz.c</a> 源文件是 SQLite 与 OSS Fuzz 的接口。</p>
+
+<p>OSS Fuzz 现在已经不再发现 SQLite 的历史错误。但它仍在运行，并且偶尔会在新的开发提交中发现问题。例如：
+<a href="https://sqlite.org/src/timeline?y=ci&c=c422afb507dc8757">&#91;1&#93;</a>
+<a href="https://sqlite.org/src/timeline?y=ci&c=0a2eb949f8a759e5">&#91;2&#93;</a>
+<a href="https://sqlite.org/src/timeline?y=ci&c=62f2235adf796c72">&#91;3&#93;</a>。</p>
+
+<a name="dbsqlfuzz"></a>
+
+</p><h3 id="the_dbsqlfuzz_and_jfuzz_fuzzers"><span>4.1.3. </span>dbsqlfuzz 与 jfuzz 欺骗器</h3>
+
+<p>自 2018 年末起，SQLite 开始使用一种名为 “dbsqlfuzz” 的专有模糊测试器进行模糊测试。dbsqlfuzz 使用 LLVM 的 <a href="http://llvm.org/docs/LibFuzzer.html">libFuzzer</a> 框架构建。</p>
+
+<p>dbsqlfuzz 同时变异 SQL 输入和数据库文件。dbsqlfuzz 对定义了输入数据库与要对其运行的 SQL 文本的专用输入文件使用了自定义的 <a href="https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md">Structure-Aware Mutator</a>。由于它同时变异输入数据库与输入 SQL，dbsqlfuzz 能发现之前仅变异 SQL 输入或仅变异数据库文件的模糊测试器未能发现的一些晦涩故障。SQLite 开发者让 dbsqlfuzz 持续在主干上运行，大约占用 16 核。每个 dbsqlfuzz 实例每秒可以评估约 400 个测试用例，也就是说每天会检查约 5 亿个用例。</p>
+
+<p>dbsqlfuzz 在强化 SQLite 代码库以抵御恶意攻击方面非常成功。自 dbsqlfuzz 被加入 SQLite 内部测试套件后，来自外部模糊测试器如 OSSFuzz 的 bug 报告几乎完全停止了。</p>
+
+<p>需要注意的是，dbsqlfuzz <i>不是</i> Google Chromium 团队使用并在 <a href="https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md#user-content-example-sqlite">Structure-Aware Mutator 文章</a> 中描述的基于 Protobuf 的结构感知模糊测试器。除了两者都基于 <a href="http://llvm.org/docs/LibFuzzer.html">libFuzzer</a> 之外，它们之间没有关联。Chromium 团队在 Google 负责并维护的 Protobuf 模糊测试器，而 dbsqlfuzz 由 SQLite 的原始开发者编写并维护。拥有多个独立开发的模糊测试器对 SQLite 有利，因为这意味着更容易发现隐蔽问题。</p>
+
+<p>2024 年 1 月底上线的另一个基于 libFuzzer 的工具名为 “jfuzz”。Jfuzz 会生成损坏的 <a href="json1.html#jsonbx">JSONB</a> 二进制，并将其提供给 <a href="json1.html">JSON SQL 函数</a>，以验证 JSON 函数是否能够安全且高效地处理损坏的二进制输入。</p>
+
+<a name="3pfuzz"></a>
+
+</p><h3 id="other_third_party_fuzzers"><span>4.1.4. </span>其他第三方模糊测试器</h3>
+
+<p>SQLite 似乎是第三方进行模糊测试的热门目标。开发者经常会听到许多对 SQLite 进行模糊测试的尝试，并且确实偶尔会收到独立模糊测试器发现的 bug 报告。所有这类报告都会迅速修复，因此产品得到改进、整个 SQLite 用户社区都能受益。这种有众多独立测试者的机制类似于 <a href="https://en.wikipedia.org/wiki/Linus%27s_law">Linus 的定律</a>：“只要眼睛足够多，所有 bug 都浅显可见”。</p>
+
+<p>一个特别值得关注的模糊测试研究者是 <a href="https://www.manuelrigger.at/">Manuel Rigger</a>。大多数模糊测试器只寻找断言故障、崩溃、未定义行为（UB）或其他易于检测的异常。而 Rigger 博士的模糊测试器则能够找到 SQLite 计算出错误答案的情况。Rigger 曾发现 <a href="https://sqlite.org/src/timeline?y=t&u=mrigger&n=all">许多此类案例</a>。其中大多数是在涉及类型转换和亲和性变换的晦涩角落案例，还有不少是针对尚未发布的特性。但这些发现仍然非常重要，因为它们都是实际的 bug，SQLite 开发者也很感激能识别并修复这些潜在问题。</p>
+
+<a name="fuzzcheck"></a>
+
+</p><h3 id="the_fuzzcheck_test_harness"><span>4.1.5. </span>fuzzcheck 测试平台</h3>
+
+<p>来自 <a href="testing.html#aflfuzz">AFL</a>、<a href="testing.html#ossfuzz">OSS Fuzz</a> 和 <a href="testing.html#dbsqlfuzz">dbsqlfuzz</a> 的历史测试用例被收集到主 SQLite 源码树中的一组数据库文件中，并且每次运行 “make test” 时都会由 “fuzzcheck” 工具程序重新运行。fuzzcheck 仅运行各模糊测试器多年来检查的数十亿案例中的几千个“有趣”案例。“有趣”案例指的是呈现出前所未见行为的案例。模糊测试器实际发现的 bug 总是包括在有趣测试用例中，但 fuzzcheck 运行的大多数案例从未实际成为 bug。</p>
+
+<a name="tension"></a>
+
+</p><h3 id="tension_between_fuzz_testing_and_100_mc_dc_testing"><span>4.1.6. </span>模糊测试与 100% MC/DC 测试之间的张力</h3>
+
+<p>模糊测试与 <a href="testing.html#mcdc">100% MC/DC 测试</a> 之间存在张力。也就是说，接受 100% MC/DC 测试的代码往往更容易受到模糊测试发现的问题，而在模糊测试中表现良好的代码往往 MC/DC 覆盖率远低于 100%。这是因为 MC/DC 测试会不鼓励带有不可达分支的 <a href="testing.html#defcode">防御代码</a>，而没有防御代码时，模糊测试器更容易找到会导致问题的路径。MC/DC 测试似乎适合构建在常规使用中稳健的代码，而模糊测试则适合构建能够抵抗恶意攻击的代码。</p>
+
+<p>当然，用户更希望代码在常规使用中和在恶意攻击下都同样稳健。SQLite 开发者致力于实现这一目标。本节目的仅是指出同时兼顾两者是困难的。</p>
+
+<p>在其历史的大部分时间里，SQLite 一直专注于 100% MC/DC 测试。抵抗模糊攻击直到 2014 年 AFL 引入后才成为关注点。当时模糊测试器发现了许多 SQLite 问题。近年来，SQLite 的测试策略逐渐演进，更加重视模糊测试。我们仍然保持核心 SQLite 代码的 100% MC/DC 覆盖率，但大多数测试计算周期现在用于模糊测试。</p>
+
+<p>虽然模糊测试与 100% MC/DC 测试存在张力，但它们并非完全对立。SQLite 测试套件测试到 100% MC/DC 的事实意味着，当模糊测试器发现问题时，这些问题可以快速修复，且引入新错误的风险较小。</p>
+</p><h2 id="malformed_database_files"><span>4.2. </span>Malformed Database Files</h2>
+
+<p>有许多测试用例用来验证 SQLite 能否处理格式损坏的数据库文件。
+这些测试首先构建一个格式正确的数据库文件，然后通过 SQLite 之外的某种手段修改文件中的一个或多个字节来制造损坏。
+接着使用 SQLite 读取数据库。
+有些情况下，字节的改变发生在数据的中间。
+这会在保持数据库格式正确的同时修改数据库内容。
+在其他情况下，文件中未使用的字节被修改，对数据库的完整性没有影响。
+最有趣的情况是当定义数据库结构的字节被改动时。
+有缺陷数据库测试验证 SQLite 会发现文件格式错误，并使用 <a href="rescode.html#corrupt">SQLITE_CORRUPT</a> 返回码报告这些错误，而不会溢出缓冲区、取消引用 NULL 指针或执行其他有害操作。</p>
+
+<p><a href="testing.html#dbsqlfuzz">dbsqlfuzz</a> 模糊测试器也非常有效地验证 SQLite 对格式损坏的数据库文件有合理的响应。</p>
+
+<h2 id="boundary_value_tests"><span>4.3. </span>Boundary Value Tests</h2>
+
+<p>SQLite 在其运行中定义了某些 <a href="limits.html">限制</a>，例如表中的最大列数、SQL 语句的最大长度或整数的最大值。
+TCL 和 TH3 测试套件都包含大量测试，将 SQLite 推到其定义限制的边缘并验证它在所有允许值下都能正确运行。
+附加测试超出定义的限制并验证 SQLite 会正确返回错误。
+源代码中包含 <a href="testing.html#testcase">testcase 宏</a>，用于验证每个边界两端都经过测试。</p>
+
+<a name="regressiontesting"></a>
+
+<h1 id="regression_testing"><span>5. </span>Regression Testing</h1>
+
+<p>每当有针对 SQLite 的错误报告时，只有在将会暴露该错误的新测试用例添加到 TCL 或 TH3 测试套件之后，该错误才被视为已修复。
+多年来，这导致新增了成千上万个测试。
+这些回归测试确保过去修复的错误不会重新出现在 SQLite 的未来版本中。</p>
+
+<a name="leakcheck"></a>
+
+<h1 id="automatic_resource_leak_detection"><span>6. </span>Automatic Resource Leak Detection</h1>
+
+<p>资源泄露发生在系统资源被分配后从未释放。
+在许多应用中最令人头疼的资源泄露是内存泄露——使用 malloc() 分配的内存从未通过 free() 释放。
+但其他类型的资源也可能泄露：文件描述符、线程、互斥锁等。</p>
+
+<p>TCL 和 TH3 测试平台会在 <u>每次</u>测试运行时自动跟踪系统资源并报告资源泄露。
+无需特殊配置或设置。
+测试平台特别关注内存泄露。
+如果某个更改导致内存泄露，测试平台会迅速识别出来。
+SQLite 的设计目标是永不泄露内存，即使在发生像 OOM 错误或磁盘 I/O 错误这样的异常后也是如此。
+测试平台会严格执行这一点。</p>
+
+<a name="coverage"></a>
+
+<h1 id="test_coverage"><span>7. </span>Test Coverage</h1>
+
+<p>SQLite 核心代码（包括 unix <a href="vfs.html">VFS</a>）在其默认配置下，在 <a href="th3.html">TH3</a> 中具有 100% 的分支测试覆盖率，测量工具是 <a href="http://gcc.gnu.org/onlinedocs/gcc/Gcov.html">gcov</a>。
+诸如 FTS3 和 RTree 之类的扩展不包含在此分析中。</p>
+
+<a name="stmtvbr"></a>
+
+<h2 id="statement_versus_branch_coverage"><span>7.1. </span>Statement versus branch coverage</h2>
+
+<p>有许多方法来衡量测试覆盖率。
+最流行的指标是“语句覆盖率”。
+当有人在没有进一步解释的情况下说他们的程序有“XX% 的测试覆盖率”时，通常指的是语句覆盖率。
+语句覆盖率衡量测试套件至少执行过多少百分比的代码行。</p>
+
+<p>分支覆盖率比语句覆盖率更严格。
+分支覆盖率衡量每个机器代码分支指令在两个方向上至少被评估一次的次数。</p>
+
+<p>为说明语句覆盖率和分支覆盖率之间的区别，请参考以下假设的 C 代码行：</p>
+
+<div class="codeblock"><pre>if( a>b && c!=25 ){ d++; }
+</pre></div>
+
+<p>这样的 C 代码行可能生成十几条不同的机器代码指令。
+如果其中任何一条指令曾被执行，我们就认为该语句已被测试。
+因此，例如，该条件表达式可能总是为假，变量 “d” 从未递增。
+即便如此，语句覆盖率也将此代码行视为已经测试过。</p>
+
+<p>分支覆盖率更严格。
+在分支覆盖率中，每个测试及语句内的每个子块都被分别考虑。
+在上述示例中，要实现 100% 的分支覆盖率，必须至少存在三个测试用例：</p>
+
+<p></p><ul>
+<li> a&lt;=b
+</li><li> a&gt;b && c==25
+</li><li> a&gt;b && c!=25
+</li></ul>
+
+<p>上述任意一个测试用例都可以提供 100% 的语句覆盖率，但要达到 100% 的分支覆盖率，三个测试都必不可少。
+一般来说，100% 的分支覆盖率意味着 100% 的语句覆盖率，但反之则不成立。
+再次强调，<a href="th3.html">TH3</a> 测试平台为 SQLite 提供的是更强形式的测试覆盖率——100% 的分支测试覆盖率。</p>
+
+<a name="defcode"></a>
+
+<h2 id="coverage_testing_of_defensive_code"><span>7.2. </span>Coverage testing of defensive code</h2>
+
+<p>一个写得好的 C 程序通常包含一些在实践中总是真或总是假的防御性条件。
+这就引发了一个编程困境：是否应该移除防御性代码以获得 100% 的分支覆盖率？</p>
+
+<p>在 SQLite 中，对前面问题的回答是“不”。
+为了测试目的，SQLite 源代码定义了名为 ALWAYS() 和 NEVER() 的宏。
+ALWAYS() 宏包裹那些预计总是真值的条件，NEVER() 包裹那些总是假值的条件。
+这些宏作为注释，表明这些条件是防御性代码。
+在发布版本中，这些宏是直接传递：</p>
+
+<div class="codeblock"><pre>#define ALWAYS(X)  (X)
+#define NEVER(X)   (X)
+</pre></div>
+
+<p>而在大多数测试过程中，如果这些宏的参数没有预期的真值，它们会触发断言故障。
+这会让开发者快速注意到错误的设计假设。</p>
+
+</p><div class="codeblock"><pre>#define ALWAYS(X)  ((X)?1:assert(0),0)
+#define NEVER(X)   ((X)?assert(0),1:0)
+</pre></div>
+
+<p>在测量测试覆盖率时，这些宏被定义为常量真值，以避免生成汇编语言分支指令，因此在计算分支覆盖率时不会发生作用：</p>
+
+<div class="codeblock"><pre>#define ALWAYS(X)  (1)
+#define NEVER(X)   (0)
+</pre></div>
+
+<p>测试套件被设计为运行三次，每次使用上述 ALWAYS() 和 NEVER() 的一种定义。
+三次运行的结果应完全相同。
+有一个运行时测试使用 <a href="c3ref/test_control.html">sqlite3_test_control</a>(<a href="c3ref/c_testctrl_always.html">SQLITE_TESTCTRL_ALWAYS</a>, ...) 接口，用于验证宏是否正确设置为第一种形式（传递形式）以便部署。</p>
+
+<a name="testcase"></a>
+
+<h2 id="forcing_coverage_of_boundary_values_and_boolean_vector_tests"><span>7.3. </span>Forcing coverage of boundary values and boolean vector tests</h2>
+
+<p>另一个与测试覆盖率测量配合使用的宏是 <tt>testcase()</tt>。
+其参数是一种条件，我们希望测试用例既能使条件为真又能使条件为假。
+在非覆盖率构建（即发布构建）中，<tt>testcase()</tt> 宏是不起作用的：</p>
+
+<div class="codeblock"><pre>#define testcase(X)
+</pre></div>
+
+<p>但在覆盖率测量构建中，<tt>testcase()</tt> 宏会生成代码来评估其参数中的条件表达式。
+然后在分析过程中，会检查是否存在将条件求值为真和为假的测试。
+例如，<tt>testcase()</tt> 宏用于帮助验证边界值是否经过测试：</p>
+
+<div class="codeblock"><pre>testcase( a==b );
+testcase( a==b+1 );
+if( a>b && c!=25 ){ d++; }
+</pre></div>
+
+<p>当 switch 语句中的两个或更多分支跳转到同一代码块时，也会使用 testcase 宏，以确保所有分支都被执行：</p>
+
+<div class="codeblock"><pre>switch( op ){
+  case OP_Add:
+  case OP_Subtract: {
+    testcase( op==OP_Add );
+    testcase( op==OP_Subtract );
+    /* ... */
+    break;
+  }
+  /* ... */
+}
+</pre></div>
+
+<p>对于位掩码测试，<tt>testcase()</tt> 宏用于验证掩码的每一位都影响结果。
+例如在以下代码中，如果掩码包含指示正在打开 MAIN_DB 或 TEMP_DB 的任意一位，则条件为真。
+紧跟在 if 语句前的 <tt>testcase()</tt> 宏验证两个情况都已测试：</p>
+
+<div class="codeblock"><pre>testcase( mask & SQLITE_OPEN_MAIN_DB );
+testcase( mask & SQLITE_OPEN_TEMP_DB );
+if( (mask & (SQLITE_OPEN_MAIN_DB|SQLITE_OPEN_TEMP_DB))!=0 ){ ... }
+</pre></div>
+
+<p>SQLite 源代码中共使用了 1184 次 <tt>testcase()</tt> 宏。</p>
+
+<a name="mcdc"></a>
+
+<h2 id="branch_coverage_versus_mc_dc"><span>7.4. </span>Branch coverage versus MC/DC</h2>
+
+<p>前文介绍了两种测试覆盖率测量方法：“语句”和“分支”覆盖率。
+除了这两种，还有很多其他测试覆盖率指标。
+另一个流行的指标是“修改条件/决策覆盖率”，简称 MC/DC。
+<a href="http://en.wikipedia.org/wiki/Modified_Condition/Decision_Coverage">Wikipedia</a> 将 MC/DC 定义如下：</p>
+
+<ul>
+<li> 每个决策尝试每种可能的结果。
+</li><li> 每个决策中的条件都采取每种可能的结果。
+</li><li> 每个入口点和出口点都被调用。
+</li><li> 每个决策中的条件都被证明会独立地影响决策结果。
+</li></ul>
+
+<p>在 C 语言中，<b><tt>&amp;&amp;</tt></b> 和 <b><tt>||</tt></b> 是“短路”运算符，因此 MC/DC 与分支覆盖率几乎相同。
+主要区别在于布尔向量测试。
+即使布尔向量测试只检测了其中任意几位，也可能仍达到 100% 的分支测试覆盖率，但 MC/DC 的第二条要求——每个决策中的每个条件都取每种可能结果——可能并未满足。</p>
+
+<p>SQLite 使用上一小节描述的 <tt>testcase()</tt> 宏，确保布尔向量决策中的每个条件都取得每种可能结果。
+通过这种方式，SQLite 除了实现 100% 的分支覆盖率外，还实现了 100% 的 MC/DC。</p>
+
+<h2 id="measuring_branch_coverage"><span>7.5. </span>Measuring branch coverage</h2>
+
+<p>SQLite 目前使用带有 "-b" 选项的 <a href="https://gcc.gnu.org/onlinedocs/gcc/Gcov.html">gcov</a> 来度量分支覆盖率。
+首先用 "-g -fprofile-arcs -ftest-coverage" 选项编译测试程序，然后运行测试程序。
+接着运行 "gcov -b" 来生成覆盖率报告。
+覆盖率报告内容冗长且不易阅读，因此通过一些简单脚本对 gcov 生成的报告进行处理，使其更符合人类可读性。
+当然，这整个过程都是通过脚本自动化完成的。</p>
+
+</p><p>请注意，使用 gcov 运行 SQLite 并不是对 SQLite 本身的测试——它是对测试套件的测试。
+gcov 运行并不测试 SQLite，因为 -fprofile-arcs 和 -ftest-coverage 选项会导致编译器生成不同的代码。
+gcov 运行仅验证测试套件是否提供了 100% 的分支测试覆盖率。
+gcov 运行是对测试的测试——一种元测试。</p>
+
+</p><p>在 gcov 已运行并验证 100% 的分支测试覆盖率之后，再次使用交付编译器选项（不包含 -fprofile-arcs 和 -ftest-coverage 选项）重新编译测试程序并重新运行。
+这第二次运行才是真正对 SQLite 的测试。</p>
+
+</p><p>必须验证 gcov 测试运行和第二次实际测试运行都产生相同的输出。
+任何输出差异都表示 SQLite 代码中存在未定义或不确定行为（从而意味着一个 bug），或者是编译器本身的 bug。
+请注意，SQLite 在过去十年中曾在 GCC、Clang 和 MSVC 中发现过 bug。
+尽管编译器 bug 很少见，但确实存在，因此在交付后的配置中测试代码是非常重要的。</p>
+
+<a name="mutationtests"></a>
+
+</p><h2 id="mutation_testing"><span>7.6. </span>Mutation testing</h2>
+
+<p>使用 gcov（或类似工具）展示每条分支指令在两个方向上都至少被执行一次，是衡量测试套件质量的一个好方法。
+但更好的方法是展示每条分支指令都会影响输出。
+换句话说，我们希望展示不仅每条分支指令都会跳转并顺利通过，还要展示每条分支都有实际作用，测试套件能够检测并验证其作用。
+当某个分支被发现不会影响输出时，这说明与该分支相关的代码可以删除（减小库大小并可能加快运行速度），或者说明测试套件对该分支实现的功能测试不足。</p>
+
+</p><p>SQLite 力求通过 <a href="https://en.wikipedia.org/wiki/Mutation_testing">mutation testing</a> 证实每条分支指令都会产生差异。
+<a href="th3.html#muttest">一段脚本</a> 首先将 SQLite 源代码编译为汇编语言（例如使用 gcc 的 -S 选项）。
+然后脚本逐条遍历生成的汇编语言，将每条分支指令逐个改为无条件跳转或空操作，编译结果，并验证测试套件能否捕捉到此变异。</p>
+
+</p><p>不幸的是，SQLite 包含许多分支指令，它们只是帮助代码运行更快但不会改变输出。
+这些分支在突变测试时会产生误报。
+例如，考虑用于加速表名查找的以下 <a href="https://sqlite.org/src/artifact/55b5fb474?ln=55-62">哈希函数</a>：</p>
+
+</p><div class="codeblock"><pre>55  static unsigned int strHash(const char *z){
+56    unsigned int h = 0;
+57    unsigned char c;
+58    while( (c = (unsigned char)*z++)!=0 ){     /*OPTIMIZATION-IF-TRUE*/
+59      h = (h&lt;&lt;3) ^ h ^ sqlite3UpperToLower[c];
+60    }
+61    return h;
+62  }
+</pre></div>
+
+<p>如果实现第 58 行中 “c!=0” 测试的分支指令被改为无操作，while 循环会无限循环，测试套件会因超时而失败。
+但如果该分支改为无条件跳转，那么哈希函数将始终返回 0。
+问题在于 0 是一个有效的哈希值。
+始终返回 0 的哈希函数仍能正常工作，在 SQLite 中仍然能得出正确答案。
+表名哈希表退化为链表，因此在解析 SQL 语句时发生的表名查找可能会稍慢一些，但最终结果是相同的。</p>
+
+</p><p>为了解决这个问题，在 SQLite 源代码中插入了类似 "<code>/*OPTIMIZATION-IF-TRUE*/</code>" 和 "<code>/*OPTIMIZATION-IF-FALSE*/</code>" 的注释，用来告诉突变测试脚本忽略某些分支指令。</p>
+
+<a name="thoughts1"></a>
+
+</p><h2 id="experience_with_full_test_coverage"><span>7.7. </span>Experience with full test coverage</h2>
+
+<p>SQLite 的开发者发现，完整覆盖率测试是定位和防止 bug 的极其有效的方法。
+由于 SQLite 核心代码中的每一条分支指令都由测试用例覆盖，开发者可以确信在某个代码部分所做的更改不会在其他部分引发意外后果。
+近年来新增的众多新特性和性能改进，若无完整覆盖率测试的支持，是不可能实现的。</p>
+
+<p>维持 100% 的 MC/DC 很繁琐、耗时。
+维持完整覆盖测试所需的努力对于典型应用而言可能并不划算。
+然而，我们认为对像 SQLite 这样<a href="mostdeployed.html">广泛部署</a>的基础设施库，尤其是天然“记住”过去错误的数据库库，仍然有必要实施完整覆盖测试。</p>
+
+<a name="dynamicanalysis"></a>
+
+</p><h1 id="dynamic_analysis"><span>8. </span>Dynamic Analysis</h1>
+
+<p>动态分析指的是在代码运行过程中对 SQLite 代码执行的内部和外部检查。
+动态分析已被证明在维护 SQLite 质量方面极具帮助。</p>
+
+<a name="asserts"></a>
+
+<h2 id="assert"><span>8.1. </span>Assert</h2>
+
+<p>SQLite 核心包含 6754 个 <tt>assert()</tt> 语句，用于验证函数的前置条件、后置条件以及循环不变式。
+Assert() 是 ANSI-C 的标准宏。
+其参数是一个假定始终为真的布尔值。
+若断言为假，程序会打印错误信息并停止运行。</p>
+
+<p>通过定义 NDEBUG 宏即可禁用 Assert() 宏。
+在大多数系统中，断言默认启用。
+但在 SQLite 中，由于断言数量众多且位于性能关键位置，在启用断言后，数据库引擎的运行速度大约变为三分之一。
+因此 SQLite 的默认（生产）构建禁用断言。
+仅当 SQLite 使用 SQLITE_DEBUG 预处理宏编译时才启用断言语句。</p>
+
+<p>有关 SQLite 如何使用 assert() 的更多信息，请参见 <a href="assert.html">Use Of assert in SQLite</a> 文档。</p>
+
+<a name="valgrind"></a>
+
+<h2 id="valgrind"><span>8.2. </span>Valgrind</h2>
+
+<p><a href="http://valgrind.org/">Valgrind</a> 可能是世界上最惊人且最有用的开发者工具。
+Valgrind 是一个模拟器——它模拟在 Linux 上运行的 x86 二进制文件。（针对非 Linux 平台的 Valgrind 移植版正在开发中，但截至本文撰写时，Valgrind 仅在 Linux 上可靠运行，SQLite 开发者认为这意味着 Linux 应该是所有软件开发的首选平台。）
+由于 Valgrind 运行的是 Linux 二进制文件，它会查找各种有趣的错误，例如数组越界、读取未初始化内存、栈溢出、内存泄露等等。
+Valgrind 能发现很容易在 SQLite 其他测试中漏掉的问题。
+而当 Valgrind 发现错误时，它可以将开发者直接转入符号调试器的错误发生点，以便快速修复。</p>
+
+<p>由于 Valgrind 是模拟器，运行时比在原生硬件上慢。（大致而言，在工作站上通过 Valgrind 运行的应用，其性能与在智能手机上本地运行的性能差不多。）
+因此在 Valgrind 中运行完整的 SQLite 测试套件是不现实的。
+不过，每次发布前，都会在 Valgrind 中运行 veryquick 测试以及 TH3 测试的覆盖性部分。</p>
+
+<a name="memtesting"></a>
+
+<h2 id="memsys2"><span>8.3. </span>Memsys2</h2>
+
+<p>SQLite 包含一个可插拔的 <a href="malloc.html">内存分配子系统</a>。
+默认实现使用系统的 malloc() 和 free()。
+然而，如果 SQLite 以 <a href="compile.html#memdebug">SQLITE_MEMDEBUG</a> 编译，则会插入一个替代的内存分配包装器（<a href="malloc.html#memdebug">memsys2</a>），该包装器在运行时查找内存分配错误。
+memsys2 包装器检查内存泄露、缓冲区溢出、未初始化内存的使用以及释放后使用内存的情况。
+这些检查也由 valgrind 执行（实际上 Valgrind 做得更好），但 memsys2 的优势在于速度远快于 Valgrind，因此可以更频繁地、更长时间地执行这些检查。</p>
+
+<a name="mutextesting"></a>
+
+<h2 id="mutex_asserts"><span>8.4. </span>Mutex Asserts</h2>
+
+<p>SQLite 包含一个可插拔的互斥锁子系统。
+根据编译时选项，默认互斥系统提供 <a href="c3ref/mutex_held.html">sqlite3_mutex_held()</a> 和 <a href="c3ref/mutex_held.html">sqlite3_mutex_notheld()</a> 接口，用于检测调用线程是否持有指定互斥锁。
+这两个接口在 SQLite 的 assert() 语句中被广泛使用，以验证互斥锁在所有关键时刻都被正确持有和释放，从而再次确认 SQLite 在多线程应用中能正确工作。</p>
+
+<a name="journaltest"></a>
+
+<h2 id="journal_tests"><span>8.5. </span>Journal Tests</h2>
+
+<p>为了确保事务在系统崩溃和断电时仍具原子性，SQLite 所做的一件事就是在修改数据库前将所有更改写入回滚日志文件。
+TCL 测试平台提供了一个替代的 <a href="vfs.html">操作系统后端</a> 实现，有助于验证该操作的正确性。
+“journal-test VFS” 监控数据库文件与回滚日志之间的所有磁盘 I/O 流量，确保不会向数据库文件中写入任何未先写入并同步到回滚日志的内容。
+如果发现任何不一致之处，将触发断言故障。</p>
+
+<p>日志测试是额外的双重检查机制，确保 SQLite 事务在系统崩溃和断电时保持原子性，补充了崩溃测试。</p>
+
+<a name="intoverflow"></a>
+
+<h2 id="undefined_behavior_checks"><span>8.6. </span>Undefined Behavior Checks</h2>
+
+<p>在 C 语言中，很容易编写具有“未定义”或“实现定义”行为的代码。
+这意味着在开发期间代码可能正常工作，但在不同系统上，或在使用不同编译选项重新编译后，可能得出不同答案。
+ANSI C 中的未定义和实现定义行为示例包括：</p><ul>
+<li>带符号整型溢出。（带符号整型溢出<u>不</u>一定会像大多数人预期的那样环绕。）
+</li><li>将 N 位整数左移超过 N 位。
+</li><li>按负数位移。
+</li><li>位移负数。
+</li><li>在重叠缓冲区上使用 memcpy() 函数。
+</li><li>函数参数的求值顺序。
+</li><li>“char” 变量是有符号还是无符号。
+</li><li>等等……。
+</li></ul>
+
+<p>由于未定义和实现定义行为不可移植且容易导致错误答案，SQLite 努力避免这些行为。
+例如，在 SQL 语句中将两个整型列值相加时，SQLite 并不直接使用 C 语言的 "+" 运算符相加。
+相反，它首先检查相加是否会溢出，如果会，则改为使用浮点数进行相加。</p>
+
+</p><p>为了确保 SQLite 不会使用未定义或实现定义行为，测试套件会使用带有检测未定义行为的工具链重新运行。
+例如，使用 GCC 的 "-ftrapv" 选项运行测试套件；再使用 Clang 的 "-fsanitize=undefined" 选项执行；以及使用 MSVC 的 "/RTC1" 选项。
+然后使用像 "-funsigned-char" 与 "-fsigned-char" 这样的选项重新运行测试套件，以确保实现差异也不会产生影响。
+测试还会在 32 位与 64 位系统、大端与小端系统、各种 CPU 架构上重复执行。
+此外，测试套件还增加了许多刻意设计用来触发未定义行为的测试用例。
+例如：“<b>SELECT -1*(-9223372036854775808);</b>”。</p>
+
+<a name="disopttest"></a>
+
+</p><h1 id="disabled_optimization_tests"><span>9. </span>Disabled Optimization Tests</h1>
+
+<p><a href="c3ref/test_control.html">sqlite3_test_control</a>(<a href="c3ref/c_testctrl_always.html">SQLITE_TESTCTRL_OPTIMIZATIONS</a>, ...) 接口允许在运行时禁用特定的 SQL 语句优化。
+无论是否启用优化，SQLite 都应始终得出完全相同的答案；只是启用优化时答案会更快到达。
+因此在生产环境中，通常将优化保持打开（默认设置）。</p>
+
+<p>SQLite 所采用的一种验证技术是完整运行一次测试套件，优化开启；然后再关闭优化运行一次，并验证两次输出一致。
+这表明优化不会引入错误。</p>
+
+<p>并非所有测试用例都能通过此法处理。
+一些测试用例通过计数磁盘访问次数、排序操作、全扫描步骤或查询期间发生的其他处理步骤，来验证优化确实减少了计算量。
+当禁用优化时，那些测试用例会显得失败。
+但大多数测试用例只是检查是否得到了正确答案，而所有这些测试都可以在优化开启与关闭时成功运行，以证明优化不会导致故障。</p>
+
+
+<a name="cklist"></a>
+<h1 id="checklists"><span>10. </span>检查清单</h1>
+
+<p>SQLite 开发者使用在线检查清单来协调测试活动，并在每次 SQLite 发布前验证所有测试是否通过。</p>
+<p><a href="https://sqlite.org/checklists/index.html">过去的检查清单</a>会保留作为历史参考。（检查清单对匿名互联网访客是只读的，但开发者可以登录并在网页浏览器中更新检查清单项目。）SQLite 在测试以及其他开发活动中使用检查清单的做法，是受到 <i><a href="http://atulgawande.com/book/the-checklist-manifesto/">The Checklist Manifesto</a></i> 的启发。</p>
+
+<p>最新的检查清单大约包含 200 项，每次发布都逐一验证。有些项目只需几秒钟即可核对并标记完成，其他项目则包括需要运行数小时的测试套件。</p>
+
+<p>发布检查清单并非自动化：开发者会手动执行检查清单上的每一项。我们发现保持人工参与非常重要。有时即使测试本身通过，运行某个检查清单项目时仍可能发现问题。重要的是要有人在最高层次审查测试输出，并不断问自己：“这真的是正确的吗？”</p>
+
+<p>发布检查清单在不断发展。随着新的问题或潜在问题被发现，会添加新的清单项目，以确保这些问题不会出现在后续的发布中。发布检查清单已被证明是确保在发布过程中不会遗漏任何事项的宝贵工具。</p>
+
+
+<a name="staticanalysis"></a>
+
+<h1 id="static_analysis"><span>11. </span>静态分析</h1>
+
+<p>静态分析是指在编译时分析源代码以检查其正确性。静态分析包括编译器警告信息以及更深入的分析引擎，例如 <a href="http://clang-analyzer.llvm.org/">Clang Static Analyzer</a>。SQLite 在 Linux 和 macOS 上使用 -Wall 和 -Wextra 标志在 GCC 和 Clang 上编译，在 Windows 上使用 MSVC 编译均无警告。Clang Static Analyzer 工具 "scan-build" 也没有生成任何有效的警告（尽管最近版本的 clang 似乎会产生许多误报）。尽管如此，其他静态分析器仍可能生成一些警告。我们鼓励用户不要过度担心这些警告，而是从上文所述对 SQLite 进行的高强度测试中获得安慰。</p>
+
+<p>静态分析在发现 SQLite 中的漏洞方面帮助有限。静态分析确实发现过少数 SQLite 漏洞，但那些是例外。相比之下，为了让 SQLite 在无警告情况下编译，反而引入了更多漏洞，而这些漏洞并非由静态分析发现的。</p>
+
+<a name="summary"></a>
+
+<h1 id="summary"><span>12. </span>总结</h1>
+
+<p>SQLite 是开源的。这让许多人觉得它不像商业软件那样经过充分测试，可能不够可靠。但这种印象是错误的。SQLite 在实际应用中表现出极高的可靠性和非常低的缺陷率，特别是考虑到它发展速度之快。SQLite 的高质量部分得益于审慎的代码设计与实现，但广泛的测试也在维护和提升 SQLite 质量方面发挥着至关重要的作用。本文概述了每次 SQLite 发布所经历的测试流程，旨在增强人们对 SQLite 适用于关键任务应用的信心。</p>
+<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </i></small></p>

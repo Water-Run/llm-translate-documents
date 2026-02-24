@@ -1,0 +1,1277 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>Result and Error Codes</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译<br>
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+结果与错误代码
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#result_codes_versus_error_codes">1. 结果代码与错误代码</a></div>
+<div class="fancy-toc1"><a href="#primary_result_codes_versus_extended_result_codes">2. 主结果代码与扩展结果代码</a></div>
+<div class="fancy-toc1"><a href="#definitions">3. 定义</a></div>
+<div class="fancy-toc1"><a href="#primary_result_code_list">4. 主结果代码列表</a></div>
+<div class="fancy-toc1"><a href="#extended_result_code_list">5. 扩展结果代码列表</a></div>
+<div class="fancy-toc1"><a href="#result_code_meanings">6. 结果代码含义</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h2 style="margin-left:1.0em" notoc="1" id="overview"> 概览</h2> 
+
+<p>
+许多 SQLite <a href="c3ref/intro.html">C-language Interface</a> 中的例程会返回
+数值型结果代码，用以表示成功还是失败，如果发生失败，也能
+提供一些有关失败原因的线索。本文档力求解释每一个
+这些数值结果代码的含义。
+
+</p><h1 id="result_codes_versus_error_codes"><span>1. </span>结果代码与错误代码</h1>
+
+<p>
+“错误代码”是“结果代码”的一个子集，用来表明
+发生了一些问题。只有少数几个非错误结果
+代码：<a href="rescode.html#ok">SQLITE_OK</a>、<a href="rescode.html#row">SQLITE_ROW</a>、<a href="rescode.html#done">SQLITE_DONE</a>。术语
+“错误代码”指除这三个之外的任何结果代码。
+
+<a name="pve"></a>
+
+</p><h1 id="primary_result_codes_versus_extended_result_codes"><span>2. </span>主结果代码与扩展结果代码</h1>
+
+<p>
+结果代码是有符号的 32 位整数。
+结果代码的最低 8 位定义了一个大类，
+称为“主结果代码”。更高位提供
+更详细的错误信息，称为
+“扩展结果代码”。
+
+</p><p>
+注意主结果代码始终包含在扩展
+结果代码中。给定完整的 32 位扩展结果代码，应用程序
+总能仅通过提取扩展结果代码的最低 8 位来找到相应的主结果代码。
+
+</p><p>
+所有扩展结果代码也是错误代码。因此
+“扩展结果代码”和“扩展错误代码”可以互换使用。
+
+</p><p>
+为保持历史兼容性，C 语言接口默认返回
+主结果代码。
+最近一次错误的扩展结果代码可以通过
+<a href="c3ref/errcode.html">sqlite3_extended_errcode()</a> 接口获取。
+<a href="c3ref/extended_result_codes.html">sqlite3_extended_result_codes()</a> 接口可用于将
+<a href="c3ref/sqlite3.html">数据库连接</a>置于一个模式，使其返回
+扩展结果代码而非主结果代码。
+
+</p><h1 id="definitions"><span>3. </span>定义</h1>
+
+<p>
+所有结果代码都是整数。
+sqlite3.h 头文件中使用“#define”宏
+为所有结果代码创建符号名称。
+sqlite3.h 中分别为
+<a href="c3ref/c_abort.html">结果代码定义</a>和
+<a href="c3ref/c_abort_rollback.html">扩展结果代码定义</a>设置了不同的章节。
+
+</p><p>
+主结果代码的符号名称形式为“SQLITE_XXXXXX”，其中
+XXXXXX 是一串大写字母。扩展
+结果代码名称的形式为“SQLITE_XXXXXX_YYYYYYY”，其中
+XXXXXX 部分对应主结果代码，YYYYYYY 是对结果代码
+进一步分类的扩展。
+
+</p><p>
+现有结果代码的名称和数值是固定的
+且不会变化。然而，新的结果代码，特别是新的扩展
+结果代码，可能会在 SQLite 的未来版本中出现。
+
+
+</p><h1 id="primary_result_code_list"><span>4. </span>主结果代码列表</h1>
+<p>这 31 个结果代码在
+   <a href="c3ref/c_abort.html">sqlite3.h 中定义</a>，并按字母顺序列出如下：
+<div class='columns' style='columns: 16em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='rescode.html#abort'>SQLITE_ABORT&nbsp;(4)</a></li>
+<li><a href='rescode.html#auth'>SQLITE_AUTH&nbsp;(23)</a></li>
+<li><a href='rescode.html#busy'>SQLITE_BUSY&nbsp;(5)</a></li>
+<li><a href='rescode.html#cantopen'>SQLITE_CANTOPEN&nbsp;(14)</a></li>
+<li><a href='rescode.html#constraint'>SQLITE_CONSTRAINT&nbsp;(19)</a></li>
+<li><a href='rescode.html#corrupt'>SQLITE_CORRUPT&nbsp;(11)</a></li>
+<li><a href='rescode.html#done'>SQLITE_DONE&nbsp;(101)</a></li>
+<li><a href='rescode.html#empty'>SQLITE_EMPTY&nbsp;(16)</a></li>
+<li><a href='rescode.html#error'>SQLITE_ERROR&nbsp;(1)</a></li>
+<li><a href='rescode.html#format'>SQLITE_FORMAT&nbsp;(24)</a></li>
+<li><a href='rescode.html#full'>SQLITE_FULL&nbsp;(13)</a></li>
+<li><a href='rescode.html#internal'>SQLITE_INTERNAL&nbsp;(2)</a></li>
+<li><a href='rescode.html#interrupt'>SQLITE_INTERRUPT&nbsp;(9)</a></li>
+<li><a href='rescode.html#ioerr'>SQLITE_IOERR&nbsp;(10)</a></li>
+<li><a href='rescode.html#locked'>SQLITE_LOCKED&nbsp;(6)</a></li>
+<li><a href='rescode.html#mismatch'>SQLITE_MISMATCH&nbsp;(20)</a></li>
+<li><a href='rescode.html#misuse'>SQLITE_MISUSE&nbsp;(21)</a></li>
+<li><a href='rescode.html#nolfs'>SQLITE_NOLFS&nbsp;(22)</a></li>
+<li><a href='rescode.html#nomem'>SQLITE_NOMEM&nbsp;(7)</a></li>
+<li><a href='rescode.html#notadb'>SQLITE_NOTADB&nbsp;(26)</a></li>
+<li><a href='rescode.html#notfound'>SQLITE_NOTFOUND&nbsp;(12)</a></li>
+<li><a href='rescode.html#notice'>SQLITE_NOTICE&nbsp;(27)</a></li>
+<li><a href='rescode.html#ok'>SQLITE_OK&nbsp;(0)</a></li>
+<li><a href='rescode.html#perm'>SQLITE_PERM&nbsp;(3)</a></li>
+<li><a href='rescode.html#protocol'>SQLITE_PROTOCOL&nbsp;(15)</a></li>
+<li><a href='rescode.html#range'>SQLITE_RANGE&nbsp;(25)</a></li>
+<li><a href='rescode.html#readonly'>SQLITE_READONLY&nbsp;(8)</a></li>
+<li><a href='rescode.html#row'>SQLITE_ROW&nbsp;(100)</a></li>
+<li><a href='rescode.html#schema'>SQLITE_SCHEMA&nbsp;(17)</a></li>
+<li><a href='rescode.html#toobig'>SQLITE_TOOBIG&nbsp;(18)</a></li>
+<li><a href='rescode.html#warning'>SQLITE_WARNING&nbsp;(28)</a></li>
+</ul>
+</div>
+<a name="extrc"></a>
+
+</p><h1 id="extended_result_code_list"><span>5. </span>扩展结果代码列表</h1>
+<p>这 74 个扩展结果代码
+  <a href="c3ref/c_abort_rollback.html">在 sqlite3.h 中定义</a>，并按字母顺序
+  列出如下：
+<div class='columns' style='columns: 22em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='rescode.html#abort_rollback'>SQLITE_ABORT_ROLLBACK&nbsp;(516)</a></li>
+<li><a href='rescode.html#auth_user'>SQLITE_AUTH_USER&nbsp;(279)</a></li>
+<li><a href='rescode.html#busy_recovery'>SQLITE_BUSY_RECOVERY&nbsp;(261)</a></li>
+<li><a href='rescode.html#busy_snapshot'>SQLITE_BUSY_SNAPSHOT&nbsp;(517)</a></li>
+<li><a href='rescode.html#busy_timeout'>SQLITE_BUSY_TIMEOUT&nbsp;(773)</a></li>
+<li><a href='rescode.html#cantopen_convpath'>SQLITE_CANTOPEN_CONVPATH&nbsp;(1038)</a></li>
+<li><a href='rescode.html#cantopen_dirtywal'>SQLITE_CANTOPEN_DIRTYWAL&nbsp;(1294)</a></li>
+<li><a href='rescode.html#cantopen_fullpath'>SQLITE_CANTOPEN_FULLPATH&nbsp;(782)</a></li>
+<li><a href='rescode.html#cantopen_isdir'>SQLITE_CANTOPEN_ISDIR&nbsp;(526)</a></li>
+<li><a href='rescode.html#cantopen_notempdir'>SQLITE_CANTOPEN_NOTEMPDIR&nbsp;(270)</a></li>
+<li><a href='rescode.html#cantopen_symlink'>SQLITE_CANTOPEN_SYMLINK&nbsp;(1550)</a></li>
+<li><a href='rescode.html#constraint_check'>SQLITE_CONSTRAINT_CHECK&nbsp;(275)</a></li>
+<li><a href='rescode.html#constraint_commithook'>SQLITE_CONSTRAINT_COMMITHOOK&nbsp;(531)</a></li>
+<li><a href='rescode.html#constraint_datatype'>SQLITE_CONSTRAINT_DATATYPE&nbsp;(3091)</a></li>
+<li><a href='rescode.html#constraint_foreignkey'>SQLITE_CONSTRAINT_FOREIGNKEY&nbsp;(787)</a></li>
+<li><a href='rescode.html#constraint_function'>SQLITE_CONSTRAINT_FUNCTION&nbsp;(1043)</a></li>
+<li><a href='rescode.html#constraint_notnull'>SQLITE_CONSTRAINT_NOTNULL&nbsp;(1299)</a></li>
+<li><a href='rescode.html#constraint_pinned'>SQLITE_CONSTRAINT_PINNED&nbsp;(2835)</a></li>
+<li><a href='rescode.html#constraint_primarykey'>SQLITE_CONSTRAINT_PRIMARYKEY&nbsp;(1555)</a></li>
+<li><a href='rescode.html#constraint_rowid'>SQLITE_CONSTRAINT_ROWID&nbsp;(2579)</a></li>
+<li><a href='rescode.html#constraint_trigger'>SQLITE_CONSTRAINT_TRIGGER&nbsp;(1811)</a></li>
+<li><a href='rescode.html#constraint_unique'>SQLITE_CONSTRAINT_UNIQUE&nbsp;(2067)</a></li>
+<li><a href='rescode.html#constraint_vtab'>SQLITE_CONSTRAINT_VTAB&nbsp;(2323)</a></li>
+<li><a href='rescode.html#corrupt_index'>SQLITE_CORRUPT_INDEX&nbsp;(779)</a></li>
+<li><a href='rescode.html#corrupt_sequence'>SQLITE_CORRUPT_SEQUENCE&nbsp;(523)</a></li>
+<li><a href='rescode.html#corrupt_vtab'>SQLITE_CORRUPT_VTAB&nbsp;(267)</a></li>
+<li><a href='rescode.html#error_missing_collseq'>SQLITE_ERROR_MISSING_COLLSEQ&nbsp;(257)</a></li>
+<li><a href='rescode.html#error_retry'>SQLITE_ERROR_RETRY&nbsp;(513)</a></li>
+<li><a href='rescode.html#error_snapshot'>SQLITE_ERROR_SNAPSHOT&nbsp;(769)</a></li>
+<li><a href='rescode.html#ioerr_access'>SQLITE_IOERR_ACCESS&nbsp;(3338)</a></li>
+<li><a href='rescode.html#ioerr_auth'>SQLITE_IOERR_AUTH&nbsp;(7178)</a></li>
+<li><a href='rescode.html#ioerr_begin_atomic'>SQLITE_IOERR_BEGIN_ATOMIC&nbsp;(7434)</a></li>
+<li><a href='rescode.html#ioerr_blocked'>SQLITE_IOERR_BLOCKED&nbsp;(2826)</a></li>
+<li><a href='rescode.html#ioerr_checkreservedlock'>SQLITE_IOERR_CHECKRESERVEDLOCK&nbsp;(3594)</a></li>
+<li><a href='rescode.html#ioerr_close'>SQLITE_IOERR_CLOSE&nbsp;(4106)</a></li>
+<li><a href='rescode.html#ioerr_commit_atomic'>SQLITE_IOERR_COMMIT_ATOMIC&nbsp;(7690)</a></li>
+<li><a href='rescode.html#ioerr_convpath'>SQLITE_IOERR_CONVPATH&nbsp;(6666)</a></li>
+<li><a href='rescode.html#ioerr_corruptfs'>SQLITE_IOERR_CORRUPTFS&nbsp;(8458)</a></li>
+<li><a href='rescode.html#ioerr_data'>SQLITE_IOERR_DATA&nbsp;(8202)</a></li>
+<li><a href='rescode.html#ioerr_delete'>SQLITE_IOERR_DELETE&nbsp;(2570)</a></li>
+<li><a href='rescode.html#ioerr_delete_noent'>SQLITE_IOERR_DELETE_NOENT&nbsp;(5898)</a></li>
+<li><a href='rescode.html#ioerr_dir_close'>SQLITE_IOERR_DIR_CLOSE&nbsp;(4362)</a></li>
+<li><a href='rescode.html#ioerr_dir_fsync'>SQLITE_IOERR_DIR_FSYNC&nbsp;(1290)</a></li>
+<li><a href='rescode.html#ioerr_fstat'>SQLITE_IOERR_FSTAT&nbsp;(1802)</a></li>
+<li><a href='rescode.html#ioerr_fsync'>SQLITE_IOERR_FSYNC&nbsp;(1034)</a></li>
+<li><a href='rescode.html#ioerr_gettemppath'>SQLITE_IOERR_GETTEMPPATH&nbsp;(6410)</a></li>
+<li><a href='rescode.html#ioerr_lock'>SQLITE_IOERR_LOCK&nbsp;(3850)</a></li>
+<li><a href='rescode.html#ioerr_mmap'>SQLITE_IOERR_MMAP&nbsp;(6154)</a></li>
+<li><a href='rescode.html#ioerr_nomem'>SQLITE_IOERR_NOMEM&nbsp;(3082)</a></li>
+<li><a href='rescode.html#ioerr_rdlock'>SQLITE_IOERR_RDLOCK&nbsp;(2314)</a></li>
+<li><a href='rescode.html#ioerr_read'>SQLITE_IOERR_READ&nbsp;(266)</a></li>
+<li><a href='rescode.html#ioerr_rollback_atomic'>SQLITE_IOERR_ROLLBACK_ATOMIC&nbsp;(7946)</a></li>
+<li><a href='rescode.html#ioerr_seek'>SQLITE_IOERR_SEEK&nbsp;(5642)</a></li>
+<li><a href='rescode.html#ioerr_shmlock'>SQLITE_IOERR_SHMLOCK&nbsp;(5130)</a></li>
+<li><a href='rescode.html#ioerr_shmmap'>SQLITE_IOERR_SHMMAP&nbsp;(5386)</a></li>
+<li><a href='rescode.html#ioerr_shmopen'>SQLITE_IOERR_SHMOPEN&nbsp;(4618)</a></li>
+<li><a href='rescode.html#ioerr_shmsize'>SQLITE_IOERR_SHMSIZE&nbsp;(4874)</a></li>
+<li><a href='rescode.html#ioerr_short_read'>SQLITE_IOERR_SHORT_READ&nbsp;(522)</a></li>
+<li><a href='rescode.html#ioerr_truncate'>SQLITE_IOERR_TRUNCATE&nbsp;(1546)</a></li>
+<li><a href='rescode.html#ioerr_unlock'>SQLITE_IOERR_UNLOCK&nbsp;(2058)</a></li>
+<li><a href='rescode.html#ioerr_vnode'>SQLITE_IOERR_VNODE&nbsp;(6922)</a></li>
+<li><a href='rescode.html#ioerr_write'>SQLITE_IOERR_WRITE&nbsp;(778)</a></li>
+<li><a href='rescode.html#locked_sharedcache'>SQLITE_LOCKED_SHAREDCACHE&nbsp;(262)</a></li>
+<li><a href='rescode.html#locked_vtab'>SQLITE_LOCKED_VTAB&nbsp;(518)</a></li>
+<li><a href='rescode.html#notice_recover_rollback'>SQLITE_NOTICE_RECOVER_ROLLBACK&nbsp;(539)</a></li>
+<li><a href='rescode.html#notice_recover_wal'>SQLITE_NOTICE_RECOVER_WAL&nbsp;(283)</a></li>
+<li><a href='rescode.html#ok_load_permanently'>SQLITE_OK_LOAD_PERMANENTLY&nbsp;(256)</a></li>
+<li><a href='rescode.html#readonly_cantinit'>SQLITE_READONLY_CANTINIT&nbsp;(1288)</a></li>
+<li><a href='rescode.html#readonly_cantlock'>SQLITE_READONLY_CANTLOCK&nbsp;(520)</a></li>
+<li><a href='rescode.html#readonly_dbmoved'>SQLITE_READONLY_DBMOVED&nbsp;(1032)</a></li>
+<li><a href='rescode.html#readonly_directory'>SQLITE_READONLY_DIRECTORY&nbsp;(1544)</a></li>
+<li><a href='rescode.html#readonly_recovery'>SQLITE_READONLY_RECOVERY&nbsp;(264)</a></li>
+<li><a href='rescode.html#readonly_rollback'>SQLITE_READONLY_ROLLBACK&nbsp;(776)</a></li>
+<li><a href='rescode.html#warning_autoindex'>SQLITE_WARNING_AUTOINDEX&nbsp;(284)</a></li>
+</ul>
+</div>
+
+</p><h1 id="result_code_meanings"><span>6. </span>结果代码含义</h1>
+<p>
+下列内容按数值顺序列出了所有 105 个
+结果代码值的含义。
+
+<!--------------------------------------------------------------->
+<a name="ok"></a>
+<h3>(0) SQLITE_OK</h3>
+<p>
+  SQLITE_OK 结果代码表示操作成功且
+  无任何错误。大多数其他结果代码表示错误。
+
+
+<!--------------------------------------------------------------->
+<a name="error"></a>
+<h3>(1) SQLITE_ERROR</h3>
+<p>
+  SQLITE_ERROR 结果代码是一种通用错误代码，当
+  没有更具体的错误代码可用时使用。
+
+
+<!--------------------------------------------------------------->
+<a name="internal"></a>
+<h3>(2) SQLITE_INTERNAL</h3>
+<p>
+  SQLITE_INTERNAL 结果代码表示内部故障。
+  在正常工作的 SQLite 中，应用程序不应当看到此
+  结果代码。如果应用程序遇到此结果代码，则表明
+  数据库引擎中存在缺陷。
+  <p>
+  此结果代码可能由 SQLite 中的一个 Bug 引起。
+  但是，<a href="appfunc.html">应用程序定义的 SQL 函数</a>或
+  <a href="vtab.html">虚拟表</a>、<a href="vfs.html">VFSes</a>或其他扩展也可能导致返回此
+  结果代码，因此问题未必由 SQLite 核心引起。
+
+
+<!--------------------------------------------------------------->
+<a name="perm"></a>
+<h3>(3) SQLITE_PERM</h3>
+<p>
+  SQLITE_PERM 结果代码表示无法为新建数据库
+  提供所请求的访问模式。
+
+
+<!--------------------------------------------------------------->
+<a name="abort"></a>
+<h3>(4) SQLITE_ABORT</h3>
+<p>
+  SQLITE_ABORT 结果代码表示某个操作在完成前被中止，
+  通常是由应用程序请求引起。
+  另见：<a href="rescode.html#interrupt">SQLITE_INTERRUPT</a>。
+  <p>
+  如果 <a href="c3ref/exec.html">sqlite3_exec()</a> 的回调函数返回非零值，则
+  sqlite3_exec() 将返回 SQLITE_ABORT。
+  <p>
+  若在与待处理的读或写操作位于同一个 <a href="c3ref/sqlite3.html">数据库连接</a>上的
+  <a href="lang_transaction.html">ROLLBACK</a> 操作发生，则该待处理的读或写可能会
+  返回 SQLITE_ABORT 或 <a href="rescode.html#abort_rollback">SQLITE_ABORT_ROLLBACK</a> 错误。
+  <p>
+  除了用作结果代码外，
+  SQLITE_ABORT 值还用作从
+  <a href="c3ref/vtab_on_conflict.html">sqlite3_vtab_on_conflict()</a> 接口返回的
+  <a href="c3ref/c_fail.html">冲突解决模式</a>。
+
+
+<!--------------------------------------------------------------->
+<a name="busy"></a>
+<h3>(5) SQLITE_BUSY</h3>
+<p>
+  SQLITE_BUSY 结果代码表示无法写入（在某些情况下也无法读取）数据库文件，
+  原因是某个其他 <a href="c3ref/sqlite3.html">数据库连接</a>，通常是位于不同进程中的连接，正在并发访问。
+  <p>
+  例如，如果进程 A 正在执行大规模写事务，
+  同时进程 B 试图启动新的写事务，则进程 B 会收到 SQLITE_BUSY，因为 SQLite
+  一次仅支持一个写者。进程 B 必须等待进程 A 完成
+  其事务后才能启动新事务。<a href="c3ref/busy_timeout.html">sqlite3_busy_timeout()</a>、<a href="c3ref/busy_handler.html">sqlite3_busy_handler()</a> 接口以及
+  <a href="pragma.html#pragma_busy_timeout">busy_timeout pragma</a> 可供进程 B 使用，以帮助其处理
+  SQLITE_BUSY 错误。
+  <p>
+  在事务中的任何阶段都可能发生 SQLITE_BUSY 错误：当
+  事务刚开始、执行任何写或更新操作期间，或在提交时。
+  为避免在事务中途遇到 SQLITE_BUSY 错误，
+  应用程序可以使用 <a href="lang_transaction.html#immediate">BEGIN IMMEDIATE</a>，而不仅仅是 <a href="lang_transaction.html">BEGIN</a> 来
+  启动事务。<a href="lang_transaction.html#immediate">BEGIN IMMEDIATE</a> 命令本身可能返回
+  SQLITE_BUSY，但如果成功，则 SQLite 保证在接下来的 <a href="lang_transaction.html">COMMIT</a>
+  之前通过同一个数据库进行的后续操作不会返回 SQLITE_BUSY。
+  <p>
+  另见：<a href="rescode.html#busy_recovery">SQLITE_BUSY_RECOVERY</a> 和
+  <a href="rescode.html#busy_snapshot">SQLITE_BUSY_SNAPSHOT</a>。
+  <p>
+  SQLITE_BUSY 结果代码与 <a href="rescode.html#locked">SQLITE_LOCKED</a> 不同，SQLITE_BUSY 表示与
+  另一个 <a href="c3ref/sqlite3.html">数据库连接</a>（可能在不同进程中）之间的冲突，
+  而 <a href="rescode.html#locked">SQLITE_LOCKED</a> 表示在同一个
+  <a href="c3ref/sqlite3.html">数据库连接</a>（或有 <a href="sharedcache.html">共享缓存</a> 的连接）内部的冲突。
+
+
+<!--------------------------------------------------------------->
+<a name="locked"></a>
+<h3>(6) SQLITE_LOCKED</h3>
+<p>
+  SQLITE_LOCKED 结果代码表示写操作因
+  同一 <a href="c3ref/sqlite3.html">数据库连接</a> 内部的冲突或
+  与使用 <a href="sharedcache.html">共享缓存</a> 的不同数据库连接发生冲突而无法继续。
+  <p>
+  例如，当另一个线程在同一个
+  <a href="c3ref/sqlite3.html">数据库连接</a>上从该表读取时，
+  <a href="lang_droptable.html">DROP TABLE</a> 语句无法运行，
+  因为删除表会将表从并发读取者下方删除。
+  <p>
+  SQLITE_LOCKED 结果代码与 <a href="rescode.html#busy">SQLITE_BUSY</a> 不同，
+  SQLITE_LOCKED 表示在同一个 <a href="c3ref/sqlite3.html">数据库连接</a>
+  （或有 <a href="sharedcache.html">共享缓存</a> 的连接）上的冲突，而 <a href="rescode.html#busy">SQLITE_BUSY</a>
+  表示与另一个数据库连接（可能在不同进程中）之间的冲突。
+
+
+<!--------------------------------------------------------------->
+<a name="nomem"></a>
+<h3>(7) SQLITE_NOMEM</h3>
+<p>
+  SQLITE_NOMEM 结果代码表示 SQLite 无法分配
+  完成操作所需的全部内存。换言之，
+  内部对 <a href="c3ref/free.html">sqlite3_malloc()</a> 或
+  <a href="c3ref/free.html">sqlite3_realloc()</a> 的调用失败，
+  而被分配的内存对于继续操作是必要的。
+
+
+<!--------------------------------------------------------------->
+<a name="readonly"></a>
+<h3>(8) SQLITE_READONLY</h3>
+<p>
+  当尝试修改当前数据库连接
+  没有写权限的数据时，会返回 SQLITE_READONLY 结果代码。
+
+
+<!--------------------------------------------------------------->
+<a name="interrupt"></a>
+<h3>(9) SQLITE_INTERRUPT</h3>
+<p>
+  SQLITE_INTERRUPT 结果代码表示某个操作被
+  <a href="c3ref/interrupt.html">sqlite3_interrupt()</a> 接口中断。
+  另见：<a href="rescode.html#abort">SQLITE_ABORT</a>
+
+
+<!--------------------------------------------------------------->
+<a name="ioerr"></a>
+<h3>(10) SQLITE_IOERR</h3>
+<p>
+  SQLITE_IOERR 结果代码表示操作无法完成，
+  因为操作系统报出了 I/O 错误。
+  <p>
+  当磁盘已满时，通常会返回 <a href="rescode.html#full">SQLITE_FULL</a> 错误，而不是
+  SQLITE_IOERR。
+  <p>
+  有许多不同的扩展结果代码用于 I/O 错误，
+  以标识具体失败的 I/O 操作。
+
+
+<!--------------------------------------------------------------->
+<a name="corrupt"></a>
+<h3>(11) SQLITE_CORRUPT</h3>
+<p>
+  SQLITE_CORRUPT 结果代码表示数据库文件已
+  损坏。有关损坏可能如何发生的更多讨论，请参阅
+  <a href="lockingv3.html#how_to_corrupt">如何破坏数据库文件</a>。
+
+
+<!--------------------------------------------------------------->
+<a name="notfound"></a>
+<h3>(12) SQLITE_NOTFOUND</h3>
+<p>
+  SQLITE_NOTFOUND 结果代码通过三种方式暴露：
+  <ol>
+  <li><p>
+  <a href="c3ref/file_control.html">sqlite3_file_control()</a> 接口可能返回
+  SQLITE_NOTFOUND，以指示作为第三个参数传入的
+  <a href="c3ref/c_fcntl_begin_atomic_write.html">文件控制操作码</a>
+  未被底层的 <a href="vfs.html">VFS</a> 识别。
+  <li><p>
+  <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的 xSetSystemCall() 方法也可能返回 SQLITE_NOTFOUND。
+  <li><p>
+  <a href="c3ref/vtab_rhs_value.html">sqlite3_vtab_rhs_value()</a> 可能返回 SQLITE_NOTFOUND，
+  以指示约束的右操作数对于发出调用的
+  <a href="vtab.html#xbestindex">xBestIndex 方法</a> 不可用。
+  </ol>
+  <p>
+  SQLITE_NOTFOUND 结果代码也在 SQLite 实现的内部使用，
+  但这些内部用途不会向应用程序暴露。
+
+
+<!--------------------------------------------------------------->
+<a name="full"></a>
+<h3>(13) SQLITE_FULL</h3>
+<p>
+  SQLITE_FULL 结果代码表示写操作无法完成，
+  因为磁盘已满。注意，此错误可能发生在尝试
+  向主数据库文件写入信息时，也可能
+  发生在向 <a href="tempfiles.html">临时磁盘文件</a> 写入时。
+  <p>
+  有时即便主磁盘空间很充足，应用程序仍会遇到此错误，
+  因为该错误发生在线程向
+  <a href="tempfiles.html">临时磁盘文件</a> 写入，而系统将临时文件存放在
+  空间远小于主磁盘的独立分区上。
+
+
+<!--------------------------------------------------------------->
+<a name="cantopen"></a>
+<h3>(14) SQLITE_CANTOPEN</h3>
+<p>
+  SQLITE_CANTOPEN 结果代码表示 SQLite 无法
+  打开某个文件。该文件可能是主数据库文件
+  或若干 (<a href="tempfiles.html">临时磁盘文件</a>) 中的某一个。
+
+
+<!--------------------------------------------------------------->
+<a name="protocol"></a>
+<h3>(15) SQLITE_PROTOCOL</h3>
+<p>
+  SQLITE_PROTOCOL 结果代码表示 SQLite 使用的文件锁协议
+  出现了问题。目前只有在使用 <a href="wal.html">WAL 模式</a> 并试图启动新事务时
+  会返回 SQLITE_PROTOCOL 错误。
+  当两个独立的
+  <a href="c3ref/sqlite3.html">数据库连接</a> 在 <a href="wal.html">WAL 模式</a> 中几乎同时尝试启动事务时，可能出现竞争条件。
+  竞争失败者会退避并稍后重试。如果同一个连接在数秒内多次在锁竞争中失败，
+  它最终会放弃并返回 SQLITE_PROTOCOL。
+  SQLITE_PROTOCOL 错误在实践中极少出现，仅在多个进程
+  激烈竞争写入同一数据库时才可能出现。
+
+
+<!--------------------------------------------------------------->
+<a name="empty"></a>
+<h3>(16) SQLITE_EMPTY</h3>
+<p>
+  SQLITE_EMPTY 结果代码当前未使用。
+
+
+<!--------------------------------------------------------------->
+<a name="schema"></a>
+<h3>(17) SQLITE_SCHEMA</h3>
+<p>
+  SQLITE_SCHEMA 结果代码表示数据库模式
+  已更改。对于通过 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 或
+  <a href="c3ref/prepare.html">sqlite3_prepare16()</a> 生成的
+  <a href="c3ref/stmt.html">prepared statement</a>，<a href="c3ref/step.html">sqlite3_step()</a> 可能返回此错误。
+  如果在 statement 准备完成与执行之间，数据库模式被其他进程更改，则可能发生该错误。
+  <p>
+  如果通过 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 生成
+  <a href="c3ref/stmt.html">prepared statement</a>，则如果模式更改，
+  该语句会自动重新准备，最多重试
+  <a href="compile.html#max_schema_retry">SQLITE_MAX_SCHEMA_RETRY</a> 次（默认值：50）。
+  只有当重试次数耗尽后，<a href="c3ref/step.html">sqlite3_step()</a>
+  接口才会将 SQLITE_SCHEMA 返回给应用程序。
+
+
+<!--------------------------------------------------------------->
+<a name="toobig"></a>
+<h3>(18) SQLITE_TOOBIG</h3>
+<p>
+  SQLITE_TOOBIG 错误码表示字符串或 BLOB 太大。SQLite 中字符串或 BLOB 的默认最大长度为 1,000,000,000 字节。此最大长度可以通过 <a href="limits.html#max_length">SQLITE_MAX_LENGTH</a> 编译时选项进行更改，或通过 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitlength">SQLITE_LIMIT_LENGTH</a>,...) 接口在运行时更改。当 SQLite 遇到超过编译时或运行时限制的字符串或 BLOB 时，就会返回 SQLITE_TOOBIG 错误。
+  <p>
+  当将过大的 SQL 语句传入某个 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 接口时，也会返回 SQLITE_TOOBIG 错误码。SQL 语句的最大长度默认也是 1,000,000,000 字节。可以通过 <a href="limits.html#max_sql_length">SQLITE_MAX_SQL_LENGTH</a> 在编译时设置最大 SQL 语句长度，或通过 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitsqllength">SQLITE_LIMIT_SQL_LENGTH</a>,...) 在运行时设置。
+
+
+<!--------------------------------------------------------------->
+<a name="constraint"></a>
+<h3>(19) SQLITE_CONSTRAINT</h3>
+<p>
+  SQLITE_CONSTRAINT 错误码表示在处理 SQL 语句时发生了 SQL 约束违反。可以通过查看随附的错误消息（通过 <a href="c3ref/errcode.html">sqlite3_errmsg()</a> 或
+  <a href="c3ref/errcode.html">sqlite3_errmsg16()</a> 返回）或查看 <a href="rescode.html#extrc">扩展错误码</a> 来获取有关失败约束的其他信息。
+  <p>
+  SQLITE_CONSTRAINT 代码也可以用作 <a href="vtab.html#xbestindex">xBestIndex()</a> 方法的返回值，该方法属于 <a href="vtab.html">虚拟表</a> 的实现。当 xBestIndex() 返回 SQLITE_CONSTRAINT 时，表示提交给 xBestIndex() 的特定输入组合无法生成可用的查询计划，不应继续考虑。
+
+
+<!--------------------------------------------------------------->
+<a name="mismatch"></a>
+<h3>(20) SQLITE_MISMATCH</h3>
+<p>
+  SQLITE_MISMATCH 错误码表示数据类型不匹配。
+  <p>
+  SQLite 通常对值的类型与其要存储的容器声明类型之间的不匹配非常宽容。例如，SQLite 允许应用在声明类型为 BOOLEAN 的列中存储大型 BLOB。但在少数情况下，SQLite 会对类型严格要求。当类型不匹配时，就会在这些情况下返回 SQLITE_MISMATCH 错误。
+  <p>
+  表的 <a href="lang_createtable.html#rowid">rowid</a> 必须是整数。尝试将 <a href="lang_createtable.html#rowid">rowid</a> 设置为非整数（或会自动转换为下一个可用整数 rowid 的 NULL）会导致 SQLITE_MISMATCH 错误。
+
+
+<!--------------------------------------------------------------->
+<a name="misuse"></a>
+<h3>(21) SQLITE_MISUSE</h3>
+<p>
+  如果应用以未定义或不受支持的方式使用任何 SQLite 接口，可能会返回 SQLITE_MISUSE 返回码。例如，在 <a href="c3ref/stmt.html">prepared statement</a> 被 <a href="c3ref/finalize.html">finalized</a> 之后继续使用该 prepared statement，可能会导致 SQLITE_MISUSE 错误。
+  <p>
+  SQLite 会尝试检测滥用并通过该结果码报告。然而，并不能保证滥用检测一定成功。滥用检测具有概率性。应用绝不应依赖 SQLITE_MISUSE 的返回值。
+  <p>
+  如果 SQLite 在任何接口中返回 SQLITE_MISUSE，说明应用代码存在错误，需要修复。不要发布一个在标准 SQLite 接口中偶尔返回 SQLITE_MISUSE 的应用，因为该应用可能包含严重缺陷。
+
+
+<!--------------------------------------------------------------->
+<a name="nolfs"></a>
+<h3>(22) SQLITE_NOLFS</h3>
+<p>
+  当数据库增长到超过文件系统支持的大小且系统不支持大文件时，可能会返回 SQLITE_NOLFS 错误。“NOLFS” 表示 “NO Large File Support（不支持大文件）”。
+
+
+<!--------------------------------------------------------------->
+<a name="auth"></a>
+<h3>(23) SQLITE_AUTH</h3>
+<p>
+  当 <a href="c3ref/set_authorizer.html">authorizer callback</a> 表示正在准备的 SQL 语句未经授权时，会返回 SQLITE_AUTH 错误。
+
+
+<!--------------------------------------------------------------->
+<a name="format"></a>
+<h3>(24) SQLITE_FORMAT</h3>
+<p>
+  SQLite 当前并不使用 SQLITE_FORMAT 错误码。
+
+
+<!--------------------------------------------------------------->
+<a name="range"></a>
+<h3>(25) SQLITE_RANGE</h3>
+<p>
+  SQLITE_RANGE 错误表示传递给某个 <a href="c3ref/bind_blob.html">sqlite3_bind</a> 例程的参数编号或某个 <a href="c3ref/column_blob.html">sqlite3_column</a> 例程的列编号超出了范围。
+
+
+<!--------------------------------------------------------------->
+<a name="notadb"></a>
+<h3>(26) SQLITE_NOTADB</h3>
+<p>
+  尝试打开文件时，如果 SQLITE_NOTADB 错误出现，表示所打开的文件看起来并非 SQLite 数据库文件。
+
+
+<!--------------------------------------------------------------->
+<a name="notice"></a>
+<h3>(27) SQLITE_NOTICE</h3>
+<p>
+  任何 C/C++ 接口都不会返回 SQLITE_NOTICE 结果码。然而，当通过 <a href="c3ref/log.html">sqlite3_log()</a> 回调报告某个不寻常的操作时，有时会使用 SQLITE_NOTICE（或其 <a href="rescode.html#extrc">扩展错误码</a> 之一）作为第一个参数。
+
+
+<!--------------------------------------------------------------->
+<a name="warning"></a>
+<h3>(28) SQLITE_WARNING</h3>
+<p>
+  任何 C/C++ 接口都不会返回 SQLITE_WARNING 结果码。然而，当通过 <a href="c3ref/log.html">sqlite3_log()</a> 回调报告可能不明智且不同寻常的操作时，有时会使用 SQLITE_WARNING（或其 <a href="rescode.html#extrc">扩展错误码</a> 之一）作为第一个参数。
+
+
+<!--------------------------------------------------------------->
+<a name="row"></a>
+<h3>(100) SQLITE_ROW</h3>
+<p>
+  由 <a href="c3ref/step.html">sqlite3_step()</a> 返回的 SQLITE_ROW 结果码表示又有可用的输出行。
+
+
+<!--------------------------------------------------------------->
+<a name="done"></a>
+<h3>(101) SQLITE_DONE</h3>
+<p>
+  SQLITE_DONE 结果码表示某个操作已完成。最常见的情况是从 <a href="c3ref/step.html">sqlite3_step()</a> 返回 SQLITE_DONE，表示 SQL 语句已经执行完毕。但 SQLITE_DONE 也可能由其他多步接口返回，例如 <a href="c3ref/backup_finish.html#sqlite3backupstep">sqlite3_backup_step()</a>。
+
+
+<!--------------------------------------------------------------->
+<a name="ok_load_permanently"></a>
+<h3>(256) SQLITE_OK_LOAD_PERMANENTLY</h3>
+<p>
+  <a href="c3ref/load_extension.html">sqlite3_load_extension()</a> 接口将一个 <a href="loadext.html">extension</a> 加载到单个数据库连接中。默认行为是在数据库连接关闭时自动卸载该扩展。然而，如果扩展入口点返回 SQLITE_OK_LOAD_PERMANENTLY 而不是 SQLITE_OK，那么在数据库连接关闭后，该扩展仍会保留在进程地址空间中。换句话说，在数据库连接关闭时，不会对该扩展调用 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的 xDlClose 方法。
+  <p>
+  对于注册新 <a href="vfs.html">VFSes</a> 的 <a href="loadext.html">loadable extensions</a> 来说，SQLITE_OK_LOAD_PERMANENTLY 返回码非常有用。
+
+
+<!--------------------------------------------------------------->
+<a name="error_missing_collseq"></a>
+<h3>(257) SQLITE_ERROR_MISSING_COLLSEQ</h3>
+<p>
+  SQLITE_ERROR_MISSING_COLLSEQ 结果码表示因 SQL 语句中引用的某个排序序列无法找到而无法准备该 SQL 语句。
+  <p>
+  有时遇到此错误码时，<a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 例程会将该错误转换为 <a href="rescode.html#error_retry">SQLITE_ERROR_RETRY</a>，并尝试使用不需要未知排序序列的其他查询计划再次准备 SQL 语句。
+
+
+<!--------------------------------------------------------------->
+<a name="busy_recovery"></a>
+<h3>(261) SQLITE_BUSY_RECOVERY</h3>
+<p>
+  SQLITE_BUSY_RECOVERY 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#busy">SQLITE_BUSY</a>，提示某个操作无法继续，因为另一个进程正忙于在崩溃后恢复 <a href="wal.html">WAL mode</a> 数据库文件。SQLITE_BUSY_RECOVERY 错误只会在 <a href="wal.html">WAL mode</a> 数据库上出现。
+
+
+<!--------------------------------------------------------------->
+<a name="locked_sharedcache"></a>
+<h3>(262) SQLITE_LOCKED_SHAREDCACHE</h3>
+<p>
+  SQLITE_LOCKED_SHAREDCACHE 结果码表示对 SQLite 数据记录的访问被另一个正在以 <a href="sharedcache.html">shared cache mode</a> 使用同一记录的数据库连接阻塞。当两个或更多数据库连接共享同一缓存且其中一个连接正在该缓存中修改记录时，其它连接在修改进行中无法访问该数据，以防读者看到已损坏或未完成的修改。
+
+
+<!--------------------------------------------------------------->
+<a name="readonly_recovery"></a>
+<h3>(264) SQLITE_READONLY_RECOVERY</h3>
+<p>
+  SQLITE_READONLY_RECOVERY 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#readonly">SQLITE_READONLY</a>。该错误码表示由于数据库文件需要恢复且恢复需要写访问权限，但当前只有读访问权限，因此 <a href="wal.html">WAL mode</a> 数据库无法打开。
+
+
+<!--------------------------------------------------------------->
+<a name="ioerr_read"></a>
+<h3>(266) SQLITE_IOERR_READ</h3>
+<p>
+  SQLITE_IOERR_READ 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#ioerr">SQLITE_IOERR</a>，指示在试图从磁盘文件读取时 <a href="vfs.html">VFS</a> 层发生 I/O 错误。该错误可能由硬件故障引起，或由于在文件打开期间文件系统被卸载。
+
+
+<!--------------------------------------------------------------->
+<a name="corrupt_vtab"></a>
+<h3>(267) SQLITE_CORRUPT_VTAB</h3>
+<p>
+  SQLITE_CORRUPT_VTAB 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#corrupt">SQLITE_CORRUPT</a>，供 <a href="vtab.html">virtual tables</a> 使用。虚拟表可能返回 SQLITE_CORRUPT_VTAB，以表明虚拟表中的内容已损坏。
+
+
+<!--------------------------------------------------------------->
+<a name="cantopen_notempdir"></a>
+<h3>(270) SQLITE_CANTOPEN_NOTEMPDIR</h3>
+<p>
+  SQLITE_CANTOPEN_NOTEMPDIR 错误码已不再使用。
+
+
+<!--------------------------------------------------------------->
+<a name="constraint_check"></a>
+<h3>(275) SQLITE_CONSTRAINT_CHECK</h3>
+<p>
+  SQLITE_CONSTRAINT_CHECK 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a>，提示某个 <a href="lang_createtable.html#ckconst">CHECK constraint</a> 失败。
+
+
+<!--------------------------------------------------------------->
+<a name="auth_user"></a>
+<h3>(279) SQLITE_AUTH_USER</h3>
+<p>
+  SQLITE_AUTH_USER 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#auth">SQLITE_AUTH</a>，说明尝试在当前登录用户权限不足的数据库上进行某个操作。
+
+
+<!--------------------------------------------------------------->
+<a name="notice_recover_wal"></a>
+<h3>(283) SQLITE_NOTICE_RECOVER_WAL</h3>
+<p>
+  SQLITE_NOTICE_RECOVER_WAL 结果码在恢复 <a href="wal.html">WAL mode</a> 数据库文件时通过 <a href="c3ref/log.html">sqlite3_log()</a> 的回调传递。
+
+
+<!--------------------------------------------------------------->
+<a name="warning_autoindex"></a>
+<h3>(284) SQLITE_WARNING_AUTOINDEX</h3>
+<p>
+  每当使用 <a href="optoverview.html#autoindex">automatic indexing</a> 时，SQLITE_WARNING_AUTOINDEX 结果码会作为第一个参数传递给 <a href="c3ref/log.html">sqlite3_log()</a> 的回调。这可提醒应用设计者数据库可能需要额外的索引。
+
+
+<!--------------------------------------------------------------->
+<a name="error_retry"></a>
+<h3>(513) SQLITE_ERROR_RETRY</h3>
+<p>
+  SQLITE_ERROR_RETRY 在内部用于促使 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>（或其用于创建 prepared statements 的兄弟例程）在先前尝试失败后再次尝试准备语句。
+
+
+<!--------------------------------------------------------------->
+<a name="abort_rollback"></a>
+<h3>(516) SQLITE_ABORT_ROLLBACK</h3>
+<p>
+  SQLITE_ABORT_ROLLBACK 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#abort">SQLITE_ABORT</a>，说明某个 SQL 语句在启动时的事务被回滚，因此终止。当发生回滚时，所有未完成的写操作都会失败并返回此错误。只有在回滚的事务中更改了模式时，未完成的读操作才会因为回滚而失败。
+
+
+<!--------------------------------------------------------------->
+<a name="busy_snapshot"></a>
+<h3>(517) SQLITE_BUSY_SNAPSHOT</h3>
+<p>
+  SQLITE_BUSY_SNAPSHOT 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#busy">SQLITE_BUSY</a>，当数据库连接尝试将读取事务升级为写入事务但发现另一 <a href="c3ref/sqlite3.html">数据库连接</a> 已经写入数据库并使先前的读取失效时，在 <a href="wal.html">WAL mode</a> 数据库上会出现该错误。
+  <p>
+  以下场景说明 SQLITE_BUSY_SNAPSHOT 错误可能如何产生：
+  <ol>
+  <li> 进程 A 在数据库上启动读取事务并执行一个或多个 SELECT 语句。进程 A 保持事务未提交。
+  <li> 进程 B 更新数据库，更改了进程 A 先前读取的值。
+  <li> 此时进程 A 尝试写入数据库。但由于进程 B 在进程 A 读取后修改了数据库文件，进程 A 当前所见的数据库内容已过时。因此进程 A 会收到 SQLITE_BUSY_SNAPSHOT 错误。
+  </ol>
+
+
+<!--------------------------------------------------------------->
+<a name="locked_vtab"></a>
+<h3>(518) SQLITE_LOCKED_VTAB</h3>
+<p>
+  SQLITE_LOCKED_VTAB 结果码不是 SQLite 核心使用的，但可供扩展使用。虚拟表实现可以返回此结果码，以表明由于其他线程或进程持有的锁，当前操作无法完成。
+  <p>
+  <a href="rtree.html">R-Tree extension</a> 在尝试更新 R-Tree 时，如果另一条 prepared statement 仍在读取 R-Tree，则会返回该结果码。更新无法继续，因为对 R-Tree 的任何更改可能涉及重新排序和重新平衡节点，这会干扰读取游标，使某些行重复而其他行被省略。
+
+
+<!--------------------------------------------------------------->
+<a name="readonly_cantlock"></a>
+<h3>(520) SQLITE_READONLY_CANTLOCK</h3>
+<p>
+  SQLITE_READONLY_CANTLOCK 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#readonly">SQLITE_READONLY</a>。该错误表示 SQLite 无法在 <a href="wal.html">WAL mode</a> 数据库上获取读取锁，因为与该数据库关联的共享内存文件是只读的。
+
+
+<!--------------------------------------------------------------->
+<a name="ioerr_short_read"></a>
+<h3>(522) SQLITE_IOERR_SHORT_READ</h3>
+<p>
+  SQLITE_IOERR_SHORT_READ 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#ioerr">SQLITE_IOERR</a>，说明在 <a href="vfs.html">VFS</a> 层的读取尝试中未能获取请求的字节数，可能是由于文件被截断所致。
+
+
+<!--------------------------------------------------------------->
+<a name="corrupt_sequence"></a>
+<h3>(523) SQLITE_CORRUPT_SEQUENCE</h3>
+<p>
+  SQLITE_CORRUPT_SEQUENCE 结果码表示 sqlite_sequence 表的模式已损坏。sqlite_sequence 表用于辅助实现 <a href="autoinc.html">AUTOINCREMENT</a> 功能。sqlite_sequence 表应具有如下格式：
+  <blockquote><pre>
+  CREATE TABLE sqlite_sequence(name,seq);
+  </pre></blockquote>
+  <p>如果 SQLite 发现在 sqlite_sequence 表中存在其他格式，就会返回 SQLITE_CORRUPT_SEQUENCE 错误。
+
+
+<!--------------------------------------------------------------->
+<a name="cantopen_isdir"></a>
+<h3>(526) SQLITE_CANTOPEN_ISDIR</h3>
+<p>
+  SQLITE_CANTOPEN_ISDIR 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#cantopen">SQLITE_CANTOPEN</a>，说明文件打开操作失败，因为该“文件”实际上是一个目录。
+
+
+<!--------------------------------------------------------------->
+<a name="constraint_commithook"></a>
+<h3>(531) SQLITE_CONSTRAINT_COMMITHOOK</h3>
+<p>
+  SQLITE_CONSTRAINT_COMMITHOOK 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a>，说明某个 <a href="c3ref/commit_hook.html">commit hook callback</a> 返回非零值，因而导致该 SQL 语句被回滚。
+
+
+<!--------------------------------------------------------------->
+<a name="notice_recover_rollback"></a>
+<h3>(539) SQLITE_NOTICE_RECOVER_ROLLBACK</h3>
+<p>
+  SQLITE_NOTICE_RECOVER_ROLLBACK 结果码在回滚 <a href="fileformat2.html#hotjrnl">hot journal</a> 时通过 <a href="c3ref/log.html">sqlite3_log()</a> 的回调传递。
+
+
+<!--------------------------------------------------------------->
+<a name="error_snapshot"></a>
+<h3>(769) SQLITE_ERROR_SNAPSHOT</h3>
+<p>
+  当使用 <a href="c3ref/snapshot_open.html">sqlite3_snapshot_open()</a> 接口尝试在数据库的历史版本上启动读取事务时，可能会返回 SQLITE_ERROR_SNAPSHOT 结果码。如果该历史快照不再可用，读取事务就会因 SQLITE_ERROR_SNAPSHOT 而失败。只有在 SQLite 使用 <a href="compile.html#enable_snapshot">-DSQLITE_ENABLE_SNAPSHOT</a> 编译时，才可能出现此错误码。
+
+
+<!--------------------------------------------------------------->
+<a name="busy_timeout"></a>
+<h3>(773) SQLITE_BUSY_TIMEOUT</h3>
+<p>
+  SQLITE_BUSY_TIMEOUT 错误码表示 VFS 层中的阻塞 Posix Advisory 文件锁请求因超时而失败。阻塞的 Posix Advisory 锁仅作为 SQLite 的专有扩展提供，且仅在使用 SQLITE_ENABLE_SETLK_TIMEOUT 编译选项编译时才受支持。
+
+
+<!--------------------------------------------------------------->
+<a name="readonly_rollback"></a>
+<h3>(776) SQLITE_READONLY_ROLLBACK</h3>
+<p>
+  SQLITE_READONLY_ROLLBACK 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#readonly">SQLITE_READONLY</a>。该错误表示由于数据库具有需要回滚但无法回滚的 <a href="fileformat2.html#hotjrnl">hot journal</a>，且数据库是只读的，因此无法打开数据库。
+
+
+<!--------------------------------------------------------------->
+<a name="ioerr_write"></a>
+<h3>(778) SQLITE_IOERR_WRITE</h3>
+<p>
+  SQLITE_IOERR_WRITE 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#ioerr">SQLITE_IOERR</a>，说明在 <a href="vfs.html">VFS</a> 层尝试向磁盘文件写入时发生 I/O 错误。该错误可能由硬件故障引起，或在文件打开期间文件系统被卸载所致。如果文件系统满了，本不应出现此错误，因为存在另一个专门用于该情况的错误码（SQLITE_FULL）。
+
+
+<!--------------------------------------------------------------->
+<a name="corrupt_index"></a>
+<h3>(779) SQLITE_CORRUPT_INDEX</h3>
+<p>
+  SQLITE_CORRUPT_INDEX 结果码表示 SQLite 检测到索引中缺少或曾缺少某个条目。这是 <a href="rescode.html#corrupt">SQLITE_CORRUPT</a> 错误码的一个特例，暗示问题可能通过执行 <a href="lang_reindex.html">REINDEX</a> 命令来解决，前提是数据库文件的其他部分没有额外问题。
+
+
+<!--------------------------------------------------------------->
+<a name="cantopen_fullpath"></a>
+<h3>(782) SQLITE_CANTOPEN_FULLPATH</h3>
+<p>
+  SQLITE_CANTOPEN_FULLPATH 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#cantopen">SQLITE_CANTOPEN</a>，说明文件打开操作失败，因为操作系统无法将文件名转换为完整路径名。
+
+
+<!--------------------------------------------------------------->
+<a name="constraint_foreignkey"></a>
+<h3>(787) SQLITE_CONSTRAINT_FOREIGNKEY</h3>
+<p>
+  SQLITE_CONSTRAINT_FOREIGNKEY 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a>，说明某个 <a href="foreignkeys.html">foreign key constraint</a> 失败。
+
+
+<!--------------------------------------------------------------->
+<a name="readonly_dbmoved"></a>
+<h3>(1032) SQLITE_READONLY_DBMOVED</h3>
+<p>
+  SQLITE_READONLY_DBMOVED 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#readonly">SQLITE_READONLY</a>。该错误表示由于数据库文件自打开以来已被移动，因此无法修改数据库；若在此情况下尝试修改数据库，一旦进程崩溃可能导致数据库损坏，因为 <a href="lockingv3.html#rollback">rollback journal</a> 无法正确命名。
+
+
+<!--------------------------------------------------------------->
+<a name="ioerr_fsync"></a>
+<h3>(1034) SQLITE_IOERR_FSYNC</h3>
+<p>
+  SQLITE_IOERR_FSYNC 错误码是 <a href="rescode.html#pve">扩展错误码</a>，用于表示 <a href="rescode.html#ioerr">SQLITE_IOERR</a>，指出在 <a href="vfs.html">VFS</a> 层尝试将已写入的内容从操作系统和/或磁盘控制缓冲区刷新到持久存储时发生了 I/O 错误。换句话说，该代码表示 unix 平台上的 fsync() 系统调用或 windows 平台上的 FlushFileBuffers() 系统调用出现问题。
+
+
+<!--------------------------------------------------------------->
+<a name="cantopen_convpath"></a>
+<h3>(1038) SQLITE_CANTOPEN_CONVPATH</h3>
+<p>
+  SQLITE_CANTOPEN_CONVPATH 错误码是 <a href="rescode.html#pve">扩展错误码</a>，仅供 Cygwin <a href="vfs.html">VFS</a> 使用，表示在尝试打开文件时调用 cygwin_conv_path() 系统调用失败。另请参阅：<a href="rescode.html#ioerr_convpath">SQLITE_IOERR_CONVPATH</a>
+
+
+<!--------------------------------------------------------------->
+<a name="constraint_function"></a>
+<h3>(1043) SQLITE_CONSTRAINT_FUNCTION</h3>
+<p>
+  SQLITE_CONSTRAINT_FUNCTION 错误码目前未被 SQLite 核心使用。
+  不过，该错误码可供扩展函数使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="readonly_cantinit"></a>
+<h3>(1288) SQLITE_READONLY_CANTINIT</h3>
+<p>
+  SQLITE_READONLY_CANTINIT 结果码源自 <a href="vfs.html">VFS</a> 的 xShmMap 方法，用于表示 <a href="wal.html">WAL mode</a> 所使用的共享内存区域存在，
+  但其内容对当前进程而言不可靠且不可用，因为当前进程对该共享内存区域没有写权限。
+  （WAL 模式的共享内存区域通常是一个以 "-wal" 为后缀的文件，它会被映射进进程空间。
+  如果当前进程对该文件没有写权限，那么就无法写入共享内存。）
+  <p>
+  SQLite 的更高层逻辑通常会拦截该错误码并创建一个临时的内存共享内存区域，
+  这样当前进程至少可以读取数据库的内容。这个结果码不应传递到应用接口层。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_dir_fsync"></a>
+<h3>(1290) SQLITE_IOERR_DIR_FSYNC</h3>
+<p>
+  SQLITE_IOERR_DIR_FSYNC 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在尝试对目录调用 fsync() 时的 <a href="vfs.html">VFS</a> 层出现 I/O 错误。
+  Unix <a href="vfs.html">VFS</a> 在创建或删除某些文件后会尝试对目录调用 fsync()，
+  以确保在断电或系统崩溃后这些文件仍然出现在文件系统中。
+  该错误码表示在尝试执行该 fsync() 时出现了问题。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="cantopen_dirtywal"></a>
+<h3>(1294) SQLITE_CANTOPEN_DIRTYWAL</h3>
+<p>
+  SQLITE_CANTOPEN_DIRTYWAL 结果码当前未使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_notnull"></a>
+<h3>(1299) SQLITE_CONSTRAINT_NOTNULL</h3>
+<p>
+  SQLITE_CONSTRAINT_NOTNULL 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示 <a href="lang_createtable.html#notnullconst">NOT NULL constraint</a> 失败。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="readonly_directory"></a>
+<h3>(1544) SQLITE_READONLY_DIRECTORY</h3>
+<p>
+  SQLITE_READONLY_DIRECTORY 结果码表示数据库是只读的，
+  因为进程没有权限在数据库所在目录中新建 journal 文件，
+  而创建 journal 文件是写入操作的前提条件。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_truncate"></a>
+<h3>(1546) SQLITE_IOERR_TRUNCATE</h3>
+<p>
+  SQLITE_IOERR_TRUNCATE 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在尝试将文件截断为更小大小时 <a href="vfs.html">VFS</a> 层发生 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="cantopen_symlink"></a>
+<h3>(1550) SQLITE_CANTOPEN_SYMLINK</h3>
+<p>
+  SQLITE_CANTOPEN_SYMLINK 结果码在使用 <a href="c3ref/open.html">sqlite3_open()</a> 接口及其变体时返回，
+  当使用 <a href="c3ref/c_open_autoproxy.html">SQLITE_OPEN_NOFOLLOW</a> 标志且数据库文件是符号链接时。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_primarykey"></a>
+<h3>(1555) SQLITE_CONSTRAINT_PRIMARYKEY</h3>
+<p>
+  SQLITE_CONSTRAINT_PRIMARYKEY 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY constraint</a> 失败。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_fstat"></a>
+<h3>(1802) SQLITE_IOERR_FSTAT</h3>
+<p>
+  SQLITE_IOERR_FSTAT 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在尝试对文件调用 fstat()（或等价操作）以确定文件大小或访问权限等信息时，
+  <a href="vfs.html">VFS</a> 层发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_trigger"></a>
+<h3>(1811) SQLITE_CONSTRAINT_TRIGGER</h3>
+<p>
+  SQLITE_CONSTRAINT_TRIGGER 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在触发器内的 <a href="lang_createtrigger.html#raise">RAISE function</a> 被触发，导致 SQL 语句中止。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_unlock"></a>
+<h3>(2058) SQLITE_IOERR_UNLOCK</h3>
+<p>
+  SQLITE_IOERR_UNLOCK 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xUnlock 方法中发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_unique"></a>
+<h3>(2067) SQLITE_CONSTRAINT_UNIQUE</h3>
+<p>
+  SQLITE_CONSTRAINT_UNIQUE 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示 <a href="lang_createtable.html#uniqueconst">UNIQUE constraint</a> 失败。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_rdlock"></a>
+<h3>(2314) SQLITE_IOERR_RDLOCK</h3>
+<p>
+  SQLITE_IOERR_RDLOCK 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xLock 方法中尝试获取读锁时发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_vtab"></a>
+<h3>(2323) SQLITE_CONSTRAINT_VTAB</h3>
+<p>
+  SQLITE_CONSTRAINT_VTAB 错误码目前未被 SQLite 核心使用。
+  不过，该错误码可供应用定义的 <a href="vtab.html">virtual tables</a> 使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_delete"></a>
+<h3>(2570) SQLITE_IOERR_DELETE</h3>
+<p>
+  SQLITE_IOERR_DELETE 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的 xDelete 方法中发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_rowid"></a>
+<h3>(2579) SQLITE_CONSTRAINT_ROWID</h3>
+<p>
+  SQLITE_CONSTRAINT_ROWID 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示表中定义为 STRICT 的 <a href="lang_createtable.html#rowid">rowid</a> 不是唯一的。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_blocked"></a>
+<h3>(2826) SQLITE_IOERR_BLOCKED</h3>
+<p>
+  SQLITE_IOERR_BLOCKED 错误码已不再使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_pinned"></a>
+<h3>(2835) SQLITE_CONSTRAINT_PINNED</h3>
+<p>
+  SQLITE_CONSTRAINT_PINNED 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示 <a href="lang_createtrigger.html">UPDATE trigger</a> 尝试在更新中途删除正在被更新的行。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_nomem"></a>
+<h3>(3082) SQLITE_IOERR_NOMEM</h3>
+<p>
+  SQLITE_IOERR_NOMEM 错误码有时由 <a href="vfs.html">VFS</a> 层返回，用于表示由于无法分配足够内存导致操作无法完成。
+  该错误码通常在返回给应用之前由 SQLite 的更高层转换为 <a href="rescode.html#nomem">SQLITE_NOMEM</a>。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="constraint_datatype"></a>
+<h3>(3091) SQLITE_CONSTRAINT_DATATYPE</h3>
+<p>
+  SQLITE_CONSTRAINT_DATATYPE 错误码是 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在定义为 STRICT 的表中执行插入或更新时试图存储与列声明类型不一致的值。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_access"></a>
+<h3>(3338) SQLITE_IOERR_ACCESS</h3>
+<p>
+  SQLITE_IOERR_ACCESS 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的 xAccess 方法中发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_checkreservedlock"></a>
+<h3>(3594) SQLITE_IOERR_CHECKRESERVEDLOCK</h3>
+<p>
+  SQLITE_IOERR_CHECKRESERVEDLOCK 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xCheckReservedLock 方法中发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_lock"></a>
+<h3>(3850) SQLITE_IOERR_LOCK</h3>
+<p>
+  SQLITE_IOERR_LOCK 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在建议的文件锁定逻辑中发生了 I/O 错误。
+  通常，SQLITE_IOERR_LOCK 错误表示获取 <a href="lockingv3.html#pending_lock">PENDING lock</a> 时出现问题。
+  但在某些特定用于 Mac 的 <a href="vfs.html">VFSes</a> 上，它也可能表示其他各种锁定错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_close"></a>
+<h3>(4106) SQLITE_IOERR_CLOSE</h3>
+<p>
+  SQLITE_IOERR_CLOSE 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xClose 方法中发生了 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_dir_close"></a>
+<h3>(4362) SQLITE_IOERR_DIR_CLOSE</h3>
+<p>
+  SQLITE_IOERR_DIR_CLOSE 错误码已不再使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_shmopen"></a>
+<h3>(4618) SQLITE_IOERR_SHMOPEN</h3>
+<p>
+  SQLITE_IOERR_SHMOPEN 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xShmMap 方法中尝试打开新的共享内存段时发生 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_shmsize"></a>
+<h3>(4874) SQLITE_IOERR_SHMSIZE</h3>
+<p>
+  SQLITE_IOERR_SHMSIZE 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xShmMap 方法中尝试扩展 <a href="walformat.html#shm">"shm" file</a> 以作为 <a href="wal.html">WAL mode</a> 事务处理的一部分时发生 I/O 错误。
+  该错误可能表示底层文件系统卷已满。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_shmlock"></a>
+<h3>(5130) SQLITE_IOERR_SHMLOCK</h3>
+<p>
+  SQLITE_IOERR_SHMLOCK 错误码已不再使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_shmmap"></a>
+<h3>(5386) SQLITE_IOERR_SHMMAP</h3>
+<p>
+  SQLITE_IOERR_SHMMAP 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xShmMap 方法中尝试将共享内存段映射到进程地址空间时发生 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_seek"></a>
+<h3>(5642) SQLITE_IOERR_SEEK</h3>
+<p>
+  SQLITE_IOERR_SEEK 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xRead 或 xWrite 方法中尝试将文件描述符定位到读写操作将发生的文件起始点时出现 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_delete_noent"></a>
+<h3>(5898) SQLITE_IOERR_DELETE_NOENT</h3>
+<p>
+  SQLITE_IOERR_DELETE_NOENT 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示 <a href="c3ref/vfs.html">sqlite3_vfs</a> 对象的 xDelete 方法失败，因为待删除的文件不存在。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_mmap"></a>
+<h3>(6154) SQLITE_IOERR_MMAP</h3>
+<p>
+  SQLITE_IOERR_MMAP 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示在 <a href="c3ref/io_methods.html">sqlite3_io_methods</a> 对象的 xFetch 或 xUnfetch 方法中尝试将部分数据库文件映射或取消映射到进程地址空间时发生 I/O 错误。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_gettemppath"></a>
+<h3>(6410) SQLITE_IOERR_GETTEMPPATH</h3>
+<p>
+  SQLITE_IOERR_GETTEMPPATH 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  表示 <a href="vfs.html">VFS</a> 无法确定适合放置临时文件的目录。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_convpath"></a>
+<h3>(6666) SQLITE_IOERR_CONVPATH</h3>
+<p>
+  SQLITE_IOERR_CONVPATH 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  仅由 Cygwin <a href="vfs.html">VFS</a> 使用，表示 cygwin_conv_path() 系统调用失败。
+  另请参见：<a href="rescode.html#cantopen_convpath">SQLITE_CANTOPEN_CONVPATH</a>
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_vnode"></a>
+<h3>(6922) SQLITE_IOERR_VNODE</h3>
+<p>
+  SQLITE_IOERR_VNODE 错误码为扩展保留使用，目前 SQLite 核心未使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_auth"></a>
+<h3>(7178) SQLITE_IOERR_AUTH</h3>
+<p>
+  SQLITE_IOERR_AUTH 错误码为扩展保留使用，目前 SQLite 核心未使用。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_begin_atomic"></a>
+<h3>(7434) SQLITE_IOERR_BEGIN_ATOMIC</h3>
+<p>
+  SQLITE_IOERR_BEGIN_ATOMIC 错误码表示底层操作系统在 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlbeginatomicwrite">SQLITE_FCNTL_BEGIN_ATOMIC_WRITE</a> 文件控制上报告了错误。
+  仅在启用了 <a href="compile.html#enable_atomic_write">SQLITE_ENABLE_ATOMIC_WRITE</a> 且数据库托管在支持原子写入的文件系统时才会出现。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_commit_atomic"></a>
+<h3>(7690) SQLITE_IOERR_COMMIT_ATOMIC</h3>
+<p>
+  SQLITE_IOERR_COMMIT_ATOMIC 错误码表示底层操作系统在 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlcommitatomicwrite">SQLITE_FCNTL_COMMIT_ATOMIC_WRITE</a> 文件控制上报告了错误。
+  仅在启用了 <a href="compile.html#enable_atomic_write">SQLITE_ENABLE_ATOMIC_WRITE</a> 且数据库托管在支持原子写入的文件系统时才会出现。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_rollback_atomic"></a>
+<h3>(7946) SQLITE_IOERR_ROLLBACK_ATOMIC</h3>
+<p>
+  SQLITE_IOERR_ROLLBACK_ATOMIC 错误码表示底层操作系统在 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlrollbackatomicwrite">SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE</a> 文件控制上报告了错误。
+  仅在启用了 <a href="compile.html#enable_atomic_write">SQLITE_ENABLE_ATOMIC_WRITE</a> 且数据库托管在支持原子写入的文件系统时才会出现。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_data"></a>
+<h3>(8202) SQLITE_IOERR_DATA</h3>
+<p>
+  SQLITE_IOERR_DATA 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  仅由 <a href="cksumvfs.html">checksum VFS shim</a> 使用，用于表示数据库文件某一页面的校验和不正确。
+</p>
+
+<!--------------------------------------------------------------->
+<a name="ioerr_corruptfs"></a>
+<h3>(8458) SQLITE_IOERR_CORRUPTFS</h3>
+<p>
+  SQLITE_IOERR_CORRUPTFS 错误码是 <a href="rescode.html#ioerr">SQLITE_IOERR</a> 的 <a href="rescode.html#pve">extended error code</a>，
+  仅由某些 VFS 使用，用于表示寻址或读取失败是由于请求超出了文件边界而非普通设备故障。
+  这通常表示文件系统已损坏。
+</p>
+
+<p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </i></small></p>

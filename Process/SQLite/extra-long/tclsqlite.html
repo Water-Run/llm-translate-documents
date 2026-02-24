@@ -1,0 +1,982 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Tcl interface to the SQLite library</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline-info desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 库的 Tcl 接口
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. 引言</a></div>
+<div class="fancy-toc1"><a href="#building_and_installing_the_sqlite_extension_for_tcl">2. 为 Tcl 构建并安装 SQLite 扩展</a></div>
+<div class="fancy-toc2"><a href="#how_the_build_process_works">2.1. 构建过程如何运作</a></div>
+<div class="fancy-toc2"><a href="#additional_build_documentation">2.2. 额外的构建文档</a></div>
+<div class="fancy-toc1"><a href="#the_tcl_interface_to_the_sqlite_library">3. SQLite 库的 Tcl 接口</a></div>
+<div class="fancy-toc2"><a href="#the_eval_method">3.1. eval 方法</a></div>
+<div class="fancy-toc2"><a href="#the_close_method">3.2. close 方法</a></div>
+<div class="fancy-toc2"><a href="#the_transaction_method">3.3. transaction 方法</a></div>
+<div class="fancy-toc2"><a href="#the_cache_method">3.4. cache 方法</a></div>
+<div class="fancy-toc2"><a href="#the_complete_method">3.5. complete 方法</a></div>
+<div class="fancy-toc2"><a href="#the_config_method">3.6. config 方法</a></div>
+<div class="fancy-toc2"><a href="#the_copy_method">3.7. copy 方法</a></div>
+<div class="fancy-toc2"><a href="#the_timeout_method">3.8. timeout 方法</a></div>
+<div class="fancy-toc2"><a href="#the_busy_method">3.9. busy 方法</a></div>
+<div class="fancy-toc2"><a href="#the_enable_load_extension_method">3.10. enable_load_extension 方法</a></div>
+<div class="fancy-toc2"><a href="#the_exists_method">3.11. exists 方法</a></div>
+<div class="fancy-toc2"><a href="#the_last_insert_rowid_method">3.12. last_insert_rowid 方法</a></div>
+<div class="fancy-toc2"><a href="#the_function_method">3.13. function 方法</a></div>
+<div class="fancy-toc2"><a href="#the_nullvalue_method">3.14. nullvalue 方法</a></div>
+<div class="fancy-toc2"><a href="#the_onecolumn_method">3.15. onecolumn 方法</a></div>
+<div class="fancy-toc2"><a href="#the_changes_method">3.16. changes 方法</a></div>
+<div class="fancy-toc2"><a href="#the_total_changes_method">3.17. total_changes 方法</a></div>
+<div class="fancy-toc2"><a href="#the_authorizer_method">3.18. authorizer 方法</a></div>
+<div class="fancy-toc2"><a href="#the_bind_fallback_method">3.19. bind_fallback 方法</a></div>
+<div class="fancy-toc2"><a href="#the_progress_method">3.20. progress 方法</a></div>
+<div class="fancy-toc2"><a href="#the_collate_method">3.21. collate 方法</a></div>
+<div class="fancy-toc2"><a href="#the_collation_needed_method">3.22. collation_needed 方法</a></div>
+<div class="fancy-toc2"><a href="#the_commit_hook_method">3.23. commit_hook 方法</a></div>
+<div class="fancy-toc2"><a href="#the_rollback_hook_method">3.24. rollback_hook 方法</a></div>
+<div class="fancy-toc2"><a href="#the_status_method">3.25. status 方法</a></div>
+<div class="fancy-toc2"><a href="#the_update_hook_method">3.26. update_hook 方法</a></div>
+<div class="fancy-toc2"><a href="#the_preupdate_method">3.27. preupdate 方法</a></div>
+<div class="fancy-toc2"><a href="#the_wal_hook_method">3.28. wal_hook 方法</a></div>
+<div class="fancy-toc2"><a href="#the_incrblob_method">3.29. incrblob 方法</a></div>
+<div class="fancy-toc2"><a href="#the_errorcode_method">3.30. errorcode 方法</a></div>
+<div class="fancy-toc2"><a href="#the_trace_method">3.31. trace 方法</a></div>
+<div class="fancy-toc2"><a href="#the_trace_v2_method">3.32. trace_v2 方法</a></div>
+<div class="fancy-toc2"><a href="#the_backup_method">3.33. backup 方法</a></div>
+<div class="fancy-toc2"><a href="#the_restore_method">3.34. restore 方法</a></div>
+<div class="fancy-toc2"><a href="#the_serialize_method">3.35. serialize 方法</a></div>
+<div class="fancy-toc2"><a href="#the_deserialize_method">3.36. deserialize 方法</a></div>
+<div class="fancy-toc2"><a href="#the_interrupt_method">3.37. interrupt 方法</a></div>
+<div class="fancy-toc2"><a href="#the_version_method">3.38. version 方法</a></div>
+<div class="fancy-toc2"><a href="#the_profile_method">3.39. profile 方法</a></div>
+<div class="fancy-toc2"><a href="#the_unlock_notify_method">3.40. unlock_notify 方法</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="introduction"><span>1. </span>引言</h1>
+
+<p>SQLite 库被设计得非常容易从<a href="http://www.tcl-lang.org">Tcl 或 Tcl/Tk</a>脚本中使用。SQLite
+最初是作为<a href="http://www.tcl-lang.org/doc/tea/">Tcl 扩展</a>开始的，
+而 SQLite 的主要<a href="testing.html">测试套件</a>是用 Tcl 编写的，并使用本文档所描述的 Tcl SQLite 扩展。SQLite 可以与任何编程语言一起使用，但它与 Tcl 的联系非常深。</p>
+
+<p>本文档概述了 SQLite 的 Tcl 编程接口。</p>
+
+<h1 id="building_and_installing_the_sqlite_extension_for_tcl"><span>2. </span>为 Tcl 构建并安装 SQLite 扩展</h1>
+
+<p>从 SQLite 3.48.0 (2025-01-14) 起，构建 SQLite Tcl 扩展的首选方法是使用<a href="amalg-v-canon.html#canon">规范的 SQLite 源树</a>并运行带有“tclextension-install”目标的 makefile。如果你安装了多个 Tcl 版本，可以在 unix 下使用 --with-tclsh=PATH 命令行选项指定要安装 SQLite 扩展的 Tcl 安装。例如，如果你在 $HOME/tcl 有一个自定义的 Tcl 9.0 安装，可以通过运行以下命令为该安装安装 SQLite：</p><blockquote><pre>
+./configure --with-tclsh=$HOME/tcl/bin/tclsh9.0
+make tclextension-install
+</pre></blockquote>
+
+<p>在 Windows 上，使用 TCLDIR 环境变量指定 Tcl 安装的顶层目录。同样，如果你有一个自定义的 Tcl 安装在 %HOME%/tcl，你的命令如下：</p><blockquote><pre>
+nmake /f Makefile.msc TCLDIR=%HOME%\tcl tclextension-install
+</pre></blockquote>
+
+<p>在这两种情况下，还有一些其他的 makefile 目标可能有用：</p><ul>
+<li><b>tclextension</b> &rarr; 构建 SQLite 扩展，但不将文件移动到安装目录。
+</li><li><b>tclextension-list</b> &rarr; 显示通过 ./configure 指定或通过 TCLDIR 指定的 Tcl 解释器可用的全部 SQLite 扩展。
+</li><li><b>tclextension-uninstall</b> &rarr; 卸载 SQLite 扩展。
+</li><li><b>tclextension-verify</b> &rarr; 验证已安装的 SQLite 扩展是否使用与运行该命令的源树相同的 SQLite 版本。
+</li></ul>
+
+<p>使用上述技术将 SQLite 扩展安装到你的 Tcl 解释器后，可以从任何 tclsh 或 wish 运行以下命令启动它：</p><blockquote><pre>
+package require sqlite3
+</pre></blockquote>
+
+<h2 id="how_the_build_process_works"><span>2.1. </span>构建过程如何运作</h2>
+
+<p>SQLite 的 Tcl 适配器由一个名为<a href="https://sqlite.org/src/file/src/tclsqlite.c">src/tclsqlite.c</a>的源代码文件实现。该文件被附加到实现 SQLite 的<a href="amalgamation.html">合并源</a>（"sqlite3.c"）上，创建出一个新的源文件 "tclsqlite3.c"。将 tclsqlite3.c 编译为共享库，以便构建可在运行时加载的 Tcl SQLite 扩展。“tclextension-install” make 目标会这样做，然后还会构建一个合适的 pkgIndex.tcl 脚本，并将共享库和 pkgIndex.tcl 脚本移动到相应的安装目录。</p><p>有一个 makefile 目标用于构建 tclsqlite3.c：</p><blockquote><pre>
+make tclsqlite3.c
+</pre></blockquote>
+
+<p>tclsqlite3.c 文件不必编译为共享库。tclsqlite3.c 库可以静态链接到一个也静态链接 Tcl 库的应用程序中，以构建一个独立的可执行文件。用于测试 SQLite 的 "testfixture" 可执行文件就是这样工作的。</p>
+
+</p><h2 id="additional_build_documentation"><span>2.2. </span>额外的构建文档</h2>
+
+<p>有关如何测试 SQLite 的 Tcl 扩展，请参阅 SQLite 源码中的<a href="https://sqlite.org/src/file/doc/tcl-extension-testing.md">src/tcl-extension-testing.md</a>文档，该文档提供了逐步说明。如果遇到问题，可能会提供有关如何构建 SQLite Tcl 扩展的更多提示。</p><h1 id="the_tcl_interface_to_the_sqlite_library"><span>3. </span>SQLite 库的 Tcl 接口</h1>
+
+<p>SQLite 的 Tcl 扩展由一个名为 <b>sqlite3</b> 的单一新 Tcl 命令组成。因为只有这一个命令，所以接口没有放在单独的命名空间中。</p>
+
+<p><b>sqlite3</b> 命令通常如下所示用于打开或创建数据库：</p>
+
+<blockquote>
+<b>sqlite3</b>&nbsp;&nbsp;<i>dbcmd&nbsp;&nbsp;?database-name?&nbsp;&nbsp;?options?</i>
+</blockquote>
+
+<p>如果只需要获取信息，可以只给 <b>sqlite3</b> 命令一个参数，"-version"、"-sourceid" 或 "-has-codec" 中的任意一个，它将仅返回指定数据而不产生其他效果。</p>
+
+<p>使用其他参数时，<b>sqlite3</b> 命令会打开第二个非选项参数中命名的数据库，如果没有则为空字符串 ""。如果打开成功，会创建一个由第一个参数命名的新 Tcl 命令并返回 ""。（这种方式类似于在 Tk 中创建小部件。）如果打开失败，则不创建 Tcl 命令，而是引发错误并返回错误消息字符串。</p>
+<p>如果数据库尚不存在，默认行为是自动创建它（虽然可以通过使用 "<b>-create <i>false</i></b>" 选项更改此行为）。</p>
+
+<p>数据库名称通常只是存储数据库的磁盘文件名。如果数据库的名称是特殊名称 "<a href="inmemorydb.html">:memory:</a>"，则会在内存中创建一个新数据库。如果数据库名称为空字符串，则在自动删除的空文件中创建数据库，当数据库连接关闭时该文件会被删除。如果在 <b>sqlite3</b> 命令上提供 "<b>-uri yes</b>" 选项，则可以使用<a href="uri.html">URI 文件名</a>。</p>
+
+<p><b>sqlite3</b> 命令支持以下选项：</p>
+
+<blockquote>
+<dl>
+
+<dt><b>-create</b> <i>BOOLEAN</i></dt>
+<dd><p>
+如果为 true，则在不存在数据库时创建一个新数据库。
+如果为 false，则尝试打开一个先前不存在的数据库文件时会引发错误。默认行为为 "true"。
+</p></dd>
+
+<dt><b>-nomutex</b> <i>BOOLEAN</i></dt>
+<dd><p>
+如果为 true，则禁用数据库连接的所有互斥锁。这在单线程应用中可带来小幅性能提升。
+</p></dd>
+
+<dt><b>-readonly</b> <i>BOOLEAN</i></dt>
+<dd><p>
+如果为 true，则以只读方式打开数据库文件。如果为 false，则在文件系统权限允许的情况下以读写方式打开，或者在操作系统拒绝写权限时仅以只读方式打开。默认设置为 "false"。请注意，如果先前拥有该数据库的进程未正常退出并留下了<a href="fileformat2.html#hotjrnl">热日志</a>，则需要写权限以便在打开后恢复数据库，因此不能以只读方式打开。
+</p></dd>
+
+<dt><b>-uri</b> <i>BOOLEAN</i></dt>
+<dd><p>
+如果为 true，则将文件名参数解释为<a href="uri.html">URI 文件名</a>。如果为 false，则该参数为字面文件名。默认值为 "false"。
+</p></dd>
+
+<dt><b>-vfs</b> <i>VFSNAME</i></dt>
+<dd><p>
+使用由参数命名的替代<a href="vfs.html">VFS</a>。
+</p></dd>
+
+<dt><b>-fullmutex</b> <i>BOOLEAN</i></dt>
+<dd><p>
+如果为 true，则多个线程可以安全地尝试使用数据库。
+如果为 false，则此类尝试不安全。默认值取决于扩展的构建方式。
+</p></dd>
+
+<dt><b>-nofollow</b> <i>BOOLEAN</i></dt>
+<dd><p>
+如果为 true，且数据库名称指向符号链接，则不会跟随该链接打开真实的数据库文件。
+如果为 false，则会跟随符号链接。默认值为 "false"。
+</p></dd>
+
+</dl>
+</blockquote>
+
+
+
+<p>一旦打开 SQLite 数据库，就可以使用 <i>dbcmd</i> 的方法来控制它。
+目前定义了 40 个方法。</p>
+
+
+</p><table border="0" cellpadding="10" width="100%">
+<tr><td valign="top"><ul>
+<li><a href="#authorizer">authorizer</a></li>
+<li><a href="#backup">backup</a></li>
+<li><a href="#bind_fallback">bind_fallback</a></li>
+<li><a href="#busy">busy</a></li>
+<li><a href="#cache">cache</a></li>
+<li><a href="#changes">changes</a></li>
+<li><a href="#close">close</a></li>
+<li><a href="#collate">collate</a></li>
+<li><a href="#collation_needed">collation_needed</a></li>
+<li><a href="#commit_hook">commit_hook</a></li>
+<li><a href="#complete">complete</a></li>
+<li><a href="#config">config</a></li>
+<li><a href="#copy">copy</a></li>
+<li><a href="#deserialize">deserialize</a></li>
+</ul></td>
+<td valign='top'><ul>
+<li><a href="#enable_load_extension">enable_load_extension</a></li>
+<li><a href="#errorcode">errorcode</a></li>
+<li><a href="#eval">eval</a></li>
+<li><a href="#exists">exists</a></li>
+<li><a href="#function">function</a></li>
+<li><a href="#incrblob">incrblob</a></li>
+<li><a href="#interrupt">interrupt</a></li>
+<li><a href="#last_insert_rowid">last_insert_rowid</a></li>
+<li><a href="#nullvalue">nullvalue</a></li>
+<li><a href="#onecolumn">onecolumn</a></li>
+<li><a href="#preupdate">preupdate</a></li>
+<li><a href="#profile">profile</a></li>
+<li><a href="#progress">progress</a></li>
+<li><a href="#restore">restore</a></li>
+</ul></td>
+<td valign='top'><ul>
+<li><a href="#rollback_hook">rollback_hook</a></li>
+<li><a href="#serialize">serialize</a></li>
+<li><a href="#status">status</a></li>
+<li><a href="#timeout">timeout</a></li>
+<li><a href="#total_changes">total_changes</a></li>
+<li><a href="#trace">trace</a></li>
+<li><a href="#trace_v2">trace_v2</a></li>
+<li><a href="#transaction">transaction</a></li>
+<li><a href="#unlock_notify">unlock_notify</a></li>
+<li><a href="#update_hook">update_hook</a></li>
+<li><a href="#version">version</a></li>
+<li><a href="#wal_hook">wal_hook</a></li>
+
+</ul></td></tr>
+</table>
+
+
+<p>接下来将解释每个方法的使用方式，虽然顺序不一定与上面所示一致。</p>
+
+<a name="eval"></a>
+
+
+<h2 id="the_eval_method"><span>3.1. </span>eval 方法</h2>
+<p>最有用的 <i>dbcmd</i> 方法是 "eval"。eval 方法用于在数据库上执行 SQL。eval 方法的语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>eval</b>&nbsp;&nbsp;?<b>-withoutnulls</b>?
+?<b>-asdict</b>?&nbsp;&nbsp;?&nbsp;&nbsp;<i>sql</i>
+&nbsp;&nbsp;<i>var-name</i>?&nbsp;&nbsp;?<i>script</i>?
+</blockquote>
+
+<p>eval 方法的任务是执行第二个参数中给出的 SQL 语句。例如，要在数据库中创建一个新表，可以这样做：</p>
+
+<blockquote>
+<b>sqlite3 db1 ./testdb<br>
+db1 eval {CREATE TABLE t1(a int, b text)}</b>
+</blockquote>
+
+<p>上述代码创建了一个名为 <b>t1</b> 的新表，包含列 <b>a</b> 和 <b>b</b>。还能更简单吗？</p>
+
+<p>查询结果以列值列表的形式返回。如果查询请求了 2 列且有 3 行匹配结果，则返回的列表将包含 6 个元素。例如：</p>
+
+<blockquote>
+<b>db1 eval {INSERT INTO t1 VALUES(1,'hello')}<br>
+db1 eval {INSERT INTO t1 VALUES(2,'goodbye')}<br>
+db1 eval {INSERT INTO t1 VALUES(3,'howdy!')}<br>
+set x &#91;db1 eval {SELECT * FROM t1 ORDER BY a}&#93;</b>
+</blockquote>
+
+<p>上述代码将变量 <b>$x</b> 设置为：</p>
+
+<blockquote>
+<b>1 hello 2 goodbye 3 howdy!</b>
+</blockquote>
+
+<p>你也可以通过指定数组名称或在使用 <code>-asdict</code> 标志时指定 dict 变量和 SQL 代码之后的脚本，逐行处理查询结果。对于查询结果的每一行，所有列的值都会插入到数组或 dict 变量中，并执行脚本。例如：</p>
+
+<blockquote>
+<b>db1 eval {SELECT * FROM t1 ORDER BY a} values {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parray values<br>
+&nbsp;&nbsp;&nbsp;&nbsp;puts ""<br>
+}</b>
+</blockquote>
+
+<p>以下代码将输出：</p>
+
+<blockquote><b>
+values(*) = a b<br>
+values(a) = 1<br>
+values(b) = hello<p>
+</p></b></blockquote>
+<blockquote><b>
+values(*) = a b<br>
+values(a) = 2<br>
+values(b) = goodbye<p>
+</p></b></blockquote>
+<blockquote><b>
+values(*) = a b<br>
+values(a) = 3<br>
+values(b) = howdy!</b>
+</blockquote>
+
+<p>对于结果中每行的每一列，列名都用作数组的索引，并将该列的值存储在相应的数组项中。（注意：如果查询结果集中有两个或更多列具有相同名称，则最后一个具有该名称的列将覆盖之前的值，并且具有相同名称的较早列将无法访问。）特殊的数组索引 * 用于按出现顺序存储列名称列表。</p>
+
+<p>通常，NULL SQL 结果使用 <a href="#nullvalue">nullvalue</a> 设置存储在数组中。但是，如果使用了 <b>-withoutnulls</b> 选项，则 NULL SQL 值将导致相应的数组元素被取消设置。</p>
+
+<p>如果省略数组变量名或变量名为空字符串，则每个列值会存储在与该列相同名称的变量中。例如：</p>
+
+<blockquote>
+<b>db1 eval {SELECT * FROM t1 ORDER BY a} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;puts "a=$a b=$b"<br>
+}</b>
+</blockquote>
+
+<p>由此得到以下输出：</p>
+
+<blockquote><b>
+a=1 b=hello<br>
+a=2 b=goodbye<br>
+a=3 b=howdy!</b>
+</blockquote>
+
+<a name="varsubst"></a>
+
+<p>Tcl 变量名可以出现在第二个参数的 SQL 语句中的任何合法放置字符串或数字字面值的位置。变量的值会替换变量名。如果变量不存在，则使用 NULL。例如：</p>
+
+<blockquote><b>
+db1 eval {INSERT INTO t1 VALUES(5,$bigstring)}
+</b></blockquote>
+
+<p>注意，不需要对 $bigstring 值加引号。那会自动完成。如果 $bigstring 是一个大字符串或二进制对象，这种技术不仅更容易书写，而且更高效，因为它避免了复制 $bigstring 的内容。</p>
+
+<p>如果 $bigstring 变量具有字符串和 “bytearray” 表示形式，则 TCL 会以字符串插入该值。如果它只有 “bytearray” 表示形式，则以 BLOB 插入。即使值也有文本表示，也想强制以 BLOB 插入，可以在 "$" 前使用 "@"。如下所示：</p>
+
+<blockquote><b>
+db1 eval {INSERT INTO t1 VALUES(5,@bigstring)}
+</b></blockquote>
+
+<p>如果变量没有 bytearray 表示，则 "@" 的作用就像 "$"。注意 ":" 在所有情况下都像 "$" 那样工作，因此以下语句是另一种表达方式：</p>
+
+<blockquote><b>
+db1 eval {INSERT INTO t1 VALUES(5,:bigstring)}
+</b></blockquote>
+
+<p>在变量名前使用 ":" 而不是 "$" 有时非常有用，尤其是当 SQL 文本用双引号 "..." 而不是大括号 {...} 包裹时。当 SQL 包含在双引号 "..." 中时，TCL 会执行 $ 变量替换，这可能导致 SQL 注入（如果不格外小心）。但无论是使用双引号 "..." 还是使用大括号 {...} 包裹 SQL，TCL 都不会替换 :-变量，因此使用 :-变量可以为防御 SQL 注入增加一层保护。</p>
+
+<a name="close"></a>
+
+<h2 id="the_close_method"><span>3.2. </span>close 方法</h2>
+
+<p>顾名思义，SQLite 数据库的 "close" 方法只是关闭数据库。这会附带删除 <i>dbcmd</i> Tcl 命令的副作用。下面是打开然后立即关闭数据库的示例：</p>
+
+<blockquote>
+<b>sqlite3 db1 ./testdb<br>
+db1 close</b>
+</blockquote>
+
+<p>如果直接删除 <i>dbcmd</i>，其效果与调用 "close" 方法相同。因此以下代码等价于上面的代码：</p>
+
+<blockquote>
+<b>sqlite3 db1 ./testdb<br>
+rename db1 {}</b>
+</blockquote>
+
+<a name="transaction"></a>
+
+<h2 id="the_transaction_method"><span>3.3. </span>transaction 方法</h2>
+
+<p>"transaction" 方法用于在 SQLite 数据库事务内部执行 Tcl 脚本。脚本完成后事务提交；如果脚本失败，则回滚。如果该事务在另一个事务内（即使是使用 BEGIN 手动启动的），也不会产生任何效果。</p>
+
+<p>transaction 命令可用于安全地将多个 SQLite 命令组合在一起。当然，你也可以始终使用 BEGIN 手动启动事务。但如果发生错误以致 COMMIT 或 ROLLBACK 从未运行，则数据库将无限期保持锁定。此外，BEGIN 不支持嵌套，因此在开始新事务之前必须确保没有其他事务处于活动状态。"transaction" 方法会自动处理所有这些细节。</p>
+
+<p>语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>transaction</b>&nbsp;&nbsp;<i>?transaction-type?</i>
+&nbsp;&nbsp;<i>script</i>
+</blockquote>
+
+
+<p><i>transaction-type</i> 可以是 <b>deferred</b>、<b>exclusive</b> 或 <b>immediate</b> 之一。默认值为 deferred。</p>
+
+<a name="cache"></a>
+
+<h2 id="the_cache_method"><span>3.4. </span>cache 方法</h2>
+
+<p><a href="#eval">上面</a>描述的 "eval" 方法为最近执行的 SQL 命令维护了一个<a href="c3ref/prepare.html">预处理语句</a>的缓存。"cache" 方法用于控制此缓存。该命令的第一种形式如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>cache size</b>&nbsp;&nbsp;<i>N</i>
+</blockquote>
+
+<p>这会设置缓存中最多可以存储的语句数量。上限为 100。默认值为 10。如果将缓存大小设为 0，则不进行缓存。</p>
+
+<p>命令的第二种形式如下：</p>
+
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>cache flush</b>
+</blockquote>
+
+<p>cache flush 方法<a href="c3ref/finalize.html">结束</a>当前缓存中的所有预处理语句。</p>
+
+<a name="complete"></a>
+
+<h2 id="the_complete_method"><span>3.5. </span>complete 方法</h2>
+
+<p>"complete" 方法将一段假定为 SQL 的字符串作为唯一参数。如果该字符串是完整的 SQL 语句，则返回 TRUE；如果需要输入更多内容，则返回 FALSE。</p>
+
+<p>"complete" 方法在构建交互式应用程序时非常有用，可以判断用户何时完成输入一行 SQL 代码。这实际上只是对<a href="c3ref/complete.html"><b>sqlite3_complete()</b></a> C 函数的接口。</p>
+
+<a name="config"></a>
+
+</p><h2 id="the_config_method"><span>3.6. </span>config 方法</h2>
+
+<p>"config" 方法使用 <a href="c3ref/db_config.html">sqlite3_db_config()</a> 接口查询或更改数据库连接的某些配置设置。无参数运行此方法会返回一个包含可用配置设置及其当前值的 Tcl 列表：</p><blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>config</b>
+</blockquote>
+
+<p>上述命令将返回类似以下内容：</p><blockquote>
+defensive 0 dqs_ddl 1 dqs_dml 1 enable_fkey 0 enable_qpsg 0 enable_trigger 1 enable_view 1 fts3_tokenizer 1 legacy_alter_table 0 legacy_file_format 0 load_extension 0 no_ckpt_on_close 0 reset_database 0 trigger_eqp 0 trusted_schema 1 writable_schema 0
+</blockquote>
+
+<p>添加单个配置设置的名称可查询该设置的当前值。可选地添加布尔值来更改设置。</p>
+
+<p>为了最大程度提升应用程序安全性，建议进行以下四项配置更改。关闭 trust_schema 设置可防止在触发器、视图、CHECK 约束、生成列和表达式索引中使用虚拟表和可疑 SQL 函数。关闭 dqs_dml 和 dqs_ddl 设置可防止使用双引号字符串。开启 defensive 可防止直接写入影子表。</p>
+
+<blockquote><pre>
+db config trusted_schema 0
+db config defensive 1
+db config dqs_dml 0
+db config dqs_ddl 0
+</pre></blockquote>
+
+<a name="copy"></a>
+
+<h2 id="the_copy_method"><span>3.7. </span>copy 方法</h2>
+
+<p>"copy" 方法将文件中的数据复制到表中。它返回成功处理的行数。copy 方法的语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>copy</b>&nbsp;&nbsp;<i>conflict-algorithm</i>
+&nbsp;&nbsp;<i>table-name&nbsp;</i>&nbsp;&nbsp;<i>file-name&nbsp;</i>
+&nbsp;&nbsp;&nbsp;&nbsp;?<i>column-separator</i>?
+&nbsp;&nbsp;?<i>null-indicator</i>?
+</blockquote>
+
+<p>conflict-algorithm 必须是 INSERT 语句的 SQLite 冲突算法之一：<i>rollback</i>、<i>abort</i>、<i>fail</i>、<i>ignore</i> 或 <i>replace</i>。有关更多信息，请参阅 SQLite 语言章节中的<a href="lang_conflict.html">ON CONFLICT</a>。conflict-algorithm 必须以小写指定。</p>
+
+<p>table-name 必须已存在。file-name 必须存在，且每行必须包含与表中定义的列数相同。如果文件中的某行包含的列数多于或少于定义的列数，则 copy 方法会回滚任何插入，并返回错误。</p>
+
+<p>column-separator 是可选的列分隔符字符串。默认是 ASCII 制表符 \t。</p>
+
+<p>null-indicator 是一个可选字符串，用于指示某列值为 null。默认是空字符串。请注意 column-separator 和 null-indicator 是可选的位置参数；如果指定了 null-indicator，则必须先指定 column-separator 参数，并且 column-separator 在 null-indicator 之前。</p>
+
+<p>copy 方法实现的功能与 SQLite shell 命令 <b>.import</b> 类似。</p>
+
+<a name="timeout"></a>
+</p><h2 id="the_timeout_method"><span>3.8. </span>The timeout 方法</h2>
+
+<p>“timeout” 方法用来控制 SQLite 库在放弃数据库事务之前会等待锁释放多长时间。默认超时为 0 毫秒。（换句话说，默认行为是不等待。）</p>
+
+<p>SQLite 数据库允许多个读者同时访问或者单个写者访问，但不能两者同时存在。如果任何进程正在写入数据库，则不允许其他进程读取或写入。如果任何进程正在读取数据库，则其他进程可以读取但不能写入。整个数据库共享一个锁。</p>
+
+<p>当 SQLite 尝试打开数据库并发现它被锁定时，可以选择稍作延迟然后再次尝试打开文件。这个过程会重复，直到查询超时并且 SQLite 返回失败。超时时间是可调的。默认设置为 0，因此如果数据库被锁定，SQL 语句会立即失败。但你可以使用 “timeout” 方法将超时值更改为正数。例如：</p>
+
+<blockquote><b>db1 timeout 2000</b></blockquote>
+
+<p>timeout 方法的参数是等待锁释放的最大毫秒数。所以在上面的例子中，最大延迟为 2 秒。</p>
+
+<a name="busy"></a>
+
+<h2 id="the_busy_method"><span>3.9. </span>The busy 方法</h2>
+
+<p>“busy” 方法与 “timeout” 类似，仅在数据库被锁定时才起作用。但是 “busy” 方法为程序员提供了更多控制可以采取何种措施。“busy” 方法指定一个回调 Tcl 过程，每当 SQLite 尝试打开一个被锁定的数据库时就会调用它。回调在调用之前会附加一个整数参数。该参数表示当前锁定事件之前对 busy 回调的调用次数。此回调的目的是在短时间内执行一些其他有用的工作（例如处理 GUI 事件），然后返回，使得锁可以再次尝试。回调过程如果希望 SQLite 再次尝试打开数据库，应返回 “0”；如果希望放弃当前操作，则应返回 “1”。</p><p>如果在调用 busy 方法时没有提供参数，则返回最后一次通过 busy 方法设置的回调过程名称。如果未设置任何回调过程，则返回空字符串。</p>
+
+<a name="enable_load_extension"></a>
+
+</p><h2 id="the_enable_load_extension_method"><span>3.10. </span>The enable_load_extension 方法</h2>
+
+<p>SQLite 的扩展加载机制（通过 <a href="lang_corefunc.html#load_extension">load_extension()</a> SQL 函数访问）默认是关闭的。这是一个安全预防措施。如果应用程序想使用 <a href="lang_corefunc.html#load_extension">load_extension()</a> 函数，必须先使用此方法开启该能力。</p>
+
+<p>此方法接受一个布尔参数，用于开启或关闭扩展加载功能。</p>
+
+<p>为了最佳安全，除非确有需要，否则不要使用此方法，并在调用此方法之前运行 <a href="pragma.html#pragma_trusted_schema">PRAGMA trusted_schema=OFF</a> 或者使用 “<a href="#config">db config trusted_schema 0</a>” 方法。</p>
+
+</p><p>此方法映射到 <a href="c3ref/enable_load_extension.html">sqlite3_enable_load_extension()</a> C/C++ 接口。</p>
+
+<a name="exists"></a>
+
+<h2 id="the_exists_method"><span>3.11. </span>The exists 方法</h2>
+
+<p>“exists” 方法类似于 “onecolumn” 和 “eval”，因为它执行 SQL 语句。不同之处在于 “exists” 方法始终返回一个布尔值：如果它执行的 SQL 语句中的查询返回一个或多个行，则返回 TRUE，如果返回空集则返回 FALSE。</p>
+
+<p>“exists” 方法通常用于测试表中行的存在性。例如：</p>
+
+<blockquote><b>
+if {&#91;db exists {SELECT 1 FROM table1 WHERE user=$user}&#93;} {<br>
+&nbsp;&nbsp;&nbsp;# 当 $user 存在时的处理<br>
+} else {<br>
+&nbsp;&nbsp;&nbsp;# 当 $user 不存在时的处理<br>
+}
+</b></blockquote>
+
+<a name="last_insert_rowid"></a>
+
+<h2 id="the_last_insert_rowid_method"><span>3.12. </span>The last_insert_rowid 方法</h2>
+
+<p>“last_insert_rowid” 方法返回一个整数，表示最近一次插入的数据库行的 ROWID。</p>
+
+<a name="function"></a>
+
+<h2 id="the_function_method"><span>3.13. </span>The function 方法</h2>
+
+<p>“function” 方法向 SQLite 引擎注册新的 SQL 函数。参数是新 SQL 函数的名称以及实现该函数的 TCL 命令。函数的参数会附加到 TCL 命令后再调用。</p>
+
+<p>出于安全原因，建议应用程序在使用此方法之前先设置 <a href="pragma.html#pragma_trusted_schema">PRAGMA trusted_schema=OFF</a> 或运行 “<a href="#config">db config trusted_schema 0</a>” 方法。</p>
+
+<p>语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>function</b>
+&nbsp;&nbsp;<i>sql-name</i>
+&nbsp;&nbsp;<i>?options?</i>
+&nbsp;&nbsp;<i>script</i>
+</blockquote>
+
+<p>以下示例创建一个名为 “hex” 的 SQL 函数，将其数字参数转换为十六进制编码字符串：</p>
+
+<blockquote><b>
+db function hex {format 0x%X}
+</b></blockquote>
+
+<p>“function” 方法接受以下选项：</p><blockquote>
+<dl>
+
+<dt><b>-argcount</b> <i>INTEGER</i></dt>
+<dd><p>
+指定 SQL 函数接受的参数数量。默认值 -1 表示任意数量的参数。
+</p></dd><dt><b>-deterministic</b>
+</dt><dd><p>
+此选项表示函数在相同参数值下总是返回相同结果。SQLite 查询优化器利用此信息缓存常量输入的函数调用结果并重用，而不是重复调用该函数。
+</p></dd>
+
+<dt><b>-directonly</b>
+</dt><dd><p>
+此选项限制函数仅可由直接的顶层 SQL 语句使用。该函数将无法被触发器、视图、CHECK 约束、生成的列或索引表达式访问。此选项推荐用于所有应用程序定义的 SQL 函数，并且对于具有副作用或揭示应用程序内部状态的任何 SQL 函数 <u>强烈推荐</u> 使用。
+</p><p style="background-color:#ffff90;"><b>安全警告：</b>
+如果不使用此开关，攻击者可能能够通过更改数据库文件的模式在触发器、视图或 CHECK 约束中包含新函数，从而诱使应用程序以攻击者选择的参数运行该函数。因此，如果新函数具有副作用或泄露应用程序的内部状态，且未使用 -directonly 选项，则可能存在安全漏洞。</p>
+</dd>
+
+<dt><b>-innocuous</b>
+</dt><dd><p>
+此选项表示函数没有副作用，并且不会泄露任何不能直接从输入参数计算得出的信息。当指定此选项时，即使 <a href="pragma.html#pragma_trusted_schema">PRAGMA trusted_schema=OFF</a>，该函数也可用于触发器、视图、CHECK 约束、生成的列或索引表达式。除非确实需要，否则不建议使用此选项。
+</p></dd>
+
+<dt><b>-returntype integer|real|text|blob|any</b>
+</dt><dd><p>
+此选项用于配置函数返回值的类型。如果此选项设置为 “any”（默认值），SQLite 会根据 Tcl 值的内部类型尝试确定函数实现返回的每个值的类型。或者，如果设置为 “text” 或 “blob”，则返回值始终为文本或 blob 值。如果设置为 “integer”，SQLite 会尝试强制将函数返回值转换为整数。如果无法在不丢失数据的情况下完成，它会尝试转换为 real 值，最后再回退到 text。如果设置为 “real”，则尝试返回 real 值，如果不可能则回退到 text。<br>
+从版本 3.51 开始，从 SQL 函数中传播的 <code>break</code> 将被解释为 SQL NULL，而不是空字符串。
+</p></dd>
+</dl>
+
+</blockquote>
+
+<a name="nullvalue"></a>
+
+<h2 id="the_nullvalue_method"><span>3.14. </span>The nullvalue 方法</h2>
+
+<p>“nullvalue” 方法更改 “eval” 方法返回的 NULL 的表示。</p>
+
+<blockquote><b>
+db1 nullvalue NULL
+</b></blockquote>
+
+<p>“nullvalue” 方法有助于区分 Tcl 不存在的 NULL 与空列值。NULL 值的默认表示是空字符串。</p>
+
+<a name="onecolumn"></a>
+
+<h2 id="the_onecolumn_method"><span>3.15. </span>The onecolumn 方法</h2>
+
+<p>“onecolumn” 方法类似于 “<a href="#eval">eval</a>”，因为它评估作为参数提供的 SQL 查询语句。不同之处在于 “onecolumn” 返回单个元素，即查询结果第一行的第一列。</p>
+
+<p>这是一个便捷方法。它免去了用户需要在 “eval” 的结果上执行 “<tt>&#91;lindex&nbsp;...&nbsp;0&#93;</tt>” 来提取单列结果的麻烦。</p>
+
+<p>由于方法名可以缩短为任何唯一前缀，此方法通常写作 “one” 而不是全名 “onecolumn”。</p>
+
+<a name="changes"></a>
+
+</p><h2 id="the_changes_method"><span>3.16. </span>The changes 方法</h2>
+
+<p>“changes” 方法返回一个整数，表示最近一次 “eval” 方法在数据库中插入、删除和/或修改的行数。</p>
+
+<a name="total_changes"></a>
+
+<h2 id="the_total_changes_method"><span>3.17. </span>The total_changes 方法</h2>
+
+<p>“total_changes” 方法返回一个整数，表示自当前数据库连接首次打开以来在数据库中插入、删除和/或修改的总行数。</p>
+
+<a name="authorizer"></a>
+
+<h2 id="the_authorizer_method"><span>3.18. </span>The authorizer 方法</h2>
+
+<p>“authorizer” 方法提供了对 <a href="c3ref/set_authorizer.html">sqlite3_set_authorizer</a> C/C++ 接口的访问。authorizer 的参数是一个过程的名称，该过程在 SQL 语句编译时被调用以授权某些操作。回调过程接受 5 个参数，用于描述正在编码的操作。如果回调返回文本字符串 “SQLITE_OK”，则允许该操作。如果返回 “SQLITE_IGNORE”，则该操作被静默禁用。如果返回 “SQLITE_DENY”，则编译失败并报错。</p>
+
+<p>如果参数为空字符串，则禁用 authorizer。如果省略参数，则返回当前的 authorizer。</p>
+
+<a name="bind_fallback"></a>
+
+<h2 id="the_bind_fallback_method"><span>3.19. </span>The bind_fallback 方法</h2>
+
+<p>“bind_fallback” 方法让应用程序控制在没有与参数名匹配的 TCL 变量时如何处理参数绑定。</p><p>当 <a href="#eval">eval 方法</a> 在 SQL 语句中看到命名 SQL 参数（如 "$abc"、":def" 或 "@ghi"）时，会尝试查找同名的 TCL 变量，并将该 TCL 变量的值绑定到 SQL 参数。如果不存在这样的 TCL 变量，默认行为是将 SQL NULL 绑定到参数。但是，如果指定了 bind_fallback 过程，则会使用 SQL 参数名称调用该过程，并将过程返回值绑定到 SQL 参数。或者如果过程返回一个错误，SQL 语句则以该错误中止。如果过程返回的代码既不是 TCL_OK 也不是 TCL_ERROR，则 SQL 参数绑定为 NULL，就像默认行为一样。</p><p>“bind_fallback” 方法有一个可选参数。如果参数为空字符串，则取消 bind_fallback 并恢复默认行为。如果参数是非空字符串，则该参数是一个 TCL 命令（通常是某个过程的名称），当遇到不匹配任何 TCL 变量的 SQL 参数时调用。如果 “bind_fallback” 方法没有参数，则返回当前的 bind_fallback 命令。</p><p>举例来说，下面的设置会导致在 SQL 语句包含不匹配任何全局 TCL 变量的参数时，TCL 抛出错误：</p>
+
+<blockquote><pre><b>
+proc bind_error {nm} {
+  error "no such variable: $nm"
+}
+db bind_fallback bind_error
+</b></pre></blockquote>
+
+<a name="progress"></a>
+
+<h2 id="the_progress_method"><span>3.20. </span>The progress 方法</h2>
+
+<p>此方法注册一个回调，该回调在查询处理期间按周期调用。共有两个参数：调用之间间隔的 SQLite 虚拟机操作码数，以及要调用的 TCL 命令。将 progress 回调设置为空字符串可禁用它。</p>
+
+<p>progress 回调可用于在长时间查询期间显示状态或处理 GUI 事件。</p>
+
+<a name="collate"></a>
+
+<h2 id="the_collate_method"><span>3.21. </span>The collate 方法</h2>
+
+<p>此方法注册新的文本排序序列。共有两个参数：排序序列的名称以及实现排序比较函数的 TCL 过程的名称。</p>
+
+<p>例如，下面的代码实现了一个名为 “NOCASE” 的排序序列，该序列按文本顺序排序而不区分大小写：</p>
+
+<blockquote><pre><b>
+proc nocase_compare {a b} {
+  return &#91;string compare &#91;string tolower $a] &#91;string tolower $b]]
+}
+db collate NOCASE nocase_compare
+</b></pre></blockquote>
+
+<a name="collation_needed"></a>
+
+<h2 id="the_collation_needed_method"><span>3.22. </span>The collation_needed 方法</h2>
+
+<p>此方法注册一个回调例程，当 SQLite 引擎需要某个排序序列但尚未注册该排序序列时会调用该回调。回调可以注册所需的排序序列。回调在调用时会带一个参数，该参数是所需排序序列的名称。</p>
+
+<a name="commit_hook"></a>
+
+<h2 id="the_commit_hook_method"><span>3.23. </span>The commit_hook 方法</h2>
+
+<p>此方法注册一个回调例程，在 SQLite 尝试提交数据库更改之前调用。如果回调抛出异常或返回非零结果，则事务会回滚而不是提交。</p>
+
+<a name="rollback_hook"></a>
+
+<h2 id="the_rollback_hook_method"><span>3.24. </span>The rollback_hook 方法</h2>
+
+<p>此方法注册一个回调例程，在 SQLite 尝试回滚之前调用。脚本参数按原样运行。</p>
+
+<a name="status"></a>
+
+<h2 id="the_status_method"><span>3.25. </span>The status 方法</h2>
+
+<p>此方法返回最近评估的 SQL 语句的状态信息。status 方法接受一个参数，该参数应为 “steps” 或 “sorts”。如果参数为 “steps”，则该方法返回上一个 SQL 语句执行的完整表扫描步骤数。如果参数为 “sorts”，则该方法返回排序操作的数量。这些信息可用于检测未使用索引来加速搜索或排序的查询。</p>
+
+<p>status 方法基本上是对 <a href="c3ref/stmt_status.html">sqlite3_stmt_status()</a> C 语言接口的封装。</p>
+
+<a name="update_hook"></a>
+
+<h2 id="the_update_hook_method"><span>3.26. </span>The update_hook 方法</h2>
+
+<p>此方法注册一个回调例程，在每次通过 UPDATE、INSERT 或 DELETE 语句修改行之后调用。回调在调用之前会附加四个参数：</p>
+
+<ul>
+<li>适当情况下为 “INSERT”、“UPDATE” 或 “DELETE” 关键字</li>
+<li>正在更改的数据库名称</li>
+<li>正在更改的表</li>
+<li>要更改的表中行的 rowid</li>
+</ul>
+
+<p>回调不得执行会修改调用 update hook 的数据库连接的操作，例如运行查询。</p>
+
+<a name="preupdate"></a>
+
+<h2 id="the_preupdate_method"><span>3.27. </span>The preupdate 方法</h2>
+
+<p>此方法要么注册一个回调例程，在每次通过 UPDATE、INSERT 或 DELETE 语句修改行之前调用，要么执行与即将进行的更新相关的某些操作。</p>
+
+<p>要注册或移除 preupdate 回调，请使用以下语法：</p><blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>preupdate&nbsp;&nbsp;hook</b>&nbsp;&nbsp;<i>?SCRIPT?</i>
+</blockquote>
+当注册 preupdate 回调后，每次在修改行之前，回调将使用以下参数运行：
+<ul>
+<li>适当情况下为 “INSERT”、“UPDATE” 或 “DELETE” 关键字</li>
+<li>正在更改的数据库名称</li>
+<li>正在更改的表</li>
+<li>要更改的表中行的原始 rowid</li>
+<li>要更改的表中行的新 rowid（如果有）</li>
+</ul>
+回调不得执行会修改调用 preupdate hook 的数据库连接的操作，例如运行查询。
+
+<p>仅当回调正在执行时，可以使用以下语法执行这些 preupdate 操作：</p><blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>preupdate&nbsp;&nbsp;count</b><br>
+<i>dbcmd</i>&nbsp;&nbsp;<b>preupdate&nbsp;&nbsp;depth</b><br>
+<i>dbcmd</i>&nbsp;&nbsp;<b>preupdate&nbsp;&nbsp;new</b>&nbsp;&nbsp;<i>INDEX</i><br>
+<i>dbcmd</i>&nbsp;&nbsp;<b>preupdate&nbsp;&nbsp;old</b>&nbsp;&nbsp;<i>INDEX</i><br>
+</blockquote>
+
+<p><b>count</b> 子方法返回正在插入、更新或删除的行中的列数。</p>
+<p><b>depth</b> 子方法返回更新的嵌套深度。直接插入、更新或删除操作为 0；由顶层触发器调用的插入、更新或删除操作为 1；由触发器调用的触发器导致的更改为更高值。</p>
+
+<p><b>old</b> 和 <b>new</b> 子方法分别返回正在更新的行中选定的原始或更改后的列值。</p>
+
+<p>请注意，Tcl 接口（以及底层 SQLite 库）必须在预处理符号 SQLITE_ENABLE_PREUPDATE_HOOK 定义的情况下构建，<b>preupdate</b> 方法才可用。</p>
+
+<a name="wal_hook"></a>
+
+<h2 id="the_wal_hook_method"><span>3.28. </span>The wal_hook 方法</h2>
+
+<p>此方法注册一个回调例程，当数据库处于 <a href="wal.html">WAL 模式</a> 且事务提交之后调用。回调在调用之前会附加两个参数：</p>
+
+<ul>
+<li>事务提交所在的数据库名称</li>
+<li>该数据库的预写日志（WAL）文件中的条目数</li>
+</ul>
+
+<p>此方法可能决定自行执行 <a href="wal.html#ckpt">checkpoint</a> 或作为随后空闲回调执行。请注意 SQLite 仅允许一个 WAL hook。默认情况下，此唯一的 WAL hook 被用于自动 checkpoint。如果你设置了显式 WAL hook，则该 WAL hook 必须确保 checkpoint 正在发生，因为自动 checkpoint 机制将被禁用。</p>
+
+<p>此方法应返回一个等价于 SQLite 错误码的整数值（通常成功时为 0 对应 SQLITE_OK，出错时为 1 对应 SQLITE_ERROR）。与 <a href="c3ref/wal_hook.html">sqlite3_wal_hook()</a> 一样，返回不对应任何 SQLite 错误码的整数的后果未定义。如果脚本返回的值无法解释为整数，或脚本抛出 Tcl 异常，则不会向 SQLite 返回错误，但会引发 Tcl 后台错误。</p>
+
+<a name="incrblob"></a>
+
+</p><h2 id="the_incrblob_method"><span>3.29. </span>The incrblob 方法</h2>
+
+<p>此方法打开一个 TCL 通道，可用于读取或写入数据库中预先存在的 BLOB。语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>incrblob</b>&nbsp;&nbsp;<b>?-readonly?</b>
+&nbsp;&nbsp;<i>?DB?&nbsp;&nbsp;TABLE&nbsp;&nbsp;COLUMN&nbsp;&nbsp;ROWID</i>
+</blockquote>
+
+<p>该命令返回一个用于读写 BLOB 的新的 TCL 通道。该通道通过底层的 <a href="c3ref/blob_open.html">sqlite3_blob_open()</a> C 语言接口打开。请使用 TCL 的 <b>close</b> 命令关闭该通道。</p>
+
+<a name="errorcode"></a>
+
+<h2 id="the_errorcode_method"><span>3.30. </span>The errorcode 方法</h2>
+
+<p>此方法返回最近一次 SQLite 操作产生的数字错误码。</p>
+
+<a name="trace"></a>
+
+<h2 id="the_trace_method"><span>3.31. </span>The trace 方法</h2>
+
+<p>“trace” 方法注册一个回调，在每条 SQL 语句编译时调用。SQL 的文本在调用前作为单个字符串附加到命令中。此功能可以用于（例如）记录应用程序执行的所有 SQL 操作。</p>
+
+<a name="trace_v2"></a>
+
+<h2 id="the_trace_v2_method"><span>3.32. </span>The trace_v2 方法</h2>
+
+<p>“trace_v2” 方法注册一个回调，在每条 SQL 语句编译时调用。语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>trace_v2</b>&nbsp;&nbsp;?<i>callback</i>?&nbsp;&nbsp;?<i>mask</i>?
+</blockquote>
+
+<p>该命令使 “callback” 脚本在某些条件发生时被调用。条件由 <i>mask</i> 参数决定，该参数应为包含以下关键字之一或多个的 TCL 列表：</p>
+
+<ul>
+<li><b>statement</b></li>
+<li><b>profile</b></li>
+<li><b>row</b></li>
+<li><b>close</b></li>
+</ul>
+
+<p><b>statement</b> 的跟踪在每次运行新 SQL 语句时调用回调并传入两个参数。第一个参数是一个整数，表示指向底层 <a href="c3ref/stmt.html">sqlite3_stmt</a> 对象的指针值。该整数可用于将 SQL 语句文本与 <b>profile</b> 或 <b>row</b> 回调的结果相关联。第二个参数是正在执行的 SQL 语句的未展开文本。所谓“未展开”，是指文本中的变量替换未被替换为变量值。这与 “trace” 方法不同，后者会展开变量替换。</p>
+
+<p><b>profile</b> 的跟踪在每条 SQL 语句结束时调用回调并传入两个参数。第一个参数是一个整数，表示底层 <a href="c3ref/stmt.html">sqlite3_stmt</a> 对象的值。第二个参数是该语句的近似运行时间，单位为纳秒。运行时间是基于应用程序运行平台能力的最佳估计。</p>
+
+<p><b>row</b> 的跟踪在 SQL 语句返回新结果行时调用回调并传入一个参数。该参数是一个整数，表示底层 <a href="c3ref/stmt.html">sqlite3_stmt</a> 对象指针的值。</p>
+
+<p><b>close</b> 的跟踪在数据库连接关闭时调用回调并传入一个参数。该参数是一个整数，表示指向底层 <a href="c3ref/sqlite3.html">sqlite3</a> 对象的指针值。</p>
+
+<p>每个数据库连接只能注册一个 trace 回调。每次使用 “trace” 或 “trace_v2” 都会取消之前的所有 trace 回调。</p>
+
+<a name="backup"></a>
+
+</p><h2 id="the_backup_method"><span>3.33. </span>The backup 方法</h2>
+
+<p>“backup” 方法可创建一个运行中数据库的备份副本。命令语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>backup</b>&nbsp;&nbsp;?<i>source-database</i>?&nbsp;&nbsp;<i>backup-filename</i>
+</blockquote>
+
+<p>可选的 <i>source-database</i> 参数指出当前连接中的哪个数据库应被备份。默认值为 <b>main</b>（即主数据库文件）。备份 TEMP 表使用 <b>temp</b>。要备份通过 <a href="lang_attach.html">ATTACH</a> 命令添加的辅助数据库，请使用在 <a href="lang_attach.html">ATTACH</a> 命令中指定的数据库名称。</p>
+
+<p><i>backup-filename</i> 是备份写入的文件名。<i>Backup-filename</i> 不必事先存在，但如果存在，必须是结构良好的 SQLite 数据库。</p>
+
+<a name="restore"></a>
+
+<h2 id="the_restore_method"><span>3.34. </span>The restore 方法</h2>
+
+<p>“restore” 方法将内容从独立的数据库文件复制到当前数据库连接，覆盖任何预先存在的内容。命令语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>restore</b>&nbsp;&nbsp;?<i>target-database</i>?&nbsp;&nbsp;<i>source-filename</i>
+</blockquote>
+
+<p>可选的 <i>target-database</i> 参数指定当前连接中的哪个数据库应被新内容覆盖。默认值为 <b>main</b>（即主数据库文件）。要重新填充 TEMP 表，请使用 <b>temp</b>。要覆盖通过 <a href="lang_attach.html">ATTACH</a> 命令添加的辅助数据库，请使用在 <a href="lang_attach.html">ATTACH</a> 命令中指定的数据库名称。</p>
+
+<p><i>source-filename</i> 是一个现有的结构良好的 SQLite 数据库文件的名称，内容将从中提取。</p>
+
+<a name="serialize"></a>
+<h2 id="the_serialize_method"><span>3.35. </span>serialize 方法</h2>
+
+<p>serialize 方法创建一个 BLOB，它是底层数据库的完整副本。语法如下：
+
+</p><blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>serialize</b>&nbsp;&nbsp;?<i>database</i>?
+</blockquote>
+
+<p>可选参数是要进行序列化的架构或数据库的名称。默认值为 "main"。
+
+</p><p>该例程返回一个 TCL byte-array，它是所标识数据库的完整内容。这个 byte-array 可以被写入文件并作为普通的 SQLite 数据库使用，或者通过 TCP/IP 连接发送给其他应用程序，或传递给另一个数据库连接的 deserialize 方法。
+
+<a name="deserialize"></a>
+
+</p><h2 id="the_deserialize_method"><span>3.36. </span>deserialize 方法</h2>
+
+<p>deserialize 方法接受一个包含 SQLite 数据库文件的 TCL byte-array，并将其添加到数据库连接中。语法为：
+
+</p><blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>deserialize</b>&nbsp;&nbsp;?<i>database</i>?&nbsp;&nbsp;<i>value</i>
+</blockquote>
+
+<p><i>database</i> 选项参数用于标识应该接收反序列化的附加数据库。默认值是 "main"。
+
+</p><p>该命令使 SQLite 与先前的数据库断开连接，并重新附加到包含 <i>value</i> 内容的内存数据库。如果 <i>value</i> 不是包含定义良好的 SQLite 数据库的 byte-array，那么随后的命令很可能返回 <a href="rescode.html#corrupt">SQLITE_CORRUPT</a> 错误。
+
+<a name="interrupt"></a>
+
+</p><h2 id="the_interrupt_method"><span>3.37. </span>interrupt 方法</h2>
+
+<p>interrupt 方法调用 <a href="c3ref/interrupt.html">sqlite3_interrupt()</a> 接口，从而终止任何挂起的查询。
+
+<a name="version"></a>
+
+</p><h2 id="the_version_method"><span>3.38. </span>version 方法</h2>
+
+<p>返回当前库版本。例如："3.23.0"。
+
+<a name="profile"></a>
+
+</p><h2 id="the_profile_method"><span>3.39. </span>profile 方法</h2>
+
+<p>该方法用于分析应用程序运行的 SQL 语句的执行情况。语法如下：</p>
+
+<blockquote>
+<i>dbcmd</i>&nbsp;&nbsp;<b>profile</b>&nbsp;&nbsp;?<i>script</i>?
+</blockquote>
+
+<p>除非 <i>script</i> 是空字符串，否则该方法会安排在每条 SQL 语句执行后评估 <i>script</i>。在调用之前，会将两个参数附加到 <i>script</i>：所执行的 SQL 语句文本以及执行该语句所消耗的时间（以纳秒为单位）。
+
+</p>
+<p>一个数据库句柄在任意时间只能注册一个 profile 脚本。如果在调用 profile 方法时已经注册了脚本，之前的 profile 脚本会被新脚本替换。如果 <i>script</i> 参数为空字符串，则取消之前注册的 profile 回调，但不注册新的 profile 脚本。
+</p>
+
+<a name="unlock_notify"></a>
+
+<h2 id="the_unlock_notify_method"><span>3.40. </span>unlock_notify 方法</h2>
+
+<p>unlock_notify 方法用于访问SQLite核心库的 <a href="c3ref/unlock_notify.html">sqlite3_unlock_notify()</a> 接口，用于测试目的。应用程序不鼓励使用此方法。
+</p>
+<p align="center"><small><i>本页最后更新于 2025-12-07 18:24:29Z </small></i></p>

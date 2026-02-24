@@ -1,0 +1,1246 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>SQLite Session Module C/C++ Interface</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译<br>
+小巧。快速。可靠。任选三个。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><h2>SQLite 会话模块 C/C++ 接口</h2>
+
+<p>本页定义了 SQLite <a href="sessionintro.html">session extension</a> 的 C 语言接口。
+   这不是教程。这些页面旨在做到准确而非易读。
+   教程是 <a href="sessionintro.html">另行提供的</a>。</p>
+
+<p>本页将所有 C 语言接口信息收录在单个 HTML 文档中。
+相同的信息也可分成
+<a href="../session/intro.html">一些较小的页面</a>，以便更容易查看（如你所愿）。</p>
+
+<p>此文档由一个脚本生成，该脚本扫描源代码文件 sqlite3session.h 中的注释。</p>
+
+<hr>
+
+<h2>对象：</h2>
+<div class='columns' style='columns: 15em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='#sqlite3_changegroup'>sqlite3_changegroup</a></li>
+<li><a href='#sqlite3_changeset_iter'>sqlite3_changeset_iter</a></li>
+<li><a href='#sqlite3_rebaser'>sqlite3_rebaser<small><i>(exp)</i></small></a></li>
+<li><a href='#sqlite3_session'>sqlite3_session</a></li>
+</ul>
+</div>
+<hr>
+
+<h2>常量：</h2>
+<div class='columns' style='columns: 20em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='#SQLITE_CHANGESETAPPLY_FKNOACTION'>SQLITE_CHANGESETAPPLY_FKNOACTION</a></li>
+<li><a href='#SQLITE_CHANGESETAPPLY_FKNOACTION'>SQLITE_CHANGESETAPPLY_IGNORENOOP</a></li>
+<li><a href='#SQLITE_CHANGESETAPPLY_FKNOACTION'>SQLITE_CHANGESETAPPLY_INVERT</a></li>
+<li><a href='#SQLITE_CHANGESETAPPLY_FKNOACTION'>SQLITE_CHANGESETAPPLY_NOSAVEPOINT</a></li>
+<li><a href='#SQLITE_CHANGESETSTART_INVERT'>SQLITE_CHANGESETSTART_INVERT</a></li>
+<li><a href='#SQLITE_CHANGESET_ABORT'>SQLITE_CHANGESET_ABORT</a></li>
+<li><a href='#SQLITE_CHANGESET_CONFLICT'>SQLITE_CHANGESET_CONFLICT</a></li>
+<li><a href='#SQLITE_CHANGESET_CONFLICT'>SQLITE_CHANGESET_CONSTRAINT</a></li>
+<li><a href='#SQLITE_CHANGESET_CONFLICT'>SQLITE_CHANGESET_DATA</a></li>
+<li><a href='#SQLITE_CHANGESET_CONFLICT'>SQLITE_CHANGESET_FOREIGN_KEY</a></li>
+<li><a href='#SQLITE_CHANGESET_CONFLICT'>SQLITE_CHANGESET_NOTFOUND</a></li>
+<li><a href='#SQLITE_CHANGESET_ABORT'>SQLITE_CHANGESET_OMIT</a></li>
+<li><a href='#SQLITE_CHANGESET_ABORT'>SQLITE_CHANGESET_REPLACE</a></li>
+<li><a href='#SQLITE_SESSION_CONFIG_STRMSIZE'>SQLITE_SESSION_CONFIG_STRMSIZE</a></li>
+<li><a href='#SQLITE_SESSION_OBJCONFIG_ROWID'>SQLITE_SESSION_OBJCONFIG_ROWID</a></li>
+<li><a href='#SQLITE_SESSION_OBJCONFIG_ROWID'>SQLITE_SESSION_OBJCONFIG_SIZE</a></li>
+</ul>
+</div>
+<hr>
+
+<h2>函数：</h2>
+<div class='columns' style='columns: 15em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='#sqlite3changegroup_add'>sqlite3changegroup_add</a></li>
+<li><a href='#sqlite3changegroup_add_change'>sqlite3changegroup_add_change</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changegroup_add_strm</a></li>
+<li><a href='#sqlite3changegroup_delete'>sqlite3changegroup_delete</a></li>
+<li><a href='#sqlite3changegroup_new'>sqlite3changegroup_new</a></li>
+<li><a href='#sqlite3changegroup_output'>sqlite3changegroup_output</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changegroup_output_strm</a></li>
+<li><a href='#sqlite3changegroup_schema'>sqlite3changegroup_schema</a></li>
+<li><a href='#sqlite3changeset_apply'>sqlite3changeset_apply</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_apply_strm</a></li>
+<li><a href='#sqlite3changeset_apply'>sqlite3changeset_apply_v2</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_apply_v2_strm</a></li>
+<li><a href='#sqlite3changeset_apply'>sqlite3changeset_apply_v3</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_apply_v3_strm</a></li>
+<li><a href='#sqlite3changeset_concat'>sqlite3changeset_concat</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_concat_strm</a></li>
+<li><a href='#sqlite3changeset_conflict'>sqlite3changeset_conflict</a></li>
+<li><a href='#sqlite3changeset_finalize'>sqlite3changeset_finalize</a></li>
+<li><a href='#sqlite3changeset_fk_conflicts'>sqlite3changeset_fk_conflicts</a></li>
+<li><a href='#sqlite3changeset_invert'>sqlite3changeset_invert</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_invert_strm</a></li>
+<li><a href='#sqlite3changeset_new'>sqlite3changeset_new</a></li>
+<li><a href='#sqlite3changeset_next'>sqlite3changeset_next</a></li>
+<li><a href='#sqlite3changeset_old'>sqlite3changeset_old</a></li>
+<li><a href='#sqlite3changeset_op'>sqlite3changeset_op</a></li>
+<li><a href='#sqlite3changeset_pk'>sqlite3changeset_pk</a></li>
+<li><a href='#sqlite3changeset_start'>sqlite3changeset_start</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_start_strm</a></li>
+<li><a href='#sqlite3changeset_start'>sqlite3changeset_start_v2</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3changeset_start_v2_strm</a></li>
+<li><a href='#sqlite3rebaser_configure'>sqlite3rebaser_configure<small><i>(exp)</i></small></a></li>
+<li><a href='#sqlite3rebaser_create'>sqlite3rebaser_create<small><i>(exp)</i></small></a></li>
+<li><a href='#sqlite3rebaser_delete'>sqlite3rebaser_delete<small><i>(exp)</i></small></a></li>
+<li><a href='#sqlite3rebaser_rebase'>sqlite3rebaser_rebase<small><i>(exp)</i></small></a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3rebaser_rebase_strm</a></li>
+<li><a href='#sqlite3session_attach'>sqlite3session_attach</a></li>
+<li><a href='#sqlite3session_changeset'>sqlite3session_changeset</a></li>
+<li><a href='#sqlite3session_changeset_size'>sqlite3session_changeset_size</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3session_changeset_strm</a></li>
+<li><a href='#sqlite3session_config'>sqlite3session_config</a></li>
+<li><a href='#sqlite3session_create'>sqlite3session_create</a></li>
+<li><a href='#sqlite3session_delete'>sqlite3session_delete</a></li>
+<li><a href='#sqlite3session_diff'>sqlite3session_diff</a></li>
+<li><a href='#sqlite3session_enable'>sqlite3session_enable</a></li>
+<li><a href='#sqlite3session_indirect'>sqlite3session_indirect</a></li>
+<li><a href='#sqlite3session_isempty'>sqlite3session_isempty</a></li>
+<li><a href='#sqlite3session_memory_used'>sqlite3session_memory_used</a></li>
+<li><a href='#sqlite3session_object_config'>sqlite3session_object_config</a></li>
+<li><a href='#sqlite3session_patchset'>sqlite3session_patchset</a></li>
+<li><a href='#sqlite3changegroup_add_strm'>sqlite3session_patchset_strm</a></li>
+<li><a href='#sqlite3session_table_filter'>sqlite3session_table_filter</a></li>
+</ul>
+</div>
+<hr>
+<a name="SQLITE_CHANGESETSTART_INVERT"></a>
+<h2>sqlite3changeset_start_v2 的标志</h2><blockquote><pre>#define SQLITE_CHANGESETSTART_INVERT        0x0002
+</pre></blockquote><p>
+以下标志可通过第 4 个参数传递给
+<a href="#sqlite3changeset_start">sqlite3changeset_start_v2</a> 和 <a href="#sqlite3changegroup_add_strm">sqlite3changeset_start_v2_strm</a>：</p>
+
+<p><dt>SQLITE_CHANGESETSTART_INVERT <dd>
+  在迭代变更集时对其进行反转。这相当于在应用之前调用 sqlite3changeset_invert() 对变更集进行反转。
+  对补丁集指定此标志将导致错误。</p>
+<hr><a name="SQLITE_SESSION_CONFIG_STRMSIZE"></a>
+<h2>sqlite3session_config() 的取值。</h2><blockquote><pre>#define SQLITE_SESSION_CONFIG_STRMSIZE 1
+</pre></blockquote><p></p><hr><a name="sqlite3_changegroup"></a>
+<h2>Changegroup 句柄</h2><blockquote><pre>typedef struct sqlite3_changegroup sqlite3_changegroup;
+</pre></blockquote><p>
+changegroup 是一个用于将两个或多个 
+<a href="sessionintro.html#changeset">changesets</a> 或 <a href="sessionintro.html#changeset">patchsets</a>
+合并在一起的对象。</p><p>构造函数：<a href="#sqlite3changegroup_new">sqlite3changegroup_new()</a></p>
+<p>析构函数：<a href="#sqlite3changegroup_delete">sqlite3changegroup_delete()</a></p>
+<p>方法：
+ <a href="#sqlite3changegroup_add">sqlite3changegroup_add()</a>,
+<a href="#sqlite3changegroup_add_change">sqlite3changegroup_add_change()</a>,
+<a href="#sqlite3changegroup_output">sqlite3changegroup_output()</a></p>
+<hr><a name="sqlite3_changeset_iter"></a>
+<h2>Changeset 迭代器句柄</h2><blockquote><pre>typedef struct sqlite3_changeset_iter sqlite3_changeset_iter;
+</pre></blockquote><p>
+该对象的实例充当游标，用于遍历
+<a href="sessionintro.html#changeset">changeset</a> 或 <a href="sessionintro.html#changeset">patchset</a> 的元素。</p><p>构造函数：
+ <a href="#sqlite3changeset_start">sqlite3changeset_start()</a>,
+ <a href="#sqlite3changeset_start">sqlite3changeset_start_v2()</a></p>
+<div class='columns' style='columns: 17em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='#sqlite3changeset_conflict'>sqlite3changeset_conflict</a></li>
+<li><a href='#sqlite3changeset_finalize'>sqlite3changeset_finalize</a></li>
+<li><a href='#sqlite3changeset_fk_conflicts'>sqlite3changeset_fk_conflicts</a></li>
+<li><a href='#sqlite3changeset_new'>sqlite3changeset_new</a></li>
+<li><a href='#sqlite3changeset_next'>sqlite3changeset_next</a></li>
+<li><a href='#sqlite3changeset_old'>sqlite3changeset_old</a></li>
+<li><a href='#sqlite3changeset_op'>sqlite3changeset_op</a></li>
+<li><a href='#sqlite3changeset_pk'>sqlite3changeset_pk</a></li>
+</ul>
+</div>
+</p>
+<hr><a name="sqlite3_rebaser"></a>
+<h2>变更集的重基</h2><blockquote><pre>typedef struct sqlite3_rebaser sqlite3_rebaser;
+</pre></blockquote><p><b>重要提示：</b>此接口是 <a href="c3ref/experimental.html">experimental</a> 的，可能会在无通知的情况下发生变化。</p><p>
+假设有一个站点托管的数据库处于状态 S0。随后对该数据库进行修改，使其变为 S1，并记录一个变更集（“本地”变更集）。
+然后，从另一个站点接收到一个基于 S0 的变更集（“远程”变更集）并应用到数据库。
+数据库最终处于状态 (S1+"remote")，其确切状态取决于在应用“remote”时所作的冲突解决决策（OMIT 或 REPLACE）。
+重基变更集的目的在于将其更新为充分考虑这些冲突解决决策，以便网络中其他位置不必再次解决相同冲突。</p>
+
+<p>例如，如果本地与远程的变更集中都包含针对 “CREATE TABLE t1(a PRIMARY KEY, b)” 的相同键的
+INSERT：</p>
+
+<p>  local:  INSERT INTO t1 VALUES(1, 'v1');
+  remote: INSERT INTO t1 VALUES(1, 'v2');</p>
+
+<p>若冲突解决为 REPLACE，则 INSERT 更改会从本地变更集中移除（被覆盖）。若冲突解决为“OMIT”，
+则本地变更集会改为包含：</p>
+
+<p>          UPDATE t1 SET b = 'v2' WHERE a=1;</p>
+
+<p>本地变更集中的更改按如下方式进行重基：</p>
+
+<p><dl>
+<dt>Local INSERT<dd>
+  这可能仅与远程 INSERT 冲突。若冲突解决为 OMIT，则在重基后的变更集中添加一个 UPDATE 更改。
+  若冲突解决为 REPLACE，则在重基后的变更集中不添加任何内容。</p>
+
+<p><dt>Local DELETE<dd>
+  这可能与远程 UPDATE 或 DELETE 冲突。在这两种情况下，唯一可能的解决是 OMIT。
+  若远程操作为 DELETE，则重基后的变更集中不添加任何更改。
+  若远程操作为 UPDATE，则将更改的 old.* 字段更新为 UPDATE 中的 new.* 值。</p>
+
+<p><dt>Local UPDATE<dd>
+  这可能与远程 UPDATE 或 DELETE 冲突。如与 DELETE 冲突且冲突解决为 OMIT，则该 UPDATE 更改改为 INSERT。
+  更新更改中 new.* 记录的任何未定义值会使用冲突 DELETE 的 old.* 值填充。
+  若冲突解决为 REPLACE，则直接从重基后的变更集中省略该 UPDATE 更改。</p>
+
+<p>  若冲突为远程 UPDATE 且解决为 OMIT，则使用远程更改中的 new.* 值对 old.* 进行重基。
+  若解决为 REPLACE，则将此更改复制到重基后的变更集中，同时删除与冲突远程 UPDATE 也更新的列。
+  若因此 no columns would be updated，该更改被省略。</p>
+</dl></p>
+
+<p>本地更改可同时针对多个远程更改进行重基。
+若同一键被多个远程变更集修改，则在重基前将它们按如下方式组合：</p>
+
+<p><ul>
+   <li> 若某键上有一次或多次 REPLACE 解决，则按 REPLACE 重基。</p>
+
+<p>   <li> 若某键上没有 REPLACE 解决，则按最近一次 OMIT 解决重基。</p>
+</ul></p>
+
+<p>请注意，多远程变更集的冲突解决会逐字段合并，而不是逐行合并。
+这意味着在多个远程 UPDATE 的情况下，单个本地更改的某些字段可能为 REPLACE 重基，而其他字段为 OMIT 重基。</p>
+
+<p>为对本地变更集进行重基，必须先使用 sqlite3changeset_apply_v2() 将远程变更集应用到本地数据库，并捕获重基信息缓冲区。之后：</p>
+
+<p><ol>
+  <li> 通过调用 sqlite3rebaser_create() 创建 sqlite3_rebaser 对象。
+  <li> 通过调用 sqlite3rebaser_configure() 使用从 sqlite3changeset_apply_v2() 获得的重基缓冲区配置新对象。
+       若要针对多个远程变更集重基本地变更集，则应按执行多个 sqlite3changeset_apply_v2() 调用的相同顺序多次调用 sqlite3rebaser_configure()。
+  <li> 通过调用 sqlite3rebaser_rebase() 对每个本地变更集进行重基。
+  <li> 调用 sqlite3rebaser_delete() 删除 sqlite3_rebaser 对象。
+</ol>
+</p>
+<hr><a name="sqlite3_session"></a>
+<h2>Session 对象句柄</h2><blockquote><pre>typedef struct sqlite3_session sqlite3_session;
+</pre></blockquote><p>
+此对象的一个实例即为一个可用于记录数据库更改的 <a href="sessionintro.html">session</a>。</p>
+<p>构造函数：<a href="#sqlite3session_create">sqlite3session_create()</a></p>
+<p>析构函数：<a href="#sqlite3session_delete">sqlite3session_delete()</a></p>
+<div class='columns' style='columns: 17em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='#sqlite3session_attach'>sqlite3session_attach</a></li>
+<li><a href='#sqlite3session_changeset'>sqlite3session_changeset</a></li>
+<li><a href='#sqlite3session_changeset_size'>sqlite3session_changeset_size</a></li>
+<li><a href='#sqlite3session_diff'>sqlite3session_diff</a></li>
+<li><a href='#sqlite3session_enable'>sqlite3session_enable</a></li>
+<li><a href='#sqlite3session_indirect'>sqlite3session_indirect</a></li>
+<li><a href='#sqlite3session_object_config'>sqlite3session_object_config</a></li>
+<li><a href='#sqlite3session_patchset'>sqlite3session_patchset</a></li>
+<li><a href='#sqlite3session_table_filter'>sqlite3session_table_filter</a></li>
+</ul>
+</div>
+</p>
+<hr><a name="sqlite3changegroup_add"></a>
+<h2>向 Changegroup 添加变更集</h2><blockquote><pre>int sqlite3changegroup_add(sqlite3_changegroup*, int nData, void *pData);
+</pre></blockquote><p>
+将缓冲区 pData（大小为 nData 字节）中的所有变更（或补丁集）添加到 changegroup。</p>
+
+<p>若缓冲区包含补丁集，则对同一 changegroup 对象的所有先前调用也必须指定补丁集。
+或者，若缓冲区包含变更集，则先前的调用也必须是变更集。否则将返回 SQLITE_ERROR，并且不会将任何更改添加到 changegroup。</p>
+
+<p>变更集与 changegroup 中的行通过主键列的值来识别。
+若两行具有相同的主键，则认为它们涉及同一行。</p>
+
+<p>尚未出现在 changegroup 中的行的更改将直接复制到其中。
+或者，若新变更集与 changegroup 都包含应用于同一行的更改，则 changegroup 的最终内容取决于各个更改类型，如下：</p>
+
+<p><table border=1 style="margin-left:8ex;margin-right:8ex">
+  <tr><th style="white-space:pre">现有更改  </th>
+      <th style="white-space:pre">新更改       </th>
+      <th>输出更改
+  <tr><td>INSERT <td>INSERT <td>
+      忽略新更改。若新变更集是紧随已添加变更集录制的，则不会出现此情况。
+  <tr><td>INSERT <td>UPDATE <td>
+      INSERT 更改保留在 changegroup 中。INSERT 的值会被修改，就好像先有该 INSERT，然后再应用新的 UPDATE。
+  <tr><td>INSERT <td>DELETE <td>
+      移除现有的 INSERT，更改 group 中不添加 DELETE。
+  <tr><td>UPDATE <td>INSERT <td>
+      忽略新更改。若新变更集是紧随已添加变更集录制的，则不会出现此情况。
+  <tr><td>UPDATE <td>UPDATE <td>
+      现有 UPDATE 保留在 changegroup 中，并进行修订，使其伴随的值等同于先应用现有更改再应用新更改的结果。
+  <tr><td>UPDATE <td>DELETE <td>
+      changegroup 中用新的 DELETE 替换现有 UPDATE。
+  <tr><td>DELETE <td>INSERT <td>
+      若新更改插入的行的任一列值与现有 DELETE 删除的行不同，则用 UPDATE 替换现有 DELETE。
+      若插入的行与删除的行完全一致，则直接丢弃现有 DELETE。
+  <tr><td>DELETE <td>UPDATE <td>
+      忽略新更改。若新变更集是紧随已添加变更集录制的，则不会出现此情况。
+  <tr><td>DELETE <td>DELETE <td>
+      忽略新更改。若新变更集是紧随已添加变更集录制的，则不会出现此情况。
+</table></p>
+
+<p>若新变更集包含对已在 changegroup 中的表的更改，则该表的列数与主键位置必须一致。
+若不一致，则此函数返回 SQLITE_SCHEMA，变更操作失败。
+但是，若 changegroup 对象已通过 sqlite3changegroup_schema() API 配置了数据库模式，
+则可以将列数不同但其余兼容的变更集合并在同一表中。</p>
+
+<p>若输入变更集似乎已损坏且检测到该损坏，则返回 SQLITE_CORRUPT。
+若在处理期间出现内存不足，则返回 SQLITE_NOMEM。</p>
+
+<p>无论何种情况，若发生错误，changegroup 最终内容的状态未定义。
+若无错误发生，则返回 SQLITE_OK。</p>
+<hr><a name="sqlite3changegroup_add_change"></a>
+<h2>向 Changegroup 添加单个更改</h2><blockquote><pre>int sqlite3changegroup_add_change(
+  sqlite3_changegroup*,
+  sqlite3_changeset_iter*
+);
+</pre></blockquote><p>
+该函数将第二个参数所指示的迭代器当前位置的单个更改添加到 changegroup 对象中。
+添加规则与 <a href="#sqlite3changegroup_add">sqlite3changegroup_add()</a> 所述相同。</p>
+
+<p>若更改成功添加到 changegroup，则返回 SQLITE_OK。
+否则返回 SQLite 错误代码。</p>
+
+<p>调用此函数时，迭代器必须指向有效条目。
+若不满足，则返回 SQLITE_ERROR，且不会将任何更改添加到 changegroup。
+此外，迭代器不可使用 SQLITE_CHANGESETAPPLY_INVERT 标志打开；
+若使用，则也会返回 SQLITE_ERROR。</p>
+<hr><a name="sqlite3changegroup_delete"></a>
+<h2>删除 Changegroup 对象</h2><blockquote><pre>void sqlite3changegroup_delete(sqlite3_changegroup*);
+</pre></blockquote><p></p>
+<hr><a name="sqlite3changegroup_new"></a>
+<h2>创建新的 Changegroup 对象</h2><blockquote><pre>int sqlite3changegroup_new(sqlite3_changegroup **pp);
+</pre></blockquote><p>
+sqlite3_changegroup 对象用于将两个或多个变更集（或补丁集）合并为一个变更集（或补丁集）。
+单个 changegroup 对象可以合并变更集或补丁集，但不能同时包含两者。输出格式始终与输入一致。</p>
+
+<p>若成功，此函数返回 SQLITE_OK，并在返回前将 (*pp) 设置为指向新的 sqlite3_changegroup 对象的指针。
+调用者应通过 sqlite3changegroup_delete() 释放该对象。若发生错误，则返回 SQLite 错误代码（例如 SQLITE_NOMEM），并将 *pp 设为 NULL。</p>
+
+<p>sqlite3_changegroup 对象的常见使用模式如下：</p>
+
+<p><ul>
+  <li> 通过调用 sqlite3changegroup_new() 创建对象。</p>
+
+<p>  <li> 通过 sqlite3changegroup_add() 将零个或多个变更集（或补丁集）添加到对象。</p>
+
+<p>  <li> 通过 sqlite3changegroup_output() 获取将所有输入变更集合并后的结果。</p>
+
+<p>  <li> 通过 sqlite3changegroup_delete() 删除该对象。
+</ul></p>
+
+<p>在 new() 与 delete() 调用之间，可按任意顺序多次调用 add() 与 output()。</p>
+
+<p>除了常规的 sqlite3changegroup_add() 与 sqlite3changegroup_output() 函数外，
+还提供了流式版本 sqlite3changegroup_add_strm() 与 sqlite3changegroup_output_strm()。</p>
+<hr><a name="sqlite3changegroup_output"></a>
+<h2>从 Changegroup 获取复合变更集</h2><blockquote><pre>int sqlite3changegroup_output(
+  sqlite3_changegroup*,
+  int *pnData,                    /* OUT: Size of output buffer in bytes */
+  void **ppData                   /* OUT: Pointer to output buffer */
+);
+</pre></blockquote><p>
+获取一个包含表示 changegroup 当前内容的变更集（或补丁集）的缓冲区。
+若 changegroup 的输入本身是变更集，则输出为变更集。若输入为补丁集，则输出同样为补丁集。</p>
+
+<p>与 sqlite3session_changeset() 与 sqlite3session_patchset() 输出类似，
+同一表的所有更改在此函数输出中会分组在一起。
+表的顺序与首次添加到 changegroup 的变更集中的顺序相同。
+若后续添加的变更集中包含未在第一变更集中出现的表，则这些表按首次出现的顺序附加到输出变更集末尾。</p>
+
+<p>若发生错误，则返回 SQLite 错误代码，且输出变量 (*pnData) 与 (*ppData) 均设为 0。
+否则返回 SQLITE_OK，并将输出变量设置为缓冲区大小与指针。
+在此情况下，调用者有责任最终调用 sqlite3_free() 释放缓冲区。</p>
+<hr><a name="sqlite3changegroup_schema"></a>
+<h2>为 Changegroup 添加模式</h2><blockquote><pre>int sqlite3changegroup_schema(sqlite3_changegroup*, sqlite3*, const char *zDb);
+</pre></blockquote><p>
+此方法可选地强制要求添加到 changegroup 的变更集必须与数据库 zDb（“main”、“temp”或附加数据库的名称）的模式匹配。
+若调用 sqlite3changegroup_add() 添加的变更集与配置的模式不兼容，则返回 SQLITE_SCHEMA，且 changegroup 对象将处于未定义状态。</p>
+
+<p>变更集的模式是否与数据库模式兼容，判定方式与 sqlite3changeset_apply() 相同。
+具体而言，对于每个变更集中的表，数据库中必须存在一个表，具有：</p>
+
+<p><ul>
+  <li> 变更集所标识的名称，且
+  <li> 至少与变更集中记录的列数相同，且
+  <li> 主键列的位置与变更集中记录的位置一致。
+</ul></p>
+
+<p>changegroup 对象的输出始终具有由此函数指定的数据库模式。
+当传入 sqlite3changegroup_add() 的变更集列数少于数据库模式中对应表的列数时，这些列将使用数据库模式中的默认列值填充。
+这使得在 changegroup 中可以组合列数不同但其他方面兼容的同一表的变更集。</p>
+<hr><a name="sqlite3changeset_concat"></a>
+<h2>连接两个 Changeset 对象</h2><blockquote><pre>int sqlite3changeset_concat(
+  int nA,                         /* Number of bytes in buffer pA */
+  void *pA,                       /* Pointer to buffer containing changeset A */
+  int nB,                         /* Number of bytes in buffer pB */
+  void *pB,                       /* Pointer to buffer containing changeset B */
+  int *pnOut,                     /* OUT: Number of bytes in output changeset */
+  void **ppOut                    /* OUT: Buffer containing output changeset */
+);
+</pre></blockquote><p>
+此函数用于将两个 changeset（A 和 B）连接成一个单独的 changeset。其结果等价于先应用 changeset A，再应用 changeset B。 </p>
+
+<p>此函数使用一个 sqlite3_changegroup 对象组合两个输入 changeset。调用它将产生与下面代码片段类似的结果：</p>
+
+<p><pre>
+  sqlite3_changegroup *pGrp;
+  rc = sqlite3_changegroup_new(&pGrp);
+  if( rc==SQLITE_OK ) rc = sqlite3changegroup_add(pGrp, nA, pA);
+  if( rc==SQLITE_OK ) rc = sqlite3changegroup_add(pGrp, nB, pB);
+  if( rc==SQLITE_OK ){
+    rc = sqlite3changegroup_output(pGrp, pnOut, ppOut);
+  }else{
+    *ppOut = 0;
+    *pnOut = 0;
+  }
+</pre></p>
+
+<p>有关详细信息，请参阅下方的 sqlite3_changegroup 文档。</p><hr><a name="sqlite3changeset_conflict"></a>
+<h2>从 Changeset 迭代器获取冲突行的值</h2><blockquote><pre>int sqlite3changeset_conflict(
+  sqlite3_changeset_iter *pIter,  /* Changeset iterator */
+  int iVal,                       /* Column number */
+  sqlite3_value **ppValue         /* OUT: Value from conflicting row */
+);
+</pre></blockquote><p>
+此函数仅应与通过 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> 传递给冲突处理回调的迭代器对象一起使用，且该调用使用了 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_DATA</a> 或 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_CONFLICT</a>。如果在任何其他迭代器上调用此函数，将返回 <a href="rescode.html#misuse">SQLITE_MISUSE</a>，并将 *ppValue 设置为 NULL。</p>
+
+<p>参数 iVal 必须大于等于 0，且小于当前更改所影响表的列数。否则，将返回 <a href="rescode.html#range">SQLITE_RANGE</a> 并将 *ppValue 设置为 NULL。</p>
+
+<p>如果成功，此函数将 *ppValue 设置为指向一个受保护的 sqlite3_value 对象，该对象包含与当前冲突处理回调相关联的“冲突行”的第 iVal 个值，并返回 SQLITE_OK。</p>
+
+<p>如果发生其他错误（例如 OOM），则返回一个 SQLite 错误码，并将 *ppValue 设置为 NULL。</p><hr><a name="sqlite3changeset_finalize"></a>
+<h2>终结 Changeset 迭代器</h2><blockquote><pre>int sqlite3changeset_finalize(sqlite3_changeset_iter *pIter);
+</pre></blockquote><p>
+此函数用于终结通过 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> 分配的迭代器。</p>
+
+<p>此函数仅应在使用 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> 创建的迭代器上调用。如果应用程序对通过 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> 传递给冲突处理程序的迭代器调用此函数，将立即返回 <a href="rescode.html#misuse">SQLITE_MISUSE</a>，并且调用不会产生任何效果。</p>
+
+<p>如果在调用某个 sqlite3changeset_xxx() 函数时遇到错误（例如在 <a href="#sqlite3changeset_next">sqlite3changeset_next()</a> 中发生 <a href="rescode.html#corrupt">SQLITE_CORRUPT</a>，或在 <a href="#sqlite3changeset_new">sqlite3changeset_new()</a> 中发生 <a href="rescode.html#nomem">SQLITE_NOMEM</a>），那么此函数将返回与该错误对应的错误码。否则，将返回 SQLITE_OK。这允许使用如下模式（伪代码）：</p>
+
+<p><pre>
+  sqlite3changeset_start();
+  while( SQLITE_ROW==sqlite3changeset_next() ){
+    // Do something with change.
+  }
+  rc = sqlite3changeset_finalize();
+  if( rc!=SQLITE_OK ){
+    // An error has occurred 
+  }
+</pre>
+</p><hr><a name="sqlite3changeset_fk_conflicts"></a>
+<h2>确定外键约束违规的数量</h2><blockquote><pre>int sqlite3changeset_fk_conflicts(
+  sqlite3_changeset_iter *pIter,  /* Changeset iterator */
+  int *pnOut                      /* OUT: Number of FK violations */
+);
+</pre></blockquote><p>
+此函数仅可在传递给 SQLITE_CHANGESET_FOREIGN_KEY 冲突处理回调的迭代器上调用。在这种情况下，它会将输出变量设置为目标数据库中已知的外键违规总数，并返回 SQLITE_OK。</p>
+
+<p>在所有其他情况下，此函数返回 SQLITE_MISUSE。</p><hr><a name="sqlite3changeset_invert"></a>
+<h2>反转 Changeset</h2><blockquote><pre>int sqlite3changeset_invert(
+  int nIn, const void *pIn,       /* Input changeset */
+  int *pnOut, void **ppOut        /* OUT: Inverse of input */
+);
+</pre></blockquote><p>
+此函数用于“反转”一个 changeset 对象。将反转后的 changeset 应用于数据库会撤销应用原始 changeset 的效果。具体如下：</p>
+
+<p><ul>
+  <li> 每个 DELETE 更改变为 INSERT，</li>
+  <li> 每个 INSERT 更改变为 DELETE，</li>
+  <li> 对于每个 UPDATE 更改，old.* 和 new.* 值互换。</li>
+</ul></p>
+
+<p>此函数不会改变 changeset 中更改出现的顺序。它只是逆转每个独立更改的方向。</p>
+
+<p>如果成功，会将指向包含反转 changeset 的缓冲区的指针存储在 *ppOut 中，将该缓冲区的大小存储在 *pnOut 中，并返回 SQLITE_OK。如果发生错误，则会将 *pnOut 和 *ppOut 清零，并返回一个 SQLite 错误码。</p>
+
+<p>调用者有责任在成功调用此函数后最终对 *ppOut 指针调用 sqlite3_free() 以释放缓冲区分配。</p>
+
+<p>警告/待办：此函数当前假设输入是一个有效的 changeset。如果不是，结果未定义。</p><hr><a name="sqlite3changeset_new"></a>
+<h2>从 Changeset 迭代器获取 new.* 值</h2><blockquote><pre>int sqlite3changeset_new(
+  sqlite3_changeset_iter *pIter,  /* Changeset iterator */
+  int iVal,                       /* Column number */
+  sqlite3_value **ppValue         /* OUT: New value (or NULL pointer) */
+);
+</pre></blockquote><p>
+传递给此函数的 pIter 参数可以是通过 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> 传递给冲突处理程序的迭代器，也可以是通过 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> 创建的迭代器。在后一种情况下，最近一次对 <a href="#sqlite3changeset_next">sqlite3changeset_next()</a> 的调用必须返回 SQLITE_ROW。此外，仅当迭代器当前指向的更改类型是 <a href="c3ref/c_alter_table.html">SQLITE_UPDATE</a> 或 <a href="c3ref/c_alter_table.html">SQLITE_INSERT</a> 时才可调用此函数。否则，该函数返回 <a href="rescode.html#misuse">SQLITE_MISUSE</a> 并将 *ppValue 设置为 NULL。</p>
+
+<p>参数 iVal 必须大于等于 0，且小于当前更改所影响表的列数。否则，将返回 <a href="rescode.html#range">SQLITE_RANGE</a> 并将 *ppValue 设置为 NULL。</p>
+
+<p>如果成功，此函数将 *ppValue 设置为指向受保护的 sqlite3_value 对象，该对象包含与 UPDATE 或 INSERT 更改相关的新行值向量中的第 iVal 个值，并返回 SQLITE_OK。如果更改是 UPDATE 且未包含请求列的新值，则将 *ppValue 设置为 NULL 并返回 SQLITE_OK。函数名源自该操作类似于 update 或 delete 触发器中可用的 “new.*” 列。</p>
+
+<p>如果发生其他错误（例如 OOM），则返回一个 SQLite 错误码，并将 *ppValue 设置为 NULL。</p><hr><a name="sqlite3changeset_next"></a>
+<h2>推进 Changeset 迭代器</h2><blockquote><pre>int sqlite3changeset_next(sqlite3_changeset_iter *pIter);
+</pre></blockquote><p>
+此函数仅可用于由 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> 创建的迭代器。如果在由 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> 传递给冲突处理回调的迭代器上调用，将返回 SQLITE_MISUSE，并且调用不会产生任何效果。</p>
+
+<p>在 sqlite3changeset_start() 创建迭代器之后的最初时刻，它并未指向 changeset 中的任何更改。假设 changeset 非空，第一次调用此函数会将迭代器推进到 changeset 中的第一个更改。此后每次调用都会将迭代器推进到下一个更改（如果存在）。如果没有错误发生且 sqlite3changeset_next() 调用后迭代器指向有效更改，将返回 SQLITE_ROW。否则，如果 changeset 中的所有更改都已访问完，则返回 SQLITE_DONE。</p>
+
+<p>如果发生错误，将返回一个 SQLite 错误码。可能的错误码包括 SQLITE_CORRUPT（如果 changeset 缓冲区已损坏）或 SQLITE_NOMEM。</p><hr><a name="sqlite3changeset_old"></a>
+<h2>从 Changeset 迭代器获取 old.* 值</h2><blockquote><pre>int sqlite3changeset_old(
+  sqlite3_changeset_iter *pIter,  /* Changeset iterator */
+  int iVal,                       /* Column number */
+  sqlite3_value **ppValue         /* OUT: Old value (or NULL pointer) */
+);
+</pre></blockquote><p>
+传递给此函数的 pIter 参数可以是通过 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> 传递给冲突处理程序的迭代器，也可以是通过 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> 创建的迭代器。在后一种情况下，最近一次对 <a href="#sqlite3changeset_next">sqlite3changeset_next()</a> 的调用必须返回 SQLITE_ROW。此外，仅当迭代器当前指向的更改类型是 <a href="c3ref/c_alter_table.html">SQLITE_DELETE</a> 或 <a href="c3ref/c_alter_table.html">SQLITE_UPDATE</a> 时才可调用此函数。否则，该函数返回 <a href="rescode.html#misuse">SQLITE_MISUSE</a> 并将 *ppValue 设置为 NULL。</p>
+
+<p>参数 iVal 必须大于等于 0，且小于当前更改所影响表的列数。否则，将返回 <a href="rescode.html#range">SQLITE_RANGE</a> 并将 *ppValue 设置为 NULL。</p>
+
+<p>如果成功，此函数将 *ppValue 设置为指向受保护的 sqlite3_value 对象，该对象包含与 UPDATE 或 DELETE 更改相关的原始行值向量中的第 iVal 个值，并返回 SQLITE_OK。函数名源自该操作类似于 update 或 delete 触发器中可用的 “old.*” 列。</p>
+
+<p>如果发生其他错误（例如 OOM），则返回一个 SQLite 错误码，并将 *ppValue 设置为 NULL。</p><hr><a name="sqlite3changeset_op"></a>
+<h2>从 Changeset 迭代器获取当前操作</h2><blockquote><pre>int sqlite3changeset_op(
+  sqlite3_changeset_iter *pIter,  /* Iterator object */
+  const char **pzTab,             /* OUT: Pointer to table name */
+  int *pnCol,                     /* OUT: Number of columns in table */
+  int *pOp,                       /* OUT: SQLITE_INSERT, DELETE or UPDATE */
+  int *pbIndirect                 /* OUT: True for an 'indirect' change */
+);
+</pre></blockquote><p>
+传递给此函数的 pIter 参数可以是通过 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> 传递给冲突处理程序的迭代器，也可以是通过 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> 创建的迭代器。在后一种情况下，最近一次对 <a href="#sqlite3changeset_next">sqlite3changeset_next()</a> 的调用必须返回 <a href="rescode.html#row">SQLITE_ROW</a>。如果不是这样，将返回 <a href="rescode.html#misuse">SQLITE_MISUSE</a>。</p>
+
+<p>参数 pOp、pnCol 和 pzTab 不能为 NULL。返回时，会通过这些指针设置三个输出：</p>
+
+<p>*pOp 被设置为 <a href="c3ref/c_alter_table.html">SQLITE_INSERT</a>、<a href="c3ref/c_alter_table.html">SQLITE_DELETE</a> 或 <a href="c3ref/c_alter_table.html">SQLITE_UPDATE</a> 之一，具体取决于迭代器当前指向的更改类型；</p>
+
+<p>*pnCol 被设置为更改所影响表的列数；</p>
+
+<p>*pzTab 被设置为指向一个以 null 结尾的 utf-8 编码字符串，包含当前更改所影响的表名。此缓冲区在调用 sqlite3changeset_next() 或冲突处理函数返回之前都保持有效。</p>
+
+<p>如果 pbIndirect 不为 NULL，那么 *pbIndirect 将被设置为 true（1）表示该更改是“间接”更改，否则为 false（0）。有关直接更改和间接更改的说明，请参阅 <a href="#sqlite3session_indirect">sqlite3session_indirect()</a> 文档。</p>
+
+<p>如果没有错误发生，则返回 SQLITE_OK。如果发生错误，则返回一个 SQLite 错误码。在这种情况下，输出变量的值不可依赖。</p><hr><a name="sqlite3changeset_pk"></a>
+<h2>获取表的主键定义</h2><blockquote><pre>int sqlite3changeset_pk(
+  sqlite3_changeset_iter *pIter,  /* Iterator object */
+  unsigned char **pabPK,          /* OUT: Array of boolean - true for PK cols */
+  int *pnCol                      /* OUT: Number of entries in output array */
+);
+</pre></blockquote><p>
+对于每个被修改的表，changeset 包括以下内容：</p>
+
+<p><ul>
+  <li> 表中的列数，及</li>
+  <li> 哪些列构成表的 PRIMARY KEY。</li>
+</ul></p>
+
+<p>此函数用于确定由迭代器 pIter 当前指向的更改所修改的表的 PRIMARY KEY 由哪些列组成。如果成功，*pabPK 将指向一个包含 nCol 项的数组，其中 nCol 是表的列数。*pabPK 的元素在对应列属于表的主键时设置为 0x01，否则设置为 0x00。</p>
+
+<p>如果参数 pnCol 不为 NULL，则 *pnCol 将被设置为表的列数。</p>
+
+<p>如果在迭代器不指向有效条目时调用此函数，将返回 SQLITE_MISUSE 并将输出变量清零。否则，将返回 SQLITE_OK，并按上述方式填充输出变量。</p><hr><a name="sqlite3rebaser_configure"></a>
+<h2>配置 changeset 重基对象。</h2><blockquote><pre>int sqlite3rebaser_configure(
+  sqlite3_rebaser*, 
+  int nRebase, const void *pRebase
+); 
+</pre></blockquote><p><b>重要：</b>此接口为<a href="c3ref/experimental.html">实验性</a>，可能在未通知的情况下发生变更。</p><p>
+根据缓冲区 pRebase（大小为 nRebase 字节）中描述的冲突解决方式，配置 changeset 重基对象。该缓冲区必须来自此前对 sqlite3changeset_apply_v2() 的调用。
+</p><hr><a name="sqlite3rebaser_create"></a>
+<h2>创建 changeset 重基对象。</h2><blockquote><pre>int sqlite3rebaser_create(sqlite3_rebaser **ppNew);
+</pre></blockquote><p><b>重要：</b>此接口为<a href="c3ref/experimental.html">实验性</a>，可能在未通知的情况下发生变更。</p><p>
+分配一个新的 changeset 重基对象。如果成功，将 (*ppNew) 设置为指向新对象，并返回 SQLITE_OK。否则，如果发生错误，返回一个 SQLite 错误码（例如 SQLITE_NOMEM），并将 (*ppNew) 设置为 NULL。 
+</p><hr><a name="sqlite3rebaser_delete"></a>
+<h2>删除 changeset 重基对象。</h2><blockquote><pre>void sqlite3rebaser_delete(sqlite3_rebaser *p); 
+</pre></blockquote><p><b>重要：</b>此接口为<a href="c3ref/experimental.html">实验性</a>，可能在未通知的情况下发生变更。</p><p>
+删除 changeset 重基对象及其所有相关资源。每次成功调用 sqlite3rebaser_create() 后，都应调用此函数一次。
+</p><hr><a name="sqlite3rebaser_rebase"></a>
+<h2>重基一个 changeset</h2><blockquote><pre>int sqlite3rebaser_rebase(
+  sqlite3_rebaser*,
+  int nIn, const void *pIn, 
+  int *pnOut, void **ppOut 
+);
+</pre></blockquote><p><b>重要：</b>此接口为<a href="c3ref/experimental.html">实验性</a>，可能在未通知的情况下发生变更。</p><p>
+参数 pIn 必须指向一个大小为 nIn 字节的 changeset 缓冲区。此函数会分配并填充一个缓冲区，其中包含根据作为第一个参数传入的重基对象配置所重基的 changeset 副本。如果成功，将 (*ppOut) 设置为指向该包含重基 changeset 的新缓冲区，并将 (*pnOut) 设置为其字节大小，返回 SQLITE_OK。调用者有责任最终使用 sqlite3_free() 释放该新缓冲区。否则，如果发生错误，将 (*ppOut) 和 (*pnOut) 清零，并返回一个 SQLite 错误码。
+</p><hr><a name="sqlite3session_attach"></a>
+<h2>将表附加到会话对象</h2><blockquote><pre>int sqlite3session_attach(
+  sqlite3_session *pSession,      /* Session object */
+  const char *zTab                /* Table name */
+);
+</pre></blockquote><p>
+如果参数 zTab 不为 NULL，则它是要附加到第一个参数所指的会话对象的表名。在会话对象启用期间对该表所做的所有后续更改都将被记录。有关更多细节，请参阅 <a href="#sqlite3session_changeset">sqlite3session_changeset()</a> 文档。</p>
+
+<p>如果参数 zTab 为 NULL，则会记录数据库中所有表的更改。如果在此调用之后向数据库添加额外的表（通过执行 “CREATE TABLE” 语句），也会记录这些新表的更改。</p>
+
+<p>仅能为在其 CREATE TABLE 语句中显式定义了 PRIMARY KEY 的表记录更改。PRIMARY KEY 是否为 “INTEGER PRIMARY KEY”（rowid 别名）并不重要。PRIMARY KEY 可以由单列组成，也可以是复合键。</p>
+
+<p>如果指定的表在数据库中不存在，则这并非错误。如果表没有 PRIMARY KEY，也不是错误。然而，在这些情况下都不会记录任何更改。</p>
+
+<p>对于在一个或多个 PRIMARY KEY 列中存储了 NULL 值的行，不会记录其单独的更改。</p>
+
+<p>如果调用成功，则返回 SQLITE_OK。否则，如果发生错误（例如 SQLITE_NOMEM），则返回一个 SQLite 错误码。</p>
+
+<p><h3>sqlite_stat1 的特殊处理</h3></p>
+
+<p>从 SQLite 3.22.0 版本开始，“sqlite_stat1” 表是上述某些规则的例外。在 SQLite 中，sqlite_stat1 的模式为：
+ <pre>
+ &nbsp;     CREATE TABLE sqlite_stat1(tbl,idx,stat)  
+ </pre></p>
+
+<p>尽管 sqlite_stat1 没有 PRIMARY KEY，但其更改仍按主键为 (tbl,idx) 处理。此外，对于满足 (idx IS NULL) 的行也会记录更改。不过，对于此类行，在 changeset 或 patchset 中存储的不是 NULL，而是零长度 blob（SQL 值 X''）。这使得这些 changeset 可被 sqlite3changeset_invert()、concat() 及类似旧实现操作。</p>
+
+<p>sqlite3changeset_apply() 函数在更新 sqlite_stat1 表时会自动将零长度 blob 转换回 NULL。然而，如果应用程序直接在 changeset 迭代器上调用 sqlite3changeset_new()、sqlite3changeset_old() 或 sqlite3changeset_conflict（包括在传递给冲突处理回调的迭代器上），则会返回 X'' 值。应用程序需要在必要时自行将 X'' 转换为 NULL。</p>
+
+<p>旧版（早于 3.22.0）会话模块无法捕获对 sqlite_stat1 表所做的更改。旧版 sqlite3changeset_apply() 函数会默默忽略 changeset 或 patchset 中对 sqlite_stat1 表的任何修改。</p><hr><a name="sqlite3session_changeset"></a>
+<h2>从会话对象生成 Changeset</h2><blockquote><pre>int sqlite3session_changeset(
+  sqlite3_session *pSession,      /* Session object */
+  int *pnChangeset,               /* OUT: Size of buffer at *ppChangeset */
+  void **ppChangeset              /* OUT: Buffer containing changeset */
+);
+</pre></blockquote><p>
+获取一个包含附加到第一个参数所指会话对象的表更改的 changeset。如果成功，将 *ppChangeset 设置为指向包含 changeset 的缓冲区，并将 *pnChangeset 设置为 changeset 的字节大小，然后返回 SQLITE_OK。如果发生错误，则将 *ppChangeset 和 *pnChangeset 都设置为零，并返回一个 SQLite 错误码。</p>
+
+<p>一个 changeset 由零个或多个 INSERT、UPDATE 和/或 DELETE 更改组成，每个更改代表附加表中单行的修改。INSERT 更改包含新数据库行的各字段值。DELETE 更改包含被删除数据库行的原始字段值。UPDATE 更改包含更新前数据库行各字段的原始值，以及每个被更新的非主键列的新的值。UPDATE 更改无法表示修改主键列值的操作。如果发生这种更改，它将在 changeset 中表示为先 DELETE 再 INSERT。</p>
+
+<p>对于在一个或多个 PRIMARY KEY 列中存储了 NULL 值的行，不会记录其更改。如果插入或删除了这样的行，则本函数返回的 changeset 中不会包含对应的更改。如果现有行在一个或多个 PRIMARY KEY 列中存储了 NULL 值，随后被更新为所有 PRIMARY KEY 列都非 NULL，则 changeset 中只会出现一个 INSERT。类似地，如果现有行的非 NULL PRIMARY KEY 值被更新为使其中一个或多个 PRIMARY KEY 列变为 NULL，则结果 changeset 中只包含 DELETE 更改。</p>
+
+<p>可以使用 <a href="#sqlite3changeset_start">sqlite3changeset_start()</a> API 创建的迭代器遍历本函数生成的 changeset。也可以使用 <a href="#sqlite3changeset_apply">sqlite3changeset_apply()</a> API 将 changeset 应用于具有兼容模式的数据库。</p>
+
+<p>在本函数生成的 changeset 中，与同一表相关的所有更改会被分组。换句话说，当遍历 changeset 或将其应用于数据库时，会先处理与单个表相关的所有更改，然后再转到下一个表。表按照附加（或自动附加）到 sqlite3_session 对象的顺序排序。与同一表相关的更改在 changeset 中的存储顺序未定义。</p>
+
+<p>在成功调用本函数后，调用者有责任最终使用 <a href="c3ref/free.html">sqlite3_free()</a> 释放 *ppChangeset 指向的缓冲区。</p>
+
+<p><h3>Changeset 的生成</h3></p>
+
+<p>一旦将表附加到会话对象，会话对象会记录插入的新行的主键值。它还会记录删除或更新的行的原始主键和其他列值。对于每个唯一主键值，只会在该行在会话期间首次被插入、更新或删除时记录一次数据。</p>
+
+<p>前段所述的内容有一个例外：当某行被插入、更新或删除时，如果其一个或多个主键列包含 NULL 值，则不会记录该更改。</p>
+
+<p>因此，会话对象会累计两类记录——仅包含主键值的记录（在用户插入新记录时创建）以及既包含主键值又包含其他列原始值的记录（在用户删除或更新记录时创建）。</p>
+
+<p>调用本函数时，请求的 changeset 是使用累计记录和当前数据库文件内容一起创建的。具体如下：</p>
+
+<p><ul>
+  <li> 对于每条由插入生成的记录，会查询数据库中是否存在具有匹配主键的行。如果找到，则向 changeset 中添加一个 INSERT 更改。如果未找到，则不添加更改。</li>
+
+<p>  <li> 对于每条由更新或删除生成的记录，会查询数据库中是否存在具有匹配主键的行。如果找到，并且一个或多个非主键字段的值与原始值不同，则向 changeset 中添加一个 UPDATE 更改。或者，如果表中未找到该主键对应的行，则添加一个 DELETE 更改。如果数据库中存在匹配主键的行，但所有字段都保留原始值，则不添加更改。</li>
+</ul></p>
+
+<p>这意味着，例如，如果在会话对象启用期间插入了一行，随后在同一会话期间又删除了该行，则 changeset 中不会出现插入和删除这两个更改。再比如，如果在会话对象启用期间删除了一行，随后又插入了一行具有相同主键值的行，则最终的 changeset 将包含一个 UPDATE 更改，而不是 DELETE 和 INSERT。</p>
+
+<p>当会话对象被禁用（参见 <a href="#sqlite3session_enable">sqlite3session_enable()</a> API）时，在插入、更新或删除行时不会累积记录。如果在一个会话期间，多次写入相同行，则可能出现一些反直觉的效果。例如，如果在启用会话对象期间插入一行，之后在相同会话对象禁用期间又删除该行，则 changeset 中不会出现 INSERT 记录，即使删除发生在会话禁用期间。亦或者，如果在会话启用期间更新了一行的某个字段，然后在禁用期间更新了同一行的另一个字段，则最终 changeset 中的 UPDATE 更改会同时更新这两个字段。</p><hr><a name="sqlite3session_changeset_size"></a>
+<h2>返回变更集大小的上限</h2><blockquote><pre>sqlite3_int64 sqlite3session_changeset_size(sqlite3_session *pSession);
+</pre></blockquote><p>
+默认情况下，此函数始终返回 0。要使其返回有意义的结果，必须使用 SQLITE_SESSION_OBJCONFIG_SIZE 通过 sqlite3session_object_config() 配置 sqlite3_session 对象以启用此 API。</p>
+
+<p>启用后，此函数返回调用 sqlite3session_changeset() 时可能生成的变更集大小的上限（字节）。最终的变更集大小可能等于或小于此函数返回的字节数。</p><hr><a name="sqlite3session_config"></a>
+<h2>配置全局参数</h2><blockquote><pre>int sqlite3session_config(int op, void *pArg);
+</pre></blockquote><p>
+sqlite3session_config() 接口用于对 session 模块进行全局配置更改，以便根据应用程序的特定需求进行调整。</p>
+
+<p>sqlite3session_config() 接口不是线程安全的。如果在任何其他线程正在调用其他 session 方法时调用它，则结果是未定义的。此外，如果在创建任何与 session 相关的对象之后调用它，结果也是未定义的。</p>
+
+<p>sqlite3session_config() 函数的第一个参数必须是下文定义的 SQLITE_SESSION_CONFIG_XXX 常量之一。传递的第二个参数（void*）的解释以及调用此函数的效果取决于第一个参数的值。</p>
+
+<p><dl>
+<dt>SQLITE_SESSION_CONFIG_STRMSIZE<dd>
+   默认情况下，session 模块的流接口尝试以约 1 KiB 的块输入和输出数据。此操作数可用于设置和查询此配置设置的值。传递的指针必须指向 int 类型的值。如果该值大于 0，则用于作为输入和输出的新的流数据块大小。在返回之前，pArg 指向的 int 值被设置为流接口块大小的最终值。
+</dl></p>
+
+<p>此函数在成功时返回 SQLITE_OK，否则返回 SQLite 错误代码。</p><hr><a name="sqlite3session_create"></a>
+<h2>创建新的 Session 对象</h2><blockquote><pre>int sqlite3session_create(
+  sqlite3 *db,                    /* Database handle */
+  const char *zDb,                /* Name of db (e.g. "main") */
+  sqlite3_session **ppSession     /* OUT: New session object */
+);
+</pre></blockquote><p>
+创建一个附加到数据库句柄 db 的新 session 对象。如果成功，将向 *ppSession 写入指向新对象的指针，并返回 SQLITE_OK。如果发生错误，则 *ppSession 设置为 NULL，并返回 SQLite 错误代码（例如 SQLITE_NOMEM）。</p>
+
+<p>可以为同一个数据库句柄创建多个 session 对象。</p>
+
+<p>使用此函数创建的 session 对象应在其附加的数据库句柄关闭之前，通过 <a href="#sqlite3session_delete">sqlite3session_delete()</a> 函数删除。如果在删除 session 对象之前关闭数据库句柄，那么对包含该 session 对象的任何 session 模块函数（包括 <a href="#sqlite3session_delete">sqlite3session_delete()</a>）的调用结果都是未定义的。</p>
+
+<p>因为 session 模块使用 <a href="c3ref/preupdate_blobwrite.html">sqlite3_preupdate_hook()</a> API，所以无法让应用程序在附加了一个或多个 session 对象的数据库句柄上注册 pre-update 钩子。同样，也无法在已经定义了 pre-update 钩子的数据库句柄上创建附加 session 对象。尝试执行上述任一操作的结果都是未定义的。</p>
+
+<p>该 session 对象将用于为数据库 zDb 中的表创建变更集，其中 zDb 可以是 "main"、"temp" 或附加数据库的名称。如果 zDb 数据库在创建 session 对象时尚未附加，也不是错误。</p><hr><a name="sqlite3session_delete"></a>
+<h2>删除 Session 对象</h2><blockquote><pre>void sqlite3session_delete(sqlite3_session *pSession);
+</pre></blockquote><p>
+删除先前使用 <a href="#sqlite3session_create">sqlite3session_create()</a> 分配的 session 对象。一旦删除 session 对象，尝试使用 pSession 调用其他 session 模块函数的结果就是未定义的。</p>
+
+<p>在关闭 session 对象附加的数据库句柄之前，必须先删除 session 对象。详情请参阅 <a href="#sqlite3session_create">sqlite3session_create()</a> 的文档。</p><hr><a name="sqlite3session_diff"></a>
+<h2>将两个表的差异加载到 Session 中</h2><blockquote><pre>int sqlite3session_diff(
+  sqlite3_session *pSession,
+  const char *zFromDb,
+  const char *zTbl,
+  char **pzErrMsg
+);
+</pre></blockquote><p>
+如果 zTbl 表尚未附加到作为第一个参数传入的 session 对象，该函数将以与 <a href="#sqlite3session_attach">sqlite3session_attach()</a> 相同的方式附加该表。如果 zTbl 不存在或没有主键，该函数是 no-op（但不会返回错误）。</p>
+
+<p>参数 zFromDb 必须是附加到与包含与通过本函数附加的表兼容的表的 session 对象相同数据库句柄的数据库名称（如 "main"、"temp" 等）。若要兼容，表必须满足以下条件：</p>
+
+<p><ul>
+  <li> 名称相同，
+  <li> 在相同顺序中声明的列集合相同，并且
+  <li> 主键定义相同。
+</ul></p>
+
+<p>如果表不兼容，则返回 SQLITE_SCHEMA。如果表兼容但没有任何主键列，则不算错误，但不会向 session 对象添加任何更改。与其他 session API 一样，缺少主键的表会被忽略。</p>
+
+<p>此函数向 session 对象添加一组更改，这些更改可用于更新 zFrom 数据库中的表（称为 "源表"），使其内容与附加到 session 对象的表（称为 "目标表"）相同。具体而言：</p>
+
+<p><ul>
+  <li> 对于存在于目标表中但不存在于源表中的每一行（主键），向 session 对象添加一条 INSERT 记录。</li>
+  <li> 对于存在于源表中但不存在于目标表中的每一行（主键），向 session 对象添加一条 DELETE 记录。</li>
+  <li> 对于在两个表中都存在但非主键字段值不同的每一行（主键），向 session 对象添加一条 UPDATE 记录。</li>
+</ul></p>
+
+<p>为澄清起见，如果调用此函数后再使用 <a href="#sqlite3session_changeset">sqlite3session_changeset()</a> 构造变化集，然后将该变化集应用于 zFrom 数据库，则两个兼容表的内容将一致。</p>
+
+<p>除非此函数如上文所述是 no-op，否则如果 zFrom 数据库不存在或不包含所需的兼容表，则会发生错误。</p>
+
+<p>如果操作成功，则返回 SQLITE_OK。否则返回 SQLite 错误代码。在此情况下，如果 pzErrMsg 不为 NULL，则 *pzErrMsg 可能设置为指向包含英文错误消息的缓冲区。调用者有责任使用 sqlite3_free() 释放该缓冲区。</p><hr><a name="sqlite3session_enable"></a>
+<h2>启用或禁用 Session 对象</h2><blockquote><pre>int sqlite3session_enable(sqlite3_session *pSession, int bEnable);
+</pre></blockquote><p>
+启用或禁用 session 对象记录更改。启用时，session 对象会记录对数据库的更改。禁用时则不会。新创建的 session 对象是启用的。有关启用和禁用 session 对象如何影响最终变更集的更多细节，请参阅 <a href="#sqlite3session_changeset">sqlite3session_changeset()</a> 的文档。</p>
+
+<p>传入 0 会禁用 session。传入大于 0 的值会启用 session。传入小于 0 的值则是 no-op，可用于查询当前 session 的状态。</p>
+
+<p>返回值表示 session 对象的最终状态：若禁用返回 0，启用返回 1。</p><hr><a name="sqlite3session_indirect"></a>
+<h2>设置或清除间接更改标志</h2><blockquote><pre>int sqlite3session_indirect(sqlite3_session *pSession, int bIndirect);
+</pre></blockquote><p>
+session 对象记录的每个更改都标记为直接或间接。如果满足以下任一条件，则将更改标记为间接：</p>
+
+<p><ul>
+  <li> 更改发生时 session 对象的“间接”标志已设置，或
+  <li> 更改是由 SQL 触发器或外键操作所致，而不是用户 SQL 语句直接引起。
+</ul></p>
+
+<p>如果单行在一个 session 中受到多个操作影响，则仅当所有操作都满足上述间接更改条件时，才将其视为间接；否则视为直接。</p>
+
+<p>此函数用于设置、清除或查询 session 对象的间接标志。如果传入的第二个参数为 0，则清除间接标志。如果大于 0，则设置间接标志。传入小于 0 的值不会修改当前间接标志，可用于查询指定 session 对象间接标志的当前状态。</p>
+
+<p>返回值表示间接标志的最终状态：如果清除则返回 0，设置则返回 1。</p><hr><a name="sqlite3session_isempty"></a>
+<h2>测试变更集中是否记录了任何更改。</h2><blockquote><pre>int sqlite3session_isempty(sqlite3_session *pSession);
+</pre></blockquote><p>
+如果传入的 session 对象未记录任何附加表的更改，则返回非零。否则，如果已记录一个或多个更改，则返回零。</p>
+
+<p>即使此函数返回零，调用 <a href="#sqlite3session_changeset">sqlite3session_changeset()</a> 仍可能返回包含零更改的变更集。这种情况发生在附加表的某一行被修改后又恢复为原始值。但是，如果此函数返回非零，则可确保调用 sqlite3session_changeset() 会返回包含零更改的变更集。</p><hr><a name="sqlite3session_memory_used"></a>
+<h2>查询 session 对象使用的堆内存量。</h2><blockquote><pre>sqlite3_int64 sqlite3session_memory_used(sqlite3_session *pSession);
+</pre></blockquote><p>
+此 API 返回传入的 session 对象当前使用的堆内存总字节数。</p><hr><a name="sqlite3session_object_config"></a>
+<h2>配置 Session 对象</h2><blockquote><pre>int sqlite3session_object_config(sqlite3_session*, int op, void *pArg);
+</pre></blockquote><p>
+此方法用于在创建 Session 对象之后对其进行配置。目前，第二个参数的唯一有效值是 <a href="#SQLITE_SESSION_OBJCONFIG_ROWID">SQLITE_SESSION_OBJCONFIG_SIZE</a> 和 <a href="#SQLITE_SESSION_OBJCONFIG_ROWID">SQLITE_SESSION_OBJCONFIG_ROWID</a>。</p>
+
+<p></p><hr><a name="sqlite3session_patchset"></a>
+<h2>从 Session 对象生成补丁集</h2><blockquote><pre>int sqlite3session_patchset(
+  sqlite3_session *pSession,      /* Session object */
+  int *pnPatchset,                /* OUT: Size of buffer at *ppPatchset */
+  void **ppPatchset               /* OUT: Buffer containing patchset */
+);
+</pre></blockquote><p>
+补丁集与变更集之间的差异在于：</p>
+
+<p><ul>
+  <li> DELETE 记录仅由主键字段组成。其他字段的原始值被省略。
+  <li> UPDATE 记录省略了任何被修改字段的原始值。
+</ul></p>
+
+<p>补丁集 blob 可与所有最新版本的 sqlite3changeset_xxx API 函数一起使用，除了 sqlite3changeset_invert()，如果传入补丁集则返回 SQLITE_CORRUPT。同样，尝试将补丁集 blob 与旧版本的 sqlite3changeset_xxx API 一起使用也会导致 SQLITE_CORRUPT 错误。</p>
+
+<p>由于省略了非主键的 “old.*” 字段，因此如果将补丁集传递给 sqlite3changeset_apply() API，就无法检测或报告 SQLITE_CHANGESET_DATA 冲突。其他冲突类型的行为与变更集相同。</p>
+
+<p>补丁集中的更改与 sqlite3session_changeset() 函数生成的变更集的顺序相同（即：同一表的所有更改分组在一起，表按附加到 session 对象的顺序出现）。</p><hr><a name="sqlite3session_table_filter"></a>
+<h2>为 Session 对象设置表过滤器。</h2><blockquote><pre>void sqlite3session_table_filter(
+  sqlite3_session *pSession,      /* Session object */
+  int(*xFilter)(
+    void *pCtx,                   /* Copy of third arg to _filter_table() */
+    const char *zTab              /* Table name */
+  ),
+  void *pCtx                      /* First argument passed to xFilter */
+);
+</pre></blockquote><p>
+第二个参数（xFilter）是“过滤回调”。对于未附加到 Session 对象的表中的行更改，会调用该过滤器以确定是否应跟踪该表的行更改。如果 xFilter 返回 0，则不跟踪更改。请注意，一旦附加表，xFilter 将不会再次被调用。</p><hr><a name="SQLITE_CHANGESETAPPLY_FKNOACTION"></a>
+<h2>sqlite3changeset_apply_v2 的标志</h2><blockquote><pre>#define SQLITE_CHANGESETAPPLY_NOSAVEPOINT   0x0001
+#define SQLITE_CHANGESETAPPLY_INVERT        0x0002
+#define SQLITE_CHANGESETAPPLY_IGNORENOOP    0x0004
+#define SQLITE_CHANGESETAPPLY_FKNOACTION    0x0008
+</pre></blockquote><p>
+下列标志可以通过第九个参数传递给 <a href="#sqlite3changeset_apply">sqlite3changeset_apply_v2</a> 和 <a href="#sqlite3changegroup_add_strm">sqlite3changeset_apply_v2_strm</a>：</p>
+
+<p><dl>
+<dt>SQLITE_CHANGESETAPPLY_NOSAVEPOINT <dd>
+  通常，session 模块会将单次对 apply_v2() 或 apply_v2_strm() 的调用所执行的所有操作封装在一个 <a href="lang_savepoint.html">SAVEPOINT</a> 中。如果变更集或补丁集成功应用，则提交 SAVEPOINT；如果出错则回滚。指定此标志会导致 session 模块省略该保存点。在这种情况下，如果调用 apply_v2() 时调用者已开启事务或保存点，它可以通过回滚来恢复部分应用的变更集。</p>
+
+<p><dt>SQLITE_CHANGESETAPPLY_INVERT <dd>
+  在应用变更集之前先进行反转。这等同于在应用之前使用 sqlite3changeset_invert() 反转变更集。对于补丁集，指定此标志会导致错误。</p>
+
+<p><dt>SQLITE_CHANGESETAPPLY_IGNORENOOP <dd>
+  不对不会实际修改数据库的变更调用冲突处理程序回调。具体来说，这意味着冲突处理程序不会因以下情况而被调用：
+   <ul>
+   <li> 若无法找到待删除的行，则不会调用 DELETE 更改，
+   <li> 若被更新的字段已在冲突行中设置为新值，则不会调用 UPDATE 更改，
+   <li> 若冲突行的所有字段与要插入的行完全匹配，则不会调用 INSERT 更改。
+   </ul></p>
+
+<p><dt>SQLITE_CHANGESETAPPLY_FKNOACTION <dd>
+  如果设置了此标志，则目标数据库中的所有外键约束将行为上等同于使用 “ON UPDATE NO ACTION ON DELETE NO ACTION” 声明，即便其实际为 CASCADE、RESTRICT、SET NULL 或 SET DEFAULT。</p><hr><a name="SQLITE_CHANGESET_ABORT"></a>
+<h2>冲突处理程序返回的常量</h2><blockquote><pre>#define SQLITE_CHANGESET_OMIT       0
+#define SQLITE_CHANGESET_REPLACE    1
+#define SQLITE_CHANGESET_ABORT      2
+</pre></blockquote><p>
+冲突处理程序回调必须返回以下三者之一。</p>
+
+<p><dl>
+<dt>SQLITE_CHANGESET_OMIT<dd>
+  若冲突处理程序返回此值，不执行任何特殊操作。导致冲突的更改不会应用。session 模块继续处理变更集中的下一个更改。</p>
+
+<p><dt>SQLITE_CHANGESET_REPLACE<dd>
+  仅当传递给冲突处理程序的第二个参数是 SQLITE_CHANGESET_DATA 或 SQLITE_CHANGESET_CONFLICT 时，才可返回此值。如果不是，将回滚已经应用的更改，并且对 sqlite3changeset_apply() 的调用返回 SQLITE_MISUSE。</p>
+
+<p>  如果 SQLITE_CHANGESET_DATA 冲突处理程序返回 CHANGESET_REPLACE，则根据更改类型更新或删除冲突行。</p>
+
+<p>  如果 SQLITE_CHANGESET_CONFLICT 冲突处理程序返回 CHANGESET_REPLACE，则将冲突行从数据库中移除，并再次尝试应用更改。如果第二次尝试失败，则在继续之前将原始行恢复到数据库中。</p>
+
+<p><dt>SQLITE_CHANGESET_ABORT<dd>
+  如果返回此值，则回滚迄今为止应用的所有更改，并且对 sqlite3changeset_apply() 的调用返回 SQLITE_ABORT。</dl>
+</p><hr><a name="SQLITE_CHANGESET_CONFLICT"></a>
+<h2>传递给冲突处理程序的常量</h2><blockquote><pre>#define SQLITE_CHANGESET_DATA        1
+#define SQLITE_CHANGESET_NOTFOUND    2
+#define SQLITE_CHANGESET_CONFLICT    3
+#define SQLITE_CHANGESET_CONSTRAINT  4
+#define SQLITE_CHANGESET_FOREIGN_KEY 5
+</pre></blockquote><p>
+可能作为冲突处理程序第二个参数传递的值。</p>
+
+<p><dl>
+<dt>SQLITE_CHANGESET_DATA<dd>
+  在处理 DELETE 或 UPDATE 更改时，如果数据库中存在具有所需 PRIMARY KEY 字段的行，但由更新修改的一个或多个其他（非主键）字段的“之前”值不符合预期，则冲突处理程序会以 CHANGESET_DATA 作为第二个参数被调用。</p>
+
+<p>  在这种情况下，冲突行是具有匹配主键的数据库行。</p>
+
+<p><dt>SQLITE_CHANGESET_NOTFOUND<dd>
+  在处理 DELETE 或 UPDATE 更改时，如果数据库中找不到具有所需 PRIMARY KEY 字段的行，则冲突处理程序以 CHANGESET_NOTFOUND 作为第二个参数被调用。</p>
+
+<p>  此时不存在冲突行。调用 sqlite3changeset_conflict() API 的结果是未定义的。</p>
+
+<p><dt>SQLITE_CHANGESET_CONFLICT<dd>
+  在处理 INSERT 更改时，如果操作将导致重复的主键值，则冲突处理程序会以 CHANGESET_CONFLICT 作为第二个参数被调用。</p>
+
+<p>  此时的冲突行为是具有匹配主键的数据库行。</p>
+
+<p><dt>SQLITE_CHANGESET_FOREIGN_KEY<dd>
+  如果启用了外键处理，并且应用变更集后数据库中存在外键违规，则在变更集提交之前，冲突处理程序将被调用一次，第二个参数为 CHANGESET_FOREIGN_KEY。如果处理程序返回 CHANGESET_OMIT，则包括导致外键违规的更改在内的所有更改都会被提交。若返回 CHANGESET_ABORT，则变更集会被回滚。</p>
+
+<p>  不提供当前或冲突行信息。在提供的 sqlite3_changeset_iter 句柄上，仅可调用 sqlite3changeset_fk_conflicts()。</p>
+
+<p><dt>SQLITE_CHANGESET_CONSTRAINT<dd>
+  在应用更改期间发生其他任何约束违规（如 UNIQUE、CHECK 或 NOT NULL）时，冲突处理程序会以 CHANGESET_CONSTRAINT 作为第二个参数被调用。</p>
+
+<p>  此时不提供冲突行。调用 sqlite3changeset_conflict() API 的结果是未定义的。</p>
+
+<p></dl>
+</p><hr><a name="SQLITE_SESSION_OBJCONFIG_ROWID"></a>
+<h2>sqlite3session_object_config 的选项</h2><blockquote><pre>#define SQLITE_SESSION_OBJCONFIG_SIZE  1
+#define SQLITE_SESSION_OBJCONFIG_ROWID 2
+</pre></blockquote><p>
+以下值可以作为 sqlite3session_object_config() 的第二个参数传递。</p>
+
+<p><dt>SQLITE_SESSION_OBJCONFIG_SIZE <dd>
+  此选项用于设置、清除或查询启用 <a href="#sqlite3session_changeset_size">sqlite3session_changeset_size()</a> API 的标志。由于它会带来一定的计算开销，默认情况下此 API 是禁用的。pArg 必须指向 int 类型的值。如果初始值为 0，则禁用 sqlite3session_changeset_size() API。如果大于 0，则启用。同样，如果初始值小于 0，则不做更改。在所有情况下，如果当前调用之后该 API 已启用，则 int 变量设置为 1；否则设置为 0。</p>
+
+<p>  在向 session 对象附加第一张表之后尝试修改此设置将导致错误（SQLITE_MISUSE）。</p>
+
+<p><dt>SQLITE_SESSION_OBJCONFIG_ROWID <dd>
+  此选项用于设置、清除或查询启用为无明确 PRIMARY KEY 的表收集数据的标志。</p>
+
+<p>  通常，session 模块会忽略没有显式 PRIMARY KEY 的表。然而，如果设置了此标志，则它的行为就像在此类表的最左侧插入一列 "_rowid_ INTEGER PRIMARY KEY"。</p>
+
+<p>  在向 session 对象附加第一张表之后尝试修改此设置将导致错误（SQLITE_MISUSE）。</p><hr><a name="sqlite3changegroup_add_strm"></a>
+<h2>API 函数的流式版本。</h2><blockquote><pre>int sqlite3changeset_apply_strm(
+  sqlite3 *db,                    /* Apply change to "main" db of this handle */
+  int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
+  void *pIn,                                          /* First arg for xInput */
+  int(*xFilter)(
+    void *pCtx,                   /* Copy of sixth arg to _apply() */
+    const char *zTab              /* Table name */
+  ),
+  int(*xConflict)(
+    void *pCtx,                   /* Copy of sixth arg to _apply() */
+    int eConflict,                /* DATA, MISSING, CONFLICT, CONSTRAINT */
+    sqlite3_changeset_iter *p     /* Handle describing change and conflict */
+  ),
+  void *pCtx                      /* First argument passed to xConflict */
+);
+int sqlite3changeset_apply_v2_strm(
+  sqlite3 *db,                    /* Apply change to "main" db of this handle */
+  int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
+  void *pIn,                                          /* First arg for xInput */
+  int(*xFilter)(
+    void *pCtx,                   /* Copy of sixth arg to _apply() */
+    const char *zTab              /* Table name */
+  ),
+  int(*xConflict)(
+    void *pCtx,                   /* Copy of sixth arg to _apply() */
+    int eConflict,                /* DATA, MISSING, CONFLICT, CONSTRAINT */
+    sqlite3_changeset_iter *p     /* Handle describing change and conflict */
+  ),
+  void *pCtx,                     /* First argument passed to xConflict */
+  void **ppRebase, int *pnRebase,
+  int flags
+);
+int sqlite3changeset_apply_v3_strm(
+  sqlite3 *db,                    /* Apply change to "main" db of this handle */
+  int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
+  void *pIn,                                          /* First arg for xInput */
+  int(*xFilter)(
+    void *pCtx,                   /* Copy of sixth arg to _apply() */
+    sqlite3_changeset_iter *p
+  ),
+  int(*xConflict)(
+    void *pCtx,                   /* Copy of sixth arg to _apply() */
+    int eConflict,                /* DATA, MISSING, CONFLICT, CONSTRAINT */
+    sqlite3_changeset_iter *p     /* Handle describing change and conflict */
+  ),
+  void *pCtx,                     /* First argument passed to xConflict */
+  void **ppRebase, int *pnRebase,
+  int flags
+);
+int sqlite3changeset_concat_strm(
+  int (*xInputA)(void *pIn, void *pData, int *pnData),
+  void *pInA,
+  int (*xInputB)(void *pIn, void *pData, int *pnData),
+  void *pInB,
+  int (*xOutput)(void *pOut, const void *pData, int nData),
+  void *pOut
+);
+int sqlite3changeset_invert_strm(
+  int (*xInput)(void *pIn, void *pData, int *pnData),
+  void *pIn,
+  int (*xOutput)(void *pOut, const void *pData, int nData),
+  void *pOut
+);
+int sqlite3changeset_start_strm(
+  sqlite3_changeset_iter **pp,
+  int (*xInput)(void *pIn, void *pData, int *pnData),
+  void *pIn
+);
+int sqlite3changeset_start_v2_strm(
+  sqlite3_changeset_iter **pp,
+  int (*xInput)(void *pIn, void *pData, int *pnData),
+  void *pIn,
+  int flags
+);
+int sqlite3session_changeset_strm(
+  sqlite3_session *pSession,
+  int (*xOutput)(void *pOut, const void *pData, int nData),
+  void *pOut
+);
+int sqlite3session_patchset_strm(
+  sqlite3_session *pSession,
+  int (*xOutput)(void *pOut, const void *pData, int nData),
+  void *pOut
+);
+int sqlite3changegroup_add_strm(sqlite3_changegroup*, 
+    int (*xInput)(void *pIn, void *pData, int *pnData),
+    void *pIn
+);
+int sqlite3changegroup_output_strm(sqlite3_changegroup*,
+    int (*xOutput)(void *pOut, const void *pData, int nData), 
+    void *pOut
+);
+int sqlite3rebaser_rebase_strm(
+  sqlite3_rebaser *pRebaser,
+  int (*xInput)(void *pIn, void *pData, int *pnData),
+  void *pIn,
+  int (*xOutput)(void *pOut, const void *pData, int nData),
+  void *pOut
+);
+</pre></blockquote><p>
+这六个 xxx_strm() 流式 API 函数与对应的非流式 API 函数用途相似：</p>
+
+<p><table border=1 style="margin-left:8ex;margin-right:8ex">
+  <tr><th>流式函数<th>非流式对应函数</th>
+  <tr><td>sqlite3changeset_apply_strm<td><a href="#sqlite3changeset_apply">sqlite3changeset_apply</a> 
+  <tr><td>sqlite3changeset_apply_strm_v2<td><a href="#sqlite3changeset_apply">sqlite3changeset_apply_v2</a> 
+  <tr><td>sqlite3changeset_concat_strm<td><a href="#sqlite3changeset_concat">sqlite3changeset_concat</a> 
+  <tr><td>sqlite3changeset_invert_strm<td><a href="#sqlite3changeset_invert">sqlite3changeset_invert</a> 
+  <tr><td>sqlite3changeset_start_strm<td><a href="#sqlite3changeset_start">sqlite3changeset_start</a> 
+  <tr><td>sqlite3session_changeset_strm<td><a href="#sqlite3session_changeset">sqlite3session_changeset</a> 
+  <tr><td>sqlite3session_patchset_strm<td><a href="#sqlite3session_patchset">sqlite3session_patchset</a> 
+</table></p>
+
+<p>接受变更集（或补丁集）作为输入的非流式函数要求整个变更集存储在内存中的单个缓冲区中。类似地，那些返回变更集或补丁集的函数也通过返回 sqlite3_malloc() 分配的单个大缓冲区的指针来实现。通常这很方便。但是，如果应用程序在低内存环境中需要处理非常大的变更集，那么所需的大块连续内存分配就会变得异常困难。</p>
+
+<p>为避免此类问题，流式 API 将输入通过回调函数逐步提供，session 模块在需要时调用该回调函数以递增请求输入数据。所有情况下，类似</p>
+
+<p><pre>
+ &nbsp;     int nChangeset,
+ &nbsp;     void *pChangeset,
+</pre></p>
+
+<p>会被替换为：</p>
+
+<p><pre>
+ &nbsp;     int (*xInput)(void *pIn, void *pData, int *pnData),
+ &nbsp;     void *pIn,
+</pre></p>
+
+<p>每次 session 模块调用 xInput 回调时，传入的第一个参数都是提供的 pIn 上下文指针的复制。第二个参数 pData 指向大小为 (*pnData) 字节的缓冲区。假设没有错误，xInput 方法应将最多 (*pnData) 字节的数据复制到缓冲区，并在返回 SQLITE_OK 之前将 (*pnData) 设置为实际复制的字节数。如果输入耗尽，则 (*pnData) 应设置为零以表示这一点。或者如果发生错误，则应返回 SQLite 错误代码。在所有情况下，如果 xInput 回调返回错误，则会中止所有处理，并将错误代码返回给调用者。</p>
+
+<p>在 sqlite3changeset_start_strm() 的情况下，session 模块可能在迭代器生命周期内的任何时间调用 xInput 回调。如果这样的 xInput 回调返回错误，则迭代器进入错误状态，之后对迭代器函数的所有调用将立即以相同的错误代码失败。</p>
+
+<p>同样，返回变更集（或补丁集）的流式 API 通过回调函数分块返回数据，而不是通过单个大缓冲区的指针。此时，类似下面的一对参数：</p>
+
+<p><pre>
+ &nbsp;     int *pnChangeset,
+ &nbsp;     void **ppChangeset,
+</pre></p>
+
+<p>会被替换为：</p>
+
+<p><pre>
+ &nbsp;     int (*xOutput)(void *pOut, const void *pData, int nData),
+ &nbsp;     void *pOut
+</pre></p>
+
+<p>xOutput 回调将被调用零次或多次以返回数据给应用程序。每次调用传入的第一个参数都是应用程序提供的 pOut 指针的复制。第二个参数 pData 指向大小为 nData 字节的缓冲区，该缓冲区包含正在返回的输出数据块。如果 xOutput 回调成功处理了提供的数据，应返回 SQLITE_OK 表示成功。否则，应返回其他 SQLite 错误代码。在这种情况下会立即中止处理，并将 xOutput 的错误代码返回给应用程序。</p>
+
+<p>session 模块永远不会以第三个参数小于或等于零的值调用 xOutput 回调。除此之外，对返回数据块大小不做其他保证。</p><hr><a name="sqlite3changeset_apply"></a>
+<h2>将变更集应用到数据库</h2><blockquote><pre>int sqlite3changeset_apply(
+  sqlite3 *db,                    /* 将更改应用到此句柄的“main”数据库 */
+  int nChangeset,                 /* 变更集大小（字节） */
+  void *pChangeset,               /* 变更集二进制块 */
+  int(*xFilter)(
+    void *pCtx,                   /* _apply() 的第六个参数副本 */
+    const char *zTab              /* 表名 */
+  ),
+  int(*xConflict)(
+    void *pCtx,                   /* _apply() 的第六个参数副本 */
+    int eConflict,                /* DATA, MISSING, CONFLICT, CONSTRAINT */
+    sqlite3_changeset_iter *p     /* 描述更改与冲突的句柄 */
+  ),
+  void *pCtx                      /* 传递给 xConflict 的第一个参数 */
+);
+int sqlite3changeset_apply_v2(
+  sqlite3 *db,                    /* 将更改应用到此句柄的“main”数据库 */
+  int nChangeset,                 /* 变更集大小（字节） */
+  void *pChangeset,               /* 变更集二进制块 */
+  int(*xFilter)(
+    void *pCtx,                   /* _apply() 的第六个参数副本 */
+    const char *zTab              /* 表名 */
+  ),
+  int(*xConflict)(
+    void *pCtx,                   /* _apply() 的第六个参数副本 */
+    int eConflict,                /* DATA, MISSING, CONFLICT, CONSTRAINT */
+    sqlite3_changeset_iter *p     /* 描述更改与冲突的句柄 */
+  ),
+  void *pCtx,                     /* 传递给 xConflict 的第一个参数 */
+  void **ppRebase, int *pnRebase, /* 输出：重定位数据 */
+  int flags                       /* SESSION_CHANGESETAPPLY_* flags */
+);
+int sqlite3changeset_apply_v3(
+  sqlite3 *db,                    /* 将更改应用到此句柄的“main”数据库 */
+  int nChangeset,                 /* 变更集大小（字节） */
+  void *pChangeset,               /* 变更集二进制块 */
+  int(*xFilter)(
+    void *pCtx,                   /* _apply() 的第六个参数副本 */
+    sqlite3_changeset_iter *p     /* 描述更改的句柄 */
+  ),
+  int(*xConflict)(
+    void *pCtx,                   /* _apply() 的第六个参数副本 */
+    int eConflict,                /* DATA, MISSING, CONFLICT, CONSTRAINT */
+    sqlite3_changeset_iter *p     /* 描述更改与冲突的句柄 */
+  ),
+  void *pCtx,                     /* 传递给 xConflict 的第一个参数 */
+  void **ppRebase, int *pnRebase, /* 输出：重定位数据 */
+  int flags                       /* SESSION_CHANGESETAPPLY_* flags */
+);
+</pre></blockquote><p>
+将变更集或补丁集应用到数据库。这些函数尝试使用通过第二个和第三个参数提供的变更集中的更改来更新附加到句柄 db 的 “main” 数据库。</p>
+
+<p>所有由这些函数进行的更改都包含在保存点事务中。如果发生任何其他错误（除了尝试写入目标数据库时的约束失败以外），则保存点事务会回滚，从而将目标数据库恢复到原始状态，并返回一个 SQLite 错误代码。此外，从 3.51.0 版本开始，可以通过 <a href="c3ref/errcode.html">sqlite3_errcode()</a> 和 <a href="c3ref/errcode.html">sqlite3_errmsg()</a> API 访问留下在数据库句柄中的错误代码和错误消息。</p>
+
+<p>传递给这些函数的第四个参数 xFilter 是“过滤回调”。该参数可以传递 NULL，此时变更集中的所有更改都会应用到数据库。对于 sqlite3changeset_apply() 和 sqlite3changeset_apply_v2()，如果它不为 NULL，则它会针对变更集中至少包含一次更改的每个表调用一次。在这种情况下，表名作为第二个参数传递，作为第一个参数传递一个与 apply() 或 apply_v2() 的第六个参数相同的上下文指针副本。如果“过滤回调”返回零，则不会尝试对该表应用任何更改。否则，如果返回值非零，则会尝试应用与该表相关的所有更改。</p>
+
+<p>对于 sqlite3_changeset_apply_v3()，xFilter 回调会针对每个更改调用一次。在这种情况下，第二个参数是一个 sqlite3_changeset_iter，可通过常用 API 查询当前更改的详细信息。如果“过滤回调”在此情况下返回零，则不会尝试应用当前更改。如果返回非零，则会应用该更改。</p>
+
+<p>对于每个未被过滤回调排除的表，此函数会验证目标数据库是否包含一个兼容的表。如果满足以下所有条件，则该表视为兼容：</p>
+
+<p><ul>
+  <li> 表名与变更集中记录的名称相同，</li>
+  <li> 表的列数至少与变更集中记录的列数一样多，</li>
+  <li> 表的主键列位置与变更集中记录的位置相同。
+</ul></p>
+
+<p>如果没有兼容的表，则这不是错误，但与该表关联的任何更改都不会被应用。通过 sqlite3_log() 机制生成一个带有错误代码 SQLITE_SCHEMA 的警告消息。每个表在变更集中最多发出一次此类警告。</p>
+
+<p>对于每个具有兼容表的更改，会尝试根据不被过滤回调排除的每个 UPDATE、INSERT 或 DELETE 更改修改表内容。如果某个更改无法干净地应用，则可能会调用作为 sqlite3changeset_apply() 第五个参数传递的冲突处理函数。下面描述了针对每种更改类型在何时调用冲突处理函数。</p>
+
+<p>与 xFilter 参数不同，xConflict 不能传递 NULL。除有效函数指针以外的任何内容作为 xConflict 参数传递都会导致未定义行为。</p>
+
+<p>每次调用冲突处理函数时，它必须返回 <a href="#SQLITE_CHANGESET_ABORT">SQLITE_CHANGESET_OMIT</a>、<a href="#SQLITE_CHANGESET_ABORT">SQLITE_CHANGESET_ABORT</a> 或 <a href="#SQLITE_CHANGESET_ABORT">SQLITE_CHANGESET_REPLACE</a> 之一。仅当传递给冲突处理函数的第二个参数为 SQLITE_CHANGESET_DATA 或 SQLITE_CHANGESET_CONFLICT 时，才可以返回 SQLITE_CHANGESET_REPLACE。如果冲突处理函数返回非法值，则已经完成的任何更改都会回滚，并且 sqlite3changeset_apply() 会返回 SQLITE_MISUSE。根据每次调用冲突处理函数返回的值，sqlite3changeset_apply() 会采取不同的操作。有关详细信息，请参阅三个 <a href="#SQLITE_CHANGESET_ABORT">可用返回值</a> 的文档。</p>
+
+<p><dl>
+<dt>DELETE 更改<dd>
+  对于每个 DELETE 更改，函数会检查目标数据库是否包含与变更集中存储的原始行值具有相同主键值（或值）的行。如果是，并且所有非主键列中存储的值也与变更集中存储的值匹配，则从目标数据库中删除该行。</p>
+
+<p>  如果找到具有匹配主键值的行，但一个或多个非主键字段包含与变更集中存储的原始行值不同的值，则会以 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_DATA</a> 作为第二个参数调用冲突处理函数。如果数据库表的列数多于变更集中记录的列数，则只比较这些非主键字段的值与当前数据库内容——任何附加的数据库表列都会被忽略。</p>
+
+<p>  如果在数据库中找不到具有匹配主键值的行，则会以 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_NOTFOUND</a> 作为第二个参数调用冲突处理函数。</p>
+
+<p>  如果尝试 DELETE 操作但 SQLite 返回 SQLITE_CONSTRAINT（这仅在违反外键约束时发生），则会以 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_CONSTRAINT</a> 作为第二个参数调用冲突处理函数。这包括在冲突处理函数先前返回 <a href="#SQLITE_CHANGESET_ABORT">SQLITE_CHANGESET_REPLACE</a> 而再次尝试 DELETE 操作的情况。</p>
+
+<p><dt>INSERT 更改<dd>
+  对于每个 INSERT 更改，会尝试将新行插入数据库。如果变更集行包含的字段少于数据库表，则尾随字段会用其默认值填充。</p>
+
+<p>  如果插入行的尝试失败，因为数据库已包含具有相同主键值的行，则会将第二个参数设置为 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_CONFLICT</a> 调用冲突处理函数。</p>
+
+<p>  如果插入行的尝试因为其他某些约束违例（例如 NOT NULL 或 UNIQUE）而失败，则会将第二个参数设置为 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_CONSTRAINT</a> 调用冲突处理函数。这包括冲突处理函数先前返回 <a href="#SQLITE_CHANGESET_ABORT">SQLITE_CHANGESET_REPLACE</a> 而再次尝试 INSERT 操作的情况。</p>
+
+<p><dt>UPDATE 更改<dd>
+  对于每个 UPDATE 更改，函数会检查目标数据库是否包含与变更集中存储的原始行值具有相同主键值（或值）的行。如果是，并且所有被修改的非主键列中存储的值也与变更集中存储的值匹配，则会在目标数据库中更新该行。</p>
+
+<p>  如果找到具有匹配主键值的行，但一个或多个被修改的非主键字段包含与变更集中存储的原始值不同的值，则会以 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_DATA</a> 作为第二个参数调用冲突处理函数。由于 UPDATE 更改仅包含要修改的非主键字段的值，因此只需这些字段与原始值匹配，以避免触发 SQLITE_CHANGESET_DATA 冲突处理回调。</p>
+
+<p>  如果在数据库中找不到具有匹配主键值的行，则会以 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_NOTFOUND</a> 作为第二个参数调用冲突处理函数。</p>
+
+<p>  如果尝试 UPDATE 操作但 SQLite 返回 SQLITE_CONSTRAINT，则会以 <a href="#SQLITE_CHANGESET_CONFLICT">SQLITE_CHANGESET_CONSTRAINT</a> 作为第二个参数调用冲突处理函数。这包括在冲突处理函数先前返回 <a href="#SQLITE_CHANGESET_ABORT">SQLITE_CHANGESET_REPLACE</a> 而再次尝试 UPDATE 操作的情况。</p>  
+</dl></p>
+
+<p>在 xConflict 回调中执行 SQL 语句（包括对与回调相关的表执行写操作）是安全的。这可以用来进一步定制应用程序的冲突解决策略。</p>
+
+<p>如果输出参数 (ppRebase) 和 (pnRebase) 非空并且输入为变更集（而非补丁集），则 sqlite3changeset_apply_v2() 可能会在返回之前将 (*ppRebase) 设置为指向可与 sqlite3_rebaser APIs 一起使用的“重定位”缓冲区。在这种情况下，(*pnRebase) 设置为缓冲区的字节大小。调用者有责任最终使用 sqlite3_free() 释放任何此类缓冲区。仅在应用补丁集期间遇到一个或多个冲突时才会分配并填充缓冲区。有关更多详情，请参阅 sqlite3_rebaser APIs 周围的注释。</p>
+
+<p>可通过将<a href="#SQLITE_CHANGESETAPPLY_FKNOACTION">受支持的标志</a>组合作为第 9 个参数传递，修改 sqlite3changeset_apply_v2() 及其流式等效项的行为。</p>
+
+<p>请注意，sqlite3changeset_apply_v2() API 仍然是<b>实验性</b>的，因此可能会发生变化。</p><hr><a name="sqlite3changeset_start"></a>
+<h2>创建用于遍历变更集的迭代器</h2><blockquote><pre>int sqlite3changeset_start(
+  sqlite3_changeset_iter **pp,    /* 输出：新的变更集迭代器句柄 */
+  int nChangeset,                 /* 变更集二进制块大小（字节） */
+  void *pChangeset                /* 指向包含变更集的二进制块 */
+);
+int sqlite3changeset_start_v2(
+  sqlite3_changeset_iter **pp,    /* 输出：新的变更集迭代器句柄 */
+  int nChangeset,                 /* 变更集二进制块大小（字节） */
+  void *pChangeset,               /* 指向包含变更集的二进制块 */
+  int flags                       /* SESSION_CHANGESETSTART_* flags */
+);
+</pre></blockquote><p>
+创建一个用于遍历变更集内容的迭代器。如果成功，*pp 会被设置为指向迭代器句柄，并返回 SQLITE_OK。否则，如果发生错误，*pp 会被设置为零，并返回 SQLite 错误代码。</p>
+
+<p>可以使用以下函数推进并查询由此函数创建的变更集迭代器：</p>
+
+<p><ul>
+  <li> <a href="#sqlite3changeset_next">sqlite3changeset_next()</a></li>
+  <li> <a href="#sqlite3changeset_op">sqlite3changeset_op()</a></li>
+  <li> <a href="#sqlite3changeset_new">sqlite3changeset_new()</a></li>
+  <li> <a href="#sqlite3changeset_old">sqlite3changeset_old()</a></li>
+</ul></p>
+
+<p>调用者有责任最终通过将迭代器传递给 <a href="#sqlite3changeset_finalize">sqlite3changeset_finalize()</a> 来销毁它。包含变更集的缓冲区 (pChangeset) 必须在迭代器销毁之前保持有效。</p>
+
+<p>假设变更集二进制块是由 <a href="#sqlite3session_changeset">sqlite3session_changeset()</a>、<a href="#sqlite3changeset_concat">sqlite3changeset_concat()</a> 或 <a href="#sqlite3changeset_invert">sqlite3changeset_invert()</a> 函数之一创建的，则变更集中应用于单个表的所有更改将被分组在一起。这意味着当应用程序使用由此函数创建的迭代器遍历变更集时，与单个表相关的所有更改都会连续访问。迭代器不会先访问一个应用到表 X 的更改，再访问一个表 Y 的更改，然后再访问另一个表 X 的更改。</p>
+
+<p>可通过将<a href="#SQLITE_CHANGESETSTART_INVERT">受支持的标志</a>组合作为第 4 个参数传递，修改 sqlite3changeset_start_v2() 及其流式等效项的行为。</p>
+
+<p>请注意，sqlite3changeset_start_v2() API 仍然是<b>实验性</b>的，因此可能会发生变化。</p><hr>

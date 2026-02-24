@@ -1,0 +1,664 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Next-Generation Query Planner</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译<br>
+小巧。快速。可靠。<br>随意三选其一。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+下一代查询规划器
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#_introduction">1.  引言</a></div>
+<div class="fancy-toc1"><a href="#_background">2.  背景</a></div>
+<div class="fancy-toc2"><a href="#_query_planning_in_sqlite">2.1.  SQLite 中的查询规划</a></div>
+<div class="fancy-toc2"><a href="#_the_sqlite_query_planner_stability_guarantee">2.2.  SQLite 查询规划器稳定性保证</a></div>
+<div class="fancy-toc1"><a href="#_a_difficult_case">3.  一个棘手的案例</a></div>
+<div class="fancy-toc2"><a href="#_query_details">3.1.  查询细节</a></div>
+<div class="fancy-toc2"><a href="#_complications">3.2.  复杂性</a></div>
+<div class="fancy-toc2"><a href="#_finding_the_best_query_plan">3.3.  寻找最佳查询计划</a></div>
+<div class="fancy-toc2"><a href="#_the_n_nearest_neighbors_or_n3_algorithm">3.4.  N 最近邻或 “N3” 算法</a></div>
+<div class="fancy-toc1"><a href="#the_star_query_heuristic">4. 星型查询启发式</a></div>
+<div class="fancy-toc2"><a href="#background_what_is_a_star_query">4.1. 背景：什么是星型查询</a></div>
+<div class="fancy-toc2"><a href="#query_planning_problems_with_high_dimensionality_star_queries">4.2. 高维星型查询的查询规划问题</a></div>
+<div class="fancy-toc2"><a href="#a_large_test_case">4.3. 一个大型测试案例</a></div>
+<div class="fancy-toc2"><a href="#tweaks_to_n3_to_support_star_queries">4.4. 为星型查询调整 N3</a></div>
+<div class="fancy-toc1"><a href="#_hazards_of_upgrading_to_ngqp">5.  升级到 NGQP 的风险</a></div>
+<div class="fancy-toc2"><a href="#_case_study_upgrading_fossil_to_the_ngqp">5.1.  案例研究：将 Fossil 升级到 NGQP</a></div>
+<div class="fancy-toc2"><a href="#_fixing_the_problem">5.2.  修复该问题</a></div>
+<div class="fancy-toc2"><a href="#update_2017_a_better_fix">5.3.  2017 年更新：更好的修复方案</a></div>
+<div class="fancy-toc1"><a href="#_checklist_for_avoiding_or_fixing_query_planner_problems">6.  避免或修复查询规划器问题的清单</a></div>
+<div class="fancy-toc1"><a href="#_summary">7.  总结</a></div>
+</div>
+</details>
+</div>
+
+<h1 id="_introduction"><span>1. </span> 引言</h1>
+
+<p>
+“查询规划器”的任务是找出完成一个 SQL 语句的最佳算法或“查询计划”。从 SQLite <a href="releaselog/3_8_0.html">version 3.8.0</a> (2013-08-26) 开始，查询规划器组件已经重写，使其运行更快并生成更好的计划。这次重写被称为“下一代查询规划器”或“NGQP”。
+</p>
+
+<p>本文概述了查询规划的重要性，描述了查询规划固有的一些问题，并概述了 NGQP 如何解决这些问题。</p>
+
+<p>NGQP 几乎总是优于旧版查询规划器。然而，可能存在某些旧应用无意中依赖于旧查询规划器中的未定义和/或次优行为，并且在这些旧应用上升级到 NGQP 可能会导致性能回退。本文考虑了这种风险，并提供了一套清单以减少风险并修复实际出现的问题。</p>
+
+<p>本文件重点介绍 NGQP。如需更全面地了解涵盖整个 SQLite 历史的 SQLite 查询规划器，请参见“<a href="optoverview.html">SQLite 查询优化器概述</a>”和“<a href="queryplanner.html">索引的工作原理</a>”文档。</p>
+
+<h1 id="_background"><span>2. </span> 背景</h1>
+
+<p>对于具有少量索引的单表简单查询，通常可以明显地选择最佳算法。但对于更大、更复杂的查询，例如具有许多索引和子查询的多路联接，可能存在数百、数千甚至数百万种合理的计算结果的算法。查询规划器的工作就是从这众多可能性中选择唯一“最佳”的查询计划。</p>
+
+<p>查询规划器使 SQL 数据库引擎如此强大和实用。（这对所有 SQL 数据库引擎都成立，而不仅限于 SQLite。）查询规划器免除了程序员选择特定查询计划的劳动，从而让程序员可以将更多的精力集中在更高层次的应用问题上，并为最终用户提供更多的价值。对于查询计划选择显而易见的简单查询来说，这是方便但并非至关重要。但随着应用、模式和查询变得更复杂，聪明的查询规划器可以极大地加快和简化应用开发的工作。能够告诉数据库引擎所需内容，然后让数据库引擎找出检索这些内容的最佳方式，其潜力令人惊叹。</p>
+
+<p>编写好的查询规划器更偏向于艺术而非科学。查询规划器必须处理不完整的信息。它无法在不真正执行该计划的情况下确定任何特定计划将花费多长时间。因此，在比较两个或更多计划以确定哪个“最佳”时，查询规划器必须做出一些猜测和假设，而这些猜测和假设有时会出错。一个好的查询规划器就是能够足够经常找到正确解决方案的那种，这样应用程序员就很少需要介入。</p>
+
+<h2 id="_query_planning_in_sqlite"><span>2.1. </span> SQLite 中的查询规划</h2>
+
+<p>SQLite 使用嵌套循环计算联接，每个联接中的每个表对应一个循环。（对于 WHERE 子句中的 IN 和 OR 操作符，可能会插入额外的循环。SQLite 也会考虑这些情况，但为了简洁起见，这篇文章将忽略它们。）每个循环可能会使用一个或多个索引来加速搜索，或者该循环可能是“全表扫描”，读取表中的每一行。因此查询规划分解为两个子任务：</p>
+<ol>
+<li> 选择各个循环的嵌套顺序
+</li><li> 为每个循环选择合适的索引
+</li></ol>
+<p>选择嵌套顺序通常是更具挑战性的问题。一旦联接的嵌套顺序确立，选择每个循环的索引通常是显而易见的。</p>
+
+<a name="qpstab"></a>
+
+<h2 id="_the_sqlite_query_planner_stability_guarantee"><span>2.2. </span> SQLite 查询规划器稳定性保证</h2>
+
+<p>当启用查询规划器稳定性保证 (QPSG) 时，只要满足以下条件，SQLite 就会始终为给定的 SQL 语句选择相同的查询计划：
+
+</p><ol type="a">
+<li>数据库模式没有重大变化，例如添加或删除索引。</li>
+<li>没有重新运行 ANALYZE 命令。</li>
+<li>使用的是相同版本的 SQLite。</li>
+</ol>
+
+<p>QPSG 默认是禁用的。可以通过编译时使用 <a href="compile.html#enable_qpsg">SQLITE_ENABLE_QPSG</a> 选项来启用，或者在运行时调用 <a href="c3ref/db_config.html">sqlite3_db_config</a>(db,<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigenableqpsg">SQLITE_DBCONFIG_ENABLE_QPSG</a>,1,0)。</p>
+
+<p>QPSG 的意思是，如果所有查询在测试阶段运行良好，并且应用未更改模式，那么 SQLite 不会突然开始使用不同的查询计划，从而可能在应用发布后导致性能问题。如果应用在实验室中运行正常，那么部署后也会继续以相同的方式运行。</p>
+
+<p>客户端/服务器型 SQL 数据库引擎通常不会作出这种保证。在这类引擎中，服务器会跟踪表大小和索引质量等统计信息，而查询规划器会利用这些统计信息选择最佳计划。随着数据库中不断添加、删除或更改内容，统计信息也会随之演化，可能导致查询规划器开始对某些特定查询使用不同的查询计划。通常情况下，新的计划会更适合数据结构的演化，但有时也会引起性能下降。对于客户端/服务器数据库引擎，通常会有数据库管理员 (DBA) 处理这些罕见问题。但像 SQLite 这样的嵌入式数据库无法依赖 DBA，因此 SQLite 非常小心，确保部署后计划不会出人意料地改变。</p>
+
+<p>需要注意的是，SQLite 版本的变化可能会导致查询计划的变化。相同版本的 SQLite 始终会选择相同的查询计划，但如果您将应用重新链接到不同版本的 SQLite，则查询计划可能会发生变化。在少数情况下，SQLite 版本的更换可能会导致性能回退。这也是您应该考虑让应用静态链接 SQLite，而不是使用系统范围的 SQLite 共享库，因为后者可能在您不知情或无法控制的情况下发生变化。</p>
+
+<p>另见：
+</p><ul>
+<li> <a href="lang_analyze.html#req">ANALYZE 的推荐用法模式</a>
+</li><li> <a href="pragma.html#pragma_optimize">PRAGMA optimize</a>
+</li></ul>
+
+<h1 id="_a_difficult_case"><span>3. </span> 一个棘手的案例</h1>
+
+<p>
+“TPC-H Q8” 是来自<a href="http://www.tpc.org/tpch/">事务处理性能委员会</a>的测试查询。SQLite 3.7.17 及更早版本的查询规划器无法为 TPC-H Q8 选择良好计划。并且已经确定，旧查询规划器的任何调整都无法解决这个问题。为了找到 TPC-H Q8 查询的良好解决方案，并继续提高 SQLite 查询规划器的质量，有必要重新设计查询规划器。本节试图解释为何需要进行此重新设计，以及 NGQP 有何不同并如何解决 TPC-H Q8 问题。
+</p>
+
+<h2 id="_query_details"><span>3.1. </span> 查询细节</h2>
+
+<p>
+TPC-H Q8 是一个八路联接。如前所述，查询规划器的主要任务是找出八个循环的最佳嵌套顺序，以最小化完成联接所需的工作量。针对 TPC-H Q8 的此问题的简化模型由下图显示：
+</p>
+
+<center>
+<div style="max-width:677px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 677.503 310.031" data-pikchr-date="20250319161943">
+<circle cx="132.37" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.37" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">S</text>
+<circle cx="234.274" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">L</text>
+<circle cx="336.178" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="336.178" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">O</text>
+<circle cx="438.082" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="438.082" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">C</text>
+<circle cx="539.985" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="539.985" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">N1</text>
+<circle cx="641.889" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="641.889" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">R</text>
+<circle cx="234.274" cy="205.968" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="205.968" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">P</text>
+<circle cx="30.4666" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="30.4666" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">N2</text>
+<polygon points="104.064,101.229 91.7604,101.223 94.7978,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M58.7732,101.229 L 70.0958,96.9771 Q 81.4185,92.7252 90.045,95.9647 L 98.6714,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="81.4185" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">6.00</text>
+<polygon points="58.7732,106.898 71.0766,106.904 68.0391,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M104.064,106.898 L 92.7411,111.15 Q 81.4185,115.402 72.792,112.163 L 64.1655,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="81.4185" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.08</text>
+<polygon points="205.968,101.229 193.664,101.223 196.702,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M160.677,101.229 L 172,96.9771 Q 183.322,92.7252 191.949,95.9647 L 200.575,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="183.322" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">9.17</text>
+<polygon points="160.677,106.898 172.98,106.904 169.943,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M205.968,106.898 L 194.645,111.15 Q 183.322,115.402 174.696,112.163 L 166.069,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="183.322" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.30</text>
+<polygon points="307.871,101.229 295.568,101.223 298.605,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M262.581,101.229 L 273.903,96.9771 Q 285.226,92.7252 293.852,95.9647 L 302.479,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="285.226" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.77</text>
+<polygon points="262.581,106.898 274.884,106.904 271.847,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M307.871,106.898 L 296.549,111.15 Q 285.226,115.402 276.6,112.163 L 267.973,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="285.226" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.03</text>
+<polygon points="409.775,101.229 397.472,101.223 400.509,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M364.484,101.229 L 375.807,96.9771 Q 387.13,92.7252 395.756,95.9647 L 404.383,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="387.13" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.64</text>
+<polygon points="364.484,106.898 376.788,106.904 373.75,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M409.775,106.898 L 398.452,111.15 Q 387.13,115.402 378.503,112.163 L 369.877,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="387.13" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">5.30</text>
+<polygon points="511.679,101.229 499.375,101.223 502.413,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M466.388,101.229 L 477.711,96.9771 Q 489.034,92.7252 497.66,95.9647 L 506.286,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="489.034" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.08</text>
+<polygon points="466.388,106.898 478.692,106.904 475.654,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M511.679,106.898 L 500.356,111.15 Q 489.034,115.402 480.407,112.163 L 471.781,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="489.034" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">6.40</text>
+<polygon points="613.583,101.229 601.279,101.223 604.317,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M568.292,101.229 L 579.615,96.9771 Q 590.937,92.7252 599.564,95.9647 L 608.19,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="590.937" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">1.79</text>
+<polygon points="568.292,106.898 580.595,106.904 577.558,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M613.583,106.898 L 602.26,111.15 Q 590.937,115.402 582.311,112.163 L 573.684,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="590.937" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">3.47</text>
+<polygon points="237.109,177.661 237.114,165.358 245.203,168.395" style="fill:rgb(0,0,0)"/>
+<path d="M237.109,132.37 L 241.361,143.693 Q 245.613,155.016 242.373,163.642 L 239.134,172.269"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="245.613" y="155.016" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">2.64</text>
+<polygon points="231.439,132.37 231.434,144.674 223.345,141.636" style="fill:rgb(0,0,0)"/>
+<path d="M231.439,177.661 L 227.188,166.338 Q 222.936,155.016 226.175,146.389 L 229.415,137.763"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="222.936" y="155.016" text-anchor="end" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">6.01</text>
+<circle cx="30.4666" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="30.4666" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="30.4666,75.7572 26.1466,64.2372 34.7866,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M30.4666,30.4666L30.4666,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="30.4666" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 5.52</text>
+<circle cx="132.37" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.37" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="132.37,75.7572 128.05,64.2372 136.69,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M132.37,30.4666L132.37,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.37" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 9.47</text>
+<circle cx="234.274" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="234.274,75.7572 229.954,64.2372 238.594,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M234.274,30.4666L234.274,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 16.40</text>
+<circle cx="336.178" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="336.178" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="336.178,75.7572 331.858,64.2372 340.498,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M336.178,30.4666L336.178,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="336.178" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 13.87</text>
+<circle cx="438.082" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="438.082" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="438.082,75.7572 433.762,64.2372 442.402,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M438.082,30.4666L438.082,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="438.082" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 12.56</text>
+<circle cx="539.985" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="539.985" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="539.985,75.7572 535.665,64.2372 544.305,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M539.985,30.4666L539.985,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="539.985" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 5.52</text>
+<circle cx="641.889" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="641.889" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="641.889,75.7572 637.569,64.2372 646.209,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M641.889,30.4666L641.889,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="641.889" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 3.56</text>
+<circle cx="234.274" cy="293.718" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="293.718" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="234.274,234.274 238.594,245.794 229.954,245.794" style="fill:rgb(0,0,0)"/>
+<path d="M234.274,279.565L234.274,240.034"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="234.274" y="256.919" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 7.71</text>
+</svg>
+</div>
+</center>
+
+<p>
+在图中，查询的 FROM 子句中的 8 个表分别由标有 FROM 子句项的圆圈表示：N2、S、L、P、O、C、N1 和 R。图中的弧表示在假设该弧的起点位于外层循环时，计算每个项的估计成本。例如，将 S 循环作为 L 的内层循环运行的成本为 2.30，而将 S 循环作为 L 的外层循环运行的成本为 9.17。</p>
+
+<p>这里的“成本”是对数的。通过嵌套循环，工作量是相乘的，而不是相加。但通常习惯于将图表示为加权图，因此图显示的是各种成本的对数。图中显示 S 位于 L 内部的成本优势约为 6.87，但这意味着当 S 循环位于 L 循环内部而不是外部时，查询运行速度大约快 963 倍。</p>
+
+<p>来自带有“*”标记的小圆圈的箭头表示在没有依赖的情况下运行每个循环的成本。最外层循环必须使用此 *-成本。内层循环可以选择使用 *-成本，或者假设其他某一项位于外层循环的成本，以取最佳结果。可以将 *-成本视为一种简化表示，表示多个弧，其中每一个弧都来自图中的其他节点。因此，图是“完全的”，意味着图中每对节点之间都有弧（有的显式，有的隐含），并且具有双向。</p>
+
+<p>找到最佳查询计划的问题相当于找到一条以最低成本访问图中每个节点一次的路径。</p>
+
+<p>（旁注：上述 TPC-H Q8 图中的成本估算是由 SQLite 3.7.16 中的查询规划器计算并使用自然对数转换得到的。）</p>
+
+<h2 id="_complications"><span>3.2. </span> 复杂性</h2>
+
+<p>上述对查询规划器问题的描述是简化的。成本是估算值。我们无法在实际运行循环之前知道它的真实成本。SQLite 会根据索引的可用性以及在 WHERE 子句中发现的约束来猜测循环的成本。这些猜测通常相当准确，但有时候也会偏差。使用 <a href="lang_analyze.html">ANALYZE</a> 命令收集更多数据库统计信息，有时能让 SQLite 做出更好的成本估算。</p>
+
+<p>成本由多个数字构成，而不像图中所示的那样是单一数字。SQLite 为每个循环计算几种不同的估计成本，适用于不同的阶段。例如，有一个“设置”成本，只在查询开始时发生一次。设置成本是为尚未存在索引的表计算<a href="optoverview.html#autoindex">查询时索引</a>的成本。然后，还有运行循环每一步的成本。最后，还有循环生成的行数估计，这是估算内层循环成本所需的信息。如果查询包含 ORDER BY 子句，则排序成本也可能涉及其中。</p>
+
+<p>在一般查询中，依赖关系不一定局限于单个循环，因此依赖关系矩阵可能无法表示为图。例如，WHERE 子句中的某个约束可能是 S.a=L.b+P.c，意味着 S 循环必须同时作为 L 和 P 的内层循环。这种依赖关系无法绘制为图，因为没有办法让一条弧同时起始于两个或更多节点。</p>
+
+<p>如果查询包含 ORDER BY 子句或 GROUP BY 子句，或者查询使用 DISTINCT 关键字，那么选择通过图的一条路径，使行自然以排序顺序出现，从而无需进行额外的排序步骤，会更合适。自动消除 ORDER BY 子句可以显著提升性能，因此这是完整实现中需要考虑的另一个因素。</p>
+
+<p>在 TPC-H Q8 查询中，设置成本都可以忽略，所有依赖关系都发生在独立节点之间，并且没有 ORDER BY、GROUP BY 或 DISTINCT 子句。因此，对于 TPC-H Q8，上述图是需要计算内容的合理表示。通常情况下会涉及大量额外的复杂性，为了清晰起见，本文剩余部分忽略了这些复杂性。</p>
+
+<h2 id="_finding_the_best_query_plan"><span>3.3. </span> 寻找最佳查询计划</h2>
+
+<p>在 <a href="releaselog/3_8_0.html">version 3.8.0</a> (2013-08-26) 之前，SQLite 搜索最佳查询计划时始终使用“最近邻”或 “NN” 启发式。NN 启发式对图进行一次遍历，每一步总是选择下一步成本最低的弧。NN 启发式在大多数情况下表现出乎意料地好，而且 NN 很快，因此 SQLite 能够快速为即便是大型 64 路联接也找到良好计划。相比之下，其他进行更广泛搜索的 SQL 数据库引擎在联接表数量超过 10 或 15 时往往会陷入困境。</p>
+
+<p>不幸的是，NN 计算出的 TPC-H Q8 查询计划并不最优。NN 所计算的计划是 R-N1-N2-S-C-O-L-P，成本为 36.92。前一句中的符号表示 R 表在外层循环，N1 在下一个内层循环，以此类推，到最内层循环的 P。通过穷尽搜索找到的图中最短路径是 P-L-O-C-N1-R-S-N2，成本为 27.38。差距可能看起来不大，但请记住成本是对数的，因此最短路径比 NN 启发式找到的路径快近 750 倍。</p>
+
+<p>一种解决方案是让 SQLite 为最佳路径执行穷尽搜索。但穷尽搜索所需时间与 K! 成正比（K 为联接中的表数），因此当表数超过 10 时，运行 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 所需时间就会非常长。</p>
+
+<a name="n3"></a>
+
+<h2 id="_the_n_nearest_neighbors_or_n3_algorithm"><span>3.4. </span> N 最近邻或 “N3” 算法</h2>
+
+<p>NGQP 使用一种用于寻找图中最佳路径的新算法：“N 最近邻”（下文称为 “N3”）。在 N3 中，不再每次只选择一个最近邻，而是在每一步跟踪 N 条最佳路径，其中 N 是某个小整数。</p>
+
+<p>假设 N=4。那么对于 TPC-H Q8 图，第一步会找到访问图中任意单个节点的四条最短路径：
+
+</p><blockquote>
+    R (成本: 3.56) <br>
+    N1 (成本: 5.52) <br>
+    N2 (成本: 5.52) <br>
+    P (成本: 7.71) <br>
+</blockquote>
+
+<p>第二步从上一步的四条路径之一出发，找到访问两个节点的四条最短路径。在两条或多条路径等价（即访问的节点集合相同，尽管顺序可能不同）的情况下，只保留第一条且成本最低的路径。我们得到：</p>
+
+<blockquote>
+    R-N1 (成本: 7.03) <br>
+    R-N2 (成本: 9.08) <br>
+    N2-N1 (成本: 11.04) <br>
+    R-P {成本: 11.27} <br>
+</blockquote>
+
+<p>第三步从四条最短的两节点路径开始，找到四条最短的三节点路径：</p>
+
+<blockquote>
+    R-N1-N2 (成本: 12.55) <br>
+    R-N1-C (成本: 13.43) <br>
+    R-N1-P (成本: 14.74) <br>
+    R-N2-S (成本: 15.08) <br>
+</blockquote>
+
+<p>如此继续。TPC-H Q8 查询有 8 个节点，因此这个过程总共重复 8 次。在一般的 K 路联接中，存储需求为 O(N)，计算时间为 O(K*N)，这明显快于 O(2<small><sup>K</sup></small>) 的精确解法。</p>
+
+<p>那么该选择多大的 N 呢？可以尝试 N=K，这使算法成为 O(K<small><sup>2</sup></small>)，实际上仍相当高效，因为 K 的最大值是 64 且通常不超过 10。但这对 TPC-H Q8 问题而言仍不够。对于 TPC-H Q8，当 N=8 时，N3 算法找到的解是 R-N1-C-O-L-S-N2-P，成本为 29.78。虽然比 NN 有很大改善，但仍非最优。当 N ≥ 10 时，N3 能找到 TPC-H Q8 的最优解。</p>
+
+<p>NGQP 的初始实现对简单查询选择 N=1，对二路联接选择 N=5，对三个或更多表的联接选择 N=10。后来，对三个或更多表的联接的 N 值提高到 12，若联接属于星型模式则提高到 18。未来可能会有进一步的改进。</p>
+
+<a name="starq"></a>
+
+<h1 id="the_star_query_heuristic"><span>4. </span>星型查询启发式</h1>
+
+<p><a href="queryplanner-ng.html#n3">N3 算法</a> 对大多数查询都表现得很好。但在某些情况下会生成不佳计划。具体来说，对于某些针对 <a href="https://en.wikipedia.org/wiki/Star_schema">星型模式</a> 的查询——那里有一张大型事实表和六张或更多较小的维度表，并且索引存在双向连接——除非将 N 参数设得非常大（随维度表数量呈指数增长），否则 N3 算法会错过最优查询计划。我们称这类查询为“星型查询”。较新的 SQLite 版本（大约 2024 年或 2025 年及之后）实现了一种启发式来解决这一问题，从而无需程序员提供提示就能为星型查询选择高效的查询计划。</p>
+
+<h2 id="background_what_is_a_star_query"><span>4.1. </span>背景：什么是星型查询</h2>
+
+<p>星型模式是一种常见的关系数据库设计，其中有一张大型“事实表”被较小的“维度表”包围。维度表通常以整数 ID 值作为主键，并包含通过该 ID 访问的各种其他属性。事实表包含引用各个维度表的 ID 值。</p>
+
+<p>例如，假设您有以下维度表，它们都使用整数 ID 作为 PRIMARY KEY：</p>
+
+<ul>
+<li> PRODUCT 表保存每个产品的信息。</li>
+<li> SELLER 表保存每位销售人员的信息。</li>
+<li> CUSTOMER 表保存每位客户的信息。</li>
+<li> CARRIER 表保存每个运输提供商的信息。</li>
+<li> WAREHOUSE 表保存所有仓库的信息。</li>
+</ul>
+
+<p>每个维度表相对较小。您的企业运营多少个仓库呢？也许 PRODUCT 和 CUSTOMER 略大一些，但条目数量可能仍以千计，而非百万。</p>
+
+<p>维度表由一张记录每次销售的 SALES 表连接在一起。SALES 表包含如下内容：</p>
+
+<ul>
+<li> 销售时间和金额。</li>
+<li> PRODUCT-id、SELLER-id、CUSTOMER-id、CARRIER-id 和 WAREHOUSE-id。</li>
+</ul>
+
+<p>SALES 表就是我们的事实表。SALES 中的条目数比任一维度表都要多一个数量级。而每条 SALES 表记录都引用各个维度表中的单个条目。反过来看，一个维度表的行可能引用成千上万条 SALES 表记录。</p>
+
+<p>这就是星型模式的典型示例。这类数据表示在各个领域经常出现。我们称对该模式的查询为“星型查询”。例如，查询 2024-01-04 12:00 到 14:00 之间所有销售的完整报告就是一个星型查询。首先会查找 SALES 表中指定时间段内的所有条目，然后再查询各个维度表以获取每次销售的详细信息。</p>
+
+<h2 id="query_planning_problems_with_high_dimensionality_star_queries"><span>4.2. </span>高维星型查询的查询规划问题</h2>
+
+<p>上述<a href="queryplanner-ng.html#n3">N3 查询规划算法</a>在处理维度表数量少于五或六的星型查询时效果良好且能生成最优解。然而，如果维度表数量进一步增加，那么取决于索引定义方式以及事实表与维度表的相对大小，N3 有时会找到次优计划。</p>
+
+<p>这是因为 N3 仍然是贪心算法。尽管它在每一步保留最多 N 个不同的解，但只会继续扩展这 N 个最佳解。其问题如下：</p>
+
+<p>找到事实表中所有相关条目的步骤可能很慢，因为事实表很大。找到事实表的相关值可能比对相对较小的维度表进行全表扫描还慢。最佳计划通常是先花时间找到事实表中的相关行，然后对相应的维度表行执行主键查找。然而由于 N3 是贪心算法，它倾向于在搜索早期在其 N 个最优计划集内积累一堆维度表的全表扫描。如果维度表数量足够多，它们可能占满全部 N 个可用槽，从而将首先对事实表进行较昂贵搜索的最佳计划挤出。</p>
+
+<p>只要 N 足够大，N3 最终依然会找到最优计划。问题是，所需的 N 可能随维度表数量呈指数增长。这意味着整体查询规划算法将需要指数时间。N3 在三个或四个维度表时运行良好。但当维度表数量较多时，它开始生成包含较小维度表的全表扫描的查询计划，从而严重降低性能。</p>
+
+<h2 id="a_large_test_case"><span>4.3. </span>一个大型测试案例</h2>
+
+<p>SQLite 源码树中的 <a href="https://sqlite.org/src/file/test/starschema1.test">test/starschema1.test</a> 测试脚本展示了一个具有一张事实表和 63 张维度表的星型查询。该测试案例是人为构造的，但它确实展示了 N3 算法如何在未进行调整时失败，正如下一节所描述的那样。</p>
+
+<h2 id="tweaks_to_n3_to_support_star_queries"><span>4.4. </span>为星型查询调整 N3</h2>
+
+<p>为了帮助 SQLite 查询规划器为星型查询制定更好的计划，使用启发式方法来调整搜索各表时的成本估算。</p>
+
+<p>截至 3.49.0 版本 (2025-02-06)，当前的启发式是人为地提高维度表的全表扫描估算成本，使其略高于查找事实表中相关行的成本。这样就能防止在算法早期，维度表的一堆无意义全表扫描将事实表搜索从 N 个最优解集中挤出，从而确保事实表搜索最终胜出。只有维度表的全表扫描成本会被调整。所有其他访问方式的估算成本保持不变，也不会对不是明显的维度表的查询表或已被 OUTER JOIN 约束的评估顺序进行任何成本调整。因此对算法的干扰最小，但足以在维度数量较多的情况下始终为星型查询找到良好解决方案。</p>
+
+<p>在 SQLite 3.47.0 和 3.48.0 版本中使用的是不同的启发式。较早的启发式是降低所有事实表访问方式的成本，使它们能够击败维度表的全表扫描，从而避免在算法早期被淘汰。然而，这种人为降低事实表成本的做法会导致其他复杂联接出现性能回退。</p>
+
+<a name="hazards"></a>
+</p><h1 id="_hazards_of_upgrading_to_ngqp"><span>5. </span> 升级到 NGQP 的风险</h1>
+
+<p><i>&rarr; <b>本节已过时，仅保留作历史参考。</b> &larr; 本节在 NGQP 刚推出时曾经很重要。但十年已经过去，NGQP 已成功部署到数十亿台设备上，而且每个人都完成了升级，也没有向 SQLite 开发人员报告任何性能回归。升级风险已不复存在。<b>跳至 <a href="queryplanner-ng.html#howtofix">查询计划检查表</a></b>。</i>
+
+</p><p>对于大多数应用来说，从旧版查询计划器升级到 NGQP 几乎不需要什么思考或努力。只需将旧版 SQLite 替换为新版并重新编译，应用程序就会运行得更快。这期间没有 API 改动，也无需更改编译流程。</p>
+
+<p>但和任何查询计划器的变更一样，升级到 NGQP 确实带来少量引入性能回归的风险。问题并不在于 NGQP 错误、存在缺陷或逊色于旧版查询计划器。只要有关于索引选择性的可靠信息，NGQP 应该总能挑选出至少和以前一样好、甚至更好的计划。问题在于某些应用可能在没有执行 <a href="lang_analyze.html">ANALYZE</a> 的情况下使用质量低、选择性差的索引。旧的查询计划器在每个查询上考虑的实现方案要少得多，因此它们可能凭借偶然的运气就碰巧选到了一个不错的计划。而 NGQP 则会考虑更多的查询计划可能性，它可能选出一个在理论上优于旧计划、假设索引良好时也确实工作更好，但由于数据形态的原因在实践中却导致性能回归的不同查询计划。</p>
+
+<p>要点：</p>
+
+<ul>
+<li><p>只要能在 <a href="fileformat2.html#stat1tab">SQLITE_STAT1</a> 文件中读到准确的 <a href="lang_analyze.html">ANALYZE</a> 数据，NGQP 总能比早期的查询计划器找到同样好或更好的查询计划。</p>
+</li><li><p>只要模式中不包含在索引最左侧列中具有多于约 10 或 20 个相同值的行，NGQP 将总能找到一个良好的查询计划。</p>
+</li></ul>
+
+<p>并非所有应用都满足这些条件。幸运的是，即便没有这些条件，NGQP 通常仍然会找到良好的计划。不过，确实偶尔会出现性能回归的情况。</p>
+
+<a name="fossilcasestudy"></a>
+
+<h2 id="_case_study_upgrading_fossil_to_the_ngqp"><span>5.1. </span> 案例研究：将 Fossil 升级到 NGQP</h2>
+
+<p><a href="http://www.fossil-scm.org/">Fossil DVCS</a> 是用来追踪所有 SQLite 源代码的版本控制系统。Fossil 仓库就是一个 SQLite 数据库文件。（读者可将此递归现象作为独立练习来思考。）Fossil 既是 SQLite 的版本控制系统，也是 SQLite 的测试平台。只要 SQLite 有任何增强，Fossil 通常是最先测试和评估这些增强的应用之一。所以 Fossil 是 NGQP 的早期采用者。</p>
+
+<p>不幸的是，NGQP 在 Fossil 中引入了一个性能回归。</p>
+
+<p>Fossil 提供的众多报告之一是显示单个分支的变更时间线，包含所有进入和离开该分支的合并。See <a href="https://sqlite.org/src/timeline?nd&n=200&r=trunk">https://sqlite.org/src/timeline?nd&n=200&r=trunk</a> 获取此类报告的典型示例。生成这类报告通常只需几毫秒。但升级到 NGQP 后，我们发现对于主干来说，这个报告耗时接近 10 秒。</p>
+
+<p>生成分支时间线所用的核心查询如下所示。（读者无需理解查询的细节。接下来会做说明。）</p>
+
+<blockquote><pre>
+SELECT
+     blob.rid AS blobRid,
+     uuid AS uuid,
+     datetime(event.mtime,'localtime') AS timestamp,
+     coalesce(ecomment, comment) AS comment,
+     coalesce(euser, user) AS user,
+     blob.rid IN leaf AS leaf,
+     bgcolor AS bgColor,
+     event.type AS eventType,
+     (SELECT group_concat(substr(tagname,5), ', ')
+        FROM tag, tagxref
+       WHERE tagname GLOB 'sym-*'
+         AND tag.tagid=tagxref.tagid
+         AND tagxref.rid=blob.rid
+         AND tagxref.tagtype>0) AS tags,
+     tagid AS tagid,
+     brief AS brief,
+     event.mtime AS mtime
+  FROM event CROSS JOIN blob
+ WHERE blob.rid=event.objid
+   AND (EXISTS(SELECT 1 FROM tagxref
+                WHERE tagid=11 AND tagtype>0 AND rid=blob.rid)
+        OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid
+                   WHERE tagid=11 AND tagtype>0 AND pid=blob.rid)
+        OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid
+                   WHERE tagid=11 AND tagtype>0 AND cid=blob.rid))
+ ORDER BY event.mtime DESC
+ LIMIT 200;
+</pre></blockquote>
+
+<p>这条查询并不特别复杂，但它替代了数百甚至数千行过程式代码。查询的要点是：扫描 EVENT 表以查找满足以下三种条件之一的最近 200 个 check-in：</p>
+
+</p><p></p><ol>
+<li>该 check-in 拥有 “trunk” 标签。</li><li>该 check-in 有一个子 check-in 拥有 “trunk” 标签。</li><li>该 check-in 有一个父 check-in 拥有 “trunk” 标签。</li></ol>
+
+<p>第一种条件会将所有 trunk check-in 显示出来，第二和第三种条件则会将合并到 trunk 或从 trunk 分叉出去的 check-in 都包括进来。这三个条件由查询 WHERE 子句中的三个通过 OR 连接的 EXISTS 语句实现。NGQP 出现的慢下来是由第二和第三种条件引起的。这两个条件的问题是相同的，所以我们只分析第二个。第二个条件的子查询可以重写为（做出一些微小且无关紧要的简化）：</p>
+
+<blockquote><pre>
+SELECT 1
+  FROM plink JOIN tagxref ON tagxref.rid=plink.cid
+ WHERE tagxref.tagid=$trunk
+   AND plink.pid=$ckid;
+</pre></blockquote>
+
+<p>PLINK 表记录 check-in 之间的父子关系。TAGXREF 表将标签映射到 check-in。相关表结构的片段如下：</p>
+
+<blockquote><pre>
+CREATE TABLE plink(
+  pid INTEGER REFERENCES blob,
+  cid INTEGER REFERENCES blob
+);
+CREATE UNIQUE INDEX plink_i1 ON plink(pid,cid);
+
+CREATE TABLE tagxref(
+  tagid INTEGER REFERENCES tag,
+  mtime TIMESTAMP,
+  rid INTEGER REFERENCE blob,
+  UNIQUE(rid, tagid)
+);
+CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
+</pre></blockquote>
+
+<p>实现此查询只有两种合理方式。（其他算法虽然也存在，但没有任何一个能称得上是“最佳”的候选者。）</p>
+
+<ol type="1">
+<li><p>找出 check-in $ckid 的所有子节点，并逐个检查它们是否具有 $trunk 标签。</p></li><li><p>找出所有带有 $trunk 标签的 check-in，并逐个检查它们是否是 $ckid 的子节点。</p></li></ol>
+
+<p>直观上我们人类都理解算法-1 更佳。每个 check-in 通常只有很少的子节点（一个子节点最常见），每个子节点检查 $trunk 标签的时间是对数级的。事实上，算法-1 在实践中更快。但 NGQP 没有直觉，它必须依赖严谨的数学，且算法-2 在数学上略占优势。这是因为在缺乏其他信息的情况下，NGQP 必须假设 PLINK_I1 和 TAGXREF_I1 索引的质量相当且选择性相同。算法-2 使用了 TAGXREF_I1 索引的一个字段以及 PLINK_I1 索引的两个字段，而算法-1 只使用了这两个索引的第一个字段。由于算法-2 使用了更多的索引信息，NGQP 判断它是更好的算法也没有错。两者得分接近，算法-2 仅仅领先于算法-1。但在这里算法-2 真的是正确的选择。</p>
+
+<p>不幸的是，在这个应用中算法-2 比算法-1 慢。</p>
+
+<p>问题在于，这些索引的质量并不相同。一个 check-in 通常只有一个子节点。因此 PLINK_I1 的第一个字段通常就能将搜索缩小到一行。但标记为 “trunk” 的 check-in 多达数千甚至数万条，所以 TAGXREF_I1 的第一个字段几乎不能帮助缩小范围。</p>
+
+<p>除非已经在数据库上运行过 <a href="lang_analyze.html">ANALYZE</a>，否则 NGQP 无法知道 TAGXREF_I1 在此查询中几乎毫无作用。<a href="lang_analyze.html">ANALYZE</a> 命令会收集各索引质量的统计信息，并将其存入 <a href="fileformat2.html#stat1tab">SQLITE_STAT1</a> 表。掌握了这些统计信息后，NGQP 会轻松地将算法-1 视为最优算法，优势非常明显。</p>
+
+<p>为什么旧版查询计划器没有选择算法-2？很简单：NN 算法根本没有考虑算法-2。规划问题的图如下所示：</p>
+
+<center>
+<div style="max-width:534px;"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 534.752 191.8" data-pikchr-date="20250319161943">
+<circle cx="61.5913" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="61.5913" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">P</text>
+<circle cx="163.495" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.495" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">T</text>
+<polygon points="135.188,101.229 122.885,101.223 125.923,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M89.8979,101.229 L 101.221,96.9771 Q 112.543,92.7252 121.17,95.9647 L 129.796,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="112.543" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.8</text>
+<polygon points="89.8979,106.898 102.201,106.904 99.1638,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M135.188,106.898 L 123.866,111.15 Q 112.543,115.402 103.917,112.163 L 95.2902,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="112.543" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.4</text>
+<circle cx="61.5913" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="61.5913" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="61.5913,75.7572 57.2713,64.2372 65.9113,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M61.5913,30.4666L61.5913,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="61.5913" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 4.9</text>
+<circle cx="163.495" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.495" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="163.495,75.7572 159.175,64.2372 167.815,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M163.495,30.4666L163.495,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.495" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 5.2</text>
+<text x="112.543" y="172" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="125%" dominant-baseline="central">without ANALYZE</text>
+<circle cx="389.948" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="389.948" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">P</text>
+<circle cx="491.852" cy="104.064" r="28.3066"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="491.852" y="104.064" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="156.25%" dominant-baseline="central">T</text>
+<polygon points="463.545,101.229 451.242,101.223 454.279,93.1349" style="fill:rgb(0,0,0)"/>
+<path d="M418.254,101.229 L 429.577,96.9771 Q 440.9,92.7252 449.526,95.9647 L 458.153,99.2041"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="440.9" y="84.6612" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">4.4</text>
+<polygon points="418.254,106.898 430.558,106.904 427.52,114.993" style="fill:rgb(0,0,0)"/>
+<path d="M463.545,106.898 L 452.222,111.15 Q 440.9,115.402 432.273,112.163 L 423.647,108.923"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="440.9" y="123.466" text-anchor="middle" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central">3.8</text>
+<circle cx="389.948" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="389.948" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="389.948,75.7572 385.628,64.2372 394.268,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M389.948,30.4666L389.948,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="389.948" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 3.9</text>
+<circle cx="491.852" cy="16.3133" r="14.1533"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="491.852" y="16.3133" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">*</text>
+<polygon points="491.852,75.7572 487.532,64.2372 496.172,64.2372" style="fill:rgb(0,0,0)"/>
+<path d="M491.852,30.4666L491.852,69.9972"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="491.852" y="53.1119" text-anchor="start" fill="rgb(0,0,0)" font-size="80%" dominant-baseline="central"> 6.1</text>
+<text x="440.9" y="172" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" font-size="125%" dominant-baseline="central">with ANALYZE</text>
+</svg>
+</div>
+</center>
+
+<p>在左边的“没有 ANALYZE”情况下，NN 算法将循环 P（PLINK）选为外层循环，因为 4.9 小于 5.2，于是生成了路径 P-T，即算法-1。NN 每一步只看最好的选项，因此完全忽略了 5.2+4.4 事实上比 4.9+4.8 稍微便宜一点。但 N3 算法会跟踪二表连接的前五条路径，所以最终因为整体成本略低而选择路径 T-P。路径 T-P 就是算法-2。</p>
+
+<p>请注意，启用 ANALYZE 后，成本估计更接近现实，两种算法 NN 和 N3 都会选出算法-1。</p>
+
+<p>（题外话：最近两个图中的成本估计由 NGQP 使用以 2 为底的对数和略有不同的成本假设计算得出。因此，这两张图中的成本估计与 TPC-H Q8 图中的成本估计并不直接可比。）</p>
+
+<h2 id="_fixing_the_problem"><span>5.2. </span> 解决该问题</h2>
+
+<p>在仓库数据库上运行 <a href="lang_analyze.html">ANALYZE</a> 立即解决了性能问题。不过我们希望 Fossil 足够健壮，无论仓库是否已被分析都能快速运行。因此我们将查询修改为使用 CROSS JOIN 运算符，而不是普通的 JOIN 运算符。SQLite 不会重新排序 CROSS JOIN 的表。这个特性在 SQLite 中由来已久，专门用于让熟悉细节的程序员强制指定某个循环嵌套顺序。一旦连接改为 CROSS JOIN（只需加一个关键字），NGQP 就会被迫始终选择更快的算法-1，无论是否已通过 ANALYZE 收集了统计信息。</p>
+
+<p>我们说算法-1 “更快”，但这并不绝对。算法-1 在常见仓库中速度更快，但可以构造这样的仓库：每个 check-in 都在不同的、唯一命名的分支上，所有 check-in 都是根 check-in 的子节点。在这种情况下，TAGXREF_I1 的选择性会超过 PLINK_I1，算法-2 才是真正的更快选择。然而此类仓库在实际中极不常见，所以在这个场景下通过 CROSS JOIN 语法硬编码循环嵌套顺序是合理的解决方案。</p>
+
+<h2 id="update_2017_a_better_fix"><span>5.3. </span> 2017 年更新：更好的修复方案</h2>
+
+<p>前文写于 2013 年初，即 SQLite 3.8.0 发行之前。本段在 2021 年中旬新增。虽然前面讨论的内容仍然成立，但查询计划器已有许多改进，使得本节整体已无太大意义。</p>
+
+</p><p>2017 年，Fossil 增加了对新的 <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> 语句的使用。每当 Fossil 准备关闭与仓库的数据库连接时，都会先执行 “PRAGMA optimize”，这将根据需要触发 ANALYZE。通常不需要 ANALYZE，因此这样做不会带来可测的性能损失。但偶尔也会针对仓库数据库中的部分表运行 ANALYZE。因此像本节所述的查询规划问题在 Fossil 中不再出现。由于 ANALYZE 会定期运行以保持 <a href="fileformat2.html#stat1tab">sqlite_stat1</a> 表最新，因此无需手动微调查询。我们多年都不用再调整 Fossil 中的任何查询。</p>
+
+</p><p>因此，当前避免此类问题的建议是：在关闭每个数据库连接之前运行一次 “PRAGMA optimize”。或者，如果你的应用是长期运行并从不关闭数据库连接，那么每天左右运行一次 “PRAGMA optimize”。在任何模式变更之后也请考虑运行一次 “PRAGMA optimize”。</p>
+
+<a name="howtofix"></a>
+
+</p><h1 id="_checklist_for_avoiding_or_fixing_query_planner_problems"><span>6. </span> 避免或修复查询计划器问题的检查清单</h1>
+
+<ol>
+<li><p><b>别惊慌！</b> 查询计划器挑选出较差计划的情况实际上很少见。你很可能在自己的应用中都不会遇到相关问题。如果目前没有性能问题，就无需担心这些事情。</p>
+
+</li><li><p><b>创建合适的索引。</b> 大多数 SQL 性能问题并非由查询计划器导致，而是因为缺少合适的索引。确保所有大型查询都有索引可用。大多数性能问题都可以通过一两个 CREATE INDEX 命令解决，而无需更改应用程序代码。</p>
+
+</li><li><p><b>避免创建质量低的索引。</b>（此检查清单中的“质量低”是指在索引最左侧列中存在超过 10 或 20 行具有相同值的情况。）特别要避免将布尔值或“枚举”列用作索引最左侧列。</p>
+
+<p>本文件上一节描述的 Fossil 性能问题就是因为 TAGXREF_I1 索引的最左侧列（TAGID）在 TAGXREF 表中有超过一万条相同的值。</p>
+
+</li><li><p><b>如果必须使用质量低的索引，请务必运行 <a href="lang_analyze.html">ANALYZE</a>。</b> 只要查询计划器知道某个索引质量不佳，它就不会被误导。而查询计划器如何知道？靠的是 <a href="fileformat2.html#stat1tab">SQLITE_STAT1</a> 表的内容，而该内容由 ANALYZE 命令计算得出。</p>
+
+<p>当然，ANALYZE 只有在数据库中已有相当数量内容时才有效。若刚创建一个预计会积累大量数据的新数据库，可以先运行 “ANALYZE sqlite_schema” 来创建 SQLITE_STAT1 表，然后用普通 INSERT 语句预先填充 <a href="fileformat2.html#stat1tab">sqlite_stat1</a> 表，使其包含描述应用典型数据库的内容——也许是从实验室中对一个数据充分的模板数据库运行 ANALYZE 后导出的内容。或者，在关闭数据库连接前先运行 “<a href="pragma.html#pragma_optimize">PRAGMA optimize</a>”，这样 ANALYZE 就会自动在需要时运行，以保持 <a href="fileformat2.html#stat1tab">sqlite_stat1</a> 表的最新状态。</p></li>
+
+<li><p><b>归档你的代码。</b> 添加逻辑，让你可以快速、轻松地知道哪些查询耗时过长。然后就针对这些具体查询进行优化。</p>
+
+<p>
+</p><hr>
+<i>2024 年更新：多年来查询计划器已经提升得非常厉害，你基本无需使用下面列出的任何技巧。这些能力仍保留以兼容旧版本，但你不应该再使用它们。如果你确实发现了某个查询结果欠佳的情况，请在 <a href="https://sqlite.org/forum">SQLite 论坛</a> 上向 SQLite 开发人员报告，以便他们努力修复该问题。换句话说：
+<p>
+</p><center><b>此处停止阅读！</b></center>
+<p>为了鼓励你停止阅读，本清单的剩余部分现在已灰显。
+</p><hr>
+
+</i></li><li><p style="color:grey;">使用 <a href="lang_corefunc.html#unlikely">unlikely()</a> 和 <a href="lang_corefunc.html#likelihood">likelihood()</a> SQL 函数。SQLite 通常假设 WHERE 子句中无法被索引利用的条件很可能为真。如果这个假设不正确，可能会导致次优的查询计划。<a href="lang_corefunc.html#unlikely">unlikely()</a> 和 <a href="lang_corefunc.html#likelihood">likelihood()</a> 函数可用来向查询计划器提示那些很可能不成立的 WHERE 条件，从而帮助选择最优计划。</p>
+
+</li><li><p style="color:grey;">对可能在未分析的数据库中使用低质量索引的查询，使用 <a href="optoverview.html#crossjoin">CROSS JOIN</a> 语法来强制指定特定的循环嵌套顺序。SQLite 对 <a href="lang_select.html#crossjoin">CROSS JOIN 运算符有特殊处理</a>，强制使左边的表作为右边表相对于的外层循环。</p>
+
+</li><li><p style="color:grey;">使用一元 “+” 运算符来使 WHERE 子句某些条件失效。如果查询计划器执意为某个查询选取质量低的索引，而可用的更高质量索引却未被采用，那么在 WHERE 子句中谨慎使用一元 “+” 运算符可以将查询计划器引导远离该低质量索引。尽可能避免使用这一技巧，尤其不要在应用开发初期就使用。注意，如果涉及 <a href="datatype3.html#affinity">类型亲和性</a>，在等式表达式中添加一元 “+” 可能会改变该表达式的结果。</p>
+
+</li><li><p style="color:grey;">使用 <a href="lang_indexedby.html">INDEXED BY</a> 语法来强制在问题查询上选择特定索引。和前面两点一样，如无必要请避免这样做，尤其不要在开发早期阶段就进行这样的明显过早优化。</p>
+</li></ol>
+
+<h1 id="_summary"><span>7. </span> 总结</h1>
+
+<p>SQLite 中的查询计划器通常非常善于为你的 SQL 语句挑选快速的算法。无论是老旧的查询计划器还是新的 NGQP 都是如此。有时因为信息不全，查询计划器可能仍会选出次优计划。NGQP 出现这种情况的概率比旧版计划器更低，但仍可能发生。只有在那些极少数情况下，应用开发者才需要介入并帮助查询计划器做出正确的决定。在常见情形下，NGQP 只是为 SQLite 带来的一项新增强，使应用运行更快，同时无需开发者额外思考或操作。</p>
+<p align="center"><small><i>此页面最后更新于 2025-07-12 15:11:36Z</i></small></p>

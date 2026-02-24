@@ -1,0 +1,1321 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The Virtual Table Mechanism Of SQLite</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="translation-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="搜索">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 的虚拟表机制
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. 介绍</a></div>
+<div class="fancy-toc2"><a href="#usage">1.1. 用法</a></div>
+<div class="fancy-toc3"><a href="#temporary_virtual_tables">1.1.1. 临时虚拟表</a></div>
+<div class="fancy-toc3"><a href="#eponymous_virtual_tables">1.1.2. 具名虚拟表</a></div>
+<div class="fancy-toc3"><a href="#eponymous_only_virtual_tables">1.1.3. 仅具名虚拟表</a></div>
+<div class="fancy-toc2"><a href="#implementation">1.2. 实现</a></div>
+<div class="fancy-toc2"><a href="#virtual_tables_and_shared_cache">1.3. 虚拟表和共享缓存</a></div>
+<div class="fancy-toc2"><a href="#creating_new_virtual_table_implementations">1.4. 创建新的虚拟表实现</a></div>
+<div class="fancy-toc1"><a href="#virtual_table_methods">2. 虚拟表方法</a></div>
+<div class="fancy-toc2"><a href="#the_xcreate_method">2.1. xCreate 方法</a></div>
+<div class="fancy-toc3"><a href="#hidden_columns_in_virtual_tables">2.1.1. 虚拟表中的隐藏列</a></div>
+<div class="fancy-toc3"><a href="#table_valued_functions">2.1.2. 表值函数</a></div>
+<div class="fancy-toc3"><a href="#_without_rowid_virtual_tables_">2.1.3. WITHOUT ROWID 虚拟表</a></div>
+<div class="fancy-toc2"><a href="#the_xconnect_method">2.2. xConnect 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xbestindex_method">2.3. xBestIndex 方法</a></div>
+<div class="fancy-toc3"><a href="#inputs">2.3.1. 输入</a></div>
+<div class="fancy-toc4"><a href="#like_glob_regexp_and_match_functions">2.3.1.1. LIKE、GLOB、REGEXP 和 MATCH 函数</a></div>
+<div class="fancy-toc4"><a href="#limit_and_offset">2.3.1.2. LIMIT 和 OFFSET</a></div>
+<div class="fancy-toc4"><a href="#right_hand_side_values_of_constraints">2.3.1.3. 约束的右侧值</a></div>
+<div class="fancy-toc3"><a href="#outputs">2.3.2. 输出</a></div>
+<div class="fancy-toc4"><a href="#omit_constraint_checking_in_bytecode">2.3.2.1. 在字节码中省略约束检查</a></div>
+<div class="fancy-toc4"><a href="#order_by_and_orderbyconsumed">2.3.2.2. ORDER BY 和 orderByConsumed</a></div>
+<div class="fancy-toc3"><a href="#return_value">2.3.3. 返回值</a></div>
+<div class="fancy-toc3"><a href="#enforcing_required_parameters_on_table_valued_functions">2.3.4. 在表值函数上强制所需参数</a></div>
+<div class="fancy-toc2"><a href="#the_xdisconnect_method">2.4. xDisconnect 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xdestroy_method">2.5. xDestroy 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xopen_method">2.6. xOpen 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xclose_method">2.7. xClose 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xeof_method">2.8. xEof 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xfilter_method">2.9. xFilter 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xnext_method">2.10. xNext 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xcolumn_method">2.11. xColumn 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xrowid_method">2.12. xRowid 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xupdate_method">2.13. xUpdate 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xfindfunction_method">2.14. xFindFunction 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xbegin_method">2.15. xBegin 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xsync_method">2.16. xSync 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xcommit_method">2.17. xCommit 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xrollback_method">2.18. xRollback 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xrename_method">2.19. xRename 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xsavepoint_xrelease_and_xrollbackto_methods">2.20. xSavepoint、xRelease 和 xRollbackTo 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xshadowname_method">2.21. xShadowName 方法</a></div>
+<div class="fancy-toc2"><a href="#the_xintegrity_method">2.22. xIntegrity 方法</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+
+<h1 id="introduction"><span>1. </span>介绍</h1>
+
+<p>虚拟表是一个在打开的 SQLite <a href="c3ref/sqlite3.html">数据库连接</a>中注册的对象。
+从 SQL 语句的角度看，虚拟表对象表现得就像其他任何表或视图一样。
+但在幕后，对虚拟表的查询和更新会调用虚拟表对象的回调方法，而不是在数据库文件上直接读写。
+
+</p><p>虚拟表机制允许应用程序发布接口，使其能像表一样从 SQL 语句中访问。SQL 语句对虚拟表几乎可以执行与真实表相同的操作，但有如下例外：
+
+</p><p>
+</p><ul>
+<li> 不能在虚拟表上创建触发器。
+</li><li> 不能在虚拟表上创建额外的索引。
+     （虚拟表可以拥有索引，但必须将其内置在虚拟表实现中。不能通过 <a href="lang_createindex.html">CREATE INDEX</a> 语句单独添加索引。）
+</li><li> 不能对虚拟表执行 <a href="lang_altertable.html">ALTER TABLE ... ADD COLUMN</a> 命令。
+</li></ul>
+
+<p>各个虚拟表实现可能会施加额外限制。例如，有些虚拟表实现可能只提供只读表。或者某些虚拟表实现可能允许 <a href="lang_insert.html">INSERT</a> 或 <a href="lang_delete.html">DELETE</a>，但不允许 <a href="lang_update.html">UPDATE</a>。又或者某些虚拟表实现可能限制可执行的 UPDATE 类型。
+
+</p><p>虚拟表可以表示一个内存中的数据结构。
+也可以表示磁盘上非 SQLite 格式数据的视图。
+或者应用程序可以按需计算虚拟表的内容。
+
+</p><p>下面是一些现有或设想中的虚拟表用途：
+
+</p><ul>
+<li> 一个 <a href="fts3.html">全文搜索</a> 接口
+</li><li> 使用 <a href="rtree.html">R-Trees</a> 的空间索引
+</li><li> 检查 SQLite 数据库文件的磁盘内容
+     （<a href="dbstat.html">dbstat 虚拟表</a>）
+</li><li> 读取和/或写入逗号分隔值（CSV）文件的内容
+</li><li> 将主机计算机的文件系统当作数据库表来访问
+</li><li> 使像 R 这样的统计包中的数据可以通过 SQL 操作
+</li></ul>
+
+<p>请参阅 <a href="vtablist.html">虚拟表列表</a> 页面，了解更长的实际虚拟表实现列表。
+
+
+</p><h2 id="usage"><span>1.1. </span>用法</h2>
+
+<p>虚拟表是通过 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句创建的。
+
+<p><b><a href="syntax/create-virtual-table-stmt.html">create-virtual-table-stmt:</a></b>
+<button id='x17358cc7' onclick='hideorshow("x17358cc7","x2058f3a0")'>hide</button></p>
+ <div id='x2058f3a0' class='imgcontainer'>
+ <div style="max-width:624px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 624.096 259.848" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,17.28 20.88,21.6 20.88,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L26.64,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M47.52,32.4L100.915,32.4A15.12 15.12 0 0 0 116.035 17.28A15.12 15.12 0 0 0 100.915 2.16L47.52,2.16A15.12 15.12 0 0 0 32.4 17.28A15.12 15.12 0 0 0 47.52 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="74.2176" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">CREATE</text>
+<polygon points="139.075,17.28 127.555,21.6 127.555,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M116.035,17.28L133.315,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M154.195,32.4L213.696,32.4A15.12 15.12 0 0 0 228.816 17.28A15.12 15.12 0 0 0 213.696 2.16L154.195,2.16A15.12 15.12 0 0 0 139.075 17.28A15.12 15.12 0 0 0 154.195 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="183.946" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">VIRTUAL</text>
+<polygon points="251.856,17.28 240.336,21.6 240.336,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M228.816,17.28L246.096,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M266.976,32.4L306.317,32.4A15.12 15.12 0 0 0 321.437 17.28A15.12 15.12 0 0 0 306.317 2.16L266.976,2.16A15.12 15.12 0 0 0 251.856 17.28A15.12 15.12 0 0 0 266.976 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="286.646" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">TABLE</text>
+<polygon points="357.437,17.28 345.917,21.6 345.917,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M321.437,17.28L351.677,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M372.557,32.4A15.12 15.12 0 0 0 387.677 17.28A15.12 15.12 0 0 0 372.557 2.16A15.12 15.12 0 0 0 357.437 17.28A15.12 15.12 0 0 0 372.557 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="372.557" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">IF</text>
+<polygon points="410.717,17.28 399.197,21.6 399.197,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M387.677,17.28L404.957,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M425.837,32.4L445.939,32.4A15.12 15.12 0 0 0 461.059 17.28A15.12 15.12 0 0 0 445.939 2.16L425.837,2.16A15.12 15.12 0 0 0 410.717 17.28A15.12 15.12 0 0 0 425.837 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="435.888" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">NOT</text>
+<polygon points="484.099,17.28 472.579,21.6 472.579,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M461.059,17.28L478.339,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M499.219,32.4L543.859,32.4A15.12 15.12 0 0 0 558.979 17.28A15.12 15.12 0 0 0 543.859 2.16L499.219,2.16A15.12 15.12 0 0 0 484.099 17.28A15.12 15.12 0 0 0 499.219 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="521.539" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">EXISTS</text>
+<path d="M47.52,108L143.885,108A15.12 15.12 0 0 0 159.005 92.88A15.12 15.12 0 0 0 143.885 77.76L47.52,77.76A15.12 15.12 0 0 0 32.4 92.88A15.12 15.12 0 0 0 47.52 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="95.7024" y="92.88" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">schema-name</text>
+<polygon points="182.045,92.88 170.525,97.2 170.525,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M159.005,92.88L176.285,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M197.165,108A15.12 15.12 0 0 0 212.285 92.88A15.12 15.12 0 0 0 197.165 77.76A15.12 15.12 0 0 0 182.045 92.88A15.12 15.12 0 0 0 197.165 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="197.165" y="92.88" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">.</text>
+<polygon points="248.285,92.88 236.765,97.2 236.765,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M212.285,92.88L242.525,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M263.405,108L338.573,108A15.12 15.12 0 0 0 353.693 92.88A15.12 15.12 0 0 0 338.573 77.76L263.405,77.76A15.12 15.12 0 0 0 248.285 92.88A15.12 15.12 0 0 0 263.405 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="300.989" y="92.88" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">table-name</text>
+<path d="M47.52,219.888L86.5152,219.888A15.12 15.12 0 0 0 101.635 204.768A15.12 15.12 0 0 0 86.5152 189.648L47.52,189.648A15.12 15.12 0 0 0 32.4 204.768A15.12 15.12 0 0 0 47.52 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="67.0176" y="204.768" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">USING</text>
+<polygon points="124.675,204.768 113.155,209.088 113.155,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M101.635,204.768L118.915,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M139.795,219.888L234.432,219.888A15.12 15.12 0 0 0 249.552 204.768A15.12 15.12 0 0 0 234.432 189.648L139.795,189.648A15.12 15.12 0 0 0 124.675 204.768A15.12 15.12 0 0 0 139.795 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="187.114" y="204.768" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">module-name</text>
+<polygon points="285.552,204.768 274.032,209.088 274.032,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M249.552,204.768L279.792,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M300.672,219.888A15.12 15.12 0 0 0 315.792 204.768A15.12 15.12 0 0 0 300.672 189.648A15.12 15.12 0 0 0 285.552 204.768A15.12 15.12 0 0 0 300.672 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="300.672" y="204.768" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">(</text>
+<polygon points="351.792,204.768 340.272,209.088 340.272,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M315.792,204.768L346.032,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M366.912,219.888L497.376,219.888A15.12 15.12 0 0 0 512.496 204.768A15.12 15.12 0 0 0 497.376 189.648L366.912,189.648A15.12 15.12 0 0 0 351.792 204.768A15.12 15.12 0 0 0 366.912 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="432.144" y="204.768" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">module-argument</text>
+<polygon points="548.496,204.768 536.976,209.088 536.976,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M512.496,204.768L542.736,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M563.616,219.888A15.12 15.12 0 0 0 578.736 204.768A15.12 15.12 0 0 0 563.616 189.648A15.12 15.12 0 0 0 548.496 204.768A15.12 15.12 0 0 0 563.616 219.888Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="563.616" y="204.768" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">)</text>
+<polygon points="614.736,204.768 603.216,209.088 603.216,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M578.736,204.768L608.976,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="618.336" cy="204.768" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M432.144,257.688A15.12 15.12 0 0 0 447.264 242.568A15.12 15.12 0 0 0 432.144 227.448A15.12 15.12 0 0 0 417.024 242.568A15.12 15.12 0 0 0 432.144 257.688Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="432.144" y="242.568" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">,</text>
+<polygon points="447.264,242.568 458.784,238.248 458.784,246.888" style="fill:rgb(0,0,0)"/>
+<path d="M512.496,204.768 L 519.996,204.768 Q 527.496,204.768 527.496,219.768 L 527.496,227.568 Q 527.496,242.568 512.496,242.568 L 468.024,242.568 L 453.024,242.568"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M417.024,242.568 L 343.752,242.568 Q 328.752,242.568 328.752,227.568 L 328.752,219.768 Q 328.752,204.768 336.252,204.768 L 343.752,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="432.144,180.576 420.624,184.896 420.624,176.256" style="fill:rgb(0,0,0)"/>
+<path d="M249.552,204.768 L 257.052,204.768 Q 264.552,204.768 264.552,192.672 Q 264.552,180.576 279.552,180.576 L 411.384,180.576 L 426.384,180.576"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M432.144,180.576 L 576.696,180.576 Q 591.696,180.576 591.696,192.672 Q 591.696,204.768 599.196,204.768 L 606.696,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="187.114,153.36 198.634,149.04 198.634,157.68" style="fill:rgb(0,0,0)"/>
+<path d="M353.693,92.88 L 361.193,92.88 Q 368.693,92.88 368.693,107.88 L 368.693,138.36 Q 368.693,153.36 353.693,153.36 L 207.874,153.36 L 192.874,153.36"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,204.768 20.88,209.088 20.88,200.448" style="fill:rgb(0,0,0)"/>
+<path d="M187.114,153.36 L 20.76,153.36 Q 5.76,153.36 5.76,168.36 L 5.76,189.768 Q 5.76,204.768 16.2,204.768 L 26.64,204.768"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="429.979,62.64 441.499,58.32 441.499,66.96" style="fill:rgb(0,0,0)"/>
+<path d="M558.979,17.28 L 566.479,17.28 Q 573.979,17.28 573.979,32.28 L 573.979,47.64 Q 573.979,62.64 558.979,62.64 L 450.739,62.64 L 435.739,62.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,92.88 20.88,97.2 20.88,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M429.979,62.64 L 20.76,62.64 Q 5.76,62.64 5.76,77.64 L 5.76,77.88 Q 5.76,92.88 16.2,92.88 L 26.64,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="336.437,47.28 332.117,35.76 340.757,35.76" style="fill:rgb(0,0,0)"/>
+<path d="M321.437,17.28 L 328.937,17.28 Q 336.437,17.28 336.437,29.4 L 336.437,41.52"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M336.437,47.28 L 336.437,54.96 Q 336.437,62.64 328.937,62.64 L 321.437,62.64"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="95.7024,123.12 84.1824,127.44 84.1824,118.8" style="fill:rgb(0,0,0)"/>
+<path d="M5.76,77.76 L 5.76,108.12 Q 5.76,123.12 20.76,123.12 L 74.9424,123.12 L 89.9424,123.12"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M95.7024,123.12 L 210.245,123.12 Q 225.245,123.12 225.245,108.12 L 225.245,107.88 Q 225.245,92.88 231.005,92.88 L 236.765,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div>
+</div>
+
+
+</p><p>CREATE VIRTUAL TABLE 语句会创建一个名为 <span class='yyterm'>table-name</span> 的新表，该表派生自类 <span class='yyterm'>module-name</span>。
+<span class='yyterm'>module-name</span> 是由 <a href="c3ref/create_module.html">sqlite3_create_module()</a> 接口为虚拟表注册的名称。
+
+</p><div class="codeblock"><pre>CREATE VIRTUAL TABLE tablename USING modulename;
+</pre></div>
+
+<p>也可以在模块名称之后向模块提供以逗号分隔的参数：
+
+</p><div class="codeblock"><pre>CREATE VIRTUAL TABLE tablename USING modulename(arg1, arg2, ...);
+</pre></div>
+
+<p>模块参数的格式非常通用。每个 <span class='yyterm'>module-argument</span> 可以包含关键字、字符串字面量、标识符、数字和标点符号。每个 <span class='yyterm'>module-argument</span> 都会以文本形式原样传递到虚拟表实现创建虚拟表时的 <a href="vtab.html#xcreate">构造函数方法</a> 中，由该构造函数负责解析和解释参数。参数语法足够通用，虚拟表实现如果愿意，可以将其参数解释为普通 <a href="lang_createtable.html">CREATE TABLE</a> 语句中的 <a href="lang_createtable.html#tablecoldef">列定义</a>。实现也可以对参数施加其他解释。
+
+</p><p>一旦虚拟表被创建，就可以像其他表一样使用，除了前面提到的例外以及特定虚拟表实现可能施加的限制。虚拟表可以通过常规的 <a href="lang_droptable.html">DROP TABLE</a> 语法销毁。
+
+</p><h3 id="temporary_virtual_tables"><span>1.1.1. </span>临时虚拟表</h3>
+
+<p>没有 “CREATE TEMP VIRTUAL TABLE” 语句。要创建临时虚拟表，请在虚拟表名称之前添加 “temp” 模式。
+
+</p><div class="codeblock"><pre>CREATE VIRTUAL TABLE <b>temp.</b>tablename USING module(arg1, ...);
+</pre></div>
+
+<a name="epovtab"></a>
+
+<h3 id="eponymous_virtual_tables"><span>1.1.2. </span>具名虚拟表</h3>
+
+<p>某些虚拟表会在其模块注册的每个数据库连接的 “main” 模式中自动存在，即使没有 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句。这种虚拟表称为 “具名虚拟表”。要使用具名虚拟表，只需像使用表一样使用模块名称即可。具名虚拟表仅存在于 “main” 模式，因此如果加上其他模式名前缀则无法使用。
+
+</p><p>具名虚拟表的一个例子是 <a href="dbstat.html">dbstat 虚拟表</a>。要像具名虚拟表一样使用 dbstat 虚拟表，只需像查询普通表一样对 “dbstat” 模块名称进行查询即可。（请注意，必须使用启用了 <a href="compile.html#enable_dbstat_vtab">SQLITE_ENABLE_DBSTAT_VTAB</a> 选项编译 SQLite，才能在构建中包含 dbstat 虚拟表。）
+
+</p><div class="codeblock"><pre>SELECT * FROM dbstat;
+</pre></div>
+
+<p>如果虚拟表的 <a href="vtab.html#xcreate">xCreate</a> 方法与 <a href="vtab.html#xconnect">xConnect</a> 方法完全相同函数，或 <a href="vtab.html#xcreate">xCreate</a> 方法为 NULL，则该虚拟表是一个具名虚拟表。<a href="vtab.html#xcreate">xCreate</a> 方法在使用 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句首次创建虚拟表时调用。<a href="vtab.html#xconnect">xConnect</a> 方法则在数据库连接附加或重新解析模式时调用。当这两个方法相同时，说明该虚拟表不需要创建和销毁任何持久状态。
+
+<a name="epoonlyvtab"></a>
+
+</p><h3 id="eponymous_only_virtual_tables"><span>1.1.3. </span>仅具名虚拟表</h3>
+<p>如果 <a href="vtab.html#xcreate">xCreate</a> 方法为 NULL，那么对该虚拟表禁止使用 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句，该虚拟表就是 “仅具名虚拟表”。仅具名虚拟表在 <a href="vtab.html#tabfunc2">表值函数</a> 中非常有用。
+
+</p><p>
+请注意，在 <a href="releaselog/3_9_0.html">版本 3.9.0</a>（2015-10-14）之前，SQLite 在调用 xCreate 方法前并不会检查它是否为 NULL。所以如果在 <a href="releaselog/3_8_11_1.html">版本 3.8.11.1</a>（2015-07-29）或更早版本的 SQLite 中注册了仅具名虚拟表，并尝试对该虚拟表模块执行 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 命令，将会跳转到 NULL 指针，导致崩溃。
+
+</p><h2 id="implementation"><span>1.2. </span>实现</h2>
+
+<p>虚拟表实现会使用几个新的 C 级对象：
+
+</p><div class="codeblock"><pre>typedef struct sqlite3_vtab sqlite3_vtab;
+typedef struct sqlite3_index_info sqlite3_index_info;
+typedef struct sqlite3_vtab_cursor sqlite3_vtab_cursor;
+typedef struct sqlite3_module sqlite3_module;
+</pre></div>
+
+<p><a href="c3ref/module.html">sqlite3_module</a> 结构定义了用于实现虚拟表的模块对象。可以将模块视为一个类，可以基于它构造多个具有相似特性的虚拟表。例如，可以有一个模块，提供对磁盘上逗号分隔值（CSV）文件的只读访问。该模块随后可以用来创建多个虚拟表，每个虚拟表对应不同的 CSV 文件。
+
+</p><p>模块结构包含了 SQLite 在对虚拟表执行各种操作时会调用的方法，例如创建虚拟表的新实例或销毁旧实例、读写数据、搜索、删除、更新或插入行。模块结构将在下文中详细解释。
+
+</p><p>每个虚拟表实例都由一个 <a href="c3ref/vtab.html">sqlite3_vtab</a> 结构表示。sqlite3_vtab 结构如下所示：
+
+</p><div class="codeblock"><pre>struct sqlite3_vtab {
+  const sqlite3_module *pModule;
+  int nRef;
+  char *zErrMsg;
+};
+</pre></div>
+
+<p>虚拟表实现通常会对子类该结构以添加额外的私有字段和特定实现字段。nRef 字段由 SQLite 核心内部使用，虚拟表实现不应修改。虚拟表实现可以通过向 zErrMsg 放置错误消息字符串来向核心传递错误消息文本。用于保存错误消息字符串的空间必须通过 SQLite 内存分配函数（如 <a href="c3ref/mprintf.html">sqlite3_mprintf()</a> 或 <a href="c3ref/free.html">sqlite3_malloc()</a>）获取。在为 zErrMsg 赋予新值之前，虚拟表实现必须使用 <a href="c3ref/free.html">sqlite3_free()</a> 释放 zErrMsg 中的任何现有内容。否则将造成内存泄漏。SQLite 核心将在将错误消息文本传递给客户端应用程序或销毁虚拟表时释放并清零 zErrMsg 的内容。虚拟表实现仅在用新不同的错误消息覆盖该内容时需要负责释放 zErrMsg 的内容。
+
+</p><p><a href="c3ref/vtab_cursor.html">sqlite3_vtab_cursor</a> 结构表示虚拟表中特定行的指针。sqlite3_vtab_cursor 如下所示：
+
+</p><div class="codeblock"><pre>struct sqlite3_vtab_cursor {
+  sqlite3_vtab *pVtab;
+};
+</pre></div>
+
+<p>同样，实际实现很可能会对子类此结构以添加额外的私有字段。
+
+</p><p><a href="c3ref/index_info.html">sqlite3_index_info</a> 结构用于在实现虚拟表的模块的 xBestIndex 方法之间传入和传出信息。
+
+</p><p>在运行 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句之前，必须先向数据库连接注册该语句中指定的模块。这可以通过 <a href="c3ref/create_module.html">sqlite3_create_module()</a> 或 <a href="c3ref/create_module.html">sqlite3_create_module_v2()</a> 接口完成：
+
+</p><div class="codeblock"><pre>int sqlite3_create_module(
+  sqlite3 *db,               /* SQLite connection to register module with */
+  const char *zName,         /* Name of the module */
+  const sqlite3_module *,    /* Methods for the module */
+  void *                     /* Client data for xCreate/xConnect */
+);
+int sqlite3_create_module_v2(
+  sqlite3 *db,               /* SQLite connection to register module with */
+  const char *zName,         /* Name of the module */
+  const sqlite3_module *,    /* Methods for the module */
+  void *,                    /* Client data for xCreate/xConnect */
+  void(*xDestroy)(void*)     /* Client data destructor function */
+);
+</pre></div>
+
+<p><a href="c3ref/create_module.html">sqlite3_create_module()</a> 和 <a href="c3ref/create_module.html">sqlite3_create_module_v2()</a> 例程将模块名称与 <a href="c3ref/module.html">sqlite3_module</a> 结构以及特定于每个模块的单独客户端数据指针关联起来。两者之间唯一的区别是 _v2 版本多了一个指定客户端数据指针析构函数的参数。模块结构定义了虚拟表的行为。模块结构如下所示：
+
+</p><div class="codeblock"><pre>
+struct sqlite3_module {
+  int iVersion;
+  int (*xCreate)(sqlite3*, void *pAux,
+               int argc, char *const*argv,
+               sqlite3_vtab **ppVTab,
+               char **pzErr);
+  int (*xConnect)(sqlite3*, void *pAux,
+               int argc, char *const*argv,
+               sqlite3_vtab **ppVTab,
+               char **pzErr);
+  int (*xBestIndex)(sqlite3_vtab *pVTab, sqlite3_index_info*);
+  int (*xDisconnect)(sqlite3_vtab *pVTab);
+  int (*xDestroy)(sqlite3_vtab *pVTab);
+  int (*xOpen)(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor);
+  int (*xClose)(sqlite3_vtab_cursor*);
+  int (*xFilter)(sqlite3_vtab_cursor*, int idxNum, const char *idxStr,
+                int argc, sqlite3_value **argv);
+  int (*xNext)(sqlite3_vtab_cursor*);
+  int (*xEof)(sqlite3_vtab_cursor*);
+  int (*xColumn)(sqlite3_vtab_cursor*, sqlite3_context*, int);
+  int (*xRowid)(sqlite3_vtab_cursor*, sqlite_int64 *pRowid);
+  int (*xUpdate)(sqlite3_vtab *, int, sqlite3_value **, sqlite_int64 *);
+  int (*xBegin)(sqlite3_vtab *pVTab);
+  int (*xSync)(sqlite3_vtab *pVTab);
+  int (*xCommit)(sqlite3_vtab *pVTab);
+  int (*xRollback)(sqlite3_vtab *pVTab);
+  int (*xFindFunction)(sqlite3_vtab *pVtab, int nArg, const char *zName,
+                     void (**pxFunc)(sqlite3_context*,int,sqlite3_value**),
+                     void **ppArg);
+  int (*xRename)(sqlite3_vtab *pVtab, const char *zNew);
+  /* The methods above are in version 1 of the sqlite_module object. Those 
+  ** below are for version 2 and greater. */
+  int (*xSavepoint)(sqlite3_vtab *pVTab, int);
+  int (*xRelease)(sqlite3_vtab *pVTab, int);
+  int (*xRollbackTo)(sqlite3_vtab *pVTab, int);
+  /* The methods above are in versions 1 and 2 of the sqlite_module object.
+  ** Those below are for version 3 and greater. */
+  int (*xShadowName)(const char*);
+  /* The methods above are in versions 1 through 3 of the sqlite_module object.
+  ** Those below are for version 4 and greater. */
+  int (*xIntegrity)(sqlite3_vtab *pVTab, const char *zSchema,
+                    const char *zTabName, int mFlags, char **pzErr);
+};
+</pre></div>
+
+<p>模块结构为每个虚拟表对象定义了所有方法。模块结构还包含了 iVersion 字段，用于定义模块表结构的特定版本。目前，iVersion 始终小于或等于 4，但在 SQLite 的未来版本中，该结构定义可能会通过添加额外方法来扩展，届时最大 iVersion 值也会提升。
+
+</p><p>模块结构的其余部分由用于实现虚拟表各种特性的各个方法组成。接下来的章节将详细介绍这些方法的功能。
+
+</p><h2 id="virtual_tables_and_shared_cache"><span>1.3. </span>虚拟表和共享缓存</h2>
+
+<p>在 SQLite <a href="releaselog/3_6_17.html">版本 3.6.17</a>（2009-08-10）之前，虚拟表机制默认每个 <a href="c3ref/sqlite3.html">数据库连接</a> 都维护自己的一份数据库模式副本。因此，在启用了 <a href="sharedcache.html">共享缓存模式</a> 的数据库中无法使用虚拟表机制。若启用 <a href="sharedcache.html">共享缓存模式</a>，<a href="c3ref/create_module.html">sqlite3_create_module()</a> 接口会返回错误。从 SQLite <a href="releaselog/3_6_17.html">版本 3.6.17</a> 开始放宽了这一限制。
+
+<a name="customvtab"></a>
+
+</p><h2 id="creating_new_virtual_table_implementations"><span>1.4. </span>创建新的虚拟表实现</h2>
+
+<p>按照以下步骤创建自己的虚拟表：
+
+</p><p>
+</p><ol>
+<li> 编写所有必要的方法。
+</li><li> 创建一个 <a href="c3ref/module.html">sqlite3_module</a> 结构的实例，包含第 1 步中的所有方法指针。
+</li><li> 使用 <a href="c3ref/create_module.html">sqlite3_create_module()</a> 或 <a href="c3ref/create_module.html">sqlite3_create_module_v2()</a> 接口注册你的 <a href="c3ref/module.html">sqlite3_module</a> 结构。
+</li><li> 运行一条在 USING 子句中指定新模块的 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 命令。
+</li></ol>
+
+<p>真正困难的部分只有第 1 步。你可以先从现有的虚拟表实现出发并根据需要进行修改。<a href="https://sqlite.org/src/dir?ci=trunk&type=tree">SQLite 源代码树</a> 包含许多适合复制的虚拟表实现，包括：
+
+</p><p>
+</p><ul>
+<li> <b><a href="https://sqlite.org/src/file/ext/misc/templatevtab.c">templatevtab.c</a></b>
+&rarr; 专门创建设计为其他自定义虚拟表模板的虚拟表。
+</li><li> <b><a href="https://sqlite.org/src/file/ext/misc/series.c">series.c</a></b>
+&rarr; 生成 generate_series() 表值函数的实现。
+</li><li> <b><a href="https://sqlite.org/src/file/src/json.c">json.c</a></b> &rarr;
+包含 <a href="json1.html#jeach">json_each()</a> 和 <a href="json1.html#jtree">json_tree()</a> 表值函数的源代码。
+</li><li> <b><a href="https://sqlite.org/src/file/ext/misc/csv.c">csv.c</a></b> &rarr;
+一个读取 CSV 文件的虚拟表。
+</li></ul>
+
+
+<p>SQLite 源代码树中还有 <a href="vtablist.html">许多其他虚拟表实现</a> 可以用作示例。通过搜索 “sqlite3_create_module” 可以找到这些其他虚拟表实现。
+
+</p><p>你也可以考虑将你的新虚拟表实现为 <a href="loadext.html">可加载扩展</a>。
+
+</p><h1 id="virtual_table_methods"><span>2. </span>虚拟表方法</h1>
+
+<a name="xcreate"></a>
+
+<h2 id="the_xcreate_method"><span>2.1. </span>xCreate 方法</h2>
+
+<div class="codeblock"><pre>int (*xCreate)(sqlite3 *db, void *pAux,
+             int argc, char *const*argv,
+             sqlite3_vtab **ppVTab,
+             char **pzErr);
+</pre></div>
+
+<p>xCreate 方法在响应 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句时被调用，以创建虚拟表的新实例。如果 xCreate 方法与 <a href="vtab.html#xconnect">xConnect</a> 方法指针相同，则该虚拟表属于 <a href="vtab.html#epovtab">具名虚拟表</a>。如果省略 xCreate 方法（即它是 NULL 指针），则该虚拟表为 <a href="vtab.html#epoonlyvtab">仅具名虚拟表</a>。
+
+
+</p><p>db 参数是正在执行 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句的 SQLite <a href="c3ref/sqlite3.html">数据库连接</a> 指针。pAux 参数是当初在调用 <a href="c3ref/create_module.html">sqlite3_create_module()</a> 或 <a href="c3ref/create_module.html">sqlite3_create_module_v2()</a> 注册 <a href="c3ref/module.html">虚拟表模块</a> 时作为第四个参数传入的客户端数据指针的副本。argv 参数是一个包含 argc 个以 NULL 终止字符串指针的数组。第一个字符串 argv[0] 是正在调用的模块名称。该模块名称是传递给 <a href="c3ref/create_module.html">sqlite3_create_module()</a> 的第二个参数，也是正在运行的 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句的 USING 子句中的模块名称。第二个字符串 argv[1] 是正在创建新虚拟表的数据库名称。对于主数据库，该名称为 “main”；对于 TEMP 数据库，为 “temp”；对于附加的数据库，为对应 <a href="lang_attach.html">ATTACH</a> 语句末尾指定的名称。数组的第三个元素 argv[2] 是新虚拟表的名称，即在 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句中的 TABLE 关键字之后指定的名称。如果存在，argv[] 数组中的第四个及后续字符串即对应于 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 语句中模块名称的各个参数。
+
+</p><p>此方法的任务是构造新的 <a href="c3ref/vtab.html">sqlite3_vtab</a> 对象，并在 *ppVTab 中返回指向它的指针。
+
+</p><p>在创建新的 <a href="c3ref/vtab.html">sqlite3_vtab</a> 结构的过程中，该方法 <u>必须</u> 调用 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a>，以告知 SQLite 核心虚拟表的列和数据类型。<a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> API 的原型如下：
+
+</p><div class="codeblock"><pre>int sqlite3_declare_vtab(sqlite3 *db, const char *zCreateTable)
+</pre></div>
+
+<p><a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> 的第一个参数必须与该方法的第一个参数相同，是同一个 <a href="c3ref/sqlite3.html">数据库连接</a> 指针。第二个参数必须是一个以零终止的 UTF-8 字符串，包含一个定义虚拟表列及其数据类型的格式正确的 <a href="lang_createtable.html">CREATE TABLE</a> 语句。该 CREATE TABLE 语句中的表名会被忽略，所有约束也会被忽略。只有列名和数据类型才重要。CREATE TABLE 语句字符串无需保存在持久内存中；只要 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> 例程返回，该字符串就可以被释放或重用。
+
+</p><p>xConnect 方法也可以通过调用 <a href="c3ref/vtab_config.html">sqlite3_vtab_config()</a> 接口来请求虚拟表的特殊功能：
+
+</p><div class="codeblock"><pre>int sqlite3_vtab_config(sqlite3 *db, int op, ...);
+</pre></div>
+
+<p>调用 sqlite3_vtab_config() 是可选的。但为了获得最大的安全性，如果虚拟表不会在触发器或视图中使用，建议虚拟表实现调用 "<a href="c3ref/vtab_config.html">sqlite3_vtab_config</a>(db, <a href="c3ref/c_vtab_constraint_support.html#sqlitevtabdirectonly">SQLITE_VTAB_DIRECTONLY</a>)"。
+
+</p><p>xCreate 方法无需初始化 <a href="c3ref/vtab.html">sqlite3_vtab</a> 对象的 pModule、nRef 和 zErrMsg 字段。SQLite 核心会负责处理这些工作。
+
+</p><p>xCreate 方法在成功创建新虚拟表时应该返回 <a href="rescode.html#ok">SQLITE_OK</a>，否则返回 <a href="rescode.html#error">SQLITE_ERROR</a>。如果失败，则 <a href="c3ref/vtab.html">sqlite3_vtab</a> 结构不得被分配。如果失败，可以选择在 *pzErr 中返回错误消息。用于保存错误消息字符串的空间必须使用 SQLite 内存分配函数（如 <a href="c3ref/free.html">sqlite3_malloc()</a> 或 <a href="c3ref/mprintf.html">sqlite3_mprintf()</a>）分配，因为 SQLite 核心在将错误上报给应用程序后会尝试使用 <a href="c3ref/free.html">sqlite3_free()</a> 释放该空间。
+
+</p><p>
+如果省略 xCreate 方法（保留 NULL 指针），则虚拟表为 <a href="vtab.html#epoonlyvtab">仅具名虚拟表</a>。无法通过 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 创建此虚拟表的新实例，只能通过其模块名称使用。请注意，SQLite 3.9.0（2015-10-14）之前的版本不识别仅具名虚拟表，如果尝试对仅具名虚拟表执行 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a>，会导致段错误，因为 xCreate 方法未被检查是否为 NULL。
+
+</p><p>
+如果 xCreate 方法与 <a href="vtab.html#xconnect">xConnect</a> 方法是完全相同的指针，则说明该虚拟表不需要初始化后端存储。这样的虚拟表既可以用作 <a href="vtab.html#epovtab">具名虚拟表</a>，也可以通过 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 创建命名虚拟表，或者两者兼顾。
+
+<a name="hiddencol"></a>
+</p><h3 id="hidden_columns_in_virtual_tables"><span>2.1.1. </span>虚拟表中的隐藏列</h3>
+<p>如果某列的数据类型包含特殊关键字 "HIDDEN"（大小写不限），则该关键字会从列的数据类型名称中省略，列在内部被标记为隐藏列。
+隐藏列与普通列在三方面不同：
+
+</p><p>
+</p><ul>
+<li> 隐藏列不会出现在 "<a href="pragma.html#pragma_table_info">PRAGMA table_info</a>" 返回的数据集中，</li><li> 隐藏列不会包含在 <a href="lang_select.html">SELECT</a> 的结果集中 "*" 表达式的展开中，</li><li> 隐藏列不会包含在缺少显式列列表的 <a href="lang_insert.html">INSERT</a> 语句所使用的隐含列列表中。</li></ul>
+
+<p>例如，如果把以下 SQL 语句传递给 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a>：
+
+</p><div class="codeblock"><pre>CREATE TABLE x(a HIDDEN VARCHAR(12), b INTEGER, c INTEGER Hidden);
+</pre></div>
+
+<p>那么该虚拟表会创建两个隐藏列，其数据类型分别是 "VARCHAR(12)" 和 "INTEGER"。
+
+</p><p>隐藏列的一个示例用法可以在 <a href="fts3.html">FTS3</a> 虚拟表实现中看到，其中每个 FTS 虚拟表都包含一个 <a href="fts3.html#hiddencol">FTS 隐藏列</a>，用于将信息从虚拟表传递给 <a href="fts3.html#snippet">FTS 辅助函数</a> 以及 <a href="fts3.html#full_text_index_queries">FTS MATCH</a> 操作符。
+
+<a name="tabfunc2"></a>
+
+</p><h3 id="table_valued_functions"><span>2.1.2. </span>表值函数</h3>
+
+<p>包含 <a href="vtab.html#hiddencol">隐藏列</a> 的 <a href="vtab.html">虚拟表</a> 可在 <a href="lang_select.html">SELECT</a> 语句的 FROM 子句中像表值函数那样使用。
+传递给表值函数的参数会成为虚拟表隐藏列上的约束。
+
+</p><p>例如，“generate_series” 扩展（位于 <a href="https://sqlite.org/src/artifact?ci=trunk&filename=ext/misc/series.c">ext/misc/series.c</a> 文件中，见 <a href="https://sqlite.org/src/tree?ci=trunk">源代码树</a>）实现了一个 <a href="vtab.html#epovtab">同名虚拟表</a>，其模式如下：
+
+</p><div class="codeblock"><pre>CREATE TABLE generate_series(
+  value,
+  start HIDDEN,
+  stop HIDDEN,
+  step HIDDEN
+);
+</pre></div>
+
+<p>该表实现中的 <a href="vtab.html#xbestindex">sqlite3_module.xBestIndex</a> 方法会检查隐藏列上的等值约束，并使用这些约束作为输入参数来确定要生成的整数 "value" 输出的范围。任何未受约束的列将使用合理的默认值。
+例如，要列出 5 到 50 之间的所有整数：
+
+</p><div class="codeblock"><pre>SELECT value FROM generate_series(5,50);
+</pre></div>
+
+<p>前一个查询等价于下列语句：
+
+</p><div class="codeblock"><pre>SELECT value FROM generate_series WHERE start=5 AND stop=50;
+</pre></div>
+
+<p>虚拟表名上的参数会依次匹配 <a href="vtab.html#hiddencol">隐藏列</a>。参数数量可以少于隐藏列数量，此时剩余的隐藏列保持无约束。若参数数量超过虚拟表中的隐藏列数量，则会报错。
+
+<a name="worid"></a>
+
+</p><h3 id="_without_rowid_virtual_tables_"><span>2.1.3. </span>WITHOUT ROWID 虚拟表</h3>
+
+<p>从 SQLite <a href="releaselog/3_14.html">版本 3.14.0</a>（2016-08-08）开始，传递给 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> 的 CREATE TABLE 语句可以包含 <a href="withoutrowid.html">WITHOUT ROWID</a> 子句。
+在虚拟表行无法轻易映射到唯一整数的情况下非常有用。包含 WITHOUT ROWID 的 CREATE TABLE 语句必须将一个或多个列定义为 PRIMARY KEY。PRIMARY KEY 的每一列都必须单独设置为 NOT NULL，并且每行的所有列必须整体唯一。
+
+</p><p>请注意，SQLite 不会强制 WITHOUT ROWID 虚拟表的 PRIMARY KEY。强制执行由底层虚拟表实现负责。但 SQLite 会假设 PRIMARY KEY 约束是有效的——即这些列确实是 UNIQUE 且 NOT NULL——并利用该假设来优化对虚拟表的查询。
+
+</p><p>WITHOUT ROWID 虚拟表不能访问 rowid 列（这是显而易见的）。
+
+</p><p><a href="vtab.html#xupdate">xUpdate</a> 方法最初是围绕具有单个 ROWID 值设计的。xUpdate 方法已经扩展为可使用任意 PRIMARY KEY 替代 ROWID，但 PRIMARY KEY 仍然必须只包含一列。因此，如果 WITHOUT ROWID 虚拟表有多个 PRIMARY KEY 列且存在非 NULL 的 xUpdate 方法，SQLite 会拒绝该虚拟表。
+
+<a name="xconnect"></a>
+
+</p><h2 id="the_xconnect_method"><span>2.2. </span>xConnect 方法</h2>
+
+<div class="codeblock"><pre>int (*xConnect)(sqlite3*, void *pAux,
+             int argc, char *const*argv,
+             sqlite3_vtab **ppVTab,
+             char **pzErr);
+</pre></div>
+
+<p>xConnect 方法与 <a href="vtab.html#xcreate">xCreate</a> 非常相似。
+它具有相同的参数并构建一个新的 <a href="c3ref/vtab.html">sqlite3_vtab</a> 结构，就像 xCreate 一样。
+它还必须像 xCreate 那样调用 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a>。
+它还应做与 xCreate 相同的 <a href="c3ref/vtab_config.html">sqlite3_vtab_config()</a> 调用。
+
+</p><p>xConnect 的区别在于，它用于建立与现有虚拟表的新连接，而 xCreate 用于从头创建新的虚拟表。
+
+</p><p>当虚拟表具有某种需要在首次创建时初始化的后端存储时，xCreate 和 xConnect 方法才会有所不同。xCreate 方法会创建并初始化后端存储。xConnect 方法只是连接到现有的后端存储。当 xCreate 和 xConnect 相同时，该表就是一个 <a href="vtab.html#epovtab">同名虚拟表</a>。
+
+</p><p>例如，考虑一个虚拟表实现，它提供对磁盘上现有 CSV 文件的只读访问。此类虚拟表不需要创建或初始化后端存储（因为 CSV 文件已经存在），因此该模块的 xCreate 和 xConnect 方法将相同。
+
+</p><p>另一个例子是实现全文索引的虚拟表。xCreate 方法必须创建并初始化用于该索引的字典和倒排列表数据结构。而 xConnect 方法则只需定位并使用先前 xCreate 调用创建的现有字典和倒排列表。
+
+</p><p>xConnect 方法在成功创建新虚拟表时必须返回 <a href="rescode.html#ok">SQLITE_OK</a>，若不成功则返回 <a href="rescode.html#error">SQLITE_ERROR</a>。若不成功，则 <a href="c3ref/vtab.html">sqlite3_vtab</a> 结构不得分配。若执行失败，可选地在 *pzErr 中返回错误消息。
+用于存储错误消息字符串的空间必须通过 SQLite 内存分配函数（如 <a href="c3ref/free.html">sqlite3_malloc()</a> 或 <a href="c3ref/mprintf.html">sqlite3_mprintf()</a>）分配，因为 SQLite 核心在将错误报告给应用程序后会尝试使用 <a href="c3ref/free.html">sqlite3_free()</a> 释放该空间。
+
+</p><p>xConnect 方法是每个虚拟表实现都必须提供的，
+尽管 <a href="c3ref/module.html">sqlite3_module</a> 对象的 <a href="vtab.html#xcreate">xCreate</a> 和 xConnect 指针在虚拟表无需初始化后端存储时可以指向同一个函数。
+
+<a name="xbestindex"></a>
+
+</p><h2 id="the_xbestindex_method"><span>2.3. </span>xBestIndex 方法</h2>
+
+<p>SQLite 使用虚拟表模块的 xBestIndex 方法来确定访问虚拟表的最佳方式。
+xBestIndex 方法的原型如下：
+
+</p><div class="codeblock"><pre>int (*xBestIndex)(sqlite3_vtab *pVTab, sqlite3_index_info*);
+</pre></div>
+
+<p>SQLite 核心通过填充 <a href="c3ref/index_info.html">sqlite3_index_info</a> 结构的某些字段并将该结构的指针作为第二个参数传入 xBestIndex，从而与 xBestIndex 方法进行通信。
+xBestIndex 方法则填写该结构的其他字段作为回复。<a href="c3ref/index_info.html">sqlite3_index_info</a> 结构如下：
+
+</p><div class="codeblock"><pre>struct sqlite3_index_info {
+  /* Inputs */
+  const int nConstraint;     /* Number of entries in aConstraint */
+  const struct sqlite3_index_constraint {
+     int iColumn;              /* Column constrained.  -1 for ROWID */
+     unsigned char op;         /* Constraint operator */
+     unsigned char usable;     /* True if this constraint is usable */
+     int iTermOffset;          /* Used internally - xBestIndex should ignore */
+  } *const aConstraint;      /* Table of WHERE clause constraints */
+  const int nOrderBy;        /* Number of terms in the ORDER BY clause */
+  const struct sqlite3_index_orderby {
+     int iColumn;              /* Column number */
+     unsigned char desc;       /* True for DESC.  False for ASC. */
+  } *const aOrderBy;         /* The ORDER BY clause */
+
+  /* Outputs */
+  struct sqlite3_index_constraint_usage {
+    int argvIndex;           /* if >0, constraint is part of argv to xFilter */
+    unsigned char omit;      /* Do not code a test for this constraint */
+  } *const aConstraintUsage;
+  int idxNum;                /* Number used to identify the index */
+  char *idxStr;              /* String, possibly obtained from sqlite3_malloc */
+  int needToFreeIdxStr;      /* Free idxStr using sqlite3_free() if true */
+  int orderByConsumed;       /* True if output is already ordered */
+  double estimatedCost;      /* Estimated cost of using this index */
+  <b>/* Fields below are only available in SQLite 3.8.2 and later */</b>
+  sqlite3_int64 estimatedRows;    /* Estimated number of rows returned */
+  <b>/* Fields below are only available in SQLite 3.9.0 and later */</b>
+  int idxFlags;              /* Mask of SQLITE_INDEX_SCAN_* flags */
+  <b>/* Fields below are only available in SQLite 3.10.0 and later */</b>
+  sqlite3_uint64 colUsed;    /* Input: Mask of columns used by statement */
+};
+</pre></div>
+
+<p>请注意 “estimatedRows”、“idxFlags” 和 “colUsed” 字段的说明。
+这些字段分别在 SQLite 3.8.2、3.9.0 和 3.10.0 中引入。
+任何读写这些字段的扩展必须首先检查当前使用的 SQLite 库版本是否大于或等于相应版本——可以比较 <a href="c3ref/libversion.html">sqlite3_libversion_number()</a> 返回值与常量 3008002、3009000 和/或 3010000。
+尝试访问由旧版本 SQLite 创建的 sqlite3_index_info 结构中的这些字段时，后果未定义。
+
+</p><p>另外，还定义了一些常量：
+
+</p><div class="codeblock"><pre>#define SQLITE_INDEX_CONSTRAINT_EQ         2
+#define SQLITE_INDEX_CONSTRAINT_GT         4
+#define SQLITE_INDEX_CONSTRAINT_LE         8
+#define SQLITE_INDEX_CONSTRAINT_LT        16
+#define SQLITE_INDEX_CONSTRAINT_GE        32
+#define SQLITE_INDEX_CONSTRAINT_MATCH     64
+#define SQLITE_INDEX_CONSTRAINT_LIKE      65  /* 3.10.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_GLOB      66  /* 3.10.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_REGEXP    67  /* 3.10.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_NE        68  /* 3.21.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_ISNOT     69  /* 3.21.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_ISNOTNULL 70  /* 3.21.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_ISNULL    71  /* 3.21.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_IS        72  /* 3.21.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_LIMIT     73  /* 3.38.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_OFFSET    74  /* 3.38.0 and later */
+#define SQLITE_INDEX_CONSTRAINT_FUNCTION 150  /* 3.25.0 and later */
+#define SQLITE_INDEX_SCAN_UNIQUE           1  /* Scan visits at most 1 row */
+</pre></div>
+
+<p>使用 <a href="c3ref/vtab_collation.html">sqlite3_vtab_collation()</a> 接口来查找执行第 i 个约束时应使用的 <a href="datatype3.html#collation">排序序列</a> 的名称：
+
+</p><div class="codeblock"><pre>const char *sqlite3_vtab_collation(sqlite3_index_info*, int i);
+</pre></div>
+
+<p>SQLite 核心在编译包含虚拟表的查询时会调用 xBestIndex 方法。换句话说，当 SQLite 调用 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 或其等效函数时会调用本方法。
+通过调用该方法，SQLite 核心告诉虚拟表它需要访问该虚拟表的一部分行，并希望了解访问这些行的最有效方式。
+xBestIndex 方法返回的信息可供 SQLite 核心用于进行高效的虚拟表搜索。
+
+</p><p>在编译单个 SQL 查询期间，SQLite 核心可能使用不同的 <a href="c3ref/index_info.html">sqlite3_index_info</a> 设置多次调用 xBestIndex。
+SQLite 核心会选择看起来性能最好的组合。
+
+</p><p>在调用此方法之前，SQLite 核心将用当前尝试处理的查询信息初始化一实例 <a href="c3ref/index_info.html">sqlite3_index_info</a> 结构。
+这些信息主要来自 WHERE 子句和 ORDER BY 或 GROUP BY 子句，如果查询是连接，还来自任何 ON 或 USING 子句。
+SQLite 核心提供给 xBestIndex 方法的信息保存在标记为 “Inputs” 的结构部分中。“Outputs” 部分初始化为零。
+
+</p><p><a href="c3ref/index_info.html">sqlite3_index_info</a> 结构中的信息是临时的，并可能在 xBestIndex 方法返回后立即被覆盖或释放。
+如果 xBestIndex 方法需要记住该结构的任何部分，应复制一份。必须小心将副本存储在会被正确释放的位置，例如在 idxStr 字段中，并将 needToFreeIdxStr 设置为 1。
+
+</p><p>请注意，xBestIndex 总是在 <a href="vtab.html#xfilter">xFilter</a> 之前调用，因为 xBestIndex 的 idxNum 和 idxStr 输出是 xFilter 的必要输入。
+不过并不能保证在成功调用 xBestIndex 之后一定会调用 xFilter。
+
+</p><p>xBestIndex 方法是每个虚拟表实现都必须提供的。
+
+</p><h3 id="inputs"><span>2.3.1. </span>输入</h3>
+
+<p>SQLite 核心主要试图传达给虚拟表的是那些可用于限制搜索行数的约束条件。aConstraint[] 数组包含每个约束的一条记录。
+该数组中恰好有 nConstraint 条目。
+
+</p><p>每条约束通常对应于 WHERE 子句或 JOIN 的 USING/ON 子句中的一项，该项形式如下：
+
+</p><blockquote>
+     column  OP  EXPR
+</blockquote>
+
+<p>其中 “column” 是虚拟表中的某列，OP 是类似 “=” 或 “<” 的运算符，EXPR 是任意表达式。
+例如，如果 WHERE 子句包含如下项：
+
+</p><div class="codeblock"><pre>a = 5
+</pre></div>
+
+<p>那么其中一个约束就是在 “a” 列上的运算符 “=” 与表达式 “5”。约束不必与 WHERE 子句中的文字形式一致。查询优化器可能会转换 WHERE 子句以提取尽可能多的约束。例如，如果 WHERE 子句包含如下内容：
+
+</p><div class="codeblock"><pre>x BETWEEN 10 AND 100 AND 999&gt;y
+</pre></div>
+
+<p>查询优化器可能把它转换为三个独立约束：
+
+</p><div class="codeblock"><pre>x &gt;= 10
+x &lt;= 100
+y &lt; 999
+</pre></div>
+
+<p>对于每个约束，aConstraint[].iColumn 字段表示约束左侧所引用的列。
+虚拟表的第一列是列 0。
+虚拟表的 rowid 是列 -1。
+aConstraint[].op 字段表示使用的运算符。
+SQLITE_INDEX_CONSTRAINT_* 常量将整数值映射为运算符。
+列按照在 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> 调用中被定义的顺序排列，
+该调用位于 <a href="vtab.html#xcreate">xCreate</a> 或 <a href="vtab.html#xconnect">xConnect</a> 方法中。
+隐藏列在确定列索引时也会计入。
+
+</p><p>如果虚拟表定义了 <a href="vtab.html#xfindfunction">xFindFunction()</a> 方法，且 xFindFunction() 有时返回 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_FUNCTION</a> 或更大的值，则约束也可能具有如下形式：
+
+</p><blockquote>
+     FUNCTION( column, EXPR)
+</blockquote>
+
+<p>在这种情况下，aConstraint[].op 的值与 <a href="vtab.html#xfindfunction">xFindFunction()</a> 为 FUNCTION 返回的值相同。
+
+</p><p>aConstraint[] 数组包含作用于虚拟表的所有约束信息。但由于连接中的表顺序，有些约束可能不可用。
+因此，xBestIndex 方法必须只考虑 aConstraint[].usable 标志为 true 的约束。
+
+</p><p>除了 WHERE 子句约束之外，SQLite 核心还会告知 xBestIndex 方法 ORDER BY 子句的信息。
+（在聚合查询中，SQLite 核心可能用 GROUP BY 子句信息替代 ORDER BY 子句的信息，但这对 xBestIndex 方法没有影响。）
+如果 ORDER BY 子句的所有项都是虚拟表的列，那么 nOrderBy 将等于 ORDER BY 子句项的数量，aOrderBy[] 数组将按顺序标识每项对应的列以及该列是 ASC 还是 DESC。
+
+<a name="colUsed"></a>
+
+</p><p>从 SQLite <a href="releaselog/3_10_0.html">版本 3.10.0</a>（2016-01-06）起，colUsed 字段可用于指示正在准备语句实际使用了虚拟表的哪些列。如果 colUsed 的最低位被置位，则表示使用了第一列。次低位对应第二列，依此类推。如果 colUsed 的最高位被置位，则表示使用了第一列之外的一个或多个列。如果 <a href="vtab.html#xfilter">xFilter</a> 方法需要列使用信息，则必须将所需位编码到 idxNum 字段或 idxStr 内容中。
+
+</p><h4 id="like_glob_regexp_and_match_functions"><span>2.3.1.1. </span>LIKE、GLOB、REGEXP 和 MATCH 函数</h4>
+
+<p>对于 LIKE、GLOB、REGEXP 和 MATCH 操作符，aConstraint[].iColumn 表示作为左操作数的虚拟表列。
+但如果这些操作符以函数调用形式表示，则 aConstraint[].iColumn 指向该函数的第二个参数所对应的虚拟表列：
+
+</p><blockquote>
+LIKE(<i>EXPR</i>, <i>column</i>)<br>
+GLOB(<i>EXPR</i>, <i>column</i>)<br>
+REGEXP(<i>EXPR</i>, <i>column</i>)<br>
+MATCH(<i>EXPR</i>, <i>column</i>)<br>
+</blockquote>
+
+<p>因此，对于 xBestIndex() 方法而言，以下两种形式是等价的：
+
+</p><blockquote>
+<i>column</i> LIKE <i>EXPR</i><br>
+LIKE(<i>EXPR</i>,<i>column</i>)
+</blockquote>
+
+<p>这种只关注函数第二个参数的特殊行为仅适用于 LIKE、GLOB、REGEXP 和 MATCH 函数。对于其他函数，aConstraint[].iColumn 指向该函数的第一个参数。
+
+</p><p>不过，这种 LIKE、GLOB、REGEXP 和 MATCH 的特殊行为并不适用于 <a href="vtab.html#xfindfunction">xFindFunction()</a> 方法。<a href="vtab.html#xfindfunction">xFindFunction()</a> 方法始终依赖于 LIKE、GLOB、REGEXP 或 MATCH 操作符的左操作数，而在函数调用等价形式中依赖于函数的第一个参数。
+
+</p><h4 id="limit_and_offset"><span>2.3.1.2. </span>LIMIT 和 OFFSET</h4>
+
+<p>当 aConstraint[].op 为 SQLITE_INDEX_CONSTRAINT_LIMIT 或 SQLITE_INDEX_CONSTRAINT_OFFSET 时，表示使用虚拟表的 SQL 查询声明中存在 LIMIT 或 OFFSET 子句。LIMIT 和 OFFSET 操作符没有左操作数，因此当 aConstraint[].op 为 SQLITE_INDEX_CONSTRAINT_LIMIT 或 SQLITE_INDEX_CONSTRAINT_OFFSET 时，aConstraint[].iColumn 值无意义，不应使用。
+
+</p><h4 id="right_hand_side_values_of_constraints"><span>2.3.1.3. </span>约束的右操作数值</h4>
+
+<p><a href="c3ref/vtab_rhs_value.html">sqlite3_vtab_rhs_value()</a> 接口可用于尝试访问约束的右操作数。然而，右操作数的值可能在运行 xBestIndex 方法时尚未知晓，因此 sqlite3_vtab_rhs_value() 调用可能不成功。通常，仅当右操作数在输入 SQL 中以文字值编码时，xBestIndex 才能访问。若右操作数是表达式或 <a href="c3ref/bind_blob.html">主机参数</a>，则 xBestIndex 可能无法访问。
+某些操作符（例如 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_ISNULL</a> 和 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_ISNOTNULL</a>）没有右操作数，对此类操作符 sqlite3_vtab_rhs_value() 接口始终返回 <a href="rescode.html#notfound">SQLITE_NOTFOUND</a>。
+
+</p><h3 id="outputs"><span>2.3.2. </span>输出</h3>
+
+<p>综合以上信息，xBestIndex 方法的任务就是找出搜索虚拟表的最佳方式。
+
+</p><p>xBestIndex 方法通过 idxNum 和 idxStr 字段向 <a href="vtab.html#xfilter">xFilter</a> 方法传达索引策略。在 SQLite 核心看来，idxNum 值和 idxStr 字符串的内容是任意的，只要 xBestIndex 与 xFilter 对其含义达成一致即可。SQLite 核心只是将 xBestIndex 的信息复制到 <a href="vtab.html#xfilter">xFilter</a> 方法，唯一的假设是 idxStr 所引用的字符序列以 NUL 结尾。
+
+</p><p>idxStr 值可以是通过 SQLite 内存分配函数（如 <a href="c3ref/mprintf.html">sqlite3_mprintf()</a>）获得的字符串。
+如果是这样，needToFreeIdxStr 标志必须设为 true，以便 SQLite 核心在使用完该字符串后知道要调用 <a href="c3ref/free.html">sqlite3_free()</a>，从而避免内存泄漏。
+此外，idxStr 也可以是静态常量字符串，此时 needToFreeIdxStr 布尔值应保持 false。
+
+</p><p>estimatedCost 字段应设置为执行拟议查询计划时访问该虚拟表所需的磁盘操作的估计次数。
+SQLite 核心通常会使用不同约束多次调用 xBestIndex，获取多个成本估算，并选择成本最低的查询计划。
+在调用 xBestIndex 之前，SQLite 核心会将 estimatedCost 初始化为一个非常大的值，因此若 xBestIndex 决定当前参数组合不可取，可以保持 estimatedCost 不变以减少被选择的可能性。
+
+</p><p>如果当前 SQLite 版本不小于 3.8.2，可将 estimatedRows 字段设置为所提议查询计划返回的行数估计值。如果未显式设置该值，则默认估计为 25 行。
+
+</p><p>如果当前 SQLite 版本不小于 3.9.0，可将 idxFlags 字段设置为 SQLITE_INDEX_SCAN_UNIQUE，表示在给定输入约束时虚拟表最多返回一行或零行。idxFlags 字段的其他位可能在更高版本的 SQLite 中有定义。
+
+</p><p>aConstraintUsage[] 数组为 <a href="c3ref/index_info.html">sqlite3_index_info</a> 结构输入部分中的 nConstraint 条约束分别提供一项。
+xBestIndex 利用 aConstraintUsage[] 数组告诉核心它如何使用各约束。
+
+</p><p>xBestIndex 方法可将 aConstraintUsage[].argvIndex 置为大于零的值。
+应将第一个置为 1，第二个置为 2，第三个置为 3，依此类推，数量可多可少，由 xBestIndex 自行决定。
+对应约束的 EXPR 将作为 argv[] 参数传递给 xFilter。
+
+</p><p>例如，如果 aConstraint[3].argvIndex 设为 1，则调用 xFilter 时，传入的 argv[0] 将包含 aConstraint[3] 约束的 EXPR。
+
+</p><h4 id="omit_constraint_checking_in_bytecode"><span>2.3.2.1. </span>在字节码中省略约束检查</h4>
+
+<p>默认情况下，SQLite 会生成 <a href="opcode.html">字节码</a>，在虚拟表的每一行上重新检查所有约束以确认其成立。
+若虚拟表能保证某个约束一定成立，可尝试通过设置 aConstraintUsage[].omit 来抑制该额外检查。
+然而除少数例外，这只是一个提示，并不能保证会抑制冗余检查。
+要点如下：
+
+</p><ul>
+<li><p>
+仅当约束的 argvIndex 值大于 0 且小于等于 16 时才会尊重 omit 标志。
+对于没有将其右操作数传递给 xFilter 方法的约束，永远不会抑制约束检查。
+当前实现仅能抑制传递给 xFilter 的前 16 个值，未来版本可能会提高此限制。
+
+</p></li><li><p>
+对于 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_OFFSET</a> 约束，只要 argvIndex 大于 0，omit 标志总会被遵循。
+在 SQLITE_INDEX_CONSTRAINT_OFFSET 约束上设置 omit 标志表明虚拟表将自己跳过输出的前 N 行，其中 N 为 OFFSET 操作符的右操作数。
+若虚拟表实现对 SQLITE_INDEX_CONSTRAINT_OFFSET 约束设置了 omit，但未能跳过输出的前 N 行，则整体查询结果将不正确。
+</p></li></ul>
+
+<a name="obc"></a>
+
+<h4 id="order_by_and_orderbyconsumed"><span>2.3.2.2. </span>ORDER BY 与 orderByConsumed</h4>
+
+<p>如果虚拟表按 ORDER BY 子句指定的顺序输出行，则可以将 orderByConsumed 标志设为 true。
+若输出顺序不是自动正确的，则必须保持 orderByConsumed 的默认 false 值。
+这将告诉 SQLite 核心在虚拟表输出之后需要进行额外排序。
+设置 orderByConsumed 是一种优化措施。即使不设置，查询也总能得到正确结果。
+若设置得当，可避免不必要的排序，从而加快查询速度；但设置错误会导致结果不正确。
+建议新的虚拟表实现初期保持 orderByConsumed 为默认值，待其他部分确认无误后，再针对合适情况尝试设置该标志。
+
+</p><p>即使虚拟表的输出顺序未严格按照 nOrderBy 和 aOrderBy 指定的顺序，也有时可以安全设置 orderByConsumed 标志。
+若 <a href="c3ref/vtab_distinct.html">sqlite3_vtab_distinct()</a> 接口返回 1 或 2，则表示排序可以放宽。
+有关更多信息，请参见 <a href="c3ref/vtab_distinct.html">sqlite3_vtab_distinct()</a> 的文档。
+</p><h3 id="return_value"><span>2.3.3. </span>Return Value</h3>
+
+<p>xBestIndex 方法在成功时应返回 SQLITE_OK。如果发生任何致命错误，则应返回适当的错误代码（例如 <a href="rescode.html#nomem">SQLITE_NOMEM</a>）。
+
+</p><p>如果 xBestIndex 返回 <a href="rescode.html#constraint">SQLITE_CONSTRAINT</a>，这并不表示出现了错误。相反，SQLITE_CONSTRAINT 表示特定组合的输入参数不足以让虚拟表完成其工作。
+这在逻辑上等同于将 estimatedCost 设置为无穷大。
+如果对某个具体查询计划的每次 xBestIndex 调用都返回 SQLITE_CONSTRAINT，那就说明虚拟表无法安全使用，并且 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 调用会以 “no query solution” 错误失败。
+
+<a name="erpotvf"></a>
+
+</p><h3 id="enforcing_required_parameters_on_table_valued_functions"><span>2.3.4. </span>Enforcing Required Parameters On Table-Valued Functions</h3>
+
+<p>xBestIndex 返回 SQLITE_CONSTRAINT 对于具有必需参数的 <a href="vtab.html#tabfunc2">表值函数</a> 十分有用。如果某个必需参数的 aConstraint[].usable 字段为 false，则 xBestIndex 方法应返回 SQLITE_CONSTRAINT。如果某个必需字段根本未出现在 aConstraint[] 数组中，则说明相应参数在输入 SQL 中被省略。在这种情况下，xBestIndex 应在 pVTab-&gt;zErrMsg 中设置错误消息并返回 SQLITE_ERROR。总结如下：
+
+</p><ol>
+<li><p>
+针对必需参数的 aConstraint[].usable 值为 false <big>&rarr;</big> 返回 SQLITE_CONSTRAINT。
+</p></li><li><p>
+某个必需参数完全未出现在 aConstraint[] 数组中的任何位置 <big>&rarr;</big>
+在 pVTab-&gt;zErrMsg 中设置错误消息并返回
+SQLITE_ERROR
+</p></li></ol>
+
+<p>下面的示例可以更清楚地说明将 SQLITE_CONSTRAINT 作为 xBestIndex 返回值的用途：
+
+</p><div class="codeblock"><pre>SELECT * FROM realtab, tablevaluedfunc(realtab.x);
+</pre></div>
+
+<p>假设 “tablevaluedfunc” 的第一个隐藏列是 “param1”，上述查询在语义上等价于：
+
+</p><div class="codeblock"><pre>SELECT * FROM realtab, tablevaluedfunc
+ WHERE tablevaluedfunc.param1 = realtab.x;
+</pre></div>
+
+<p>查询规划器必须在多种可能的实现之间做出选择，但其中两个计划尤其值得关注：
+
+</p><ol>
+<li><p>扫描 realtab 的所有行，对于每一行，在 tablevaluedfunc 中查找 param1 等于 realtab.x 的行
+
+</p></li><li><p>扫描 tablevaluedfunc 的所有行，对于每一行，在 realtab 中查找 x 等于 tablevaluedfunc.param1 的行。
+</p></li></ol>
+
+<p>xBestIndex 方法将针对上述每种潜在计划调用一次。对于计划 1，param1 列上的 SQLITE_CONSTRAINT_EQ 约束的 aConstraint[].usable 标志为 true，因为 “param1 = ?” 约束的右侧值是已知的——它由外层的 realtab 循环决定。
+但对于计划 2，“param1 = ?” 的 aConstraint[].usable 标志为 false，因为右侧值由内部循环决定，因此是未知量。由于 param1 是表值函数的一个必需输入，因此在处理计划 2 时 xBestIndex 方法应返回 SQLITE_CONSTRAINT，表示缺少必需输入。这将迫使查询规划器选择计划 1。
+
+<a name="xdisconnect"></a>
+
+</p><h2 id="the_xdisconnect_method"><span>2.4. </span>The xDisconnect Method</h2>
+
+<div class="codeblock"><pre>int (*xDisconnect)(sqlite3_vtab *pVTab);
+</pre></div>
+
+<p>此方法释放与虚拟表的连接。只有 <a href="c3ref/vtab.html">sqlite3_vtab</a> 对象会被销毁。虚拟表本身不会被销毁，并且与虚拟表关联的任何底层存储都会持续存在。
+
+此方法撤销 <a href="vtab.html#xconnect">xConnect</a> 所做的工作。
+
+</p><p>此方法相当于虚拟表连接的析构函数。
+与 <a href="vtab.html#sqlite3_module.xDestroy">xDestroy</a> 方法相比，xDestroy 是整个虚拟表的析构函数。
+
+</p><p>每个虚拟表实现都必须提供 xDisconnect 方法，尽管如果某个虚拟表的实际情况适合，xDisconnect 与 <a href="vtab.html#sqlite3_module.xDestroy">xDestroy</a> 方法可以使用同一个函数。
+
+<a name="sqlite3_module.xDestroy"></a>
+
+</p><h2 id="the_xdestroy_method"><span>2.5. </span>The xDestroy Method</h2>
+
+<div class="codeblock"><pre>int (*xDestroy)(sqlite3_vtab *pVTab);
+</pre></div>
+
+<p>此方法也会释放与虚拟表的连接，就像 <a href="vtab.html#xdisconnect">xDisconnect</a> 方法一样，并且还会销毁底层的表实现。此方法撤销 <a href="vtab.html#xcreate">xCreate</a> 所做的工作。
+
+</p><p>每当关闭使用虚拟表的数据库连接时，都会调用 <a href="vtab.html#xdisconnect">xDisconnect</a> 方法。只有在针对虚拟表执行 <a href="lang_droptable.html">DROP TABLE</a> 语句时，才会调用 xDestroy 方法。
+
+</p><p>每个虚拟表实现都必须提供 xDestroy 方法，尽管如果某个虚拟表的实际情况适合，<a href="vtab.html#xdisconnect">xDisconnect</a> 与 xDestroy 方法可以使用同一个函数。
+
+<a name="xopen"></a>
+
+</p><h2 id="the_xopen_method"><span>2.6. </span>The xOpen Method</h2>
+
+<div class="codeblock"><pre>int (*xOpen)(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor);
+</pre></div>
+
+<p>xOpen 方法创建一个用于访问（读取和/或写入）虚拟表的新游标。成功调用此方法将为 <a href="c3ref/vtab_cursor.html">sqlite3_vtab_cursor</a>（或其子类）分配内存，初始化该对象，并使 *ppCursor 指向该对象。成功调用后返回 <a href="rescode.html#ok">SQLITE_OK</a>。
+
+</p><p>每当此方法成功调用一次，SQLite 核心稍后都会调用 <a href="vtab.html#xclose">xClose</a> 方法来销毁分配的游标。
+
+</p><p>xOpen 方法无需初始化 <a href="c3ref/vtab_cursor.html">sqlite3_vtab_cursor</a> 结构中的 pVtab 字段。SQLite 核心会自动处理此项工作。
+
+</p><p>虚拟表实现必须能够支持任意数量的游标同时打开。
+
+</p><p>刚打开时，游标处于未定义状态。在尝试定位或读取游标之前，SQLite 核心会在该游标上调用 <a href="vtab.html#xfilter">xFilter</a> 方法。
+
+</p><p>xOpen 方法是每个虚拟表实现所必需的。
+
+<a name="xclose"></a>
+
+</p><h2 id="the_xclose_method"><span>2.7. </span>The xClose Method</h2>
+
+<div class="codeblock"><pre>int (*xClose)(sqlite3_vtab_cursor*);
+</pre></div>
+
+<p>xClose 方法关闭先前由 <a href="vtab.html#xopen">xOpen</a> 打开的游标。SQLite 核心会对每个通过 xOpen 打开的游标调用 xClose 一次。
+
+</p><p>此方法必须释放相应 xOpen 调用分配的所有资源。即使它返回错误，SQLite 核心也不会再次调用该例程。关闭后，SQLite 核心不会再使用该 <a href="c3ref/vtab_cursor.html">sqlite3_vtab_cursor</a>。
+
+</p><p>xClose 方法是每个虚拟表实现所必需的。
+
+<a name="xeof"></a>
+
+</p><h2 id="the_xeof_method"><span>2.8. </span>The xEof Method</h2>
+
+<div class="codeblock"><pre>int (*xEof)(sqlite3_vtab_cursor*);
+</pre></div>
+
+<p>xEof 方法必须在指定游标当前指向有效数据行时返回 false（零），否则返回 true（非零）。在每次调用 <a href="vtab.html#xfilter">xFilter</a> 和 <a href="vtab.html#xnext">xNext</a> 之后，SQL 引擎会立即调用此方法。
+
+</p><p>xEof 方法是每个虚拟表实现所必需的。
+
+<a name="xfilter"></a>
+
+</p><h2 id="the_xfilter_method"><span>2.9. </span>The xFilter Method</h2>
+
+<div class="codeblock"><pre>int (*xFilter)(sqlite3_vtab_cursor*, int idxNum, const char *idxStr,
+              int argc, sqlite3_value **argv);
+</pre></div>
+
+<p>此方法开始搜索虚拟表。
+第一个参数是由 <a href="vtab.html#xopen">xOpen</a> 打开的游标。
+接下来的两个参数定义了由 <a href="vtab.html#xbestindex">xBestIndex</a> 预先选择的特定搜索索引。只要 xFilter 与 xBestIndex 对该含义达成一致，idxNum 与 idxStr 的具体意义并不重要。
+
+</p><p>xBestIndex 函数可能使用 <a href="c3ref/index_info.html">sqlite3_index_info</a> 结构的 aConstraintUsage[].argvIndex 值请求某些表达式的值。这些值通过 argc 和 argv 参数传递给 xFilter。
+
+</p><p>如果虚拟表包含一行或多行与搜索条件匹配，则游标必须指向第一行。随后对 <a href="vtab.html#xeof">xEof</a> 的调用必须返回 false（零）。如果没有匹配的行，则游标必须保持在一个状态，使得 <a href="vtab.html#xeof">xEof</a> 返回 true（非零）。SQLite 引擎将使用 <a href="vtab.html#xcolumn">xColumn</a> 和 <a href="vtab.html#xrowid">xRowid</a> 方法访问该行内容。<a href="vtab.html#xnext">xNext</a> 方法用于推进到下一行。
+
+</p><p>此方法在成功时必须返回 <a href="rescode.html#ok">SQLITE_OK</a>，若出现错误则返回相应的 <a href="rescode.html">错误代码</a>。
+
+</p><p>xFilter 方法是每个虚拟表实现所必需的。
+
+<a name="xnext"></a>
+
+</p><h2 id="the_xnext_method"><span>2.10. </span>The xNext Method</h2>
+
+<div class="codeblock"><pre>int (*xNext)(sqlite3_vtab_cursor*);
+</pre></div>
+
+<p>xNext 方法将 <a href="c3ref/vtab_cursor.html">虚拟表游标</a> 推进到由 <a href="vtab.html#xfilter">xFilter</a> 启动的结果集的下一行。如果在调用此例程时游标已指向最后一行，则游标将不再指向有效数据，后续对 <a href="vtab.html#xeof">xEof</a> 的调用必须返回 true（非零）。如果游标成功推进到另一行内容，则随后的 <a href="vtab.html#xeof">xEof</a> 必须返回 false（零）。
+
+</p><p>此方法在成功时必须返回 <a href="rescode.html#ok">SQLITE_OK</a>，若出现错误则返回相应的 <a href="rescode.html">错误代码</a>。
+
+</p><p>xNext 方法是每个虚拟表实现所必需的。
+
+<a name="xcolumn"></a>
+
+</p><h2 id="the_xcolumn_method"><span>2.11. </span>The xColumn Method</h2>
+
+<div class="codeblock"><pre>int (*xColumn)(sqlite3_vtab_cursor*, sqlite3_context*, int N);
+</pre></div>
+
+<p>SQLite 核心调用此方法以查找当前行第 N 列的值。N 以零为基数，因此第一列编号为 0。
+xColumn 方法可以通过以下接口之一将其结果返回给 SQLite：
+
+</p><p>
+</p><ul>
+<li> <a href="c3ref/result_blob.html">sqlite3_result_blob()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_blob64()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_double()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_int()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_int64()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_null()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_pointer()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_text()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_text16()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_text16le()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_text16be()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_text64()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_value()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_zeroblob()</a>
+</li><li> <a href="c3ref/result_blob.html">sqlite3_result_zeroblob64()</a>
+</li></ul>
+
+
+<p>如果 xColumn 方法实现不调用上述任何函数，则该列的值默认为 SQL NULL。
+
+</p><p>若要引发错误，xColumn 方法应使用其中一个 result_text() 方法设置错误消息文本，然后返回相应的 <a href="rescode.html">错误代码</a>。xColumn 方法在成功时必须返回 <a href="rescode.html#ok">SQLITE_OK</a>。
+
+</p><p>xColumn 方法是每个虚拟表实现所必需的。
+
+<a name="xrowid"></a>
+
+</p><h2 id="the_xrowid_method"><span>2.12. </span>The xRowid Method</h2>
+
+<div class="codeblock"><pre>int (*xRowid)(sqlite3_vtab_cursor *pCur, sqlite3_int64 *pRowid);
+</pre></div>
+
+<p>成功调用此方法后，*pRowid 将被填充为该 <a href="lang_createtable.html#rowid">rowid</a>，即 <a href="c3ref/vtab_cursor.html">虚拟表游标</a> pCur 当前指向的行。此方法在成功时返回 <a href="rescode.html#ok">SQLITE_OK</a>，失败时返回相应的 <a href="rescode.html">错误代码</a>。
+
+</p><p>xRowid 方法是每个虚拟表实现所必需的。
+
+<a name="xupdate"></a>
+
+</p><h2 id="the_xupdate_method"><span>2.13. </span>The xUpdate Method</h2>
+
+<div class="codeblock"><pre>int (*xUpdate)(
+  sqlite3_vtab *pVTab,
+  int argc,
+  sqlite3_value **argv,
+  sqlite_int64 *pRowid
+);
+</pre></div>
+
+<p>对虚拟表所做的所有更改都通过 xUpdate 方法完成。这个方法既可用于插入，也可用于删除或更新。
+
+</p><p>argc 参数指定 argv 数组中的条目数。对于纯删除操作，argc 的值为 1；对于插入、替换或更新操作，argc 的值为 N+2，其中 N 是表中的列数。上述描述中的 N 包括任何隐藏列。
+
+</p><p>每个 argv 条目在 C 中都有非 NULL 的值，但可能包含 SQL 值 NULL。换言之，对于 <b>i</b> 在 0 到 <tt>argc-1</tt> 之间，总是满足 <tt>argv&#91;i&#93;!=0</tt>。不过，可能会出现 <tt>sqlite3_value_type(argv&#91;i&#93;)==SQLITE_NULL</tt> 的情况。
+
+</p><p>argv[0] 参数是要删除的虚拟表中某行的 <a href="lang_createtable.html#rowid">rowid</a>。如果 argv[0] 是 SQL NULL，则不会执行删除。
+
+</p><p>argv[1] 参数是要插入到虚拟表中的新行的 rowid。如果 argv[1] 是 SQL NULL，则实现必须为新插入的行选择一个 rowid。后续的 argv[] 条目依次包含虚拟表列的值，顺序与列声明的顺序一致。列数将与 <a href="vtab.html#xconnect">xConnect</a> 或 <a href="vtab.html#xcreate">xCreate</a> 方法通过 <a href="c3ref/declare_vtab.html">sqlite3_declare_vtab()</a> 调用所做的表声明相匹配。所有隐藏列均包含在内。
+
+</p><p>在对使用 ROWID 的虚拟表执行无 rowid 插入（argc&gt;1 且 argv[1] 为 SQL NULL）时（但在 <a href="vtab.html#worid">WITHOUT ROWID 虚拟表</a> 中除外），实现必须将 *pRowid 设置为新插入行的 rowid；该值将成为 <a href="c3ref/last_insert_rowid.html">sqlite3_last_insert_rowid()</a> 函数返回的值。其他情况下设置该值无害且会被忽略；当 argc==1 或 argv[1] 不是 SQL NULL 时，SQLite 引擎会忽略 *pRowid 返回值。
+
+</p><p>每次调用 xUpdate 都会落入下方所示的某种情况。请注意，对 <b>argv&#91;i&#93;</b> 的引用指的是 argv&#91;i&#93; 对象中所保存的 SQL 值，而不是 argv&#91;i&#93; 对象本身。
+
+</p><blockquote>
+<dl>
+<dt><b>argc = 1 <br> argv[0] &ne; NULL</b>
+</dt><dd><p>
+DELETE：删除 rowid 或 PRIMARY KEY 等于 argv[0] 的行。
+不执行插入。
+
+</p></dd><dt><b>argc &gt; 1 <br> argv[0] = NULL</b>
+</dt><dd><p>
+INSERT：插入一行，新行的列值取自 argv[2] 及后续条目。在 rowid 虚拟表中，如果 argv[1] 是 SQL NULL，则会自动生成新的唯一 rowid。对于 <a href="vtab.html#worid">WITHOUT ROWID 虚拟表</a>，argv[1] 将为 NULL，在这种情况下，应从 argv[2] 及其后续条目中适当列提取 PRIMARY KEY 值。
+
+</p></dd><dt><b>argc &gt; 1 <br> argv[0] &ne; NULL <br> argv[0] = argv[1]</b>
+</dt><dd><p>
+UPDATE：
+将 rowid 或 PRIMARY KEY 为 argv[0] 的行更新为 argv[2] 及后续参数中的新值。
+
+</p></dd><dt><b>argc &gt; 1 <br> argv[0] &ne; NULL <br> argv[0] &ne; argv[1]</b>
+</dt><dd><p>
+UPDATE 且 rowid 或 PRIMARY KEY 改变：
+将 rowid 或 PRIMARY KEY 为 argv[0] 的行更新为 argv[1] 中的新 rowid 或 PRIMARY KEY，并使用 argv[2] 及后续参数中的新值。当 SQL 语句更新 rowid 时会发生这种情况，例如语句：
+</p><blockquote>
+   <a href="lang_update.html">UPDATE</a> table SET rowid=rowid+1 WHERE ...; 
+</blockquote>
+</dd></dl>
+</blockquote>
+
+<p>xUpdate 方法只有在成功时才应返回 <a href="rescode.html#ok">SQLITE_OK</a>。如果发生失败，则必须返回相应的 <a href="rescode.html">错误代码</a>。发生失败时，pVTab->zErrMsg 元素可以选择性地替换为通过诸如 <a href="c3ref/mprintf.html">sqlite3_mprintf()</a> 或 <a href="c3ref/free.html">sqlite3_malloc()</a> 之类的 SQLite 分配函数分配的内存中存储的错误消息文本。
+
+</p><p>如果 xUpdate 方法违反了虚拟表的某些约束（包括但不限于企图存储错误的数据类型、企图存储过大或过小的值、或者企图更改只读值），则 xUpdate 必须以适当的 <a href="rescode.html">错误代码</a> 失败。
+
+</p><p>如果 xUpdate 方法正在执行 UPDATE，那么可以使用 <a href="c3ref/value_blob.html">sqlite3_value_nochange(X)</a> 来判断虚拟表的哪些列实际上被 UPDATE 语句修改过。<a href="c3ref/value_blob.html">sqlite3_value_nochange(X)</a> 接口对于未改变的列返回 true。在每次 UPDATE 中，SQLite 会先分别调用 <a href="vtab.html#xcolumn">xColumn</a> 以获取所有未变化列的值。<a href="vtab.html#xcolumn">xColumn</a> 方法可以通过调用 <a href="c3ref/vtab_nochange.html">sqlite3_vtab_nochange()</a> 来检查该列在 SQL 层面上是否未改变。如果 <a href="vtab.html#xcolumn">xColumn</a> 发现某列未被修改，它应在未使用任一 <a href="c3ref/result_blob.html">sqlite3_result_xxxxx()</a> 接口设置结果的情况下直接返回。只有在这种情况下，<a href="c3ref/value_blob.html">sqlite3_value_nochange()</a> 在 xUpdate 中才会返回 true。如果 <a href="vtab.html#xcolumn">xColumn</a> 调用了一个或多个 <a href="c3ref/result_blob.html">sqlite3_result_xxxxx()</a> 接口，则 SQLite 将其理解为该列值发生了变化，并且该列在 xUpdate 中的 <a href="c3ref/value_blob.html">sqlite3_value_nochange()</a> 调用会返回 false。
+
+</p><p>在调用 xUpdate 方法时，可能已有一个或多个 <a href="c3ref/vtab_cursor.html">sqlite3_vtab_cursor</a> 对象在虚拟表实例上打开并处于使用状态，甚至可能正指向虚拟表的某一行。xUpdate 的实现必须准备应对来自其他已存在游标的删除或修改行的尝试。如果虚拟表无法容纳此类更改，则 xUpdate 方法必须返回 <a href="rescode.html">错误代码</a>。
+
+</p><p>xUpdate 方法是可选的。
+如果虚拟表的 <a href="c3ref/module.html">sqlite3_module</a> 中的 xUpdate 指针为空，则该虚拟表为只读。
+
+<a name="xfindfunction"></a>
+
+</p><h2 id="the_xfindfunction_method"><span>2.14. </span>The xFindFunction Method</h2>
+
+<div class="codeblock"><pre>int (*xFindFunction)(
+  sqlite3_vtab *pVtab,
+  int nArg,
+  const char *zName,
+  void (**pxFunc)(sqlite3_context*,int,sqlite3_value**),
+  void **ppArg
+);
+</pre></div>
+
+<p>在 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 过程中调用此方法，以便虚拟表实现有机会重载函数。此方法可以设置为 NULL，此时不会进行任何重载。
+
+</p><p>当函数将虚拟表的某列作为其第一个参数时，会调用此方法以确定虚拟表是否希望重载该函数。前三个参数为输入：虚拟表、函数参数个数以及函数名。如果不需要重载，则此方法返回 0。若要重载函数，此方法应该将新的函数实现写入 *pxFunc，将用户数据写入 *ppArg，并返回 1 或介于 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_FUNCTION</a> 与 255 之间的某个数字。
+
+</p><p>历史上，xFindFunction() 的返回值只有零或一。零表示不重载函数，一表示重载。支持返回 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_FUNCTION</a> 或更大值的能力在 3.25.0 版本（2018-09-15）中新增。如果 xFindFunction 返回 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_FUNCTION</a> 或更大，则表示该函数需要两个参数，并且该函数可以在查询的 WHERE 子句中作为布尔值使用，虚拟表能够利用该函数来加速查询结果。当 xFindFunction 返回 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_FUNCTION</a> 或更大时，返回值会成为传递给 <a href="vtab.html#xbestindex">xBestIndex()</a> 的约束之一在 <a href="c3ref/index_info.html">sqlite3_index_info</a>.aConstraint.op 中的值。函数的第一个参数对应于该约束的 aConstraint[].iColumn 字段所标识的列，第二个参数对应将传递给 <a href="vtab.html#xfilter">xFilter()</a> 的值（如果设置了 aConstraintUsage[].argvIndex）或 <a href="c3ref/vtab_rhs_value.html">sqlite3_vtab_rhs_value()</a> 返回的值。
+
+</p><p><a href="geopoly.html">Geopoly 模块</a> 是利用 <a href="c3ref/c_index_constraint_eq.html">SQLITE_INDEX_CONSTRAINT_FUNCTION</a> 提升性能的虚拟表示例。Geopoly 的 xFindFunction() 方法在 <a href="geopoly.html#goverlap">geopoly_overlap()</a> SQL 函数返回 SQLITE_INDEX_CONSTRAINT_FUNCTION，在 <a href="geopoly.html#gwithin">geopoly_within()</a> SQL 函数返回 SQLITE_INDEX_CONSTRAINT_FUNCTION+1。这样可以为如下查询提供搜索优化：
+
+</p><div class="codeblock"><pre>SELECT * FROM geopolytab WHERE geopoly_overlap(_shape, $query_polygon);
+SELECT * FROM geopolytab WHERE geopoly_within(_shape, $query_polygon);
+</pre></div>
+
+<p>请注意，中缀函数（<a href="lang_expr.html#like">LIKE</a>、<a href="lang_expr.html#glob">GLOB</a>、<a href="lang_expr.html#regexp">REGEXP</a> 和 <a href="lang_expr.html#match">MATCH</a>）会颠倒其参数顺序。因此 “like(A,B)” 通常等同于 “B like A”。
+然而，xFindFunction() 总是查看最左边的参数，而不是第一个逻辑参数。
+因此，对于形式 “B like A”，SQLite 会查看左操作数 “B”，如果该操作数是虚拟表列，则会在该虚拟表上调用 xFindFunction()。
+但若使用形式 “like(A,B)”，则 SQLite 会检查 A 项是否为虚拟表列，如果是，则会在该列所属虚拟表上调用 xFindFunction()。
+
+</p><p>此例程返回的函数指针必须在第一个参数提供的 <a href="c3ref/vtab.html">sqlite3_vtab</a> 对象的生命周期内保持有效。
+
+<a name="xBegin"></a>
+
+</p><h2 id="the_xbegin_method"><span>2.15. </span>The xBegin Method</h2>
+
+<div class="codeblock"><pre>int (*xBegin)(sqlite3_vtab *pVTab);
+</pre></div>
+
+<p>此方法在虚拟表上开始一个事务。
+此方法是可选的。<a href="c3ref/module.html">sqlite3_module</a> 的 xBegin 指针可以为 NULL。
+
+</p><p>此方法之后总会紧跟一次调用，调用目标要么是 <a href="vtab.html#xcommit">xCommit</a>，要么是 <a href="vtab.html#xrollback">xRollback</a>。虚拟表事务不嵌套，因此在一次 <a href="vtab.html#xcommit">xCommit</a> 或 <a href="vtab.html#xrollback">xRollback</a> 之间，不会多次调用 xBegin。
+在 xBegin 与随后的 <a href="vtab.html#xcommit">xCommit</a> 或 <a href="vtab.html#xrollback">xRollback</a> 之间，可能会调用多个其他方法。
+
+<a name="xsync"></a>
+</p><h2 id="the_xsync_method"><span>2.16. </span>xSync 方法</h2>
+
+<div class="codeblock"><pre>int (*xSync)(sqlite3_vtab *pVTab);
+</pre></div>
+
+
+<p>此方法表示虚拟表的两阶段提交开始。
+此方法是可选的。<a href="c3ref/module.html">sqlite3_module</a> 的 xSync 指针可能为 NULL。
+
+</p><p>此方法仅在调用过 <a href="vtab.html#xBegin">xBegin</a> 方法之后、<a href="vtab.html#xcommit">xCommit</a> 或 <a href="vtab.html#xrollback">xRollback</a> 之前被调用。为了实现两阶段提交，在对任一虚拟表调用 <a href="vtab.html#xcommit">xCommit</a> 方法之前，所有虚拟表的 xSync 方法都会先被调用。如果任意一个 xSync 方法失败，则整个事务会回滚。
+
+<a name="xcommit"></a>
+
+</p><h2 id="the_xcommit_method"><span>2.17. </span>xCommit 方法</h2>
+
+<div class="codeblock"><pre>int (*xCommit)(sqlite3_vtab *pVTab);
+</pre></div>
+
+<p>此方法使虚拟表事务提交。
+此方法是可选的。<a href="c3ref/module.html">sqlite3_module</a> 的 xCommit 指针可能为 NULL。
+
+</p><p>调用此方法总是紧随先前对 <a href="vtab.html#xBegin">xBegin</a> 和 <a href="vtab.html#xsync">xSync</a> 的调用之后。
+
+
+<a name="xrollback"></a>
+
+</p><h2 id="the_xrollback_method"><span>2.18. </span>xRollback 方法</h2>
+
+<div class="codeblock"><pre>int (*xRollback)(sqlite3_vtab *pVTab);
+</pre></div>
+
+<p>此方法使虚拟表事务回滚。
+此方法是可选的。<a href="c3ref/module.html">sqlite3_module</a> 的 xRollback 指针可能为 NULL。
+
+</p><p>调用此方法总是紧随先前对 <a href="vtab.html#xBegin">xBegin</a> 的调用之后。
+
+
+<a name="xrename"></a>
+
+</p><h2 id="the_xrename_method"><span>2.19. </span>xRename 方法</h2>
+
+<div class="codeblock"><pre>int (*xRename)(sqlite3_vtab *pVtab, const char *zNew);
+</pre></div>
+
+<p>此方法通知虚拟表实现层虚拟表即将被赋予新名称。
+如果此方法返回 <a href="rescode.html#ok">SQLITE_OK</a>，SQLite 会重命名该表。
+如果此方法返回<a href="rescode.html">错误代码</a>，则重命名会被阻止。
+
+</p><p>xRename 方法是可选的。如果省略该方法，则不能使用 ALTER TABLE RENAME 命令重命名虚拟表。
+
+</p><p>在调用此方法之前会启用 <a href="pragma.html#pragma_legacy_alter_table">PRAGMA legacy_alter_table</a> 设置，并在方法完成后恢复 legacy_alter_table 的值。对于使用<a href="vtab.html#xshadowname">shadow tables</a> 的虚拟表实现，这一点是必需的，因为 shadow tables 必须重命名以匹配新的虚拟表名称。如果 legacy_alter_format 关闭，则每当 xRename 方法尝试更改 shadow table 的名称时，都会为该虚拟表调用 xConnect 方法。
+
+<a name="xsavepoint"></a>
+
+</p><h2 id="the_xsavepoint_xrelease_and_xrollbackto_methods"><span>2.20. </span>xSavepoint、xRelease 和 xRollbackTo 方法</h2>
+
+<div class="codeblock"><pre>int (*xSavepoint)(sqlite3_vtab *pVtab, int);
+int (*xRelease)(sqlite3_vtab *pVtab, int);
+int (*xRollbackTo)(sqlite3_vtab *pVtab, int);
+</pre></div>
+
+<p>
+这些方法为虚拟表实现提供了实现嵌套事务的机会。它们始终是可选的，且仅在 SQLite <a href="releaselog/3_7_7.html">version 3.7.7</a>（2011-06-23）及更高版本中调用。
+</p>
+
+<p>
+当调用 xSavepoint(X,N) 时，表示通知虚拟表 X 应保存其当前状态为保存点 N。
+随后的 xRollbackTo(X,R) 调用意味着虚拟表的状态应恢复到上一次调用 xSavepoint(X,R) 时的状态。
+调用 xRollbackTo(X,R) 将使所有 N>R 的保存点失效；这些失效的保存点在重新通过 xSavepoint() 初始化之前不会被回滚或释放。
+调用 xRelease(X,M) 会使所有 N>=M 的保存点失效。
+</p>
+
+<p>
+除非在 xBegin() 与 xCommit() 或 xRollback() 之间，否则不会调用 xSavepoint()、xRelease() 或 xRollbackTo() 方法。
+</p>
+
+<a name="xshadowname"></a>
+
+<h2 id="the_xshadowname_method"><span>2.21. </span>xShadowName 方法</h2>
+
+<p>一些虚拟表实现（例如：<a href="fts3.html">FTS3</a>、<a href="fts5.html">FTS5</a> 和 <a href="rtree.html">RTREE</a>）使用真实（非虚拟）数据库表来存储内容。例如，当内容插入到 FTS3 虚拟表时，最终会存储在名为 "%_content"、"%_segdir"、"%_segments"、"%_stat" 和 "%_docsize" 的真实表中，其中 "%" 是原始虚拟表的名称。这些为虚拟表存储内容的辅助真实表称为“shadow tables”。有关更多信息，请参阅
+(<a href="fts3.html#*shadowtab">1</a>),
+(<a href="fts5.html#fts5shadowtables">2</a>) 和
+(<a href="rtree.html#xshadow">3</a>)。
+
+</p><p>xShadowName 方法的存在是为了让 SQLite 确定某个真实表是否确实是虚拟表的 shadow table。
+
+</p><p>如果满足以下所有条件，SQLite 会认为某个真实表是 shadow table：
+</p><p>
+</p><ul>
+<li> 表名包含一个或多个 "_" 字符。
+</li><li> 表名中最后一个 "_" 之前的部分与使用 <a href="lang_createvtab.html">CREATE VIRTUAL TABLE</a> 创建的某个虚拟表的名称完全匹配。
+     （shadow tables 在<a href="vtab.html#epovtab">eponymous virtual tables</a>和<a href="vtab.html#tabfunc2">table-valued functions</a> 中不被识别。）
+</li><li> 虚拟表包含 xShadowName 方法。
+</li><li> xShadowName 方法在输入为表名最后一个 "_" 之后的部分时返回 true。
+</li></ul>
+
+<p>
+如果 SQLite 认为某个表是 shadow table，并且设置了 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive">SQLITE_DBCONFIG_DEFENSIVE</a> 标志，则 ordinary SQL 语句对该 shadow table 只读。shadow table 仍可写入，但只能通过某个虚拟表实现的方法内部调用的 SQL 来执行写操作。
+
+</p><p>
+xShadowName 方法的核心目标是保护 shadow tables 的内容不被恶意 SQL 损坏。每个使用 shadow tables 的虚拟表实现都应能检测并应对 shadow table 内容的损坏。然而，特定虚拟表实现中的 bug 可能允许人为破坏的 shadow table 导致崩溃或其他故障。xShadowName 机制旨在通过阻止普通 SQL 语句有意破坏 shadow tables 来避免零日漏洞。
+
+</p><p>
+shadow tables 默认是可读写的。
+只有在通过 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive">SQLITE_DBCONFIG_DEFENSIVE</a> 标志使用 <a href="c3ref/db_config.html">sqlite3_db_config()</a> 设置后，shadow tables 才变为只读。
+shadow tables 默认为可读写以保持向后兼容性。
+例如，<a href="cli.html">CLI</a> 的 <a href="cli.html#dump">.dump</a> 命令生成的 SQL 文本会直接写入 shadow tables。
+
+<a name="xintegrity"></a>
+
+</p><h2 id="the_xintegrity_method"><span>2.22. </span>xIntegrity 方法</h2>
+
+<p>
+如果 sqlite3_module 的 iVersion 为 4 或更高，且 xIntegrity 方法不为 NULL，则 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 和 <a href="pragma.html#pragma_quick_check">PRAGMA quick_check</a> 命令在处理时会调用 xIntegrity。如果 xIntegrity 方法将错误信息字符串写入第五个参数，则 PRAGMA integrity_check 会在其输出中报告该错误。换言之，xIntegrity 方法允许 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 命令验证存储在虚拟表中的内容完整性。
+
+</p><p>
+xIntegrity 方法调用时会传入五个参数：
+
+</p><ul>
+<li><b>pVTab</b> &rarr; 指向正在检查的虚拟表对象 <a href="c3ref/vtab.html">sqlite3_vtab</a> 的指针。
+</li><li><b>zSchema</b> &rarr; 定义虚拟表的模式名称（"main"、"temp" 等）。
+</li><li><b>zTabName</b> &rarr; 虚拟表的名称。
+</li><li><b>mFlags</b> &rarr; 用于指示这是“integrity_check”还是“quick_check”的标志。目前，此参数总是 0 或 1，尽管 SQLite 的未来版本可能会使用整数的其他位来指示附加的处理选项。
+</li><li><b>pzErr</b> &rarr; 此参数指向初始化为 NULL 的 “char*”。如果发现问题，xIntegrity() 实现应使 *pzErr 指向从 sqlite3_malloc() 或等效方法获得的错误字符串。
+</li></ul>
+
+<p>
+xIntegrity 方法通常应返回 SQLITE_OK——即使它发现了虚拟表内容中的问题。任何其他错误代码都表示 xIntegrity 方法在尝试评估虚拟表内容时自身遇到了问题。例如，如果发现 <a href="fts5.html">FTS5</a> 的倒排索引内部不一致，则 xIntegrity 方法应在 pzErr 参数中写入适当的错误消息并返回 SQLITE_OK。但如果 xIntegrity 方法因内存不足而无法完成其对虚拟表内容的评估，则应返回 SQLITE_NOMEM。
+
+</p><p>
+如果生成了错误消息，应从 <a href="c3ref/free.html">sqlite3_malloc64()</a> 或等效方法获取用于保存错误消息字符串的空间。当 xIntegrity 返回时，错误消息字符串的所有权会转移给 SQLite 核心。核心会在处理完错误消息后调用 <a href="c3ref/free.html">sqlite3_free()</a> 回收内存。调用 xIntegrity 方法的 PRAGMA integrity_check 命令不会更改返回的错误消息。xIntegrity 方法本身应在消息中包含虚拟表名称。zSchema 和 zTabName 参数就是为便于此目的而提供的。
+
+</p><p>
+mFlags 参数当前是布尔值（0 或 1），用于表示 xIntegrity 方法是因 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a>（mFlags==0）还是因 <a href="pragma.html#pragma_quick_check">PRAGMA quick_check</a>（mFlags==1）而调用。一般而言，xIntegrity 方法应尽其所能在 O(n) 时间内完成有效性检查，但仅在 \(mFlags&1)==0\) 时执行需要超线性时间的检查。SQLite 未来的版本可能会使用 mFlags 参数的高位来指示附加的处理选项。
+
+</p><p>
+xIntegrity 方法的支持添加于 SQLite version 3.44.0 (2023-11-01)。
+在同一版本中，许多内置虚拟表（如 <a href="fts3.html">FTS3</a>、<a href="fts5.html">FTS5</a> 和 <a href="rtree.html">RTREE</a>）也添加了 xIntegrity 方法，以便在执行 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 时自动检查这些表的内容一致性。
+</p><p align="center"><small><i>此页面最后更新于 2025-12-22 18:00:39Z </small></i></p>

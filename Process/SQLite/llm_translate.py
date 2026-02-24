@@ -35,7 +35,7 @@ TRANSLATION_MARKER = f"<!-- 由WaterRun使用{MODEL_LABEL}翻译, 2026年2月 --
 SKIP_MARKER = "<!-- Skip ... -->"
 
 # 超过此行数的文件写入跳过标记后直接跳过，不发送翻译请求
-MAX_LINES = 1000
+MAX_LINES = 2500
 
 # 重试策略：仅对"明确的服务端状态码"做重试，避免连接异常引发重复扣点
 MAX_RETRIES = 3

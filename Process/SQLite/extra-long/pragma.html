@@ -1,0 +1,1461 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>Pragma statements supported by SQLite</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="进入">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><h1 align="center">PRAGMA 语句</h1>
+
+
+
+<p>PRAGMA 语句是 SQLite 特有的 SQL 扩展，用于修改 SQLite 库的行为或查询 SQLite 库的内部（非表）数据。PRAGMA 语句通过与其他 SQLite 命令（例如 <a href="lang_select.html">SELECT</a>、<a href="lang_insert.html">INSERT</a>）相同的接口发出，但在以下几个重要方面有所不同：
+</p>
+<ul>
+<li>pragma 命令是 SQLite 专用的，不兼容任何其他 SQL 数据库引擎。
+<li>特定的 pragma 语句可能在未来的 SQLite 发行版中被移除或新增。没有向后兼容性的保证。
+<li>如果发出未知的 pragma，不会产生错误信息。未知的 pragma 会被简单忽略。这意味着如果 pragma 语句中有拼写错误，库不会通知用户这一事实。
+<li>某些 pragma 会在 SQL 编译阶段生效，而非执行阶段。这意味着如果使用 C 语言的 <a href="c3ref/prepare.html">sqlite3_prepare()</a>、<a href="c3ref/step.html">sqlite3_step()</a>、<a href="c3ref/finalize.html">sqlite3_finalize()</a> API（或包装接口中的类似函数），该 pragma 可能在 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 调用期间执行，而不是像普通 SQL 语句那样在 <a href="c3ref/step.html">sqlite3_step()</a> 调用期间执行。或者该 pragma 也可能像普通 SQL 语句一样在 sqlite3_step() 中运行。pragma 是否在 sqlite3_prepare() 期间或 sqlite3_step() 期间运行，取决于该 pragma 以及 SQLite 的具体版本。
+<li>SQL 语句前缀 <a href="lang_explain.html">EXPLAIN</a> 和 <a href="eqp.html">EXPLAIN QUERY PLAN</a> 仅影响该语句在 <a href="c3ref/step.html">sqlite3_step()</a> 执行期间的行为。这意味着在 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 阶段生效的 PRAGMA 语句无论是否以 “EXPLAIN” 为前缀，行为都相同。</li>
+</ul>
+
+<p>SQLite 的 C 语言 API 提供了 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpragma">SQLITE_FCNTL_PRAGMA</a> <a href="c3ref/file_control.html">文件控制</a>，它为 <a href="vfs.html">VFS</a> 实现提供机会添加新的 PRAGMA 语句或覆盖内置 PRAGMA 语句的含义。</p>
+
+
+<hr /><a name="syntax"></a>
+<h2>PRAGMA 命令语法</h2>
+<p><b><a href="syntax/pragma-stmt.html">pragma-stmt:</a></b>
+<button id='xfdf8cfee' onclick='hideorshow("xfdf8cfee","xd9ec3cf5")'>hide</button></p>
+ <div id='xd9ec3cf5' class='imgcontainer'>
+ <div style="max-width:824px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 824.352 99.576" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="32.4,17.28 20.88,21.6 20.88,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L26.64,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M47.52,32.4L104.371,32.4A15.12 15.12 0 0 0 119.491 17.28A15.12 15.12 0 0 0 104.371 2.16L47.52,2.16A15.12 15.12 0 0 0 32.4 17.28A15.12 15.12 0 0 0 47.52 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="75.9456" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">PRAGMA</text>
+<polygon points="155.491,17.28 143.971,21.6 143.971,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M119.491,17.28L149.731,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M170.611,32.4L266.976,32.4A15.12 15.12 0 0 0 282.096 17.28A15.12 15.12 0 0 0 266.976 2.16L170.611,2.16A15.12 15.12 0 0 0 155.491 17.28A15.12 15.12 0 0 0 170.611 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="218.794" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">schema-name</text>
+<polygon points="305.136,17.28 293.616,21.6 293.616,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M282.096,17.28L299.376,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M320.256,32.4A15.12 15.12 0 0 0 335.376 17.28A15.12 15.12 0 0 0 320.256 2.16A15.12 15.12 0 0 0 305.136 17.28A15.12 15.12 0 0 0 320.256 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="320.256" y="17.28" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">.</text>
+<polygon points="371.376,17.28 359.856,21.6 359.856,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M335.376,17.28L365.616,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M386.496,32.4L483.667,32.4A15.12 15.12 0 0 0 498.787 17.28A15.12 15.12 0 0 0 483.667 2.16L386.496,2.16A15.12 15.12 0 0 0 371.376 17.28A15.12 15.12 0 0 0 386.496 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="435.082" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">pragma-name</text>
+<polygon points="540.307,82.296 528.787,86.616 528.787,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M498.787,17.28 L 506.287,17.28 Q 513.787,17.28 513.787,32.28 L 513.787,67.296 Q 513.787,82.296 524.167,82.296 L 534.547,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M555.427,97.416A15.12 15.12 0 0 0 570.547 82.296A15.12 15.12 0 0 0 555.427 67.176A15.12 15.12 0 0 0 540.307 82.296A15.12 15.12 0 0 0 555.427 97.416Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="555.427" y="82.296" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">(</text>
+<polygon points="593.587,82.296 582.067,86.616 582.067,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M570.547,82.296L587.827,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M593.587,97.416L720.192,97.416L720.192,67.176L593.587,67.176Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="656.89" y="82.296" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">pragma-value</text>
+<polygon points="743.232,82.296 731.712,86.616 731.712,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M720.192,82.296L737.472,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M758.352,97.416A15.12 15.12 0 0 0 773.472 82.296A15.12 15.12 0 0 0 758.352 67.176A15.12 15.12 0 0 0 743.232 82.296A15.12 15.12 0 0 0 758.352 97.416Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="758.352" y="82.296" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">)</text>
+<polygon points="814.992,17.28 803.472,21.6 803.472,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M773.472,82.296 L 780.972,82.296 Q 788.472,82.296 788.472,67.296 L 788.472,32.28 Q 788.472,17.28 798.852,17.28 L 809.232,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="818.592" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="540.307,44.496 528.787,48.816 528.787,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M498.787,17.28 L 506.287,17.28 Q 513.787,17.28 513.787,30.888 Q 513.787,44.496 524.167,44.496 L 534.547,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M555.427,59.616A15.12 15.12 0 0 0 570.547 44.496L570.547,44.496A15.12 15.12 0 0 0 555.427 29.376A15.12 15.12 0 0 0 540.307 44.496L540.307,44.496A15.12 15.12 0 0 0 555.427 59.616Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="555.427" y="44.496" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">=</text>
+<polygon points="593.587,44.496 582.067,48.816 582.067,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M570.547,44.496L587.827,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M593.587,59.616L720.192,59.616L720.192,29.376L593.587,29.376Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="656.89" y="44.496" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">pragma-value</text>
+<polygon points="773.472,44.496 761.952,48.816 761.952,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M720.192,44.496L767.712,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M773.472,44.496 L 780.972,44.496 Q 788.472,44.496 788.472,36.996 L 788.472,29.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="656.89,17.28 645.37,21.6 645.37,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M498.787,17.28L651.13,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M656.89,17.28L803.472,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="218.794,44.496 207.274,48.816 207.274,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M119.491,17.28 L 126.991,17.28 Q 134.491,17.28 134.491,30.888 Q 134.491,44.496 149.491,44.496 L 198.034,44.496 L 213.034,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M218.794,44.496 L 335.376,44.496 Q 350.376,44.496 350.376,30.888 Q 350.376,17.28 357.876,17.28 L 365.376,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div>
+<p><b><a href="syntax/pragma-value.html">pragma-value:</a></b>
+<button id='x3665db7f' onclick='hideorshow("x3665db7f","x3bbaf48d")'>hide</button></p>
+ <div id='x3bbaf48d' class='imgcontainer'>
+ <div style="max-width:264px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 264.499 110.16" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="63.36,17.28 51.84,21.6 51.84,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L57.6,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M63.36,32.4L201.139,32.4L201.139,2.16L63.36,2.16Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="132.25" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">signed-number</text>
+<polygon points="255.139,17.28 243.619,21.6 243.619,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M201.139,17.28L249.379,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="258.739" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M78.48,70.2L105.61,70.2A15.12 15.12 0 0 0 120.73 55.08L120.73,55.08A15.12 15.12 0 0 0 105.61 39.96L78.48,39.96A15.12 15.12 0 0 0 63.36 55.08L63.36,55.08A15.12 15.12 0 0 0 78.48 70.2Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="92.0448" y="55.08" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">name</text>
+<path d="M78.48,108L171.734,108A15.12 15.12 0 0 0 186.854 92.88A15.12 15.12 0 0 0 171.734 77.76L78.48,77.76A15.12 15.12 0 0 0 63.36 92.88A15.12 15.12 0 0 0 78.48 108Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="125.107" y="92.88" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">signed-literal</text>
+<polygon points="63.36,92.88 51.84,97.2 51.84,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M21.84,17.28 L 29.34,17.28 Q 36.84,17.28 36.84,32.28 L 36.84,77.88 Q 36.84,92.88 47.22,92.88 L 57.6,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="201.139,92.88 189.619,97.2 189.619,88.56" style="fill:rgb(0,0,0)"/>
+<path d="M186.854,92.88L195.379,92.88"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M201.139,92.88 L 208.639,92.88 Q 216.139,92.88 216.139,77.88 L 216.139,32.28 Q 216.139,17.28 223.639,17.28 L 231.139,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="201.139,55.08 189.619,59.4 189.619,50.76" style="fill:rgb(0,0,0)"/>
+<path d="M120.73,55.08L195.379,55.08"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M201.139,55.08 L 208.639,55.08 Q 216.139,55.08 216.139,47.58 L 216.139,40.08"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="63.36,55.08 51.84,59.4 51.84,50.76" style="fill:rgb(0,0,0)"/>
+<path d="M36.84,39.96 L 36.84,47.52 Q 36.84,55.08 47.22,55.08 L 57.6,55.08"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div>
+<p><b><a href="syntax/signed-number.html">signed-number:</a></b>
+<button id='x2d7aeba4' onclick='hideorshow("x2d7aeba4","x42923210")'>show</button></p>
+ <div id='x42923210' style='display:none;' class='imgcontainer'>
+ <div style="max-width:292px"><svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 292.013 99.576" data-pikchr-date="20250319161943">
+<circle cx="5.76" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="50.88,44.496 39.36,48.816 39.36,40.176" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28 L 16.86,17.28 Q 24.36,17.28 24.36,30.888 Q 24.36,44.496 34.74,44.496 L 45.12,44.496"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M66,59.616A15.12 15.12 0 0 0 81.12 44.496L81.12,44.496A15.12 15.12 0 0 0 66 29.376A15.12 15.12 0 0 0 50.88 44.496L50.88,44.496A15.12 15.12 0 0 0 66 59.616Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="66" y="44.496" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">+</text>
+<polygon points="122.64,17.28 111.12,21.6 111.12,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M81.12,44.496 L 88.62,44.496 Q 96.12,44.496 96.12,30.888 Q 96.12,17.28 106.5,17.28 L 116.88,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M137.76,32.4L244.493,32.4A15.12 15.12 0 0 0 259.613 17.28A15.12 15.12 0 0 0 244.493 2.16L137.76,2.16A15.12 15.12 0 0 0 122.64 17.28A15.12 15.12 0 0 0 137.76 32.4Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="191.126" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">numeric-literal</text>
+<polygon points="282.653,17.28 271.133,21.6 271.133,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M259.613,17.28L276.893,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<circle cx="286.253" cy="17.28" r="3.6"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="50.88,82.296 39.36,86.616 39.36,77.976" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28 L 16.86,17.28 Q 24.36,17.28 24.36,32.28 L 24.36,67.296 Q 24.36,82.296 34.74,82.296 L 45.12,82.296"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M66,97.416A15.12 15.12 0 0 0 81.12 82.296L81.12,82.296A15.12 15.12 0 0 0 66 67.176A15.12 15.12 0 0 0 50.88 82.296L50.88,82.296A15.12 15.12 0 0 0 66 97.416Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="66" y="82.296" text-anchor="middle" font-weight="bold" fill="rgb(0,0,0)" dominant-baseline="central">-</text>
+<path d="M81.12,82.296 L 88.62,82.296 Q 96.12,82.296 96.12,67.296 L 96.12,44.376 L 96.12,29.376"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<polygon points="66,17.28 54.48,21.6 54.48,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M9.36,17.28L60.24,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M66,17.28L111.12,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+</svg>
+</div>
+</div>
+</div>
+</div>
+
+
+<p>
+一个 pragma 可以接受零个或一个参数。参数可以用括号括起，也可以用等号与 pragma 名称分隔。这两种语法产生相同的结果。
+在许多 pragma 中，参数是布尔值。布尔值可以是：
+</p>
+
+<center>
+<b>1 yes true on<br>0 no false off</b>
+</center>
+
+<p>关键字参数可以选择性地用引号括起。
+（示例：<tt>'yes' &#91;FALSE&#93;</tt>。）某些 pragma 接受字符串字面量作为参数。当 pragma 接受关键字参数时，通常也接受相应的数字形式。
+例如，“0”和“no”表示相同含义，“1”和“yes”也相同。在查询设置的值时，很多 pragma 返回的是数字而不是关键字。</p>
+
+<p>一个 pragma 可以在名称之前带有可选的 <span class='yyterm'>schema-name</span>。
+<span class='yyterm'>schema-name</span> 是 ATTACH-ed 数据库的名称，或主数据库的 “main” 以及 TEMP 数据库的 “temp”。如果省略可选的 schema 名称，则默认使用 “main”。在某些 pragma 中，schema 名称没有意义，仅仅被忽略。在下文的文档中，那些 schema 名称有意义的 pragma 会以 “<i>schema.</i>” 前缀展示。</p>
+
+
+<hr /><a name="pragfunc"></a>
+<h2>PRAGMA 函数</h2>
+
+
+<p>
+返回结果并且无副作用的 PRAGMA 可以通过普通的 <a href="lang_select.html">SELECT</a> 语句作为 <a href="vtab.html#tabfunc2">表值函数</a> 访问。
+对于每个参与的 PRAGMA，相应的表值函数名称与 PRAGMA 相同，并带有 7 字符的 “pragma_” 前缀。
+PRAGMA 的参数和 schema（如有）作为参数传递给表值函数，其中 schema 是可选的最后一个参数。</p>
+
+<p>例如，可以使用 <a href="pragma.html#pragma_index_info">index_info pragma</a> 读取索引列的信息，如下所示：</p>
+
+<blockquote><pre>
+PRAGMA index_info('idx52');
+</pre></blockquote>
+
+<p>或者，可以用下面的方式读取相同的内容：</p>
+
+<blockquote><pre>
+SELECT * FROM pragma_index_info('idx52');
+</pre></blockquote>
+
+<p>表值函数格式的优点在于查询可以只返回 PRAGMA 列的一部分，可以包含 WHERE 子句，可以使用聚合函数，并且表值函数可以作为连接中的多个数据源之一。
+例如，要获取模式中所有索引列的列表，可以查询：</p>
+
+<blockquote><pre>
+SELECT DISTINCT m.name || '.' || ii.name AS 'indexed-columns'
+  FROM sqlite_schema AS m,
+       pragma_index_list(m.name) AS il,
+       pragma_index_info(il.name) AS ii
+ WHERE m.type='table'
+ ORDER BY 1;
+</pre></blockquote>
+
+<p>附加说明：</p>
+<ul>
+<li><p>表值函数仅适用于内置 PRAGMA，而不适用于使用 <a href="c3ref/c_fcntl_begin_atomic_write.html#sqlitefcntlpragma">SQLITE_FCNTL_PRAGMA</a> 文件控制定义的 PRAGMA。</p></li>
+<li><p>表值函数仅适用于返回结果且无副作用的 PRAGMA。</p></li>
+<li><p>此功能可用于实现 <a href="https://en.wikipedia.org/wiki/Information_schema">information schema</a>，方法是首先使用以下命令创建一个单独的模式：</p>
+<blockquote><pre>
+<a href="lang_attach.html">ATTACH</a> ':memory:' AS 'information_schema';
+</pre></blockquote>
+然后在该模式中创建 <a href="lang_createview.html">VIEWs</a>，使用表值 PRAGMA 函数实现官方的信息模式表。</p></li>
+<li><p>PRAGMA 表值函数特性在 SQLite 版本 3.16.0（2017-01-02）中添加。早期版本的 SQLite 无法使用此特性。</p></li>
+</ul>
+
+<hr /><a name="toc"></a>
+<h2>PRAGMA 列表</h2>
+<div class='columns' style='columns: 12em auto;'>
+<ul style='padding-top:0;'>
+<li><a href='pragma.html#pragma_analysis_limit'>analysis_limit</a></li>
+<li><a href='pragma.html#pragma_application_id'>application_id</a></li>
+<li><a href='pragma.html#pragma_auto_vacuum'>auto_vacuum</a></li>
+<li><a href='pragma.html#pragma_automatic_index'>automatic_index</a></li>
+<li><a href='pragma.html#pragma_busy_timeout'>busy_timeout</a></li>
+<li><a href='pragma.html#pragma_cache_size'>cache_size</a></li>
+<li><a href='pragma.html#pragma_cache_spill'>cache_spill</a></li>
+<li><a href='pragma.html#pragma_case_sensitive_like'><s>case_sensitive_like&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_cell_size_check'>cell_size_check</a></li>
+<li><a href='pragma.html#pragma_checkpoint_fullfsync'>checkpoint_fullfsync</a></li>
+<li><a href='pragma.html#pragma_collation_list'>collation_list</a></li>
+<li><a href='pragma.html#pragma_compile_options'>compile_options</a></li>
+<li><a href='pragma.html#pragma_count_changes'><s>count_changes&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_data_store_directory'><s>data_store_directory&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_data_version'>data_version</a></li>
+<li><a href='pragma.html#pragma_database_list'>database_list</a></li>
+<li><a href='pragma.html#pragma_default_cache_size'><s>default_cache_size&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_defer_foreign_keys'>defer_foreign_keys</a></li>
+<li><a href='pragma.html#pragma_empty_result_callbacks'><s>empty_result_callbacks&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_encoding'>encoding</a></li>
+<li><a href='pragma.html#pragma_foreign_key_check'>foreign_key_check</a></li>
+<li><a href='pragma.html#pragma_foreign_key_list'>foreign_key_list</a></li>
+<li><a href='pragma.html#pragma_foreign_keys'>foreign_keys</a></li>
+<li><a href='pragma.html#pragma_freelist_count'>freelist_count</a></li>
+<li><a href='pragma.html#pragma_full_column_names'><s>full_column_names&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_fullfsync'>fullfsync</a></li>
+<li><a href='pragma.html#pragma_function_list'>function_list</a></li>
+<li><a href='pragma.html#pragma_hard_heap_limit'>hard_heap_limit</a></li>
+<li><a href='pragma.html#pragma_ignore_check_constraints'>ignore_check_constraints</a></li>
+<li><a href='pragma.html#pragma_incremental_vacuum'>incremental_vacuum</a></li>
+<li><a href='pragma.html#pragma_index_info'>index_info</a></li>
+<li><a href='pragma.html#pragma_index_list'>index_list</a></li>
+<li><a href='pragma.html#pragma_index_xinfo'>index_xinfo</a></li>
+<li><a href='pragma.html#pragma_integrity_check'>integrity_check</a></li>
+<li><a href='pragma.html#pragma_journal_mode'>journal_mode</a></li>
+<li><a href='pragma.html#pragma_journal_size_limit'>journal_size_limit</a></li>
+<li><a href='pragma.html#pragma_legacy_alter_table'>legacy_alter_table</a></li>
+<li><a href='pragma.html#pragma_legacy_file_format'>legacy_file_format</a></li>
+<li><a href='pragma.html#pragma_locking_mode'>locking_mode</a></li>
+<li><a href='pragma.html#pragma_max_page_count'>max_page_count</a></li>
+<li><a href='pragma.html#pragma_mmap_size'>mmap_size</a></li>
+<li><a href='pragma.html#pragma_module_list'>module_list</a></li>
+<li><a href='pragma.html#pragma_optimize'>optimize</a></li>
+<li><a href='pragma.html#pragma_page_count'>page_count</a></li>
+<li><a href='pragma.html#pragma_page_size'>page_size</a></li>
+<li><a href='pragma.html#pragma_parser_trace'>parser_trace&sup2;</a></li>
+<li><a href='pragma.html#pragma_pragma_list'>pragma_list</a></li>
+<li><a href='pragma.html#pragma_query_only'>query_only</a></li>
+<li><a href='pragma.html#pragma_quick_check'>quick_check</a></li>
+<li><a href='pragma.html#pragma_read_uncommitted'>read_uncommitted</a></li>
+<li><a href='pragma.html#pragma_recursive_triggers'>recursive_triggers</a></li>
+<li><a href='pragma.html#pragma_reverse_unordered_selects'>reverse_unordered_selects</a></li>
+<li><a href='pragma.html#pragma_schema_version'>schema_version&sup3;</a></li>
+<li><a href='pragma.html#pragma_secure_delete'>secure_delete</a></li>
+<li><a href='pragma.html#pragma_short_column_names'><s>short_column_names&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_shrink_memory'>shrink_memory</a></li>
+<li><a href='pragma.html#pragma_soft_heap_limit'>soft_heap_limit</a></li>
+<li><a href='pragma.html#pragma_stats'>stats&sup3;</a></li>
+<li><a href='pragma.html#pragma_synchronous'>synchronous</a></li>
+<li><a href='pragma.html#pragma_table_info'>table_info</a></li>
+<li><a href='pragma.html#pragma_table_list'>table_list</a></li>
+<li><a href='pragma.html#pragma_table_xinfo'>table_xinfo</a></li>
+<li><a href='pragma.html#pragma_temp_store'>temp_store</a></li>
+<li><a href='pragma.html#pragma_temp_store_directory'><s>temp_store_directory&sup1;</s></a></li>
+<li><a href='pragma.html#pragma_threads'>threads</a></li>
+<li><a href='pragma.html#pragma_trusted_schema'>trusted_schema</a></li>
+<li><a href='pragma.html#pragma_user_version'>user_version</a></li>
+<li><a href='pragma.html#pragma_vdbe_addoptrace'>vdbe_addoptrace&sup2;</a></li>
+<li><a href='pragma.html#pragma_vdbe_debug'>vdbe_debug&sup2;</a></li>
+<li><a href='pragma.html#pragma_vdbe_listing'>vdbe_listing&sup2;</a></li>
+<li><a href='pragma.html#pragma_vdbe_trace'>vdbe_trace&sup2;</a></li>
+<li><a href='pragma.html#pragma_wal_autocheckpoint'>wal_autocheckpoint</a></li>
+<li><a href='pragma.html#pragma_wal_checkpoint'>wal_checkpoint</a></li>
+<li><a href='pragma.html#pragma_writable_schema'>writable_schema&sup3;</a></li>
+</ul>
+</div>
+
+<p>注释：
+<ol>
+<li>名称带有 <s>删除线</s> 的 pragma 已弃用。请不要使用它们。它们仅为历史兼容性而存在。
+<li>这些 pragma 仅在使用非标准编译时选项构建时可用。
+<li>这些 pragma 用于测试 SQLite，不建议在应用程序中使用。</ol></p>
+<a name="pragma_analysis_limit"></a>
+<h _id=pragma_analysis_limit style="display:none"> PRAGMA analysis_limit</h><hr>
+   <p><b>PRAGMA analysis_limit;
+        <br>PRAGMA analysis_limit = </b><i>N</i><b>;</b></p>
+   <p>查询或更改 <a href="lang_analyze.html#approx">approximate ANALYZE</a> 设置的限制。
+      这是 <a href="lang_analyze.html">ANALYZE</a> 命令在每个索引中检查的大致行数。
+      如果省略了参数 <i>N</i>，那么分析限制保持不变。
+      如果限制为零，则禁用分析限制，ANALYZE 命令将检查每个索引的所有行。
+      如果 N 大于零，则分析限制设置为 N，随后的 ANALYZE 命令将在检查大约 N 行后停止分析每个索引。
+      如果 N 是负数或非整数值，则该 pragma 表现得好像省略了 N 参数。
+      无论哪种情况，返回的值都是用于随后的 ANALYZE 命令的新分析限制。
+   <p>此 pragma 可用于帮助 ANALYZE 命令在大型数据库上更快地运行。仅检查每个索引的一部分时，分析结果不是最理想，但通常足够好。将 N 设置为 100 或 1000 可以使 ANALYZE 命令即使在巨大的数据库文件上也能快速完成。
+   <p>此 pragma 在 SQLite 版本 3.32.0（2020-05-22）中添加。
+      当前实现仅使用 N 值的低 31 位 —— 高位静默忽略。SQLite 的未来版本可能会开始使用高位。
+   <p>从 SQLite 版本 3.46.0（2024-05-23）开始，推荐运行 <a href="lang_analyze.html">ANALYZE</a> 的方式是使用 <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> 命令。<a href="pragma.html#pragma_optimize">PRAGMA optimize</a> 会自动设置一个合理的、临时的分析限制，以确保 <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> 命令即使在巨大数据库上也能快速完成。使用 <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> 而不是直接运行 <a href="lang_analyze.html">ANALYZE</a> 的应用程序无需再设置分析限制。
+<a name="pragma_application_id"></a>
+<h _id=pragma_application_id style="display:none"> PRAGMA application_id</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>application_id;
+     <br>PRAGMA </b><i>schema.</i><b>application_id = </b><i>integer </i><b>;</b>
+  
+    <p>application_id PRAGMA 用于查询或设置位于 <a href="fileformat2.html#database_header">database header</a> 偏移量 68 处的 32 位有符号大端 “Application ID” 整数。将 SQLite 用作 <a href="appfileformat.html">application file-format</a> 的应用程序应将 Application ID 整数设置为唯一值，以便诸如 <a href="http://www.darwinsys.com/file/">file(1)</a> 等工具能确定具体文件类型，而不是仅仅报告 “SQLite3 Database”。SQLite 源代码仓库中的 <a href="https://sqlite.org/src/artifact?ci=trunk&filename=magic.txt">magic.txt</a> 文件可以查看已分配的 application ID 列表。
+
+<p>另请参见 <a href="pragma.html#pragma_user_version">user_version pragma</a>。
+<a name="pragma_auto_vacuum"></a>
+<h _id=pragma_auto_vacuum style="display:none"> PRAGMA auto_vacuum</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>auto_vacuum;<br>
+          PRAGMA </b><i>schema.</i><b>auto_vacuum = </b>
+           <i>0 | NONE | 1 | FULL | 2 | INCREMENTAL</i><b>;</b></p>
+
+    <p>查询或设置数据库中的自动清理状态。</p>
+
+    <p>除非使用 <a href="compile.html#default_autovacuum">SQLITE_DEFAULT_AUTOVACUUM</a> 编译时选项，否则 auto_vacuum 的默认设置为 0 或 “none”。“none” 表示禁用自动清理。
+    当禁用自动清理并从数据库中删除数据时，数据库文件大小保持不变。未使用的数据库文件页面被加入 “<a href="fileformat2.html#freelist">freelist</a>” 并在后续插入时重用。因此不会浪费数据库文件空间。但是，数据库文件不会收缩。在这种模式下，可以使用 <a href="lang_vacuum.html">VACUUM</a> 命令重建整个数据库文件，从而回收未使用的磁盘空间。</p>
+
+    <p>当 auto_vacuum 模式为 1 或 “full” 时，freelist 页面会被移动到数据库文件末尾，并在每次事务提交时截断以移除这些 freelist 页面。
+    不过请注意，auto-vacuum 仅从文件中截断 freelist 页面。auto-vacuum 不会像 <a href="lang_vacuum.html">VACUUM</a> 命令那样进行数据库碎片整理或重新打包单个数据库页面。事实上，由于它会在文件内部移动页面，auto-vacuum 实际上可能会使碎片情况更糟。</p>
+
+    <p>只有在数据库存储一些额外信息以使每个数据库页面可追溯到其引用页面时，自动清理才成为可能。因此，在创建任何表之前必须先开启自动清理。创建表之后无法再启用或禁用自动清理。</p>
+
+    <p>当 auto_vacuum 的值为 2 或 “incremental” 时，执行自动清理所需的额外信息会存储在数据库文件中，但自动清理不会像 auto_vacuum=full 那样在每次提交时自动发生。在增量模式下，必须调用单独的 <a href="pragma.html#pragma_incremental_vacuum">incremental_vacuum</a> pragma 来触发自动清理。</p>
+
+    <p>数据库连接可以在完整自动清理模式和增量模式之间随时切换。但是，从 “none” 更改为 “full” 或 “incremental” 只能在数据库是新的（尚未创建表）时进行，或者通过运行 <a href="lang_vacuum.html">VACUUM</a> 命令。要更改自动清理模式，首先使用 auto_vacuum pragma 设置新的所需模式，然后调用 <a href="lang_vacuum.html">VACUUM</a> 命令对整个数据库文件重新组织。要从 “full” 或 “incremental” 更改回 “none”，即使在空数据库上也必须运行 <a href="lang_vacuum.html">VACUUM</a>。
+    </p>
+
+    <p>当调用 auto_vacuum pragma 时不带参数，它会返回当前的 auto_vacuum 模式。</p>
+<a name="pragma_automatic_index"></a>
+<h _id=pragma_automatic_index style="display:none"> PRAGMA automatic_index</h><hr>
+    <p><b>PRAGMA automatic_index;
+     <br>PRAGMA automatic_index = </b><i>boolean</i><b>;</b></p>
+
+    <p>查询、设置或清除 <a href="optoverview.html#autoindex">automatic indexing</a> 功能。
+    <p><a href="optoverview.html#autoindex">Automatic indexing</a> 在 <a href="releaselog/3_7_17.html">version 3.7.17</a>（2013-05-20）及之后默认启用，
+    但这可能会在未来的 SQLite 发行版中有所变化。
+<a name="pragma_busy_timeout"></a>
+<h _id=pragma_busy_timeout style="display:none"> PRAGMA busy_timeout</h><hr>
+    <p><b>PRAGMA busy_timeout;
+         <br>PRAGMA busy_timeout = </b><i>milliseconds</i><b>;</b></p>
+    <p>查询或更改 <a href="c3ref/busy_timeout.html">busy timeout</a> 设置。
+    该 pragma 是 <a href="c3ref/busy_timeout.html">sqlite3_busy_timeout()</a> C 语言接口的替代方案，以便在不提供直接访问 <a href="c3ref/busy_timeout.html">sqlite3_busy_timeout()</a> 的语言绑定中使用。</p>
+
+    <p>每个数据库连接只能拥有一个 <a href="c3ref/busy_handler.html">busy handler</a>。该 PRAGMA 为进程设置 busy handler，可能会覆盖之前设置的 busy handler。</p>
+<a name="pragma_cache_size"></a>
+<h _id=pragma_cache_size style="display:none"> PRAGMA cache_size</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>cache_size;
+       <br>PRAGMA </b><i>schema.</i><b>cache_size = </b><i>pages</i><b>;
+       <br>PRAGMA </b><i>schema.</i><b>cache_size = -</b><i>kibibytes</i><b>;</b></p>
+    <p>查询或更改 SQLite 每个打开的数据库文件在内存中同时保持的建议最大数据库磁盘页面数。是否遵循该建议由 <a href="c3ref/pcache_methods2.html">Application Defined Page Cache</a> 决定。
+    内置的默认页面缓存会遵循该请求，但替代的应用定义页面缓存实现可能以不同方式解释建议的缓存大小，甚至完全忽略它。
+    默认建议的缓存大小为 -2000，意味着缓存大小限制为 2048000 字节的内存。
+    可以通过 <a href="compile.html#default_cache_size">SQLITE_DEFAULT_CACHE_SIZE</a> 编译时选项修改默认建议缓存大小。
+    TEMP 数据库的默认建议缓存大小为 0 页。</p>
+
+    <p>如果参数 N 为正，则建议的缓存大小设置为 N。如果 N 为负，则缓存页数调整为在当前页面大小基础上大约使用 abs(N*1024) 字节内存的页数。SQLite 会记住页面缓存中的页数，而不是所用内存量。因此如果使用负数设置缓存大小，然后再更改页面大小（使用 <a href="pragma.html#pragma_page_size">PRAGMA page_size</a> 命令），则最大缓存内存会按页面大小的变化相应增减。</p>
+
+    <p><i>向后兼容性说明：</i>在 <a href="releaselog/3_7_10.html">version 3.7.10</a>（2012-01-16）之前，cache_size 使用负值时的行为不同。在早期版本中，缓存的页数设置为 N 的绝对值。</p>
+
+    <p>通过 cache_size pragma 更改缓存大小后，该更改仅在当前会话中有效。关闭并重新打开数据库后，缓存大小会恢复为默认值。</p>
+
+    <p>默认的页面缓存实现不会一次性分配全部缓存内存。缓存内存在按需的基础上以较小的块分配。page_cache 设置是缓存可以使用的（建议）上限，而不是它将始终使用的内存量。这是默认页面缓存实现的行为，但<a href="c3ref/pcache_methods2.html">application defined page cache</a> 如果愿意可以表现得不同。
+<a name="pragma_cache_spill"></a>
+<h _id=pragma_cache_spill style="display:none"> PRAGMA cache_spill</h><hr>
+    <p><b>PRAGMA cache_spill;
+         <br>PRAGMA cache_spill=</b><i>boolean</i><b>;
+         <br>PRAGMA </b><i>schema.</i><b>cache_spill=<i>N</i>;</b></p>
+
+    <p>cache_spill pragma 启用或禁用页缓存在事务中将脏页面溢写到数据库文件的能力。cache_spill 默认为启用，大多数应用应保持这一状态，因为缓存溢写通常有利。
+    但是，缓存溢写有一个副作用：它会对数据库文件获取 <a href="lockingv3.html#excl_lock">EXCLUSIVE lock</a>。因此，一些具有长时间运行事务的应用可能希望禁用缓存溢写，以避免在事务 <a href="lang_transaction.html">COMMIT</a> 之前获取排他锁。
+    <p>“PRAGMA cache_spill=<i>N</i>” 形式的 pragma 设置触发溢写所需的最小缓存大小阈值。缓存中的页面数必须同时超过 cache_spill 阈值以及通过 <a href="pragma.html#pragma_cache_size">PRAGMA cache_size</a> 设置的最大缓存大小，才能发生溢写。</p>
+<p>“PRAGMA cache_spill=<i>boolean</i>” 形式的该 pragma 适用于连接的所有附加数据库。但该语句的 “PRAGMA cache_spill=<i>N</i>” 形式仅适用于 “main” 模式或语句中指定的其他模式。</p>
+<a name="pragma_case_sensitive_like"></a>
+<h _id=pragma_case_sensitive_like style="display:none"> PRAGMA case_sensitive_like</h><hr>
+<p><b>PRAGMA case_sensitive_like = </b><i>boolean</i><b>;</b></p>
+<p><a href="lang_expr.html#like">LIKE</a> 运算符的默认行为是对 ASCII 字符忽略大小写。因此默认情况下 <b>'a' LIKE 'A'</b> 为 true。case_sensitive_like pragma 会根据其值安装一个新的应用程序定义的 LIKE 函数，该函数要么区分大小写，要么不区分大小写。当 case_sensitive_like 被禁用时，应用默认的 LIKE 行为；当 case_sensitive_like 启用时，大小写变得敏感。因此，例如 <b>'a' LIKE 'A'</b> 为 false，但 <b>'a' LIKE 'a'</b> 依然为 true。</p>
+<p>该 pragma 使用 <a href="c3ref/create_function.html">sqlite3_create_function()</a> 来重载 LIKE 和 GLOB 函数，这可能会覆盖应用程序之前注册的 LIKE 和 GLOB 的实现。此 pragma 只改变 SQL <a href="lang_expr.html#like">LIKE</a> 运算符的行为。它不会改变 <a href="c3ref/strlike.html">sqlite3_strlike()</a> C 语言接口的行为，该接口始终不区分大小写。</p>
+<p><b>警告：</b>如果数据库在模式中任何地方都使用 LIKE 运算符，例如在 <a href="lang_createtable.html#ckconst">CHECK 约束</a> 中、在 <a href="expridx.html">表达式索引</a> 中，或在 <a href="partialindex.html">部分索引</a> 的 WHERE 子句中，则使用该 PRAGMA 更改 LIKE 运算符的定义可能导致数据库看起来已损坏。<a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a> 会报告错误。实际上数据库并未真正损坏，只需将 LIKE 的行为恢复到定义模式并填充数据库时的方式即可解决问题。如果 LIKE 仅在索引中使用，则可以通过运行 <a href="lang_reindex.html">REINDEX</a> 清除问题。尽管如此，不鼓励使用 case_sensitive_like pragma。</p>
+<p style='background-color: #ffd0d0;'>
+<b>此 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。当 SQLite 使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译时，可从构建中省略此 pragma。
+</p>
+<a name="pragma_cell_size_check"></a>
+<h _id=pragma_cell_size_check style="display:none"> PRAGMA cell_size_check</h><hr>
+<p><b>PRAGMA cell_size_check
+   <br>PRAGMA cell_size_check = </b><i>boolean</i><b>;</b></p>
+<p>cell_size_check pragma 在从磁盘首次读取数据库 b 树页时启用或禁用额外的合理性检查。启用页面大小检查时，可更早检测到数据库损坏，并且损坏不太可能“扩散”。不过，执行这些额外检查会带来一些性能损失，因此默认情况下关闭页面大小检查。</p>
+<a name="pragma_checkpoint_fullfsync"></a>
+<h _id=pragma_checkpoint_fullfsync style="display:none"> PRAGMA checkpoint_fullfsync</h><hr>
+<p><b>PRAGMA checkpoint_fullfsync
+   <br>PRAGMA checkpoint_fullfsync = </b><i>boolean</i><b>;</b></p>
+<p>查询或更改 <a href="wal.html#ckpt">checkpoint</a> 操作的 fullfsync 标志。如果设置了此标志，则在支持 F_FULLFSYNC 的系统上执行 checkpoint 操作时使用 F_FULLFSYNC 同步方法。checkpoint_fullfsync 标志的默认值为关闭。只有 Mac OS-X 支持 F_FULLFSYNC。</p>
+<p>如果设置了 <a href="pragma.html#pragma_fullfsync">fullfsync</a> 标志，则对所有同步操作都使用 F_FULLFSYNC 同步方法，此时 checkpoint_fullfsync 设置无关紧要。</p>
+<a name="pragma_collation_list"></a>
+<h _id=pragma_collation_list style="display:none"> PRAGMA collation_list</h><hr>
+<p><b>PRAGMA collation_list;</b></p>
+<p>返回为当前数据库连接定义的排序序列列表。</p>
+<a name="pragma_compile_options"></a>
+<h _id=pragma_compile_options style="display:none"> PRAGMA compile_options</h><hr>
+<p><b>PRAGMA compile_options;</b></p>
+<p>该 pragma 返回构建 SQLite 时使用的 <a href="compile.html">编译时选项</a> 的名称，每行一个选项。返回的选项名称会省略 “SQLITE_” 前缀。另请参见 <a href="c3ref/compileoption_get.html">sqlite3_compileoption_get()</a> C/C++ 接口以及 <a href="lang_corefunc.html#sqlite_compileoption_get">sqlite_compileoption_get()</a> SQL 函数。</p>
+<a name="pragma_count_changes"></a>
+<h _id=pragma_count_changes style="display:none"> PRAGMA count_changes</h><hr>
+<p><b>PRAGMA count_changes;
+   <br>PRAGMA count_changes = </b>boolean</i><b>;</b></p>
+<p>查询或更改 count-changes 标志。通常，当 count-changes 标志未设置时，<a href="lang_insert.html">INSERT</a>、<a href="lang_update.html">UPDATE</a> 和 <a href="lang_delete.html">DELETE</a> 语句不会返回数据。设置了 count-changes 时，这些命令中的每一个都会返回一行数据，该行包含一个整数值 —— 表示命令插入、修改或删除的行数。返回的更改计数不包括触发器执行的插入、修改或删除操作，不包括 <a href="foreignkeys.html#fk_actions">外键操作</a> 自动完成的更改，也不包括由 <a href="lang_upsert.html">upsert</a> 引起的更新。</p>
+<p>获取行更改计数的另一种方法是使用 <a href="c3ref/changes.html">sqlite3_changes()</a> 或 <a href="c3ref/total_changes.html">sqlite3_total_changes()</a> 接口。不过有一个微小差别：当对视图运行 INSERT、UPDATE 或 DELETE 且使用了 <a href="lang_createtrigger.html#instead_of_trigger">INSTEAD OF 触发器</a> 时，count_changes pragma 报告的是触发器触发的视图中行的数目，而 <a href="c3ref/changes.html">sqlite3_changes()</a> 与 <a href="c3ref/total_changes.html">sqlite3_total_changes()</a> 不会这样。</p>
+<p style='background-color: #ffd0d0;'>
+<b>此 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。当 SQLite 使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译时，可从构建中省略此 pragma。
+</p>
+<a name="pragma_data_store_directory"></a>
+<h _id=pragma_data_store_directory style="display:none"> PRAGMA data_store_directory</h><hr>
+<p><b>PRAGMA data_store_directory;
+  <br>PRAGMA data_store_directory = '</b><i>directory-name</i><b>';</b></p>
+<p>查询或更改 <a href="c3ref/data_directory.html">sqlite3_data_directory</a> 全局变量的值，Windows 操作系统接口后端使用该变量来确定使用相对路径名指定的数据库文件的存放位置。</p>
+<p>更改 data_store_directory 设置不是线程安全的。不要在应用程序的其他线程同时运行任何 SQLite 接口时更改 data_store_directory 设置。那样会导致未定义行为。更改 data_store_directory 设置会写入 <a href="c3ref/data_directory.html">sqlite3_data_directory</a> 全局变量，该全局变量未受互斥锁保护。</p>
+<p>此功能是为没有读取或更改当前工作目录机制的 WinRT 提供的。在其他上下文中使用该 pragma 不被鼓励，未来版本可能会禁止。</p>
+<p style='background-color: #ffd0d0;'>
+<b>此 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。当 SQLite 使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译时，可从构建中省略此 pragma。
+</p>
+<a name="pragma_data_version"></a>
+<h _id=pragma_data_version style="display:none"> PRAGMA data_version</h><hr>
+<p><b>PRAGMA </b><i>schema.</i><b>data_version;</b></p>
+<p>“PRAGMA data_version” 命令提供了数据库文件已被修改的指示。将数据库内容保留在内存中的交互式程序或在屏幕上显示数据库内容的程序，可以使用 PRAGMA data_version 命令来确定是否需要刷新并重新加载内存或更新屏幕显示。</p>
+<p>来自同一连接的两次 “PRAGMA data_version” 调用返回的整数值在任何其他连接在此期间提交了更改时会不同。对于同一数据库连接提交的事务，“PRAGMA data_version” 值保持不变。“PRAGMA data_version”的行为对所有数据库连接都是相同的，包括单独进程中的数据库连接以及<a href="sharedcache.html">共享缓存</a>数据库连接。</p>
+<p>“PRAGMA data_version” 值是每个数据库连接的本地属性，因此即使底层数据库相同，两个不同数据库连接的同时调用可能返回不同的值。只有在不同时间点对同一数据库连接调用 “PRAGMA data_version” 时，比较这些值才有意义。</p>
+<a name="pragma_database_list"></a>
+<h _id=pragma_database_list style="display:none"> PRAGMA database_list</h><hr>
+<p><b>PRAGMA database_list;</b></p>
+<p>该 pragma 类似查询，返回当前数据库连接附加的每个数据库的一个行。第二列对于主数据库文件为 “main”，对于用于存储 TEMP 对象的数据库文件为 “temp”，对于其他数据库文件则为 ATTACH 的数据库名称。第三列是数据库文件本身的名称；如果数据库未与文件关联，则为一个空字符串。</p>
+<a name="pragma_default_cache_size"></a>
+<h _id=pragma_default_cache_size style="display:none"> PRAGMA default_cache_size</h><hr>
+<b>PRAGMA </b><i>schema.</i><b>default_cache_size;
+   <br>PRAGMA </b><i>schema.</i><b>default_cache_size
+        = </b><i>Number-of-pages</i><b>;</b></p>
+<p>该 pragma 查询或设置建议的每个打开数据库文件分配的磁盘缓存页数上限。此 pragma 与 <a href="pragma.html#pragma_cache_size">cache_size</a> 的区别在于这里设置的值会在数据库连接之间持续存在。默认缓存大小的值存储在数据库文件头第 48 个字节处的 4 字节大端整数中。</p>
+<p style='background-color: #ffd0d0;'>
+<b>此 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。当 SQLite 使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译时，可从构建中省略此 pragma。
+</p>
+<a name="pragma_defer_foreign_keys"></a>
+<h _id=pragma_defer_foreign_keys style="display:none"> PRAGMA defer_foreign_keys</h><hr>
+<p><b>PRAGMA defer_foreign_keys
+   <br>PRAGMA defer_foreign_keys = </b><i>boolean</i><b>;</b></p>
+<p>当 defer_foreign_keys <a href="pragma.html#syntax">PRAGMA</a> 打开时，所有 <a href="foreignkeys.html">外键约束</a> 的执行会延迟到最外层事务提交时才进行。defer_foreign_keys pragma 默认为 OFF，因此只有在创建为 “DEFERRABLE INITIALLY DEFERRED” 时才会延迟执行外键约束。defer_foreign_keys pragma 会在每次 COMMIT 或 ROLLBACK 时自动关闭。因此，每个事务必须单独启用 defer_foreign_keys。此 pragma 当然仅在启用了外键约束时才有意义。</p>
+<p><a href="c3ref/db_status.html">sqlite3_db_status</a>(db,<a href="c3ref/c_dbstatus_options.html#sqlitedbstatusdeferredfks">SQLITE_DBSTATUS_DEFERRED_FKS</a>,...) C 语言接口可以在事务过程中用于确定是否存在被推迟但未解决的外键约束。</p>
+<a name="pragma_empty_result_callbacks"></a>
+<h _id=pragma_empty_result_callbacks style="display:none"> PRAGMA empty_result_callbacks</h><hr>
+<p><b>PRAGMA empty_result_callbacks;
+   <br>PRAGMA empty_result_callbacks = </b><i>boolean</i><b>;</b></p>
+<p>查询或更改 empty-result-callbacks 标志。</p>
+<p>empty-result-callbacks 标志只影响 <a href="c3ref/exec.html">sqlite3_exec()</a> API。通常，当 empty-result-callbacks 标志被清除时，对于不返回数据的命令，不会调用提供给 <a href="c3ref/exec.html">sqlite3_exec()</a> 的回调函数。当在这种情况下设置 empty-result-callbacks 时，会准确调用一次回调函数，并将第三个参数设置为 0（NULL）。这样可以使使用 <a href="c3ref/exec.html">sqlite3_exec()</a> API 的程序即使在查询没有返回数据时，也能获取列名。</p>
+<p style='background-color: #ffd0d0;'>
+<b>此 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。当 SQLite 使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译时，可从构建中省略此 pragma。
+</p>
+<a name="pragma_encoding"></a>
+<h _id=pragma_encoding style="display:none"> PRAGMA encoding</h><hr>
+<p><b>PRAGMA encoding;
+   <br>PRAGMA encoding = 'UTF-8';
+   <br>PRAGMA encoding = 'UTF-16';
+   <br>PRAGMA encoding = 'UTF-16le';
+   <br>PRAGMA encoding = 'UTF-16be';</b></p>
+<p>在第一种形式中，如果主数据库已经创建，则此 pragma 返回主数据库所使用的文本编码，即 'UTF-8'、'UTF-16le'（小端 UTF-16 编码）或 'UTF-16be'（大端 UTF-16 编码）之一。如果主数据库尚未创建，则返回的值是当前会话在创建主数据库时将使用的文本编码。</p>
+<p>第二到第五种形式的 pragma 设置如果当前会话创建主数据库时所使用的编码。字符串 'UTF-16' 被解释为“使用本机字节顺序的 UTF-16 编码”。无法在数据库创建后更改其文本编码，任何尝试都会被悄悄忽略。</p>
+<p>如果未首先通过此 pragma 设置编码，则主数据库的创建编码默认为由打开连接时使用的<a href="c3ref/open.html">API</a> 决定。</p>
+<p>数据库一旦设置了编码，就无法更改。</p>
+<p>通过 <a href="lang_attach.html">ATTACH</a> 命令创建的数据库始终使用与主数据库相同的编码。尝试附加编码不同于 “main” 数据库的数据库会失败。</p>
+<a name="pragma_foreign_key_check"></a>
+<h _id=pragma_foreign_key_check style="display:none"> PRAGMA foreign_key_check</h><hr>
+<p><b>PRAGMA </b><i>schema.</i><b>foreign_key_check;
+    <br>PRAGMA </b><i>schema.</i><b>foreign_key_check(</b><i>table-name</i><b>);</b></b></p>
+<p>foreign_key_check pragma 检查数据库或名称为 “<i>table-name</i>” 的表，确认是否存在被违反的 <a href="foreignkeys.html">外键约束</a>。foreign_key_check pragma 为每个外键违规返回一行结果。每行有四列：第一列是包含 REFERENCES 子句的表名；第二列是包含无效 REFERENCES 子句的行的 <a href="lang_createtable.html#rowid">rowid</a>，如果子表是 <a href="withoutrowid.html">WITHOUT ROWID</a> 表，则为 NULL；第三列是所引用表的名称；第四列是失败的特定外键约束的索引。foreign_key_check pragma 输出中的第四列与 <a href="pragma.html#pragma_foreign_key_list">foreign_key_list pragma</a> 输出中的第一列是相同的整数。当指定了 “<i>table-name</i>” 时，只有在该 <i>table-name</i> 的 CREATE TABLE 语句中创建的 REFERENCES 子句才会被检查。</p>
+<a name="pragma_foreign_key_list"></a>
+<h _id=pragma_foreign_key_list style="display:none"> PRAGMA foreign_key_list</h><hr>
+<p><b>PRAGMA foreign_key_list(</b><i>table-name</i><b>);</b></p>
+<p>此 pragma 返回由表 “<i>table-name</i>” 的 CREATE TABLE 语句中的 REFERENCES 子句创建的每个 <a href="foreignkeys.html">外键约束</a> 的一行结果。</p>
+<a name="pragma_foreign_keys"></a>
+<h _id=pragma_foreign_keys style="display:none"> PRAGMA foreign_keys</h><hr>
+<p><b>PRAGMA foreign_keys;
+   <br>PRAGMA foreign_keys = </b><i>boolean</i><b>;</b></p>
+<p>查询、设置或清除 <a href="foreignkeys.html">外键约束</a> 的执行。</p>
+<p>此 pragma 在事务内为无操作；只有在没有挂起的 <a href="lang_transaction.html">BEGIN</a> 或 <a href="lang_savepoint.html">SAVEPOINT</a> 时，才能启用或禁用外键约束执行。</p>
+<p>更改 foreign_keys 设置会影响使用该数据库连接准备的所有语句，包括在更改设置之前准备的语句。任何使用旧的 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 接口准备的现有语句在更改 foreign_keys 设置后可能会因 <a href="rescode.html#schema">SQLITE_SCHEMA</a> 错误而失败。</p>
+<p>从 SQLite <a href="releaselog/3_6_19.html">版本 3.6.19</a> 起，外键约束的默认设置为 OFF。不过未来版本可能会改变。可以在编译时使用 <a href="compile.html#default_foreign_keys">SQLITE_DEFAULT_FOREIGN_KEYS</a> 预处理宏来指定外键约束的默认设置。为避免未来问题，应用应根据自身需求设置外键约束执行标志，而不要依赖默认设置。</p>
+<a name="pragma_freelist_count"></a>
+<h _id=pragma_freelist_count style="display:none"> PRAGMA freelist_count</h><hr>
+<p><b>PRAGMA </b><i>schema.</i><b>freelist_count;</b></p>
+<p>返回数据库文件中未使用页面的数量。</p>
+<a name="pragma_full_column_names"></a>
+<h _id=pragma_full_column_names style="display:none"> PRAGMA full_column_names</h><hr>
+<p><b>PRAGMA full_column_names;
+   <br>PRAGMA full_column_names = </b><i>boolean</i><b>;</b></p>
+<p>查询或更改 full_column_names 标志。此标志与 <a href="pragma.html#pragma_short_column_names">short_column_names</a> 标志一起决定 SQLite 为 <a href="lang_select.html">SELECT</a> 语句的结果列分配名称的方式。结果列名称按以下规则依次应用：</p>
+<ol>
+<li><p>如果结果上有 AS 子句，则列名为 AS 子句的右侧。</p></li>
+<li><p>如果结果是普通表达式，而不仅仅是源表列的名称，则结果名称为表达式文本的副本。</p></li>
+<li><p>如果 <a href="pragma.html#pragma_short_column_names">short_column_names</a> pragma 为 ON，则结果名称为源表列名去掉源表名前缀：COLUMN。</p></li>
+<li><p>如果 <a href="pragma.html#pragma_short_column_names">short_column_names</a> 与 <a href="pragma.html#pragma_full_column_names">full_column_names</a> 都为 OFF，则应用规则 (2)。</p></li>
+<li><p>结果列名称为源表与源列名称的组合：TABLE.COLUMN</p></li>
+</ol>
+<p style='background-color: #ffd0d0;'>
+<b>此 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。当 SQLite 使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译时，可从构建中省略此 pragma。
+</p>
+<a name="pragma_fullfsync"></a>
+<h _id=pragma_fullfsync style="display:none"> PRAGMA fullfsync</h><hr>
+<p><b>PRAGMA fullfsync
+   <br>PRAGMA fullfsync = </b><i>boolean</i><b>;</b></p>
+<p>查询或更改 fullfsync 标志。此标志决定在支持该方法的系统上是否使用 F_FULLFSYNC 同步方法。fullfsync 标志的默认值为关闭。只有 Mac OS X 支持 F_FULLFSYNC。</p>
+<p>另请参见 <a href="pragma.html#pragma_checkpoint_fullfsync">checkpoint_fullfsync</a>。</p>
+<a name="pragma_function_list"></a>
+<h _id=pragma_function_list style="display:none"> PRAGMA function_list</h><hr>
+<p><b>PRAGMA function_list;</b></p>
+<p>此 pragma 返回数据库连接已知的 SQL 函数列表。结果集的每一行描述了某个 SQL 函数的单个调用签名。如果某些 SQL 函数可以（例如）接受不同数量的参数或支持多种编码，它们会在结果集中出现多行。</p>
+<a name="pragma_hard_heap_limit"></a>
+<h _id=pragma_hard_heap_limit style="display:none"> PRAGMA hard_heap_limit</h><hr>
+<p><b>PRAGMA hard_heap_limit<br>
+      PRAGMA hard_heap_limit=</b><i>N</i></p>
+<p>如果指定了 N 且 N 是小于当前硬堆限制的正整数，则该 pragma 使用参数 N 调用 <a href="c3ref/hard_heap_limit64.html">sqlite3_hard_heap_limit64()</a> 接口。hard_heap_limit pragma 始终返回与 <a href="c3ref/hard_heap_limit64.html">sqlite3_hard_heap_limit64</a>(-1) C 语言函数返回值相同的整数。也就是说，它总是返回在此 PRAGMA 强加的更改之后所设置的硬堆限制。</p>
+<p>此 pragma 只能降低堆限制，不能提升。必须使用 C 语言接口 <a href="c3ref/hard_heap_limit64.html">sqlite3_hard_heap_limit64()</a> 来提升堆限制。</p>
+<p>另请参见 <a href="pragma.html#pragma_soft_heap_limit">soft_heap_limit pragma</a>。</p>
+<a name="pragma_ignore_check_constraints"></a>
+<h _id=pragma_ignore_check_constraints style="display:none"> PRAGMA ignore_check_constraints</h><hr>
+<p><b>PRAGMA ignore_check_constraints  = </b><i>boolean</i><b>;</b></p>
+<p>该 pragma 启用或禁用 CHECK 约束的执行。默认设置为关闭，意味着默认会执行 CHECK 约束。</p>
+<a name="pragma_incremental_vacuum"></a>
+<h _id=pragma_incremental_vacuum style="display:none"> PRAGMA incremental_vacuum</h><hr>
+<p><b>PRAGMA </b><i>schema.</i><b>incremental_vacuum</b><i>(N)</i><b>;<br>
+  PRAGMA </b><i>schema.</i><b>incremental_vacuum;</b></p>
+<p>incremental_vacuum pragma 使最多 <i>N</i> 个页面从 <a href="fileformat2.html#freelist">freelist</a> 中移除。数据库文件也会相应截断。如果数据库未处于 <a href="#pragma_auto_vacuum">auto_vacuum=incremental</a> 模式，或者 freelist 上没有页面，则 incremental_vacuum pragma 无效。如果 freelist 上的页面少于 <i>N</i>，或者 <i>N</i> 小于 1，或者省略了 “(<i>N</i>)” 参数，则会清空整个 freelist。</p>
+<a name="pragma_index_info"></a>
+<h _id=pragma_index_info style="display:none"> PRAGMA index_info</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>index_info(</b><i>index-name</i><b>);</b></p>
+    <p>此 pragma 为指定索引中的每个键列返回一行。
+    键列是实际在 <a href="lang_createindex.html">CREATE INDEX</a>
+    索引语句或创建该索引的 <a href="lang_createtable.html#uniqueconst">UNIQUE constraint</a> 或 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY constraint</a> 中命名的列。
+    索引条目通常还包含指向正在被索引的表行的辅助列。辅助索引列不会由 index_info pragma 显示，但它们会由 <a href="pragma.html#pragma_index_xinfo">index_xinfo pragma</a> 列出。</p>
+
+    <p>index_info pragma 的输出列如下：
+    <ol>
+    <li>列在索引中的排名。（0 表示最左边。）
+    <li>列在被索引表中的排名。
+        值为 -1 表示 <a href="lang_createtable.html#rowid">rowid</a>，值为 -2 表示正在使用 <a href="expridx.html">expression</a>。
+    <li>正在被索引的列的名称。如果该列是 <a href="lang_createtable.html#rowid">rowid</a> 或 <a href="expridx.html">expression</a>，则该列为 NULL。
+    </ol>
+
+    <p>如果没有名为 <i>index-name</i> 的索引，但存在同名的 <a href="withoutrowid.html">WITHOUT ROWID</a> 表，则（自 SQLite <a href="releaselog/3_30_0.html">version 3.30.0</a> 于 2019-10-04 起）此 pragma 返回 WITHOUT ROWID 表的 PRIMARY KEY 列，按它们在底层 b-tree 记录中被使用的方式返回，也就是说会去掉重复的列。
+<a name="pragma_index_list"></a>
+<h _id=pragma_index_list style="display:none"> PRAGMA index_list</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>index_list(</b><i>table-name</i><b>);</b></p>
+    <p>此 pragma 为给定表关联的每个索引返回一行。</p>
+    <p>index_list pragma 的输出列如下：
+    <ol>
+    <li>分配给每个索引的序列号，用于内部跟踪。
+    <li>索引名称。
+    <li>如果索引是 UNIQUE，则为 "1"，否则为 "0"。
+    <li>如果索引由 <a href="lang_createindex.html">CREATE INDEX</a> 语句创建，则为 "c"，如果由 <a href="lang_createtable.html#uniqueconst">UNIQUE constraint</a> 创建，则为 "u"，如果由 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY constraint</a> 创建，则为 "pk"。
+    <li>如果索引是 <a href="partialindex.html">partial index</a> 则为 "1"，否则为 "0"。
+    </ol>
+    </p>
+<a name="pragma_index_xinfo"></a>
+<h _id=pragma_index_xinfo style="display:none"> PRAGMA index_xinfo</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>index_xinfo(</b><i>index-name</i><b>);</b></p>
+    <p>此 pragma 返回索引中每一列的信息。
+    不同于 <a href="pragma.html#pragma_index_info">index_info pragma</a>，此 pragma 返回索引中所有列的信息，而不仅仅是键列。
+    （键列是实际在 <a href="lang_createindex.html">CREATE INDEX</a>
+    索引语句或创建该索引的 <a href="lang_createtable.html#uniqueconst">UNIQUE constraint</a> 或 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY constraint</a> 中命名的列。辅助列是用于定位与每个索引条目对应的表条目的额外列。）
+
+    <p>index_xinfo pragma 的输出列如下：
+    <ol>
+    <li>列在索引中的排名。（0 表示最左边。键列在辅助列之前。）
+    <li>列在被索引表中的排名，如果索引列是所索引表的 <a href="lang_createtable.html#rowid">rowid</a> 则为 -1，如果在 <a href="expridx.html">expression</a> 上索引则为 -2。
+    <li>正在被索引的列的名称；如果索引列是所索引表的 <a href="lang_createtable.html#rowid">rowid</a> 或 <a href="expridx.html">expression</a>，则为 NULL。
+    <li>如果索引列按照逆序（DESC）由索引排序，则为 1，否则为 0。
+    <li>用于比较索引列值的 <a href="datatype3.html#collation">collating sequence</a> 的名称。
+    <li>如果索引列是键列则为 1，否则表示该索引列是辅助列。
+    </ol>
+
+    <p>如果没有名为 <i>index-name</i> 的索引，但存在同名的 <a href="withoutrowid.html">WITHOUT ROWID</a> 表，则（自 SQLite <a href="releaselog/3_30_0.html">version 3.30.0</a> 于 2019-10-04 起）此 pragma 返回 WITHOUT ROWID 表中的列，按它们在底层 b-tree 记录中的使用方式返回，也就是说首先列出去重的 PRIMARY KEY 列，然后是数据列。
+<a name="pragma_integrity_check"></a>
+<h _id=pragma_integrity_check style="display:none"> PRAGMA integrity_check</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>integrity_check;
+      <br>PRAGMA </b><i>schema.</i><b>integrity_check(</b><i>N</i><b>)
+      <br>PRAGMA </b><i>schema.</i><b>integrity_check(</b><i>TABLENAME</i><b>)</b></p>
+    <p>此 pragma 对数据库进行低级格式和一致性检查。integrity_check pragma 会检查：
+    <ul>
+    <li>序列错位的表或索引条目
+    <li>格式错误的记录
+    <li>丢失的页
+    <li>缺失或多余的索引条目
+    <li>UNIQUE、CHECK 和 NOT NULL 约束错误
+    <li>freelist 的完整性
+    <li>在数据库中被多次使用或根本未使用的部分
+    </ul>
+    <p>如果 integrity_check pragma 发现问题，会返回描述问题的字符串（作为多行，每行一列）。pragma integrity_check 在分析结束前最多返回 <i>N</i> 个错误，默认 N 为 100。如果 pragma integrity_check 未发现错误，则返回一行，值为 'ok'。</p>
+
+    <p>通常情况是检查整个数据库文件。但是，如果参数是 <i>TABLENAME</i>，则只检查指定表及其关联的索引。
+    这称为“部分完整性检查”。由于只检查数据库的子集，因此无法检测未使用的文件部分或两个或更多表使用相同文件部分的错误。
+    只有当 <i>TABLENAME</i> 是 <a href="schematab.html">sqlite_schema</a> 或其别名之一时，才会在部分完整性检查中验证 freelist。部分完整性检查的支持添加于版本 3.33.0（2020-08-14）。</p>
+
+    <p>PRAGMA integrity_check 无法发现 <a href="foreignkeys.html">FOREIGN KEY</a> 错误。
+    使用 <a href="pragma.html#pragma_foreign_key_check">PRAGMA foreign_key_check</a> 命令查找 FOREIGN KEY 约束中的错误。</p>
+
+    <p>另请参阅 <a href="pragma.html#pragma_quick_check">PRAGMA quick_check</a> 命令，它执行了大部分 PRAGMA integrity_check 的检查，但运行速度更快。</p>
+<a name="pragma_journal_mode"></a>
+<h _id=pragma_journal_mode style="display:none"> PRAGMA journal_mode</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>journal_mode;
+        <br>PRAGMA </b><i>schema.</i><b>journal_mode
+              = <i>DELETE | TRUNCATE | PERSIST | MEMORY | WAL | OFF</i></b></p>
+
+    <p>此 pragma 查询或设置当前 <a href="c3ref/sqlite3.html">database connection</a> 关联的数据库的 journal mode。</p>
+
+    <p>第一种形式查询 <i>database</i> 的当前日志记录模式。当省略 <i>database</i> 时，会查询 "main" 数据库。</p>
+
+    <p>第二种形式更改 "<i>database</i>" 的日志记录模式，或者如果省略 "<i>database</i>"，则更改所有附加的数据库。
+    返回新的 journal mode。如果无法更改 journal mode，则返回原始 journal mode。</p>
+
+    <p>DELETE journaling mode 是默认值。在 DELETE 模式中，每个事务结束后都会删除回滚日志。实际上，删除操作就是让事务提交的操作。
+    （有关详细信息，请参阅题为 <a href="atomiccommit.html">
+    Atomic Commit In SQLite</a> 的文档。）</p>
+
+    <p>TRUNCATE journaling mode 通过截断回滚日志到零长度而不是删除它来提交事务。在许多系统中，截断文件比删除文件更快，因为不需要更改包含该文件的目录。</p>
+
+    <p>PERSIST journaling mode 阻止在每个事务结束时删除回滚日志。相反，将日志头覆盖为零。这样可以防止其他数据库连接回滚日志。PERSIST journaling mode 在删除或截断文件远比将文件的首块覆盖为零更昂贵的平台上作为一种优化很有用。另见：
+    <a href="pragma.html#pragma_journal_size_limit">PRAGMA journal_size_limit</a> 和 <a href="compile.html#default_journal_size_limit">SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT</a>。</p>
+
+    <p>MEMORY journaling mode 将回滚日志存储在易失性 RAM 中。这节省了磁盘 I/O，但以牺牲数据库安全性和完整性为代价。如果在 MEMORY journaling mode 下应用程序在事务中途崩溃，则数据库文件很可能 
+    <a href="howtocorrupt.html#cfgerr">go corrupt</a>。</p>
+
+    <p>WAL journaling mode 使用 <a href="wal.html">write-ahead log</a> 而不是回滚日志来实现事务。WAL journaling mode 是持久的；设置后，它在多次 database connection 之间以及在关闭并重新打开数据库后仍然有效。处于 WAL journaling mode 的数据库只能由 SQLite <a href="releaselog/3_7_0.html">version 3.7.0</a>（2010-07-21）或更高版本访问。</p>
+
+    <p>OFF journaling mode 完全禁用回滚日志。永远不会创建回滚日志，因此也不会删除回滚日志。OFF journaling mode 禁用 SQLite 的原子提交和回滚功能。在此模式下，<a href="lang_transaction.html">ROLLBACK</a> 命令不再有效；其行为未定义。在 journal mode 为 OFF 时，应用程序必须避免使用 <a href="lang_transaction.html">ROLLBACK</a> 命令。如果在事务中途应用程序崩溃，数据库文件很可能 
+    <a href="howtocorrupt.html#cfgerr">go corrupt</a>。没有日志，就无法在约束错误之后撤销部分完成的操作。这可能会使数据库处于损坏状态。例如，如果重复条目导致 <a href="lang_createindex.html">CREATE UNIQUE INDEX</a> 语句在中途失败，则会留下一个部分创建的、因此是损坏的索引。由于 OFF journaling mode 允许使用普通 SQL 使数据库文件损坏，当启用 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive">SQLITE_DBCONFIG_DEFENSIVE</a> 时，该模式被禁用。</p>
+
+    <p>请注意，<a href="inmemorydb.html">in-memory database</a> 的 journal_mode 只能是 MEMORY 或 OFF，不能更改为其他值。尝试将 <a href="inmemorydb.html">in-memory database</a> 的 journal_mode 更改为 MEMORY 或 OFF 以外的设置将被忽略。另外请注意，在事务活动期间 journal_mode 无法更改。</p>
+<a name="pragma_journal_size_limit"></a>
+<h _id=pragma_journal_size_limit style="display:none"> PRAGMA journal_size_limit</h><hr>
+    <p><b>
+    PRAGMA </b><i>schema.</i><b>journal_size_limit<br>
+    PRAGMA </b><i>schema.</i><b>journal_size_limit = </b><i>N</i> <b>;</b></p>
+
+  <p>如果数据库连接在 <a href="pragma.html#pragma_locking_mode">exclusive locking mode</a> 或 <a href="pragma.html#pragma_journal_mode">persistent journal mode</a>（PRAGMA journal_mode=persist）下运行，则提交事务后，<a href="lockingv3.html#rollback">rollback journal</a> 文件可能会保留在文件系统中。这会提高后续事务的性能，因为覆盖现有文件比追加到文件更快，但也会占用文件系统空间。在大型事务之后（例如 <a href="lang_vacuum.html">VACUUM</a>），回滚日志文件可能占用非常大的空间。</p>
+
+  <p>类似地，在 <a href="wal.html">WAL mode</a> 中，完成 <a href="wal.html#ckpt">checkpoint</a> 后不会截断 write-ahead log 文件。SQLite 会重用现有文件以存放后续的 WAL 条目，因为覆盖比追加更快。</p>
+
+  <p>journal_size_limit pragma 可用于限制事务或 checkpoint 之后留在文件系统中的回滚日志和 WAL 文件的大小。
+  每次事务提交或 WAL 文件重置时，SQLite 将文件系统中剩余的回滚日志或 WAL 文件的大小与此 pragma 设置的大小限制进行比较，如果日志或 WAL 文件大于该限制，则将其截断到限制值。</p>
+
+  <p>上面列出的第二种形式用于为指定数据库设置新的字节限制。负数表示无限制。要始终将回滚日志和 WAL 文件截断到最小大小，请将 journal_size_limit 设置为零。
+  上面列出的第一种和第二种形式都返回一行、一个整数列——以字节为单位的 journal 大小限制值。默认的 journal 大小限制为 -1（无限制）。
+  <a href="compile.html#default_journal_size_limit">SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT</a> 预处理宏可用于在编译时更改默认 journal 大小限制。</p>
+
+  <p>此 pragma 仅对在 pragma 名称之前指定的单个数据库（如果未指定数据库，则为 "main" 数据库）起作用。无法使用单个 PRAGMA 语句更改所有附加数据库的 journal 大小限制。必须分别为每个附加数据库设置大小限制。</p>
+<a name="pragma_legacy_alter_table"></a>
+<h _id=pragma_legacy_alter_table style="display:none"> PRAGMA legacy_alter_table</h><hr>
+   <p><b>PRAGMA legacy_alter_table;
+       <br>PRAGMA legacy_alter_table = <i>boolean</i></b></p>
+    <p>此 pragma 设置或查询 legacy_alter_table 标志的值。当此标志打开时，<a href="lang_altertable.html#altertabrename">ALTER TABLE RENAME</a> 命令（用于更改表名称）遵循 SQLite 3.24.0（2018-06-04）及更早版本的行为。更具体地说，当此标志打开时，<a href="lang_altertable.html#altertabrename">ALTER TABLE RENAME</a> 命令仅重写其 <a href="lang_createtable.html">CREATE TABLE</a> 语句和任何关联的 <a href="lang_createindex.html">CREATE INDEX</a> 与 <a href="lang_createtrigger.html">CREATE TRIGGER</a> 语句中的表名的初始出现。对该表的其他引用不做修改，包括：
+    <ul>
+    <li> 触发器和视图主体内对该表的引用。
+    <li> 原始 CREATE TABLE 语句中的 CHECK 约束内对该表的引用。
+    <li> <a href="partialindex.html">partial indexes</a> 的 WHERE 子句中对该表的引用。
+    </ul>
+    此 pragma 的默认设置为 OFF，即 schema 中任何位置对该表的引用都转换为新名称。
+    <p>此 pragma 提供给包含依赖旧版本 SQLite 中 <a href="lang_altertable.html#altertabrename">ALTER TABLE RENAME</a> 未完整行为的旧程序的兼容方法。新应用程序应该保持此标志关闭。</p>
+    <p>为与旧的 <a href="vtab.html">virtual table</a> 实现兼容，在运行 <a href="vtab.html#xrename">sqlite3_module.xRename</a> 方法期间，此标志会暂时打开。<a href="vtab.html#xrename">sqlite3_module.xRename</a> 方法完成后，该标志的值会恢复。</p>
+    <p>legacy alter table 行为也可以使用 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfiglegacyaltertable">SQLITE_DBCONFIG_LEGACY_ALTER_TABLE</a> 选项通过 <a href="c3ref/db_config.html">sqlite3_db_config()</a> 接口打开或关闭。</p>
+    <p>legacy alter table 行为是每个连接的设置。打开或关闭此功能会影响 <a href="c3ref/sqlite3.html">database connection</a> 中的所有附加数据库文件。该设置不会持久化。在一个连接中更改此设置不会影响其他连接。</p>
+<a name="pragma_legacy_file_format"></a>
+<h _id=pragma_legacy_file_format style="display:none"> PRAGMA legacy_file_format</h><hr>
+   <p><b>PRAGMA legacy_file_format;</b></p>
+    <p>此 pragma 不再起作用，已成为 no-op。
+    之前由 PRAGMA legacy_file_format 提供的功能现在可以使用 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfiglegacyfileformat">SQLITE_DBCONFIG_LEGACY_FILE_FORMAT</a>
+    选项通过 <a href="c3ref/db_config.html">sqlite3_db_config()</a> C 语言接口访问。</p>
+    <p></p>
+<a name="pragma_locking_mode"></a>
+<h _id=pragma_locking_mode style="display:none"> PRAGMA locking_mode</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>locking_mode;
+    <br>PRAGMA </b><i>schema.</i><b>locking_mode
+                = <i>NORMAL | EXCLUSIVE</i></b></p>
+    <p>此 pragma 设置或查询数据库连接的 locking-mode。locking-mode 可以是 NORMAL 或 EXCLUSIVE。</p>
+
+    <p>在 NORMAL locking-mode（除非在编译时使用 <a href="compile.html#default_locking_mode">SQLITE_DEFAULT_LOCKING_MODE</a> 覆盖，否则为默认）下，数据库连接在每次读或写事务结束时都会释放数据库文件。当 locking-mode 设置为 EXCLUSIVE 时，数据库连接永不释放文件锁。第一次以 EXCLUSIVE 模式读取数据库时，会获取并保持一个共享锁。第一次写入数据库时，会获取并保持一个独占锁。</p>
+
+    <p>在 EXCLUSIVE 模式下获得的数据库锁可以通过关闭数据库连接释放，或者通过使用此 pragma 将 locking-mode 设置回 NORMAL 然后访问数据库文件（用于读或写）来释放。仅将 locking-mode 设置为 NORMAL 并不足以释放锁——直到下次访问数据库文件之前，锁都不会释放。</p>
+
+    <p>将 locking-mode 设置为 EXCLUSIVE 有三个理由。
+    <ol>
+    <li>应用程序希望防止其他进程访问数据库文件。
+    <li>文件系统操作的系统调用次数减少，可能会带来轻微的性能提升。
+    <li><a href="wal.html">WAL</a> 数据库可以在 EXCLUSIVE 模式下访问而无需使用共享内存。
+        (<a href="wal.html#noshm">Additional information</a>)
+    </ol>
+    </p>
+
+    <p>当 locking_mode pragma 指定特定数据库时，例如：</p>
+
+    <blockquote>
+PRAGMA <b>main.</b>locking_mode=EXCLUSIVE;
+    </blockquote>
+
+    <p>则锁模式仅应用于指定数据库。如果 "locking_mode" 关键字前没有数据库名称限定符，则锁模式应用于所有数据库，包括随后通过 <a href="lang_attach.html">ATTACH</a> 命令添加的任何新数据库。</p>
+
+   <p>"temp" 数据库（用于存储 TEMP 表和索引）和 <a href="inmemorydb.html">in-memory databases</a> 始终使用 exclusive locking mode。temp 和 <a href="inmemorydb.html">in-memory databases</a> 的 locking mode 无法更改。其他所有数据库默认使用 normal locking mode，并受到此 pragma 的影响。</p>
+
+   <p>如果首次进入 <a href="wal.html">WAL journal mode</a> 时 locking mode 为 EXCLUSIVE，则必须退出 WAL journal mode 后才能将 locking mode 更改为 NORMAL。
+   如果首次进入 WAL journal mode 时 locking mode 为 NORMAL，则可以在任何时候在 NORMAL 与 EXCLUSIVE 之间切换，并且无需退出 WAL journal mode。</p>
+<a name="pragma_max_page_count"></a>
+<h _id=pragma_max_page_count style="display:none"> PRAGMA max_page_count</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>max_page_count;
+        <br>PRAGMA </b><i>schema.</i><b>max_page_count = </b><i>N</i><b>;</b></p>
+    <p>查询或设置数据库文件中的最大页面数。
+    两种形式的 pragma 都返回最大页面数。第二种形式尝试修改最大页面数。
+    最大页面数不能减少到当前数据库大小以下。
+    </p>
+<a name="pragma_mmap_size"></a>
+<h _id=pragma_mmap_size style="display:none"> PRAGMA mmap_size</h><hr>
+    <p><br><b>PRAGMA </b><i>schema.</i><b>mmap_size;
+         <br>PRAGMA </b><i>schema.</i><b>mmap_size=</b><i>N</i></p>
+
+    <p>查询或更改为单个数据库保留用于内存映射 I/O 的最大字节数。第一种形式（没有参数）查询当前限制。第二种形式（带数字参数）为指定数据库设置限制，或者如果省略可选数据库名称，则为所有数据库设置限制。在第二种形式中，如果省略数据库名称，则设置的限制会成为随后的 <a href="lang_attach.html">ATTACH</a> 语句向 <a href="c3ref/sqlite3.html">database connection</a> 添加的所有数据库的默认限制。</p>
+
+    <p>参数 N 是将通过内存映射 I/O 访问的数据库文件的最大字节数。如果 N 为零，则禁用内存映射 I/O。如果 N 为负，则限制恢复为最近的 <a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a>) 所确定的默认值，或者如果从未设置启动时限制，则恢复为 <a href="compile.html#default_mmap_size">SQLITE_DEFAULT_MMAP_SIZE</a> 所确定的编译时默认值。</p>
+
+    <p><a href="pragma.html#pragma_mmap_size">PRAGMA mmap_size</a> 语句永远不会将用于内存映射 I/O 的地址空间增加到超过 <a href="compile.html#max_mmap_size">SQLITE_MAX_MMAP_SIZE</a> 编译时选项所设置的硬限制，或超过 sqlite3_config(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigmmapsize">SQLITE_CONFIG_MMAP_SIZE</a>) 的第二个参数在启动时设置的硬限制。</p>
+
+    <p>为了避免在运行的 SQL 语句下解绑内存，内存映射 I/O 区域在处于活动使用时不能更改大小。因此，如果先前的 mmap_size 非零且相同 <a href="c3ref/sqlite3.html">database connection</a> 上有其他 SQL 语句并发运行，则 mmap_size pragma 可能不会生效。</p>
+<a name="pragma_module_list"></a>
+<h _id=pragma_module_list style="display:none"> PRAGMA module_list</h><hr>
+    <p><b>PRAGMA module_list;</b></p>
+    <p>此 pragma 返回与 database connection 注册的 <a href="vtab.html">virtual table</a> 模块列表。
+<a name="pragma_optimize"></a>
+<h _id=pragma_optimize style="display:none"> PRAGMA optimize</h><hr>
+  <p><b>PRAGMA optimize;
+       <br>PRAGMA optimize(</b><i>MASK</i><b>);
+       <br>PRAGMA </b><i>schema</i><b>.optimize;
+       <br>PRAGMA </b><i>schema</i><b>.optimize(</b><i>MASK</i><b>);</b></p>
+  <p>尝试优化数据库。前两种形式优化所有 schema，而后两种形式仅优化指定的 schema。</p>
+  <p>在大多数应用程序中，按如下方式使用 PRAGMA optimize 可以帮助 SQLite 实现最佳的查询性能：
+  <ol>
+  <li><p>
+  短期数据库连接的应用程序应在关闭每个数据库连接之前运行一次
+  "PRAGMA optimize;"。
+
+  <li><p>
+  使用长期数据库连接的应用程序应在首次打开连接时运行
+  "PRAGMA optimize=0x10002;"，然后也应定期运行"PRAGMA optimize;"，可能是每天或每小时一次。
+
+  <li><p>所有应用程序在模式更改后都应运行"PRAGMA optimize;"，
+  尤其是在执行一个或多个 <a href="lang_createindex.html">CREATE INDEX</a> 语句之后。
+  </ol>
+  <p>这个 pragma 通常是空操作或几乎是如此，并且非常快速。在需要对一个或多个表运行 ANALYZE 的情况
+  下，它会设置一个临时的 <a href="pragma.html#pragma_analysis_limit">analysis limit</a>，在当前 pragma 有效期内有效，
+  防止 ANALYZE 调用运行过久。</p>
+  <p>推荐的做法是短期数据库连接的应用程序在数据库连接关闭时运行一次 "PRAGMA optimize"。
+  持久数据库连接的应用程序应在数据库连接首次打开时运行
+  "PRAGMA optimize=0x10002"，然后在定期间隔——也许是每天一次——再次运行 "PRAGMA optimize"。
+  所有应用程序在模式更改后都应运行 "PRAGMA optimize"，特别是在执行
+  <a href="lang_createindex.html">CREATE INDEX</a> 之后。 </p>
+  <p>此 pragma 执行的优化细节预计会随着时间的推移而变化和改进。
+  应用程序应该预期该 pragma 在未来版本中会执行新的优化。</p>
+
+  <p>可选的 MASK 参数是一个要执行的优化位掩码：
+
+  <table border=0 cellspacing=14 cellpadding=0>
+  <tr><td valign="top">0x00001
+      <td>调试模式。实际上不执行任何优化
+         而是对于每个本应执行的优化返回一行文本。默认关闭。
+  <tr><td valign="top">0x00002
+      <td>对可能受益的表运行 <a href="lang_analyze.html">ANALYZE</a>。默认开启。 </dd>
+  <tr><td valign="top">0x00010
+      <td>运行 <a href="lang_analyze.html">ANALYZE</a> 时，设置一个临时的 <a href="pragma.html#pragma_analysis_limit">PRAGMA analysis_limit</a>，以防止运行时间过长。默认开启。
+  <tr><td valign="top">0x10000
+      <td>检查所有表的大小，而不仅仅是最近使用过的表，以查看是否有任何表显著增长或缩小，因此可能
+         受益于重新分析。默认关闭。
+  </table>
+  <p>默认的 MASK 为 0xfffe。</p>
+
+  <p>要查看所有本应执行但实际上不执行的优化，请运行 "PRAGMA optimize(-1)"。</p>
+
+  <p><b>确定何时运行 Analyze</b></p>
+  <p> 在当前实现中，表仅当以下所有条件都为真时才会被分析：
+  <ol>
+  <li>
+    MASK 的 0x02 位被设置。
+  <li>
+    该表是普通表，而不是视图或虚拟表。
+  <li>
+    表名不以 "sqlite_" 开头。
+  <li>
+    以下一项或多项为真：
+    <ol type="a">
+    <li> MASK 的 0x10000 位被设置
+    <li> 表上的一个或多个索引在 sqlite_stat1 表中缺少条目。
+    <li> 查询规划器在当前数据库连接的生命周期内的某个时间点使用了该表的一个或多个索引的 sqlite_stat1 统计信息。
+    </ol>
+  <li>
+    以下一项或多项为真：
+    <ol type="a">
+    <li> 表上的一个或多个索引在 sqlite_stat1 表中缺少条目。
+    <li> 自上次对该表运行 ANALYZE 以来，该表中的行数增加或减少了 10 倍。
+    </ol>
+  </ol>
+  <p> 表何时被分析的规则可能会在未来版本中发生变化。未来可能会添加新的 MASK 值。
+      此 pragma 的未来版本可能会接受字符串字面量参数而不是位掩码，尽管为了向后兼容，位掩码参数仍将继续受支持。
+<a name="pragma_page_count"></a>
+<h _id=pragma_page_count style="display:none"> PRAGMA page_count</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>page_count;</b></p>
+    <p>返回数据库文件中的总页数。</p>
+<a name="pragma_page_size"></a>
+<h _id=pragma_page_size style="display:none"> PRAGMA page_size</h><hr>
+   <p><b>PRAGMA </b><i>schema.</i><b>page_size;
+       <br>PRAGMA </b><i>schema.</i><b>page_size = </b><i>bytes</i><b>;</b></p>
+    <p>查询或设置数据库的页面大小。页面大小必须是介于 512 到 65536（含）之间的 2 的幂。
+    </p>
+
+    <p>当创建新数据库时，SQLite 会根据平台和文件系统为数据库分配页面大小。
+    许多年来，默认页面大小几乎总是 1024 字节，但从 SQLite <a href="releaselog/3_12_0.html">version 3.12.0</a>（2016-03-29）开始，
+    默认页面大小增加到 4096。
+    对于大多数应用程序，推荐使用默认页面大小。
+
+    <p>指定新的页面大小不会立即更改页面大小。相反，新页面大小会被记住，并在数据库首次被创建时（如果在发出 page_size pragma 时尚未存在）使用，
+    或在同一数据库连接上在非 <a href="wal.html">WAL mode</a> 下运行的下一次 <a href="lang_vacuum.html">VACUUM</a> 命令时生效。</p>
+
+    <p><a href="compile.html#default_page_size">SQLITE_DEFAULT_PAGE_SIZE</a> 编译时选项可用于更改分配给新数据库的默认页面大小。
+<a name="pragma_parser_trace"></a>
+<h _id=pragma_parser_trace style="display:none"> PRAGMA parser_trace</h><hr>
+    <p><b>PRAGMA parser_trace = </b><i>boolean</i><b>; </b></p>
+
+    <p>如果 SQLite 在编译时使用了 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项，则 parser_trace pragma 可用于打开
+    SQLite 内部使用的 SQL 解析器的跟踪。
+    该功能用于调试 SQLite 本身。</p>
+
+    
+    <p style='background-color: #f0e0ff;'>
+    此 pragma 用于调试 SQLite 本身。
+    仅在使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项时可用。</p>
+  
+<a name="pragma_pragma_list"></a>
+<h _id=pragma_pragma_list style="display:none"> PRAGMA pragma_list</h><hr>
+    <p><b>PRAGMA pragma_list;</b>
+    <p>此 pragma 返回数据库连接已知的 PRAGMA 命令列表。
+<a name="pragma_query_only"></a>
+<h _id=pragma_query_only style="display:none"> PRAGMA query_only</h><hr>
+    <p><b>PRAGMA query_only;
+      <br>PRAGMA query_only = </b><i>boolean</i><b>;</b></p>
+
+    <p>启用 query_only pragma 时可防止对数据库文件的数据进行更改。
+    启用此 pragma 后，任何尝试执行 CREATE、DELETE、DROP、INSERT 或 UPDATE 都会导致 <a href="rescode.html#readonly">SQLITE_READONLY</a> 错误。
+    但数据库并不是真正只读的。您仍可以运行
+    <a href="wal.html#ckpt">checkpoint</a> 或 <a href="lang_transaction.html">COMMIT</a>，并且
+    <a href="c3ref/db_readonly.html">sqlite3_db_readonly()</a> 例程的返回值不受影响。
+     </p>
+<a name="pragma_quick_check"></a>
+<h _id=pragma_quick_check style="display:none"> PRAGMA quick_check</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>quick_check;
+      <br>PRAGMA </b><i>schema.</i><b>quick_check(</b><i>N</i><b>)</b>
+      <br>PRAGMA </b><i>schema.</i><b>quick_check(</b><i>TABLENAME</i><b>)</b></p>
+    <p>此 pragma 类似于 <a href="pragma.html#pragma_integrity_check">integrity_check</a>，但它不验证
+    UNIQUE 约束，也不验证
+    索引内容是否与表内容匹配。通过跳过 UNIQUE
+    和索引一致性检查，quick_check 能够更快地运行。
+    PRAGMA quick_check 的运行时间是 O(N)，而 <a href="pragma.html#pragma_integrity_check">PRAGMA integrity_check</a>
+    需要 O(NlogN) 时间，其中 N 是数据库中行的总数。
+    除此之外，这两个 pragma 是相同的。
+    </p>
+<a name="pragma_read_uncommitted"></a>
+<h _id=pragma_read_uncommitted style="display:none"> PRAGMA read_uncommitted</h><hr>
+    <p><b>PRAGMA read_uncommitted;
+       <br>PRAGMA read_uncommitted = </b><i>boolean</i><b>;</b></p>
+    <p>查询、设置或清除 READ UNCOMMITTED 隔离级别。SQLite 的默认隔离级别是 SERIALIZABLE。
+    任何进程或线程都可以选择 READ UNCOMMITTED 隔离级别，但除非在共享页面和模式缓存的连接之间，否则仍将使用 SERIALIZABLE。
+    使用 <a href="c3ref/enable_shared_cache.html">sqlite3_enable_shared_cache()</a> API 来启用缓存共享。
+    默认情况下禁用缓存共享。
+    </p>
+
+    <p>有关更多信息，请参见 <a href="sharedcache.html">SQLite Shared-Cache Mode</a>。</p>
+<a name="pragma_recursive_triggers"></a>
+<h _id=pragma_recursive_triggers style="display:none"> PRAGMA recursive_triggers</h><hr>
+    <p><b>PRAGMA recursive_triggers;
+       <br>PRAGMA recursive_triggers = </b><i>boolean</i><b>;</b></p>
+    <p>查询、设置或清除递归触发器功能。
+
+    <p>更改 recursive_triggers 设置会影响
+       使用该数据库连接准备的所有语句的执行，包括在更改设置之前准备的语句。
+       使用传统的 <a href="c3ref/prepare.html">sqlite3_prepare()</a> 接口准备的任何现有语句在 recursive_triggers 设置更改后可能会失败并出现 <a href="rescode.html#schema">SQLITE_SCHEMA</a> 错误。
+
+    <p>在 SQLite <a href="releaselog/3_6_18.html">version 3.6.18</a>（2009-09-11）之前，
+    不支持递归触发器。
+    SQLite 的行为始终如同此 pragma 设置为 OFF。
+    在 version 3.6.18 中添加了对递归触发器的支持，
+    但最初默认关闭以保持兼容性。未来版本的 SQLite
+    可能会默认开启递归触发器。
+    </p>
+
+    <p>触发器递归的深度有一个由
+    <a href="limits.html#max_trigger_depth">SQLITE_MAX_TRIGGER_DEPTH</a> 编译时选项设置的硬性上限，以及由
+    <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimittriggerdepth">SQLITE_LIMIT_TRIGGER_DEPTH</a>,...) 设置的运行时限制。</p>
+<a name="pragma_reverse_unordered_selects"></a>
+<h _id=pragma_reverse_unordered_selects style="display:none"> PRAGMA reverse_unordered_selects</h><hr>
+    <p><b>PRAGMA reverse_unordered_selects;
+       <br>PRAGMA reverse_unordered_selects = </b><i>boolean</i><b>;</b></p>
+    <p>启用此 PRAGMA 后，许多没有 ORDER BY 子句的 <a href="lang_select.html">SELECT</a> 语句将以相反的顺序输出结果。
+    这有助于调试对结果顺序做出无效假设的应用程序。
+    reverse_unordered_selects pragma 适用于大多数 SELECT 语句，
+    但查询规划器有时可能会选择不容易颠倒的算法，在这种情况下无论 reverse_unordered_selects 设置如何，输出顺序都将保持不变。
+    <p>如果 SELECT 省略了 ORDER BY 子句，SQLite 不会保证结果顺序。
+    即便如此，结果顺序在多次运行中通常不会改变，因此许多应用程序错误地依赖于当前任意的输出顺序。
+    然而，有时新的 SQLite 版本会包含优化器增强，这可能会导致在没有 ORDER BY 子句的查询结果顺序发生变化。
+    当发生这种情况时，依赖特定输出顺序的应用程序可能会出现故障。
+    通过多次在禁用和启用此 pragma 的情况下运行应用程序，可以及早识别并修复应用程序对输出顺序的错误假设，从而降低因链接到不同版本的 SQLite 所引发的问题。
+    </p>
+<a name="pragma_schema_version"></a>
+<h _id=pragma_schema_version style="display:none"> PRAGMA schema_version</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>schema_version; 
+      <br>PRAGMA </b><i>schema.</i><b>schema_version = </b><i>integer </i>;
+
+<p>   schema_version pragma 将获取或设置
+       位于 <a href="fileformat2.html#database_header">database header</a> 偏移 40 处的 schema-version 整数的值。
+
+<p>    每当 schema 发生更改时，SQLite 会自动增加 schema-version。
+       每个 SQL 语句运行时都会检查 schema version，以确保自该 SQL 
+       语句被 <a href="c3ref/prepare.html">prepared</a> 以来 schema 未发生更改。
+       使用 "PRAGMA schema_version=N" 试图更改 schema_version
+       的值可能会导致 SQL 语句使用过时的 schema 运行，
+       从而产生错误答案和/或
+       <a href="howtocorrupt.html#cfgerr">database corruption</a>。
+       读取 schema_version 总是安全的，但更改 schema_version 可能会导致问题。
+       因此，当为某个数据库连接启用了
+       <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive">defensive mode</a> 时，尝试更改 schema_version 的值将默默地成为空操作。
+
+       
+    <p><span style='background-color: #ffff60;'>
+    <b>警告：</b>
+    滥用此 pragma 可能导致 <a href="howtocorrupt.html#cfgerr">database corruption</a>。
+    </span></p>
+  
+
+<p>    对于此 pragma 来说，<a href="lang_vacuum.html">VACUUM</a> 命令被视为 schema 更改，
+       因为 <a href="lang_vacuum.html">VACUUM</a> 通常会更改 "rootpage"
+       用于 <a href="schematab.html">sqlite_schema table</a> 中条目的值。
+
+
+<p>    另见 <a href="pragma.html#pragma_application_id">application_id pragma</a> 和 <a href="pragma.html#pragma_user_version">user_version pragma</a>。
+<a name="pragma_secure_delete"></a>
+<h _id=pragma_secure_delete style="display:none"> PRAGMA secure_delete</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>secure_delete;
+     <br>PRAGMA </b><i>schema.</i><b>secure_delete = </b><i>boolean</i>|<b>FAST</b></p>
+    <p>查询或更改 secure-delete 设置。当 secure_delete 为开启状态时，SQLite 会用零覆盖已删除的内容。
+    secure_delete 的默认设置由 <a href="compile.html#secure_delete">SQLITE_SECURE_DELETE</a> 编译时选项决定，通常为关闭。关闭 secure_delete 可以通过减少 CPU 周期数和磁盘 I/O 来提升性能。
+    希望在删除或更新内容后避免留下取证痕迹的应用，应在执行删除或更新之前启用 secure_delete pragma，或在删除或更新之后运行 <a href="lang_vacuum.html">VACUUM</a>。
+
+    <p>secure_delete 的 “fast” 设置（大约在 2017-08-01 添加）是一种介于 “on” 与 “off” 之间的中间设置。
+    当 secure_delete 设置为 “fast” 时，SQLite 只有在不会增加 I/O 量的情况下才会用零覆盖已删除的内容。换言之，“fast” 设置会使用更多的 CPU 周期，但不会增加 I/O。
+    这会导致从 <a href="fileformat2.html#btree">b-tree pages</a> 中清除所有旧内容，但在 <a href="fileformat2.html#freelist">freelist pages</a> 上仍会留下取证痕迹。
+
+    <p>
+    当存在 <a href="lang_attach.html">attached databases</a> 且 pragma 中未指定数据库时，所有数据库的 secure-delete 设置都将被更改。
+    新附加数据库的 secure-delete 设置为执行 ATTACH 命令时主数据库的设置。
+
+    <p>
+    当多个数据库连接共享同一缓存时，对某个数据库连接更改 secure-delete 标志会影响所有连接。
+    </p>
+
+    <p><b>限制：</b>
+    secure_delete pragma 只会将删除的内容从普通表中清除。如果 <a href="vtab.html">virtual tables</a> 将内容存储在 <a href="vtab.html#xshadowname">shadow tables</a> 中，那么从虚拟表中删除内容并不一定会从 shadow tables 中删除取证痕迹。
+    尤其是 SQLite 随附的 <a href="fts3.html">FTS3</a> 和 <a href="fts5.html">FTS5</a> 虚拟表即使启用了 secure_delete pragma，也可能在其 shadow tables 中留下取证痕迹。
+    </p>
+<a name="pragma_short_column_names"></a>
+<h _id=pragma_short_column_names style="display:none"> PRAGMA short_column_names</h><hr>
+    <p><b>PRAGMA short_column_names;
+       <br>PRAGMA short_column_names = </b><i>boolean</i><b>;</b></p>
+
+    <p>查询或更改 short-column-names 标志。此标志影响 SQLite 为 <a href="lang_select.html">SELECT</a> 语句返回的数据命名列的方式。
+    有关详细信息，请参阅 <a href="pragma.html#pragma_full_column_names">full_column_names</a> pragma。
+    </p>
+
+    
+    <p style='background-color: #ffd0d0;'>
+    <b>该 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。
+    当使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译 SQLite 时，此 pragma 可以省略。
+    </p>
+  
+<a name="pragma_shrink_memory"></a>
+<h _id=pragma_shrink_memory style="display:none"> PRAGMA shrink_memory</h><hr>
+    <p><b>PRAGMA shrink_memory</b></p>
+
+    <p>此 pragma 会使其所在的数据库连接释放尽可能多的内存，方法是调用
+    <a href="c3ref/db_release_memory.html">sqlite3_db_release_memory()</a>。
+    </p>
+<a name="pragma_soft_heap_limit"></a>
+<h _id=pragma_soft_heap_limit style="display:none"> PRAGMA soft_heap_limit</h><hr>
+    <p><b>PRAGMA soft_heap_limit<br>
+          PRAGMA soft_heap_limit=</b><i>N</i></p>
+
+    <p>该 pragma 使用参数 N（如果指定且为非负整数）调用 <a href="c3ref/hard_heap_limit64.html">sqlite3_soft_heap_limit64()</a> 接口。
+    soft_heap_limit pragma 始终返回与调用 <a href="c3ref/hard_heap_limit64.html">sqlite3_soft_heap_limit64</a>(-1) C 语言函数所返回的相同整数。
+    </p>
+    <p>另见 <a href="pragma.html#pragma_hard_heap_limit">hard_heap_limit pragma</a>。
+<a name="pragma_stats"></a>
+<h _id=pragma_stats style="display:none"> PRAGMA stats</h><hr>
+    <p><b>PRAGMA stats;</b> </p>
+    <p>此 pragma 返回有关表和索引的辅助信息。返回的信息在测试期间用于帮助验证查询规划器是否正常运行。
+    此 pragma 的格式和含义很可能会在版本之间发生变化。由于其易变性，此 pragma 的行为和输出格式故意未记录。</p>
+
+    
+    <p style='background-color: #f0e0ff;'>
+    此 pragma 的预期用途仅限于测试和验证 SQLite。此 pragma 可能随时更改，且不推荐由应用程序使用。</p>
+  
+<a name="pragma_synchronous"></a>
+<h _id=pragma_synchronous style="display:none"> PRAGMA synchronous</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>synchronous;
+        <br>PRAGMA </b><i>schema.</i><b>synchronous = </b>
+          <i>0 | OFF | 1 | NORMAL | 2 | FULL | 3 | EXTRA</i><b>;</b></p>
+
+    <p>查询或更改 “synchronous” 标志的设置。
+    第一个（查询）形式将返回 synchronous 设置的整数值。第二种形式更改 synchronous 设置。
+    各种 synchronous 设置的含义如下：</p>
+    <dl>
+    <dt><b>EXTRA</b> (3)</dt>
+    <dd><p>
+    EXTRA synchronous 类似于 FULL，新增功能是在删除模式下，提交事务时在回滚日志被 unlink 之后同步包含该日志的目录。
+    如果提交紧随其后发生电源中断，EXTRA 提供了额外的持久性保障。
+    如果没有 EXTRA，根据底层文件系统，可能会出现单个在电源中断前提交的事务在重启后被回滚的情况。
+    数据库不会损坏。但如果未设置 EXTRA，可能会丢失最后一个事务，从而违反持久性。
+    <p>
+    在 <a href="wal.html">WAL mode</a> 中，EXTRA 与 FULL 没有区别。
+    </dd>
+    <dt><b>FULL</b> (2)</dt>
+    <dd><p>
+    当 synchronous 为 FULL (2) 时，SQLite 数据库引擎将调用 <a href="vfs.html">VFS</a> 的 xSync 方法，以确保在继续之前所有内容都被安全地写入磁盘表面。
+    这可确保操作系统崩溃或断电不会损坏数据库。
+    <p>
+    FULL 是 <a href="lockingv3.html#rollback">rollback journal</a> 的默认 synchronous 模式。
+    FULL 在 <a href="wal.html">WAL mode</a> 中是原子、一致、隔离且持久（ACID）的，在 <a href="lockingv3.html#rollback">rollback journal</a> 中则是原子、一致且隔离的。
+    在某些底层文件系统下，使用 rollback journal 时 FULL 也可能具备持久性。但在 rollback 模式下，FULL 不一定能在电源中断后保持持久性，因此如果需要持久性，最好将 synchronous 模式设置为 EXTRA。
+    <dt><b>NORMAL</b> (1)</dt>
+    <dd><p>
+    当 synchronous 为 NORMAL (1) 时，SQLite 数据库引擎仍会在最关键的时刻进行同步，但频率低于 FULL 模式。在旧文件系统上，如果在恰当的时刻发生断电，可能会导致在 <a href="pragma.html#pragma_journal_mode">journal_mode</a>=DELETE 的情况下数据库损坏的极小概率。
+    <a href="wal.html">WAL mode</a> 在 synchronous=NORMAL 下不会损坏，并且在现代文件系统上 DELETE 模式也可能安全。
+    WAL 模式在 synchronous=NORMAL 下始终保持一致，但 WAL 模式确实会失去持久性。在 WAL 模式中使用 synchronous=NORMAL 提交的事务可能在断电或系统崩溃后回滚。
+    无论 synchronous 设置或 journal 模式如何，事务在应用程序崩溃时仍然保持持久性。
+    <p>
+    synchronous=NORMAL 设置在大多数运行于 <a href="wal.html">WAL mode</a> 的应用中在性能与安全之间提供了最佳平衡。
+    在 WAL 模式下使用 synchronous NORMAL 会丢失跨断电的持久性，但对于大多数应用来说这并不重要。
+    事务仍保持原子性、一致性和隔离性，这些是大多数用例中最重要的特性。</dd>
+    <dt><b>OFF</b> (0)</dt>
+    <dd><p>
+    当 synchronous 为 OFF (0) 时，SQLite 在将数据传递给操作系统后立即继续，而不进行同步。
+    如果运行 SQLite 的应用崩溃，数据仍然安全，但如果操作系统崩溃或计算机在数据写入非易失存储之前断电，数据库 <a href="howtocorrupt.html#cfgerr">可能会损坏</a>。
+    另一方面，使用 synchronous OFF 时提交可以快得多。
+    <p>
+    在从头创建新数据库时，且在途中发生断电后可以重新执行创建过程，同时对性能有较高要求的情况下，将 synchronous 设置为 OFF 是一个不错的选择。
+    </dd></dl>
+    </p>
+
+    <p>以下是矩阵：
+
+    <p><table border="1" cellpadding="0" cellspacing="0">
+    <tr>
+    <th>&nbsp;
+    <th>&nbsp;Rollback Mode&nbsp;
+    <th>&nbsp;WAL Mode&nbsp;
+    </tr>
+    <tr>
+    <th>&nbsp;EXTRA&nbsp;
+    <td align="center">&nbsp;ACID&nbsp;
+    <td align="center">&nbsp;ACID&nbsp;
+    </tr>
+    <tr>
+    <th>&nbsp;FULL&nbsp;
+    <td align="center">&nbsp;Maybe not durable&nbsp;
+    <td align="center">&nbsp;ACID&nbsp;
+    </tr>
+    <tr>
+    <th>&nbsp;NORMAL&nbsp;
+    <td align="center">&nbsp;Maybe not consistent&nbsp;
+    <td align="center">&nbsp;Maybe not durable&nbsp;
+    </tr>
+    <tr>
+    <th>&nbsp;OFF&nbsp;
+    <td align="center">&nbsp;Not consistent&nbsp;
+    <td align="center">&nbsp;Not consistent&nbsp;
+    </tr>
+    </table>
+
+ 
+    <p>在 <a href="wal.html">WAL</a> 模式中，当 synchronous 为 NORMAL (1) 时，WAL 文件在每个 <a href="wal.html#ckpt">checkpoint</a> 之前会被同步，数据库文件在每次完成的 <a href="wal.html#ckpt">checkpoint</a> 之后会被同步，且 WAL 文件头在 WAL 文件在 checkpoint 后开始被重用时也会被同步，但大多数事务期间不会进行同步操作。
+    在 WAL 模式下使用 synchronous=FULL 时，每次事务提交后还会额外同步 WAL 文件。
+    每个事务之后的额外 WAL 同步有助于确保事务在断电后仍保持持久性。无论是否存在 synchronous=FULL 提供的额外同步，事务始终一致。
+    如果无需持久性，那么在 WAL 模式下一般只需 synchronous=NORMAL。</p>
+
+    <p>TEMP 模式始终设置为 synchronous=OFF，因为 TEMP 的内容是短暂的，不期望在断电后存活。
+    尝试更改 TEMP 的 synchronous 设置会被悄然忽略。
+
+    <p>另见 <a href="pragma.html#pragma_fullfsync">fullfsync</a> 以及 <a href="pragma.html#pragma_checkpoint_fullfsync">checkpoint_fullfsync</a> pragmas。</p>
+<a name="pragma_table_info"></a>
+<h _id=pragma_table_info style="display:none"> PRAGMA table_info</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>table_info(</b><i>table-name</i><b>);</b></p>
+    <p>此 pragma 为命名表中的每个普通列返回一行。
+    结果集中的列包括：“name”（其名称），“type”（如果提供则为数据类型，否则为 ''），“notnull”（列是否可以为 NULL），“dflt_value”（列的默认值）；以及 “pk”（对于不属于主键的列为零，或者为该列在主键中的 1 基索引）。</p>
+    <p>“cid” 列应仅理解为 “当前结果集中的排名”。</p>
+    <p>table_info pragma 中指定的表也可以是视图。</p>
+    <p>此 pragma 不显示有关 <a href="gencol.html">generated columns</a> 或 <a href="vtab.html#hiddencol">hidden columns</a> 的信息。要获取包括生成列和隐藏列在内的更完整列列表，请使用 <a href="pragma.html#pragma_table_xinfo">PRAGMA table_xinfo</a>。</p>
+<a name="pragma_table_list"></a>
+<h _id=pragma_table_list style="display:none"> PRAGMA table_list</h><hr>
+    <p> <b>PRAGMA table_list;
+         <br>PRAGMA </b><i>schema.</i><b>table_list;
+         <br>PRAGMA table_list(</b><i>table-name</i><b>);</b></p>
+    <p>此 pragma 返回有关架构中表和视图的信息，每行输出对应一个表。table_list pragma 首次出现在 SQLite 版本 3.37.0（2021-11-27）。
+    自首次发布以来，table_list pragma 返回的列包括以下所列内容。未来版本的 SQLite 可能会添加额外的输出列。
+    <p>
+    <ol>
+    <li> <b>schema</b>：表或视图所在的架构（例如 “main” 或 “temp”）。
+    <li> <b>name</b>：表或视图的名称。
+    <li> <b>type</b>：对象类型 - “table”、“view”、“shadow”（用于 <a href="vtab.html#xshadowname">shadow tables</a>）或 “virtual”（用于 <a href="vtab.html">virtual tables</a>）。
+    <li> <b>ncol</b>：表中的列数，包括 <a href="gencol.html">generated columns</a> 与 <a href="vtab.html#hiddencol">hidden columns</a>。
+    <li> <b>wr</b>：如果表是 <a href="withoutrowid.html">WITHOUT ROWID</a> 表则为 1，否则为 0。
+    <li> <b>strict</b>：如果表是 <a href="stricttables.html">STRICT table</a> 则为 1，否则为 0。
+    <li> <i>未来版本可能会添加更多列。</i>
+    </ol>
+    <p>
+    默认行为是显示所有架构中的所有表。如果在 pragma 之前出现 <i>schema.</i> 名称，则仅显示该架构中的表。如果提供了 <i>table-name</i> 参数，则仅返回该表的信息。
+<a name="pragma_table_xinfo"></a>
+<h _id=pragma_table_xinfo style="display:none"> PRAGMA table_xinfo</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>table_xinfo(</b><i>table-name</i><b>);</b></p>
+    <p>此 pragma 为命名表中的每一列返回一行，包括 <a href="gencol.html">generated columns</a> 和 <a href="vtab.html#hiddencol">hidden columns</a>。
+    输出具有与 <a href="pragma.html#pragma_table_info">PRAGMA table_info</a> 相同的列，并额外包含一列 “hidden”，其值表示普通列（0）、动态或存储的生成列（2 或 3），或虚拟表中的隐藏列（1）。
+    该字段非零的行即是 <a href="pragma.html#pragma_table_info">PRAGMA table_info</a> 所省略的行。
+<a name="pragma_temp_store"></a>
+<h _id=pragma_temp_store style="display:none"> PRAGMA temp_store</h><hr>
+    <p><b>PRAGMA temp_store;
+        <br>PRAGMA temp_store = </b>
+            <i>0 | DEFAULT | 1 | FILE | 2 | MEMORY</i><b>;</b></p>
+
+    <p>查询或更改 “<b>temp_store</b>” 参数的设置。
+    当 temp_store 为 DEFAULT (0) 时，使用编译时 C 预处理宏 <a href="compile.html#temp_store">SQLITE_TEMP_STORE</a> 来确定临时表和索引的存储位置。
+    当 temp_store 为 MEMORY (2) 时，<a href="inmemorydb.html#temp_db">临时表</a> 和索引将像在纯 <a href="inmemorydb.html">in-memory databases</a> 中一样存放。
+    当 temp_store 为 FILE (1) 时，<a href="inmemorydb.html#temp_db">临时表</a> 和索引存储在文件中。
+    当指定 <b>FILE</b> 时，可使用 <a href="pragma.html#pragma_temp_store_directory">temp_store_directory</a> pragma 指定包含临时文件的目录。
+    更改 temp_store 设置后，所有现有的临时表、索引、触发器和视图会立即被删除。</p>
+
+    <p>库的编译时 C 预处理符号 <a href="compile.html#temp_store">SQLITE_TEMP_STORE</a> 有可能覆盖此 pragma 设置。
+    以下表总结了 <a href="compile.html#temp_store">SQLITE_TEMP_STORE</a> 预处理宏与 temp_store pragma 之间的交互：</p>
+
+    <blockquote>
+    <table cellpadding="2" border="1">
+    <tr><th valign="bottom"><a href="compile.html#temp_store">SQLITE_TEMP_STORE</a></th>
+        <th valign="bottom">PRAGMA<br>temp_store</th>
+        <th>Storage used for<br>TEMP tables and indices</th></tr>
+    <tr><td align="center">0</td>
+        <td align="center"><em>any</em></td>
+        <td align="center">file</td></tr>
+    <tr><td align="center">1</td>
+        <td align="center">0</td>
+        <td align="center">file</td></tr>
+    <tr><td align="center">1</td>
+        <td align="center">1</td>
+        <td align="center">file</td></tr>
+    <tr><td align="center">1</td>
+        <td align="center">2</td>
+        <td align="center">memory</td></tr>
+    <tr><td align="center">2</td>
+        <td align="center">0</td>
+        <td align="center">memory</td></tr>
+    <tr><td align="center">2</td>
+        <td align="center">1</td>
+        <td align="center">file</td></tr>
+    <tr><td align="center">2</td>
+        <td align="center">2</td>
+        <td align="center">memory</td></tr>
+    <tr><td align="center">3</td>
+        <td align="center"><em>any</em></td>
+        <td align="center">memory</td></tr>
+    </table>
+    </blockquote>
+<a name="pragma_temp_store_directory"></a>
+<h _id=pragma_temp_store_directory style="display:none"> PRAGMA temp_store_directory</h><hr>
+    <p><b>PRAGMA temp_store_directory;
+      <br>PRAGMA temp_store_directory = '</b><i>directory-name</i><b>';</b></p>
+    <p>查询或更改 <a href="c3ref/temp_directory.html">sqlite3_temp_directory</a> 全局变量的值，许多操作系统接口后端使用该变量来确定存储 <a href="inmemorydb.html#temp_db">临时表</a> 和索引的位置。</p>
+
+    <p>更改 temp_store_directory 设置时，发出 pragma 的数据库连接中的所有现有临时表、索引、触发器和视图会立即被删除。
+    实际操作中，应在一个进程的第一个数据库连接打开后立即设置 temp_store_directory。
+    如果在同一进程中其他数据库连接仍打开的情况下更改 temp_store_directory，则其行为未定义，且很可能是不理想的。</p>
+
+    <p>更改 temp_store_directory 设置并非线程安全。
+    当应用程序中的其他线程同时正在运行任何 SQLite 接口时，切勿更改 temp_store_directory 设置。
+    否则会导致未定义行为。更改 temp_store_directory 设置会写入 <a href="c3ref/temp_directory.html">sqlite3_temp_directory</a> 全局变量，且该全局变量不受互斥锁保护。</p>
+
+    <p><i>directory-name</i> 应该用单引号括起。
+    要恢复默认目录，请将 <i>directory-name</i> 设置为空字符串，例如 <i>PRAGMA temp_store_directory = ''</i>。
+    如果找不到 <i>directory-name</i> 或其不可写，则会引发错误。</p>
+
+    <p>临时文件的默认目录取决于操作系统。一些操作系统接口可能选择忽略此变量，并将临时文件放在与此处指定目录不同的其他目录中。
+    从这个意义上讲，此 pragma 仅具有建议性。</p>
+
+    
+    <p style='background-color: #ffd0d0;'>
+    <b>该 pragma 已弃用</b>，仅为向后兼容而存在。新应用应避免使用此 pragma。旧应用应尽早停止使用此 pragma。
+    当使用 <a href="compile.html#omit_deprecated">SQLITE_OMIT_DEPRECATED</a> 编译 SQLite 时，此 pragma 可以省略。
+    </p>
+  
+<a name="pragma_threads"></a>
+<h _id=pragma_threads style="display:none"> PRAGMA threads</h><hr>
+    <p><b>PRAGMA threads;
+      <br>PRAGMA threads = </b><i>N</i><b>;</b></p>
+    <p>查询或更改当前数据库连接的 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitworkerthreads">SQLITE_LIMIT_WORKER_THREADS</a>,...) 限制的值。
+    此限制为准备语句允许启动以协助查询的辅助线程数量设置了上限。
+    默认限制为 0，除非通过 <a href="compile.html#default_worker_threads">SQLITE_DEFAULT_WORKER_THREADS</a> 编译时选项更改。
+    当限制为零时，即表示不会启动任何辅助线程。</p>
+
+    <p>此 pragma 是对 <a href="c3ref/limit.html">sqlite3_limit</a>(db,<a href="c3ref/c_limit_attached.html#sqlitelimitworkerthreads">SQLITE_LIMIT_WORKER_THREADS</a>,...) 接口的简单封装。
+    </p>
+<a name="pragma_trusted_schema"></a>
+<h _id=pragma_trusted_schema style="display:none"> PRAGMA trusted_schema</h><hr>
+    <p><b>PRAGMA trusted_schema;
+      <br>PRAGMA trusted_schema = </b><i>boolean</i><b>;</b></p>
+    <p>trusted_schema 设置是每连接的布尔值，用于确定未经过安全审核的 SQL 函数和虚拟表是否允许由视图、触发器或模式中的表达式（如 <a href="lang_createtable.html#ckconst">CHECK constraints</a>、<a href="lang_createtable.html#dfltval">DEFAULT clauses</a>、<a href="gencol.html">generated columns</a>、<a href="expridx.html">expression indexes</a> 和/或 <a href="partialindex.html">partial indexes</a>）运行。
+    也可以通过 <a href="c3ref/db_config.html">sqlite3_db_config</a>(db,<a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigtrustedschema">SQLITE_DBCONFIG_TRUSTED_SCHEMA</a>,...) C 语言接口来控制此设置。
+    <p>为保持向后兼容，该设置默认为 ON。关闭它有一定优势，大多数应用即使关闭也不会受到影响。因此，建议所有应用在每个数据库连接打开后尽快将此设置关闭。
+    <p><a href="compile.html#trusted_schema">-DSQLITE_TRUSTED_SCHEMA=0</a> 编译时选项会使此设置默认为 OFF。
+<a name="pragma_user_version"></a>
+<h _id=pragma_user_version style="display:none"> PRAGMA user_version</h><hr>
+      <p><b>PRAGMA </b><i>schema.</i><b>user_version;
+      <br>PRAGMA </b><i>schema.</i><b>user_version = </b><i>integer </i><b>;</b>
+
+  
+<p>    user_version pragma 将获取或设置数据库头偏移量 60 处的 <a href="fileformat2.html#database_header">database header</a> 中的 user-version 整数。
+       user-version 是一个可供应用随意使用的整数。SQLite 本身不使用 user-version。
+
+<p>    另见 <a href="pragma.html#pragma_application_id">application_id pragma</a> 和 <a href="pragma.html#pragma_schema_version">schema_version pragma</a>。
+<a name="pragma_vdbe_addoptrace"></a>
+<h _id=pragma_vdbe_addoptrace style="display:none"> PRAGMA vdbe_addoptrace</h><hr>
+    <p><b>PRAGMA vdbe_addoptrace = </b><i>boolean</i><b>;</b></p>
+
+    <p>如果 SQLite 已使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项编译，则 vdbe_addoptrace pragma 可用于在代码生成期间生成时显示完整的 VDBE 操作码。
+    该功能用于调试 SQLite 本身。详见 <a href="vdbe.html#trace">VDBE documentation</a>。</p>
+
+    
+    <p style='background-color: #f0e0ff;'>
+    此 pragma 旨在调试 SQLite 本身。仅在使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项时可用。</p>
+  
+<a name="pragma_vdbe_debug"></a>
+<h _id=pragma_vdbe_debug style="display:none"> PRAGMA vdbe_debug</h><hr>
+    <p><b>PRAGMA vdbe_debug = </b><i>boolean</i><b>;</b></p>
+
+    <p>如果 SQLite 已使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项编译，则 vdbe_debug pragma 是另外三个仅用于调试的 pragmas（vdbe_addoptrace、vdbe_listing 和 vdbe_trace）的简写。
+    该功能用于调试 SQLite 本身。详见 <a href="vdbe.html#trace">VDBE documentation</a>。</p>
+
+    
+    <p style='background-color: #f0e0ff;'>
+    此 pragma 旨在调试 SQLite 本身。仅在使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项时可用。</p>
+  
+<a name="pragma_vdbe_listing"></a>
+<h _id=pragma_vdbe_listing style="display:none"> PRAGMA vdbe_listing</h><hr>
+    <p><b>PRAGMA vdbe_listing = </b><i>boolean</i><b>;</b></p>
+
+    <p>如果 SQLite 已使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项编译，则 vdbe_listing pragma 可用于在每个语句求值时在标准输出上打印完整的虚拟机操作码列表。
+    当 vdbe_listing 开启时，会在开始执行之前打印程序的全部内容。打印完之后语句照常执行。
+    该功能用于调试 SQLite 本身。详见 <a href="vdbe.html#trace">VDBE documentation</a>。</p>
+
+    
+    <p style='background-color: #f0e0ff;'>
+    此 pragma 旨在调试 SQLite 本身。仅在使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项时可用。</p>
+  
+<a name="pragma_vdbe_trace"></a>
+<h _id=pragma_vdbe_trace style="display:none"> PRAGMA vdbe_trace</h><hr>
+    <p><b>PRAGMA vdbe_trace = </b><i>boolean</i><b>;</b></p>
+
+    <p>如果 SQLite 已使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项编译，则 vdbe_trace pragma 可用于在虚拟机执行操作码时在标准输出上打印这些操作码。
+    该功能用于调试 SQLite。详见 <a href="vdbe.html#trace">VDBE documentation</a>。</p>
+
+    
+    <p style='background-color: #f0e0ff;'>
+    此 pragma 旨在调试 SQLite 本身。仅在使用 <a href="compile.html#debug">SQLITE_DEBUG</a> 编译时选项时可用。</p>
+  
+<a name="pragma_wal_autocheckpoint"></a>
+<h _id=pragma_wal_autocheckpoint style="display:none"> PRAGMA wal_autocheckpoint</h><hr>
+    <p><b>PRAGMA wal_autocheckpoint;<br>
+          PRAGMA wal_autocheckpoint=</b><i>N</i><b>;</b></p>
+
+    <p>此 pragma 查询或设置 <a href="wal.html">write-ahead log</a> 的 <a href="wal.html#ckpt">auto-checkpoint</a> 间隔。
+    当通过 <a href="pragma.html#pragma_journal_mode">journal_mode pragma</a> 启用 <a href="wal.html">write-ahead log</a> 时，只要 WAL 达到或超过 N 页，就会自动运行 checkpoint。
+    将 auto-checkpoint 大小设置为零或负值可以关闭自动 checkpoint。</p>
+    
+    <p>此 pragma 是对 <a href="c3ref/wal_autocheckpoint.html">sqlite3_wal_autocheckpoint()</a> C 接口的封装。
+    所有自动 checkpoint 均为 <a href="c3ref/wal_checkpoint_v2.html">PASSIVE</a>。</p>
+
+    <p>自动 checkpoint 默认启用，间隔为 1000 或 <a href="compile.html#default_wal_autocheckpoint">SQLITE_DEFAULT_WAL_AUTOCHECKPOINT</a>。</p>
+
+<a name="pragma_wal_checkpoint"></a>
+<h _id=pragma_wal_checkpoint style="display:none"> PRAGMA wal_checkpoint</h><hr>
+    <p><b>PRAGMA </b><i>schema.</i><b>wal_checkpoint;</b><br>
+       <b>PRAGMA </b><i>schema.</i><b>wal_checkpoint(PASSIVE);</b><br>
+       <b>PRAGMA </b><i>schema.</i><b>wal_checkpoint(FULL);</b><br>
+       <b>PRAGMA </b><i>schema.</i><b>wal_checkpoint(RESTART);</b><br>
+       <b>PRAGMA </b><i>schema.</i><b>wal_checkpoint(TRUNCATE);</b><br>
+       <b>PRAGMA </b><i>schema.</i><b>wal_checkpoint(NOOP);</b>
+   </p>
+
+    <p>如果通过 <a href="pragma.html#pragma_journal_mode">journal_mode pragma</a> 启用了 <a href="wal.html">write-ahead log</a>，此 pragma 会在数据库 <i>database</i> 上运行 <a href="wal.html#ckpt">checkpoint</a> 操作，或者如果省略 <i>database</i>，则在所有附加数据库上运行。
+    如果禁用 <a href="wal.html">write-ahead log</a> 模式，则此 pragma 是无害的空操作。</p>
+
+    <p>在不带参数的情况下调用此 pragma 等价于调用 <a href="c3ref/wal_checkpoint.html">sqlite3_wal_checkpoint()</a> C 接口。</p>
+    带参数调用此 pragma 等价于调用 <a href="c3ref/wal_checkpoint_v2.html">sqlite3_wal_checkpoint_v2()</a> C 接口，并将 <a href="c3ref/c_checkpoint_full.html">第 3 个参数</a> 设置为对应的参数：
+
+    <dl>
+    <dt>PASSIVE<dd>
+      在不等待任何数据库读者或写者完成的情况下 checkpoint 尽可能多的帧。如果日志中的所有帧都被 checkpoint，则同步数据库文件。此模式与调用 <a href="c3ref/wal_checkpoint.html">sqlite3_wal_checkpoint()</a> C 接口相同。在此模式下 <a href="c3ref/busy_handler.html">busy-handler callback</a> 永远不会被调用。
+   
+    <dt>FULL<dd>
+      此模式会阻塞 
+      （调用 <a href="c3ref/busy_handler.html">busy-handler callback</a>）
+      直到没有数据库写者，且所有读者都在读取最新的数据库快照。然后 checkpoint 日志文件中的所有帧并同步数据库文件。FULL 在运行时会阻塞并发写者，但读者可以继续。
+   
+    <dt>RESTART<dd>
+      此模式的工作方式与 FULL 相同，新增功能是在 checkpoint 日志文件之后阻塞（调用 <a href="c3ref/busy_handler.html">busy-handler callback</a>），
+      直到所有读者完成对日志文件的使用。这可确保下一个向数据库文件写入内容的客户端将日志文件从头重新开始。RESTART 在运行时会阻塞并发写者，但允许读者继续。
+   
+    <dt>TRUNCATE<dd>
+      此模式的工作方式与 RESTART 相同，新增功能是在成功完成后将 WAL 文件截断为零字节。
+
+    <dt>NOOP<dd>
+      此模式不会 checkpoint 任何帧。用于仅获取返回值。
+    </dl>
+
+
+    <p>wal_checkpoint pragma 返回一行含三个整数列的结果。第一列通常为 0，但如果 RESTART、FULL 或 TRUNCATE checkpoint 被阻止完成（例如因为另一个线程或进程正在主动使用数据库），则为 1。
+    换言之，如果等价调用 <a href="c3ref/wal_checkpoint_v2.html">sqlite3_wal_checkpoint_v2()</a> 会返回 <a href="rescode.html#ok">SQLITE_OK</a>，则第一列为 0；如果会返回 <a href="rescode.html#busy">SQLITE_BUSY</a>，则为 1。
+    第二列为已写入 write-ahead log 文件的已修改页面数。
+    第三列为在 checkpoint 结束时已成功移动回数据库文件的 write-ahead log 文件中的页面数。
+   如果不存在 write-ahead log（例如在不处于 <a href="wal.html">WAL mode</a> 的数据库连接上调用此 pragma），则第二和第三列均为 -1。</p>
+<a name="pragma_writable_schema"></a>
+<h _id=pragma_writable_schema style="display:none"> PRAGMA writable_schema</h><hr>
+    <p><b>PRAGMA writable_schema  = </b><i>boolean</i><b>;</b><br>
+         <b>PRAGMA writable_schema = RESET</b></p>
+
+    <p>当此 pragma 开启且 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive">SQLITE_DBCONFIG_DEFENSIVE</a> 标志关闭时，可使用普通的 <a href="lang_update.html">UPDATE</a>、<a href="lang_insert.html">INSERT</a> 和 <a href="lang_delete.html">DELETE</a> 语句修改 <a href="schematab.html">sqlite_schema</a> 表。
+    如果参数为 “RESET”，则禁用模式写入（与 “PRAGMA writable_schema=OFF” 相同），并且重新加载模式。<span style='background-color: #ffff60;'><b>警告：</b>滥用此 pragma 很容易导致 <a href="howtocorrupt.html#cfgerr">数据库文件损坏</a>。</span>
+
+<hr>
+<p align="center"><small><i>此页面最后更新时间为 2025-11-13 07:12:58Z </small></i></p>

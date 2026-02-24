@@ -1,5 +1,6 @@
 <!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
-<!-- Skip ... -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +9,48 @@
 <title>The Virtual Database Engine of SQLite</title>
 <!-- path= -->
 </head>
-<body>
-<div class=nosearch>
+<body><div class=nosearch>
 <a href="index.html">
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+由WaterRun使用gpt-5.1-codex-mini翻译<br>
+小巧。快速。可靠。任选其三。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="搜索">
 </form>
 </div>
 </div>
@@ -116,105 +119,44 @@ antiRobotGo();
 antiRobotGo();
 }
 antiRobotDefense();
-</script>
-
-<h2>The Virtual Database Engine of SQLite</h2>
+</script><h2>SQLite 的虚拟数据库引擎</h2>
 
 <blockquote><font color="red">
-<b>Obsolete Documentation Warning:</b>
-This document describes the virtual machine used in SQLite version 2.8.0. 
-The virtual machine in SQLite version 3.0 and 3.1 is similar in
-concept but is now register-based instead of stack-based, has five
-operands per opcode instead of three, and has a different set of
-opcodes from those shown below.  See the <a href="opcode.html">virtual machine instructions</a>
-document for the current set of VDBE opcodes and a brief overview
-of how the VDBE operates.  This document is retained as an historical
-reference.
+<b>过时文档警告：</b>
+本文档描述的是 SQLite 版本 2.8.0 中使用的虚拟机。SQLite 3.0 和 3.1 中的虚拟机在概念上类似，但现在是基于寄存器而非基于栈，且每条操作码有五个操作数而不是三个，并且操作码集合与下文所示的不同。有关当前 VDBE 操作码集合以及 VDBE 如何运行的简要概览，请参见<a href="opcode.html">虚拟机指令</a>文档。本文件保留作为历史参考。
 </font></blockquote>
 
 
-<p>If you want to know how the SQLite library works internally,
-you need to begin with a solid understanding of the Virtual Database
-Engine or VDBE.  The VDBE occurs right in the middle of the
-processing stream (see the <a href="arch.html">architecture diagram</a>)
-and so it seems to touch most parts of the library.  Even
-parts of the code that do not directly interact with the VDBE
-are usually in a supporting role.  The VDBE really is the heart of
-SQLite.</p>
+<p>如果您想了解 SQLite 库的内部工作方式，就需要从对虚拟数据库引擎（VDBE）有一个扎实的理解开始。VDBE 位于处理流的正中央（参见<a href="arch.html">架构图</a>），因此它似乎涉及库的大部分区域。即使是不直接与 VDBE 交互的代码部分，通常也是在扮演辅助角色。VDBE 真正是 SQLite 的核心。</p>
 
-<p>This article is a brief introduction to how the VDBE
-works and in particular how the various VDBE instructions
-(documented <a href="opcode.html">here</a>) work together
-to do useful things with the database.  The style is tutorial,
-beginning with simple tasks and working toward solving more
-complex problems.  Along the way we will visit most
-submodules in the SQLite library.  After completing this tutorial,
-you should have a pretty good understanding of how SQLite works
-and will be ready to begin studying the actual source code.</p>
+<p>本文简要介绍了 VDBE 的工作原理，特别是各种 VDBE 指令（可在<a href="opcode.html">此处</a>查阅）如何协同工作以对数据库执行有用的操作。风格上采用教程形式，从简单任务入手，逐步解决更复杂的问题。过程中我们将涉及 SQLite 库中的大多数子模块。完成本教程后，您应该对 SQLite 的工作原理有一个相当不错的理解，并可以开始研究实际的源代码。</p>
 
-<h2>Preliminaries</h2>
+<h2>前言</h2>
 
-<p>The VDBE implements a virtual computer that runs a program in
-its virtual machine language.  The goal of each program is to 
-interrogate or change the database.  Toward this end, the machine
-language that the VDBE implements is specifically designed to
-search, read, and modify databases.</p>
+<p>VDBE 实现了一个虚拟计算机，它在其虚拟机器语言中运行程序。每个程序的目标是查询或修改数据库。为此，VDBE 实现的机器语言是专门为搜索、读取和修改数据库而设计的。</p>
 
-<p>Each instruction of the VDBE language contains an opcode and
-three operands labeled P1, P2, and P3.  Operand P1 is an arbitrary
-integer.   P2 is a non-negative integer.  P3 is a pointer to a data 
-structure or zero-terminated string, possibly null.  Only a few VDBE
-instructions use all three operands.  Many instructions use only
-one or two operands.  A significant number of instructions use
-no operands at all but instead take their data and store their results
-on the execution stack.  The details of what each instruction
-does and which operands it uses are described in the separate
-<a href="opcode.html">opcode description</a> document.</p>
+<p>VDBE 语言的每条指令都包含一个操作码和三个标记为 P1、P2 和 P3 的操作数。操作数 P1 是任意整数。P2 是一个非负整数。P3 是指向数据结构或以零结尾的字符串的指针，也可能为空。只有少数 VDBE 指令使用所有三个操作数。许多指令只使用一个或两个操作数。相当数量的指令根本不使用操作数，而是从执行栈中获取数据并将结果存储在那里。每条指令的具体行为及其使用的操作数在单独的<a href="opcode.html">操作码描述</a>文档中有所说明。</p>
 
-<p>A VDBE program begins
-execution on instruction 0 and continues with successive instructions
-until it either (1) encounters a fatal error, (2) executes a
-Halt instruction, or (3) advances the program counter past the
-last instruction of the program.  When the VDBE completes execution,
-all open database cursors are closed, all memory is freed, and 
-everything is popped from the stack.
-So there are never any worries about memory leaks or 
-undeallocated resources.</p>
+<p>VDBE 程序从指令 0 开始执行，并按顺序连续执行，直到它遇到 (1) 致命错误、(2) 执行 Halt 指令、或 (3) 将程序计数器推进到程序的最后一条指令之后。VDBE 执行完毕后，所有打开的数据库游标都会关闭，所有内存都会释放，栈上的所有内容都会被弹出。因此永远不用担心内存泄漏或资源未释放。</p>
 
-<p>If you have done any assembly language programming or have
-worked with any kind of abstract machine before, all of these
-details should be familiar to you.  So let's jump right in and
-start looking at some code.</p>
+<p>如果您曾经进行过任何汇编语言编程或使用过任何抽象机器，那么所有这些细节对您来说应该很熟悉。那么让我们直奔主题，开始查看一些代码吧。</p>
 
 <a name="insert1"></a>
-<h2>Inserting Records Into The Database</h2>
+<h2>向数据库插入记录</h2>
 
-<p>We begin with a problem that can be solved using a VDBE program
-that is only a few instructions long.  Suppose we have an SQL
-table that was created like this:</p>
+<p>我们先从一个可以通过仅由几条指令组成的 VDBE 程序解决的问题开始。假设我们有一个 SQL 表按照以下方式创建：</p>
 
 <blockquote><pre>
 CREATE TABLE examp(one text, two int);
 </pre></blockquote>
 
-<p>In words, we have a database table named "examp" that has two
-columns of data named "one" and "two".  Now suppose we want to insert a single
-record into this table.  Like this:</p>
+<p>换句话说，我们有一个名为 “examp” 的数据库表，该表有两个名为 “one” 和 “two” 的数据列。现在假设我们想向该表插入一条记录，如下所示：</p>
 
 <blockquote><pre>
 INSERT INTO examp VALUES('Hello, World!',99);
 </pre></blockquote>
 
-<p>We can see the VDBE program that SQLite uses to implement this
-INSERT using the <b>sqlite</b> command-line utility.  First start
-up <b>sqlite</b> on a new, empty database, then create the table.
-Next change the output format of <b>sqlite</b> to a form that
-is designed to work with VDBE program dumps by entering the
-".explain" command.
-Finally, enter the [INSERT] statement shown above, but precede the
-[INSERT] with the special keyword [EXPLAIN].  The [EXPLAIN] keyword
-will cause <b>sqlite</b> to print the VDBE program rather than 
-execute it.  We have:</p>
+<p>我们可以使用 <b>sqlite</b> 命令行实用程序查看 SQLite 用于实现此 INSERT 的 VDBE 程序。首先在一个新的空数据库上启动 <b>sqlite</b>，然后创建该表。接下来，将 <b>sqlite</b> 的输出格式更改为专为 VDBE 程序转储设计的形式，方法是输入 “.explain” 命令。最后，输入上面显示的 [INSERT] 语句，并在 [INSERT] 前加上特殊关键字 [EXPLAIN]。[EXPLAIN] 关键字将使 <b>sqlite</b> 打印 VDBE 程序而不是执行它。我们得到：</p>
 <blockquote><tt>$&nbsp;<b>sqlite&nbsp;test_database_1</b><br>
 sqlite&gt;&nbsp;<b>CREATE&nbsp;TABLE&nbsp;examp(one&nbsp;text,&nbsp;two&nbsp;int);</b><br>
 sqlite&gt;&nbsp;<b>.explain</b><br>
@@ -225,124 +167,51 @@ addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&n
 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;81&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NewRecno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NewRecno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello,&nbsp;World!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MakeRecord&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PutIntKey&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-10&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-11&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-12&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote><p>As you can see above, our simple insert statement is
-implemented in 12 instructions.  The first 3 and last 2 instructions are 
-a standard prologue and epilogue, so the real work is done in the middle 
-7 instructions.  There are no jumps, so the program executes once through 
-from top to bottom.  Let's now look at each instruction in detail.<p>
+8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MakeRecord&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PutIntKey&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+10&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+11&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+12&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote><p>如上所示，我们的简单插入语句是由 12 条指令实现的。前 3 条和后 2 条是标准的前奏和尾声，因此真正的工作是在中间的 7 条指令中完成的。程序没有跳转，因此从上到下只执行一遍。现在我们逐条详细查看每个指令。<p>
 <blockquote><tt>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;81&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The instruction <a href="opcode.html#Transaction">Transaction</a> 
-begins a transaction.  The transaction ends when a Commit or Rollback 
-opcode is encountered.  P1 is the index of the database file on which 
-the transaction is started.  Index 0 is the main database file.  A write 
-lock is obtained on the database file when a transaction is started.  
-No other process can read or write the file while the transaction is 
-underway.  Starting a transaction also creates a rollback journal.  A 
-transaction must be started before any changes can be made to the 
-database.</p>
+<p><a href="opcode.html#Transaction">Transaction</a> 指令启动一个事务。当遇到 Commit 或 Rollback 操作码时事务结束。P1 是事务所启动的数据库文件的索引。索引 0 是主数据库文件。启动事务时会对数据库文件加写锁。在事务进行期间，其他进程不能读取或写入该文件。启动事务还会创建回滚日志。必须先启动事务才能对数据库进行任何更改。</p>
 
-<p>The instruction <a href="opcode.html#VerifyCookie">VerifyCookie</a>
-checks cookie 0 (the database schema version) to make sure it is equal 
-to P2 (the value obtained when the database schema was last read).  
-P1 is the database number (0 for the main database).  This is done to 
-make sure the database schema hasn't been changed by another thread, in 
-which case it has to be reread.</p>
+<p><a href="opcode.html#VerifyCookie">VerifyCookie</a> 指令检查 cookie 0（即数据库模式版本），以确保它等于 P2（数据库模式上次读取时获得的值）。P1 是数据库编号（主数据库为 0）。这样做是为了确保数据库模式没有被其他线程更改，否则必须重新读取。</p>
 
-<p> The second <a href="opcode.html#Transaction">Transaction</a> 
-instruction begins a transaction and starts a rollback journal for 
-database 1, the database used for temporary tables.</p>
+<p>第二个 <a href="opcode.html#Transaction">Transaction</a> 指令开始一个事务并为数据库 1（用于临时表的数据库）启动回滚日志。</p>
 <blockquote><tt>3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp</tt></blockquote>
-<p> The instruction <a href="opcode.html#Integer">Integer</a> pushes 
-the integer value P1 (0) onto the stack.  Here 0 is the number of the 
-database to use in the following OpenWrite instruction.  If P3 is not 
-NULL then it is a string representation of the same integer.  Afterwards 
-the stack looks like this:</p>
+<p><a href="opcode.html#Integer">Integer</a> 指令将整数值 P1（0）压入栈中。此处 0 是随后 OpenWrite 指令中要使用的数据库编号。如果 P3 非 NULL，则它是相同整数的字符串表示。之后栈如下所示：</p>
 <blockquote><table border=2><tr><td align=left>(integer) 0</td></tr></table></blockquote>
-<p> The instruction <a href="opcode.html#OpenWrite">OpenWrite</a> opens 
-a new read/write cursor with handle P1 (0 in this case) on table "examp", 
-whose root page is P2 (3, in this database file).  Cursor handles can be 
-any non-negative integer.  But the VDBE allocates cursors in an array 
-with the size of the array being one more than the largest cursor.  So 
-to conserve memory, it is best to use handles beginning with zero and 
-working upward consecutively.  Here P3 ("examp") is the name of the 
-table being opened, but this is unused, and only generated to make the 
-code easier to read.  This instruction pops the database number to use 
-(0, the main database) from the top of the stack, so afterwards the 
-stack is empty again.</p>
+<p><a href="opcode.html#OpenWrite">OpenWrite</a> 指令在表 “examp” 上以句柄 P1（此处为 0）打开一个新的读写游标，其根页为 P2（在当前数据库文件中为 3）。游标句柄可以是任意非负整数。但 VDBE 在一个数组中分配游标，数组大小等于最大游标值加一。因此为了节省内存，最好从 0 开始依次使用句柄。此处 P3（“examp”）是要打开的表名，但并未使用，仅用于使代码更易读。此指令会从栈顶弹出尚未使用的数据库编号（0，即主数据库），因此之后栈再次为空。</p>
 <blockquote><tt>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NewRecno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The instruction <a href="opcode.html#NewRecno">NewRecno</a> creates 
-a new integer record number for the table pointed to by cursor P1.  The 
-record number is one not currently used as a key in the table.  The new 
-record number is pushed onto the stack.  Afterwards the stack looks like 
-this:</p>
+<p><a href="opcode.html#NewRecno">NewRecno</a> 指令为由游标 P1 指向的表创建一个新的整数记录号。该记录号是表中当前未被用作键的数字。新记录号被压入栈中。之后栈如下所示：</p>
 <blockquote><table border=2><tr><td align=left>(integer) new record key</td></tr></table></blockquote><blockquote><tt>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello,&nbsp;World!</tt></blockquote>
-<p> The instruction <a href="opcode.html#String">String</a> pushes its 
-P3 operand onto the stack.  Afterwards the stack looks like this:</p>
+<p><a href="opcode.html#String">String</a> 指令将其 P3 操作数压入栈。之后栈如下所示：</p>
 <blockquote><table border=2><tr><td align=left>(string) "Hello, World!"</td></tr><tr><td align=left>(integer) new record key</td></tr></table></blockquote><blockquote><tt>7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;99</tt></blockquote>
-<p> The instruction <a href="opcode.html#Integer">Integer</a> pushes 
-its P1 operand (99) onto the stack.  Afterwards the stack looks like 
-this:</p>
+<p><a href="opcode.html#Integer">Integer</a> 指令将其 P1 操作数（99）压入栈。之后栈如下所示：</p>
 <blockquote><table border=2><tr><td align=left>(integer) 99</td></tr><tr><td align=left>(string) "Hello, World!"</td></tr><tr><td align=left>(integer) new record key</td></tr></table></blockquote><blockquote><tt>8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MakeRecord&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The instruction <a href="opcode.html#MakeRecord">MakeRecord</a> pops 
-the top P1 elements off the stack (2 in this case) and converts them into 
-the binary format used for storing records in a database file.  
-(See the <a href="fileformat.html">file format</a> description for 
-details.)  The new record generated by the MakeRecord instruction is 
-pushed back onto the stack.  Afterwards the stack looks like this:</p>
+<p><a href="opcode.html#MakeRecord">MakeRecord</a> 指令弹出栈顶的 P1 个元素（此处为 2 个），并将它们转换为用于在数据库文件中存储记录的二进制格式。（详见<a href="fileformat.html">文件格式</a>说明。）MakeRecord 指令生成的新记录被重新压入栈。之后栈如下所示：</p>
 </ul>
 <blockquote><table border=2><tr><td align=left>(record) "Hello, World!", 99</td></tr><tr><td align=left>(integer) new record key</td></tr></table></blockquote><blockquote><tt>9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PutIntKey&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1</tt></blockquote>
-<p> The instruction <a href="opcode.html#PutIntKey">PutIntKey</a> uses 
-the top 2 stack entries to write an entry into the table pointed to by 
-cursor P1.  A new entry is created if it doesn't already exist or the 
-data for an existing entry is overwritten.  The record data is the top 
-stack entry, and the key is the next entry down.  The stack is popped 
-twice by this instruction.  Because operand P2 is 1 the row change count 
-is incremented and the rowid is stored for subsequent return by the 
-sqlite_last_insert_rowid() function.  If P2 is 0 the row change count is 
-unmodified.  This instruction is where the insert actually occurs.</p>
+<p><a href="opcode.html#PutIntKey">PutIntKey</a> 指令使用栈顶的两个条目向由游标 P1 指向的表写入一条记录。如果该记录尚不存在则创建新条目，否则覆盖现有条目的数据。记录数据是栈顶条目，键是下一个条目。此指令会连续弹出两个条目。因为操作数 P2 为 1，所以会增加行更改计数，并将 rowid 存储以供 sqlite_last_insert_rowid() 函数随后返回。如果 P2 为 0，则行更改计数保持不变。该指令就是实际执行插入的地方。</p>
 <blockquote><tt>10&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The instruction <a href="opcode.html#Close">Close</a> closes a 
-cursor previously opened as P1 (0, the only open cursor). If P1 is not 
-currently open, this instruction is a no-op.</p>
+<p><a href="opcode.html#Close">Close</a> 指令关闭之前以 P1（0，即唯一打开的游标）打开的游标。如果 P1 当前未打开，则该指令是空操作。</p>
 <blockquote><tt>11&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The instruction <a href="opcode.html#Commit">Commit</a> causes all 
-modifications to the database that have been made since the last 
-Transaction to actually take effect.  No additional modifications are 
-allowed until another transaction is started.  The Commit instruction 
-deletes the journal file and releases the write lock on the database.  
-A read lock continues to be held if there are still cursors open.</p>
+<p><a href="opcode.html#Commit">Commit</a> 指令使自上次 Transaction 以来所做的所有修改真正生效。在另一个事务开始之前不能再进行额外修改。Commit 指令会删除日志文件并释放数据库上的写锁。如果仍有游标打开，则会继续保持读锁。</p>
 <blockquote><tt>12&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The instruction <a href="opcode.html#Halt">Halt</a> causes the VDBE 
-engine to exit immediately.  All open cursors, Lists, Sorts, etc are 
-closed automatically.  P1 is the result code returned by sqlite_exec().  
-For a normal halt, this should be SQLITE_OK (0).  For errors, it can be 
-some other value.  The operand P2 is only used when there is an error.  
-There is an implied "Halt 0 0 0" instruction at the end of every 
-program, which the VDBE appends when it prepares a program to run.</p>
+<p><a href="opcode.html#Halt">Halt</a> 指令导致 VDBE 引擎立即退出。所有打开的游标、列表、排序等都会自动关闭。P1 是 sqlite_exec() 返回的结果代码。对于正常的 halt，应为 SQLITE_OK (0)。对于错误，它可能是其他值。操作数 P2 仅在出现错误时使用。每个程序末尾都有一个隐含的 “Halt 0 0 0” 指令，这是 VDBE 在准备运行程序时附加的。</p>
 
 
 <a name="trace"></a>
-<h2>Tracing VDBE Program Execution</h2>
+<h2>跟踪 VDBE 程序执行</h2>
 
-<p>If the SQLite library is compiled without the NDEBUG preprocessor 
-macro, then the PRAGMA <a href="pragma.html#pragma_vdbe_trace">vdbe_trace
-</a> causes the VDBE to trace the execution of programs.  Though this 
-feature was originally intended for testing and debugging, it can also 
-be useful in learning about how the VDBE operates.  
-Use "<tt>PRAGMA&nbsp;vdbe_trace=ON;</tt>" to turn tracing on and 
-"<tt>PRAGMA&nbsp;vdbe_trace=OFF</tt>" to turn tracing back off.  
-Like this:</p>
+<p>如果 SQLite 库在编译时未定义 NDEBUG 预处理宏，则 PRAGMA <a href="pragma.html#pragma_vdbe_trace">vdbe_trace</a> 会使 VDBE 跟踪程序的执行。尽管该功能最初用于测试和调试，但在了解 VDBE 操作方式时也很有用。使用 “<tt>PRAGMA&nbsp;vdbe_trace=ON;</tt>” 打开跟踪，使用 “<tt>PRAGMA&nbsp;vdbe_trace=OFF</tt>” 关闭跟踪。示例如下：</p>
 <blockquote><tt>sqlite&gt;&nbsp;<b>PRAGMA&nbsp;vdbe_trace=ON;</b><br>
 &nbsp;&nbsp;&nbsp;0&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 sqlite&gt;&nbsp;<b>INSERT&nbsp;INTO&nbsp;examp&nbsp;VALUES('Hello,&nbsp;World!',99);</b><br>
@@ -364,44 +233,21 @@ Stack:&nbsp;s[...Hello,.World!.99]&nbsp;i:2<br>
 &nbsp;&nbsp;10&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 &nbsp;&nbsp;11&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 &nbsp;&nbsp;12&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>With tracing mode on, the VDBE prints each instruction prior
-to executing it.  After the instruction is executed, the top few
-entries in the stack are displayed.  The stack display is omitted
-if the stack is empty.</p>
+<p>打开跟踪模式后，VDBE 会在执行指令前打印每条指令。指令执行完成后，会显示栈顶的几项内容。如果栈为空，则不显示栈。</p>
 
-<p>On the stack display, most entries are shown with a prefix
-that tells the datatype of that stack entry.  Integers begin
-with "<tt>i:</tt>".  Floating point values begin with "<tt>r:</tt>".
-(The "r" stands for "real-number".)  Strings begin with either
-"<tt>s:</tt>", "<tt>t:</tt>", "<tt>e:</tt>" or "<tt>z:</tt>".  
-The difference among the string prefixes is caused by how their 
-memory is allocated. The z: strings are stored in memory obtained
-from <b>malloc()</b>.  The t: strings are statically allocated.  
-The e: strings are ephemeral.  All other strings have the s: prefix.  
-This doesn't make any difference to you,
-the observer, but it is vitally important to the VDBE since the
-z: strings need to be passed to <b>free()</b> when they are
-popped to avoid a memory leak.  Note that only the first 10
-characters of string values are displayed and that binary
-values (such as the result of the MakeRecord instruction) are
-treated as strings.  The only other datatype that can be stored
-on the VDBE stack is a NULL, which is displayed without prefix
-as simply "<tt>NULL</tt>".  If an integer has been placed on the 
-stack as both an integer and a string, its prefix is "<tt>si:</tt>".
+<p>在栈显示中，大多数条目都带有前缀，用以指示该栈条目的数据类型。整数以 “<tt>i:</tt>” 开头。浮点值以 “<tt>r:</tt>” 开头。（“r” 代表 “real-number”。）字符串以 “<tt>s:</tt>”、“<tt>t:</tt>”、“<tt>e:</tt>” 或 “<tt>z:</tt>” 开头。字符串前缀之间的差异取决于它们的内存分配方式。z: 字符串存储在从 <b>malloc()</b> 获取的内存中。t: 字符串是静态分配的。e: 字符串是短暂的。其他所有字符串均带有 s: 前缀。对您观察者而言这没有任何区别，但对 VDBE 来说却至关重要，因为 z: 字符串在弹出时需要传递给 <b>free()</b> 以避免内存泄漏。请注意，字符串值只显示前 10 个字符，且二进制值（例如 MakeRecord 指令的结果）也作为字符串处理。VDBE 栈中唯一可以存储的其他数据类型是 NULL，它显示为单独的 “<tt>NULL</tt>”，没有前缀。如果一个整数既以整数形式又以字符串形式被压入栈，其前缀为 “<tt>si:</tt>”。</p>
 
 
 <a name="query1"></a>
-<h2>Simple Queries</h2>
+<h2>简单查询</h2>
 
-<p>At this point, you should understand the basics of how the VDBE
-writes to a database.  Now let's look at how it does queries.
-We will use the following simple SELECT statement as our example:</p>
+<p>至此，您应该已经了解了 VDBE 如何向数据库写入数据的基础。现在让我们看看它如何执行查询。我们将以下简单 SELECT 语句作为示例：</p>
 
 <blockquote><pre>
 SELECT * FROM examp;
 </pre></blockquote>
 
-<p>The VDBE program generated for this SQL statement is as follows:</p>
+<p>此 SQL 语句生成的 VDBE 程序如下所示：</p>
 <blockquote><tt>sqlite&gt;&nbsp;<b>EXPLAIN&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;examp;</b><br>
 addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
@@ -417,103 +263,34 @@ addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&n
 9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 10&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 11&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>Before we begin looking at this problem, let's briefly review
-how queries work in SQLite so that we will know what we are trying
-to accomplish.  For each row in the result of a query,
-SQLite will invoke a callback function with the following
-prototype:</p>
+<p>在我们开始分析这个问题之前，让我们简要回顾一下 SQLite 中的查询是如何工作的，以便我们知道要完成什么任务。对于查询结果中的每一行，SQLite 将调用一个原型如下的回调函数：</p>
 
 <blockquote><pre>
 int Callback(void *pUserData, int nColumn, char *azData[], char *azColumnName[]);
 </pre></blockquote>
 
-<p>The SQLite library supplies the VDBE with a pointer to the callback function
-and the <b>pUserData</b> pointer.  (Both the callback and the user data were
-originally passed in as arguments to the <b>sqlite_exec()</b> API function.)
-The job of the VDBE is to
-come up with values for <b>nColumn</b>, <b>azData[]</b>, 
-and <b>azColumnName[]</b>.
-<b>nColumn</b> is the number of columns in the results, of course.
-<b>azColumnName[]</b> is an array of strings where each string is the name
-of one of the result columns.  <b>azData[]</b> is an array of strings holding
-the actual data.</p>
+<p>SQLite 库向 VDBE 提供了指向回调函数的指针以及 <b>pUserData</b> 指针。（回调和用户数据最初作为参数传递给 <b>sqlite_exec()</b> API 函数。）VDBE 的任务是为 <b>nColumn</b>、<b>azData[]</b> 和 <b>azColumnName[]</b> 生成值。<b>nColumn</b> 当然是结果中的列数。<b>azColumnName[]</b> 是一个字符串数组，其中每个字符串是结果列之一的名称。<b>azData[]</b> 是一个字符串数组，保存实际数据。</p>
 <blockquote><tt>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;one&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;two</tt></blockquote>
-<p>The first two instructions in the VDBE program for our query are
-concerned with setting up values for <b>azColumn</b>.
-The <a href="opcode.html#ColumnName">ColumnName</a> instructions tell 
-the VDBE what values to fill in for each element of the <b>azColumnName[]</b> 
-array.  Every query will begin with one ColumnName instruction for each 
-column in the result, and there will be a matching Column instruction for 
-each one later in the query.
-</p>
+<p>查询的 VDBE 程序中的前两条指令负责设置 <b>azColumn</b> 的值。<a href="opcode.html#ColumnName">ColumnName</a> 指令告诉 VDBE 应在 <b>azColumnName[]</b> 数组的每个元素中填入何种值。每个查询都以一条 ColumnName 指令开始，针对结果中的每一列各有一条，并且稍后查询中会有与之匹配的 Column 指令。</p>
 <blockquote><tt>2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;81</tt></blockquote>
-<p>Instructions 2 and 3 open a read cursor on the database table that is 
-to be queried.  This works the same as the OpenWrite instruction in the 
-INSERT example except that the cursor is opened for reading this time 
-instead of for writing.  Instruction 4 verifies the database schema as 
-in the INSERT example.</p>
+<p>指令 2 和 3 在要查询的数据库表上打开了一个读游标。这与 INSERT 示例中的 OpenWrite 指令的工作方式相同，只不过此处游标是以读取方式打开的。指令 4 与 INSERT 示例一样用于验证数据库模式。</p>
 <blockquote><tt>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10</tt></blockquote>
-<p> The <a href="opcode.html#Rewind">Rewind</a> instruction initializes 
-a loop that iterates over the "examp" table. It rewinds the cursor P1 
-to the first entry in its table.  This is required by the Column and 
-Next instructions, which use the cursor to iterate through the table.  
-If the table is empty, then jump to P2 (10), which is the instruction just 
-past the loop.  If the table is not empty, fall through to the following 
-instruction at 6, which is the beginning of the loop body.</p>
+<p><a href="opcode.html#Rewind">Rewind</a> 指令初始化一个循环，用于遍历 “examp” 表。它将游标 P1 倒回到表中的第一个条目。这对于 Column 和 Next 指令是必要的，它们使用该游标迭代表。若表为空，则跳转到 P2（10），即循环之后的指令。如果表非空，则继续执行下一条指令 6，即循环体的起始处。</p>
 <blockquote><tt>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Callback&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The instructions 6 through 8 form the body of the loop that will 
-execute once for each record in the database file.  
-
-The <a href="opcode.html#Column">Column</a> instructions at addresses 6 
-and 7 each take the P2-th column from the P1-th cursor and push it onto 
-the stack.  In this example, the first Column instruction is pushing the 
-value for the column "one" onto the stack and the second Column 
-instruction is pushing the value for column "two".  
-
-The <a href="opcode.html#Callback">Callback</a> instruction at address 8 
-invokes the callback() function.  The P1 operand to Callback becomes the 
-value for <b>nColumn</b>.  The Callback instruction pops P1 values from
-the stack and uses them to fill the <b>azData[]</b> array.</p>
+<p>指令 6 至 8 构成循环体，每条指令针对数据库文件中的每条记录执行一次。</p>
+<p><a href="opcode.html#Column">Column</a> 指令在地址 6 与 7 处分别从游标 P1 中取出 P2 所指定的列并将其压入栈。在本示例中，第一条 Column 指令将列 “one” 的值压入栈，第二条 Column 指令将列 “two” 的值压入栈。</p>
+<p><a href="opcode.html#Callback">Callback</a> 指令在地址 8 调用回调函数。Callback 的 P1 操作数成为 <b>nColumn</b> 的值。Callback 指令从栈中弹出 P1 个值，并用它们填充 <b>azData[]</b> 数组。</p>
 <blockquote><tt>9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6</tt></blockquote>
-<p>The instruction at address 9 implements the branching part of the 
-loop.  Together with the Rewind at address 5 it forms the loop logic.  
-This is a key concept that you should pay close attention to.   
-The <a href="opcode.html#Next">Next</a> instruction advances the cursor 
-P1 to the next record.  If the cursor advance was successful, then jump 
-immediately to P2 (6, the beginning of the loop body).  If the cursor 
-was at the end, then fall through to the following instruction, which 
-ends the loop.</p>
-<blockquote><tt>10&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-11&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The Close instruction at the end of the program closes the
-cursor that points into the table "examp".  It is not really necessary
-to call Close here since all cursors will be automatically closed
-by the VDBE when the program halts.  But we needed an instruction
-for the Rewind to jump to so we might as well go ahead and have that
-instruction do something useful.
-The Halt instruction ends the VDBE program.</p>
+<p>地址 9 处的指令实现了循环的分支逻辑。它与地址 5 处的 Rewind 一起构成了循环结构。这是一个关键概念，值得您密切关注。<a href="opcode.html#Next">Next</a> 指令将游标 P1 推进到下一条记录。如果游标成功前进，则立即跳转到 P2（6，即循环体的起始处）。如果游标已经到达末尾，则继续执行下面的指令，从而结束循环。</p>
+<blockquote><tt>10&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&Thinking... (1s elapsed)Thinking... (2s elapsed)Thinking... (3s elapsed)Thinking... (4s elapsed)Thinking... (5s elapsed)Thinking... (6s elapsed)
+<h2>一个稍微复杂一些的查询</h2>
 
-<p>Note that the program for this SELECT query didn't contain the 
-Transaction and Commit instructions used in the INSERT example.  Because 
-the SELECT is a read operation that doesn't alter the database, it 
-doesn't require a transaction.</p>
-
-<a name="query2"></a>
-<h2>A Slightly More Complex Query</h2>
-
-<p>The key points of the previous example were the use of the Callback
-instruction to invoke the callback function, and the use of the Next
-instruction to implement a loop over all records of the database file.
-This example attempts to drive home those ideas by demonstrating a
-slightly more complex query that involves more columns of
-output, some of which are computed values, and a WHERE clause that
-limits which records actually make it to the callback function.
-Consider this query:</p>
+<p>前一个示例的关键点是使用 Callback instruction 调用回调函数，以及使用 Next instruction 实现对数据库文件所有记录的循环。这个示例通过演示一个稍微复杂一些的查询来强化这些想法，该查询涉及更多输出列，其中有些是计算值，并且有一个 WHERE 子句限制哪些记录会真正传递给回调函数。考虑下面这个查询：</p>
 
 <blockquote><pre>
 SELECT one, two, one || two AS 'both'
@@ -521,16 +298,7 @@ FROM examp
 WHERE one LIKE 'H%'
 </pre></blockquote>
 
-<p>This query is perhaps a bit contrived, but it does serve to
-illustrate our points.  The result will have three columns with
-names "one", "two", and "both".  The first two columns are direct
-copies of the two columns in the table and the third result
-column is a string formed by concatenating the first and
-second columns of the table.
-Finally, the
-WHERE clause says that we will only choose rows for the 
-results where the "one" column begins with an "H".
-Here is what the VDBE program looks like for this query:</p>
+<p>这个查询也许有些牵强，但它确实有助于说明我们的重点。结果会有三个列，名称分别为 “one”、 “two” 和 “both”。前两个列是表中对应列的直接复制，第三个结果列则是通过连接表中的第一列和第二列生成的字符串。最后，WHERE 子句说明我们只会为“one”列以 “H” 开头的行选择结果。以下是这个查询对应的 VDBE 程序：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;one<br>
@@ -553,98 +321,45 @@ Here is what the VDBE program looks like for this query:</p>
 17&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7<br>
 18&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 19&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>Except for the WHERE clause, the structure of the program for
-this example is very much like the prior example, just with an
-extra column.  There are now 3 columns, instead of 2 as before,
-and there are three ColumnName instructions.
-A cursor is opened using the OpenRead instruction, just like in the
-prior example.  The Rewind instruction at address 6 and the
-Next at address 17 form a loop over all records of the table.  
-The Close instruction at the end is there to give the
-Rewind instruction something to jump to when it is done.  All of
-this is just like in the first query demonstration.</p>
+<p>除了 WHERE 子句外，这个示例的程序结构与前面的示例非常相似，只是多了一个输出列。现在有 3 列，而不是之前的 2 列，也有三条 ColumnName 指令。就像前面的示例一样，用 OpenRead 指令打开了一个游标。地址 6 处的 Rewind 和地址 17 处的 Next 构成了对表中所有记录的循环。结尾处的 Close 指令是为了在 Rewind 完成时有一个跳转目标。所有这些都与第一个查询示例完全一样。</p>
 
-<p>The Callback instruction in this example has to generate
-data for three result columns instead of two, but is otherwise
-the same as in the first query.  When the Callback instruction
-is invoked, the left-most column of the result should be
-the lowest in the stack and the right-most result column should
-be the top of the stack.  We can see the stack being set up 
-this way at addresses 11 through 15.  The Column instructions at
-11 and 12 push the values for the first two columns in the result.
-The two Column instructions at 13 and 14 pull in the values needed
-to compute the third result column and the Concat instruction at
-15 joins them together into a single entry on the stack.</p>
+<p>这个示例中的 Callback instruction 需要为三个结果列生成数据，而不是两个，但其他方面与第一个查询一样。当 Callback instruction 被调用时，结果的最左侧列应该在栈的底部，最右侧的结果列则应在栈顶。我们可以在地址 11 到 15 看到栈是这样设置的。地址 11 和 12 的 Column 指令压入结果中前两列的值。地址 13 和 14 的两条 Column 指令则拉取用于计算第三个结果列所需的值，地址 15 的 Concat 指令将它们组合成栈上的一个条目。</p>
 
-<p>The only thing that is really new about the current example
-is the WHERE clause which is implemented by instructions at
-addresses 7 through 10.  Instructions at address 7 and 8 push
-onto the stack the value of the "one" column from the table
-and the literal string "H%".  
-The <a href="opcode.html#Function">Function</a> instruction at address 9 
-pops these two values from the stack and pushes the result of the LIKE() 
-function back onto the stack.  
-The <a href="opcode.html#IfNot">IfNot</a> instruction pops the top stack 
-value and causes an immediate jump forward to the Next instruction if the 
-top value was false (<em>not</em> not like the literal string "H%").  
-Taking this jump effectively skips the callback, which is the whole point
-of the WHERE clause.  If the result
-of the comparison is true, the jump is not taken and control
-falls through to the Callback instruction below.</p>
+<p>当前示例中唯一真正新颖的部分是由地址 7 到 10 的指令实现的 WHERE 子句。地址 7 和 8 的指令将表中 “one” 列的值和字面字符串 “H%” 压入栈中。地址 9 的 <a href="opcode.html#Function">Function</a> 指令从栈中弹出这两个值，并将 LIKE() 函数的结果推回栈。地址 10 的 <a href="opcode.html#IfNot">IfNot</a> 指令弹出栈顶值，如果该值为 false（即不匹配字面字符串 “H%”），则立即跳转到 Next 指令。跳过回调的目的正是 WHERE 子句的作用。如果比较结果为 true，就不会跳转，控制流会继续执行下方的 Callback 指令。</p>
 
-<p>Notice how the LIKE operator is implemented.  It is a user-defined 
-function in SQLite, so the address of its function definition is 
-specified in P3.  The operand P1 is the number of function arguments for 
-it to take from the stack.  In this case the LIKE() function takes 2 
-arguments.  The arguments are taken off the stack in reverse order 
-(right-to-left), so the pattern to match is the top stack element, and 
-the next element is the data to compare.  The return value is pushed 
-onto the stack.</p>
+<p>注意 LIKE 操作符如何实现。它是 SQLite 中的一个用户定义函数，所以函数定义的地址在 P3 中指定。操作数 P1 表示函数需要从栈上取多少个参数。在本例中，LIKE() 函数需要 2 个参数。参数是按逆序（从右到左）从栈上取出的，因此要匹配的模式位于栈顶，下一个元素是要比较的数据。返回值被压回栈。</p>
 
 
 <a name="pattern1"></a>
-<h2>A Template For SELECT Programs</h2>
+<h2>SELECT 程序的一个模板</h2>
 
-<p>The first two query examples illustrate a kind of template that
-every SELECT program will follow.  Basically, we have:</p>
+<p>前两个查询示例展示了每个 SELECT 程序都会遵循的一种模板。基本流程如下：</p>
 
 <p>
 <ol>
-<li>Initialize the <b>azColumnName[]</b> array for the callback.</li>
-<li>Open a cursor into the table to be queried.</li>
-<li>For each record in the table, do:
+<li>为回调初始化 <b>azColumnName[]</b> 数组。</li>
+<li>打开要查询的表的游标。</li>
+<li>对表中的每一条记录执行：
     <ol type="a">
-    <li>If the WHERE clause evaluates to FALSE, then skip the steps that
-        follow and continue to the next record.</li>
-    <li>Compute all columns for the current row of the result.</li>
-    <li>Invoke the callback function for the current row of the result.</li>
+    <li>如果 WHERE 子句的结果为 FALSE，则跳过下面的步骤，继续处理下一条记录。</li>
+    <li>计算当前行结果的所有列。</li>
+    <li>为当前行结果调用回调函数。</li>
     </ol>
-<li>Close the cursor.</li>
+<li>关闭游标。</li>
 </ol>
 </p>
 
-<p>This template will be expanded considerably as we consider
-additional complications such as joins, compound selects, using
-indices to speed the search, sorting, and aggregate functions
-with and without GROUP BY and HAVING clauses.
-But the same basic ideas will continue to apply.</p>
+<p>当我们考虑连接、复合 SELECT、使用索引加速搜索、排序以及带或不带 GROUP BY 和 HAVING 子句的聚合函数等更多复杂情况时，这个模板会大幅扩展。但相同的基本思想仍然适用。</p>
 
-<h2>UPDATE And DELETE Statements</h2>
+<h2>UPDATE 和 DELETE 语句</h2>
 
-<p>The UPDATE and DELETE statements are coded using a template
-that is very similar to the SELECT statement template.  The main
-difference, of course, is that the end action is to modify the
-database rather than invoke a callback function.  Because it modifies 
-the database it will also use transactions.  Let's begin
-by looking at a DELETE statement:</p>
+<p>UPDATE 和 DELETE 语句的代码模板与 SELECT 语句非常相似。主要区别当然在于最终操作是修改数据库，而不是调用回调函数。由于它修改了数据库，所以还会使用事务。我们先来看一个 DELETE 语句：</p>
 
 <blockquote><pre>
 DELETE FROM examp WHERE two<50;
 </pre></blockquote>
 
-<p>This DELETE statement will remove every record from the "examp"
-table where the "two" column is less than 50.
-The code generated to do this is as follows:</p>
+<p>该 DELETE 语句会删除 “examp” 表中 “two” 列小于 50 的所有记录。为此生成的代码如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
@@ -671,167 +386,67 @@ The code generated to do this is as follows:</p>
 21&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 22&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 23&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>Here is what the program must do.  First it has to locate all of
-the records in the table "examp" that are to be deleted.  This is
-done using a loop very much like the loop used in the SELECT examples
-above.  Once all records have been located, then we can go back through
-and delete them one by one.  Note that we cannot delete each record
-as soon as we find it.  We have to locate all records first, then
-go back and delete them.  This is because the SQLite database
-backend might change the scan order after a delete operation.
-And if the scan
-order changes in the middle of the scan, some records might be
-visited more than once and other records might not be visited at all.</p>
+<p>程序必须完成的任务如下。首先，它必须定位表 “examp” 中所有要删除的记录。这是通过一个类似于上面 SELECT 示例中循环的机制完成的。一旦定位了所有记录，就可以回过头来逐一删除。需要注意的是，我们不能在找到每条记录后立即删除，而是必须先找到全部记录，再回过头去删除。这是因为 SQLite 数据库引擎可能在删除操作后改变扫描顺序。如果扫描顺序在扫描过程中发生变化，有些记录可能会被访问多次，而另一些则可能根本没有被访问。</p>
 
-<p>So the implementation of DELETE is really in two loops.  The first loop 
-(instructions 5 through 11) locates the records that are to be deleted 
-and saves their keys onto a temporary list, and the second loop 
-(instructions 16 through 19) uses the key list to delete the records one 
-by one.  </p>
+<p>因此 DELETE 的实现实际上是两个循环。第一个循环（指令 5 到 11）定位要删除的记录并将它们的键保存到临时列表中，第二个循环（指令 16 到 19）利用键列表逐条删除这些记录。</p>
 <blockquote><tt>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;178<br>
 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp</tt></blockquote>
-<p>Instructions 0 though 4 are as in the INSERT example.  They start 
-transactions for the main and temporary databases, verify the database 
-schema for the main database, and open a read cursor on the table 
-"examp".  Notice that the cursor is opened for reading, not writing.  At 
-this stage of the program we are only going to be scanning the table, 
-not changing it.  We will reopen the same table for writing later, at 
-instruction 15.</p>
+<p>指令 0 到 4 与 INSERT 示例相同。它们为主数据库和临时数据库开启事务，验证主数据库的架构，并为表 “examp” 打开一个读游标。注意，此时游标是以只读方式打开的，而非写入。在程序的这个阶段，我们只扫描表，不修改它。稍后在第 15 条指令处，我们会重新打开该表以进行写操作。</p>
 <blockquote><tt>5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12</tt></blockquote>
-<p>As in the SELECT example, the <a href="opcode.html#Rewind">Rewind</a> 
-instruction rewinds the cursor to the beginning of the table, readying 
-it for use in the loop body.</p>
+<p>与 SELECT 示例一样，<a href="opcode.html#Rewind">Rewind</a> 指令将游标倒回表的起始位置，为循环体做准备。</p>
 <blockquote><tt>6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>
 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50<br>
 8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ge&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11</tt></blockquote>
-<p>The WHERE clause is implemented by instructions 6 through 8.
-The job of the where clause is to skip the ListWrite if the WHERE
-condition is false.  To this end, it jumps ahead to the Next instruction
-if the "two" column (extracted by the Column instruction) is
-greater than or equal to 50.</p>
+<p>WHERE 子句由指令 6 到 8 实现。WHERE 子句的任务是当 WHERE 条件为 false 时跳过 ListWrite。为此，它在 “two” 列（由 Column 指令提取）的值大于或等于 50 时跳到循环末尾的 Next 指令。</p>
 
-<p>As before, the Column instruction uses cursor P1 and pushes the data 
-record in column P2 (1, column "two") onto the stack.  The Integer 
-instruction pushes the value 50 onto the top of the stack.  After these 
-two instructions the stack looks like:</p>
+<p>同前面一样，Column 指令使用游标 P1，并将 P2（即列 “two”）的记录数据压入栈顶。Integer 指令将值 50 推入栈顶。在这两条指令执行完后，栈呈现如下：</p>
 <blockquote><table border=2><tr><td align=left>(integer) 50</td></tr><tr><td align=left>(record) current record for column "two" </td></tr></table></blockquote>
-<p>The <a href="opcode.html#Ge">Ge</a> operator compares the top two 
-elements on the stack, pops them, and then branches based on the result 
-of the comparison.  If the second element is >= the top element, then 
-jump to address P2 (the Next instruction at the end of the loop).  
-Because P1 is true, if either operand is NULL (and thus the result is 
-NULL) then take the jump.  If we don't jump, just advance to the next 
-instruction.</p>
+<p><a href="opcode.html#Ge">Ge</a> 操作符比较栈顶两个元素，弹出它们，然后根据比较结果进行分支。如果第二个元素 >= 栈顶元素，就跳转到地址 P2（即循环末尾的 Next 指令）。因为 P1 取值为 true，如果任何一个操作数为 NULL（结果为 NULL），也会跳转。如果不跳转，就继续执行下一条指令。</p>
 <blockquote><tt>9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Recno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 10&nbsp;&nbsp;&nbsp;&nbsp;ListWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The <a href="opcode.html#Recno">Recno</a> instruction pushes onto the 
-stack an integer which is the first 4 bytes of the key to the current 
-entry in a sequential scan of the table pointed to by cursor P1.
-The <a href="opcode.html#ListWrite">ListWrite</a> instruction writes the 
-integer on the top of the stack into a temporary storage list and pops 
-the top element.  This is the important work of this loop, to store the 
-keys of the records to be deleted so we can delete them in the second 
-loop.  After this ListWrite instruction the stack is empty again.</p>
+<p><a href="opcode.html#Recno">Recno</a> 指令将一个整数推入栈，该整数是由游标 P1 指向的顺序扫描中当前条目的键的前 4 字节。<a href="opcode.html#ListWrite">ListWrite</a> 指令将栈顶的整数写入临时存储列表，并弹出该元素。这是这个循环的关键工作：保存要删除记录的键，以便在第二个循环中逐一删除。ListWrite 执行后栈再次变为空。</p>
 <blockquote><tt>11&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6<br>
 12&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The Next instruction increments the cursor to point to the next 
-element in the table pointed to by cursor P0, and if it was successful 
-branches to P2 (6, the beginning of the loop body).  The Close 
-instruction closes cursor P1.  It doesn't affect the temporary storage 
-list because it isn't associated with cursor P1; it is instead a global 
-working list (which can be saved with ListPush).</p>
+<p>Next 指令将游标移动到下一个表项，如果成功则跳转到 P2（即循环体开始的地址 6）。Close 指令关闭游标 P1。它不会影响临时存储列表，因为列表与游标 P1 无关；它是全局工作列表（可以通过 ListPush 保存）。</p>
 <blockquote><tt>13&nbsp;&nbsp;&nbsp;&nbsp;ListRewind&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p> The <a href="opcode.html#ListRewind">ListRewind</a> instruction 
-rewinds the temporary storage list to the beginning.  This prepares it 
-for use in the second loop.</p>
+<p><a href="opcode.html#ListRewind">ListRewind</a> 指令将临时存储列表倒回起点，为第二个循环做准备。</p>
 <blockquote><tt>14&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 15&nbsp;&nbsp;&nbsp;&nbsp;OpenWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3</tt></blockquote>
-<p> As in the INSERT example, we push the database number P1 (0, the main 
-database) onto the stack and use OpenWrite to open the cursor P1 on table 
-P2 (base page 3, "examp") for modification.</p>
+<p>与 INSERT 示例相同，我们将数据库编号 P1（0，主数据库）压入栈，并使用 OpenWrite 打开游标 P1，指向要修改的表 P2（基页 3，即 “examp”）。</p>
 <blockquote><tt>16&nbsp;&nbsp;&nbsp;&nbsp;ListRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20<br>
 17&nbsp;&nbsp;&nbsp;&nbsp;NotExists&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;19<br>
 18&nbsp;&nbsp;&nbsp;&nbsp;Delete&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>
 19&nbsp;&nbsp;&nbsp;&nbsp;Goto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16</tt></blockquote>
-<p>This loop does the actual deleting.  It is organized differently from 
-the one in the UPDATE example.  The ListRead instruction plays the role 
-that the Next did in the INSERT loop, but because it jumps to P2 on 
-failure, and Next jumps on success, we put it at the start of the loop 
-instead of the end.  This means that we have to put a Goto at the end of 
-the loop to jump back to the loop test at the beginning.  So this 
-loop has the form of a C while(){...} loop, while the loop in the INSERT 
-example had the form of a do{...}while() loop.  The Delete instruction 
-fills the role that the callback function did in the preceding examples.
-</p>
-<p>The <a href="opcode.html#ListRead">ListRead</a> instruction reads an 
-element from the temporary storage list and pushes it onto the stack.  
-If this was successful, it continues to the next instruction.  If this 
-fails because the list is empty, it branches to P2, which is the 
-instruction just after the loop.  Afterwards the stack looks like:</p>
+<p>这个循环完成实际删除工作。它与 UPDATE 示例中的循环组织方式不同。ListRead 在这个循环中承担了 INSERT 循环中 Next 的角色，但因为 ListRead 在失败时跳转至 P2，而 Next 在成功时跳转，我们将它放在循环的开头而不是末尾。这意味着我们必须在循环末尾添加 Goto，跳回循环开始的测试位置。因此这个循环的形式类似 C 的 while(){...}，而 INSERT 示例的循环则类似 do{...}while()。Delete 指令在这个循环中执行的工作相当于前面示例中的回调函数。</p>
+<p><a href="opcode.html#ListRead">ListRead</a> 指令从临时存储列表中读取一个元素并将其推入栈顶。如果成功，就继续执行下一条指令；如果因为列表为空而失败，就跳转到 P2，即紧挨着循环之后的指令。执行后栈变为：</p>
 <blockquote><table border=2><tr><td align=left>(integer) key for current record</td></tr></table></blockquote>
-<p>Notice the similarity between the ListRead and Next instructions.  
-Both operations work according to this rule:
-</p>
+<p>注意 ListRead 与 Next 指令之间的相似性。它们都遵循如下规则：</p>
 <blockquote>
-Push the next "thing" onto the stack and fall through OR jump to P2, 
-depending on whether or not there is a next "thing" to push.
+Push the next "thing" onto the stack and fall through OR jump to P2, depending on whether or not there is a next "thing" to push.
 </blockquote>
-<p>One difference between Next and ListRead is their idea of a "thing".  
-The "things" for the Next instruction are records in a database file.  
-"Things" for ListRead are integer keys in a list.  Another difference 
-is whether to jump or fall through if there is no next "thing".  In this 
-case, Next falls through, and ListRead jumps. Later on, we will see 
-other looping instructions (NextIdx and SortNext) that operate using the 
-same principle.</p>
+<p>Next 和 ListRead 的区别之一在于它们所指的 “thing” 是什么。Next 的 “thing” 是数据库文件中的记录；ListRead 的 “thing” 则是列表中的整数键。另一个区别在于当没有下一个 “thing” 时是选择跳转还是继续执行——在这个例子中，Next 继续执行，而 ListRead 则跳转。稍后我们还会看到其他遵循相同原则的循环指令（如 NextIdx 和 SortNext）。</p>
 
-<p>The <a href="opcode.html#NotExists">NotExists</a> instruction pops 
-the top stack element and uses it as an integer key.  If a record with 
-that key does not exist in table P1, then jump to P2.  If a record does 
-exist, then fall through to the next instruction.  In this case P2 takes 
-us to the Goto at the end of the loop, which jumps back to the ListRead 
-at the beginning.  This could have been coded to have P2 be 16, the 
-ListRead at the start of the loop, but the SQLite parser which generated 
-this code didn't make that optimization.</p>
-<p>The <a href="opcode.html#Delete">Delete</a> does the work of this 
-loop; it pops an integer key off the stack (placed there by the 
-preceding ListRead) and deletes the record of cursor P1 that has that key.  
-Because P2 is true, the row change counter is incremented.</p>
-<p>The <a href="opcode.html#Goto">Goto</a> jumps back to the beginning 
-of the loop.  This is the end of the loop.</p>
+<p><a href="opcode.html#NotExists">NotExists</a> 指令弹出栈顶元素，并将其作为整数键。如果该键对应的记录在表 P1 中不存在，则跳转到 P2；如果存在，则继续执行下一条指令。在本例中，P2 将程序导向循环末尾的 Goto，从而跳回循环开头的 ListRead。这本可以把 P2 设置为 16（循环开始处的 ListRead），但生成此代码的 SQLite 解析器并未进行此类优化。</p>
+<p><a href="opcode.html#Delete">Delete</a> 指令完成循环的核心工作：它弹出栈顶的整数键（由前面的 ListRead 放入），并删除游标 P1 中具有该键的记录。由于 P2 为 true，行更改计数器也会相应递增。</p>
+<p><a href="opcode.html#Goto">Goto</a> 指令跳回循环的起点。至此循环结束。</p>
 <blockquote><tt>20&nbsp;&nbsp;&nbsp;&nbsp;ListReset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 21&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 22&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
 23&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>This block of instruction cleans up the VDBE program. Three of these 
-instructions aren't really required, but are generated by the SQLite 
-parser from its code templates, which are designed to handle more 
-complicated cases.</p>
-<p>The <a href="opcode.html#ListReset">ListReset</a> instruction empties 
-the temporary storage list.  This list is emptied automatically when the 
-VDBE program terminates, so it isn't necessary in this case.  The Close 
-instruction closes the cursor P1.  Again, this is done by the VDBE 
-engine when it is finished running this program.  The Commit ends the 
-current transaction successfully, and causes all changes that occurred 
-in this transaction to be saved to the database.  The final Halt is also 
-unnecessary, since it is added to every VDBE program when it is 
-prepared to run.</p>
+<p>这一块指令用于清理 VDBE 程序。其中三条指令实际上并非必须，但由于 SQLite 解析器采用的是为处理更复杂情况而设计的代码模板，因此会生成它们。</p>
+<p><a href="opcode.html#ListReset">ListReset</a> 指令清空临时存储列表。该列表会在 VDBE 程序终止时自动清空，因此本例中并非必需。Close 指令关闭游标 P1。再次强调，这在程序运行结束时会由 VDBE 引擎自动完成。Commit 成功结束当前事务，使该事务中的所有更改持久保存到数据库。最后的 Halt 也是多余的，因为每个 VDBE 程序在准备运行时都会附加一个 Halt。</p>
 
 
-<p>UPDATE statements work very much like DELETE statements except
-that instead of deleting the record they replace it with a new one.
-Consider this example:
-</p>
+<p>UPDATE 语句的工作方式与 DELETE 非常相似，不同之处在于它用新记录替换旧记录而不是删除它。考虑如下示例：</p>
 
 <blockquote><pre>
 UPDATE examp SET one= '(' || one || ')' WHERE two < 50;
 </pre></blockquote>
 
-<p>Instead of deleting records where the "two" column is less than
-50, this statement just puts the "one" column in parentheses
-The VDBE program to implement this statement follows:</p>
+<p>该语句会将 “two” 列小于 50 的记录中 “one” 列的值加上括号，而不是删除它们。实现该语句的 VDBE 程序如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -841,7 +456,7 @@ The VDBE program to implement this statement follows:</p>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ge&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Recno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 10&nbsp;&nbsp;&nbsp;&nbsp;ListWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -866,55 +481,18 @@ The VDBE program to implement this statement follows:</p>
 29&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 30&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 31&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>This program is essentially the same as the DELETE program except 
-that the body of the second loop has been replaced by a sequence of 
-instructions (at addresses 17 through 26) that update the record rather 
-than delete it.  Most of this instruction sequence should already be 
-familiar to you, but there are a couple of minor twists so we will go 
-over it briefly.  Also note that the order of some of the instructions 
-before and after the 2nd loop has changed.  This is just the way the 
-SQLite parser chose to output the code using a different template.</p>
+<p>这个程序本质上与 DELETE 程序相同，只不过第二个循环的主体被一条指令序列（地址 17 到 26）取代，这些指令更新记录而不是删除它。大部分指令序列你应该已经很熟悉，不过这里有一些小的变化，我们会稍微讲解一下。另外请注意第二个循环前后某些指令的顺序发生了变化，这只是 SQLite 解析器采用不同模板输出代码的结果。</p>
 
-<p>As we enter the interior of the second loop (at instruction 17)
-the stack contains a single integer which is the key of the
-record we want to modify.  We are going to need to use this
-key twice: once to fetch the old value of the record and
-a second time to write back the revised record.  So the first instruction
-is a Dup to make a duplicate of the key on the top of the stack.  The
-Dup instruction will duplicate any element of the stack, not just the top
-element.  You specify which element to duplication using the
-P1 operand.  When P1 is 0, the top of the stack is duplicated.
-When P1 is 1, the next element down on the stack duplication.
-And so forth.</p>
+<p>当我们进入第二个循环内部（指令 17）时，栈中有一个整数，即我们要修改的记录的键。这个键需要使用两次：第一次用于获取旧记录的值，第二次用于写回更新后的记录。因此第一条指令是 Dup，用来复制栈顶的键。Dup 指令会复制栈中的任意元素，而不仅仅是栈顶。你可以通过 P1 操作数指定复制的是哪一项。当 P1 为 0 时复制栈顶；当 P1 为 1 时复制栈中的下一项；以此类推。</p>
 
-<p>After duplicating the key, the next instruction, NotExists,
-pops the stack once and uses the value popped as a key to
-check the existence of a record in the database file.  If there is no record 
-for this key, it jumps back to the ListRead to get another key.</p>
+<p>复制键后，下一条指令 NotExists 会弹出栈一次，并将弹出的值用作键，检查该键对应的记录是否存在于数据库文件中。如果没有，就跳回 ListRead 获取另一个键。</p>
 
-<p>Instructions 19 through 25 construct a new database record
-that will be used to replace the existing record.  This is
-the same kind of code that we saw 
-in the description of INSERT and will not be described further.
-After instruction 25 executes, the stack looks like this:</p>
+<p>指令 19 到 25 构造一个新的数据库记录，用于替换现有记录。这与 INSERT 讨论中看到的代码相同，这里就不再赘述。执行完指令 25 后，栈如下：</p>
 <blockquote><table border=2><tr><td align=left>(record) new data record</td></tr><tr><td align=left>(integer) key</td></tr></table></blockquote>
-<p>The PutIntKey instruction (also described
-during the discussion about INSERT) writes an entry into the
-database file whose data is the top of the stack and whose key
-is the next on the stack, and then pops the stack twice.  The
-PutIntKey instruction will overwrite the data of an existing record
-with the same key, which is what we want here.  Overwriting was not
-an issue with INSERT because with INSERT the key was generated
-by the NewRecno instruction which is guaranteed to provide a key
-that has not been used before.</p>
-
+<p>PutIntKey 指令（在 INSERT 的描述中也提到过）会将栈顶的数据写入数据库文件，并将下一个元素作为键，然后将栈弹出两次。PutIntKey 指令会用相同键覆盖现有记录的数据，这正是我们想要的。对于 INSERT 来说并不存在覆盖问题，因为 INSERT 通过 NewRecno 指令生成的键保证以前未被使用过。</p>
 <h2>CREATE and DROP</h2>
 
-<p>Using CREATE or DROP to create or destroy a table or index is
-really the same as doing an INSERT or DELETE from the special
-"sqlite_master" table, at least from the point of view of the VDBE.
-The sqlite_master table is a special table that is automatically
-created for every SQLite database.  It looks like this:</p>
+<p>从 VDBE 的角度来看，使用 CREATE 或 DROP 来创建或销毁表或索引，与对特殊的 "sqlite_master" 表执行 INSERT 或 DELETE 是一样的。sqlite_master 表是每个 SQLite 数据库自动创建的特殊表。它看起来像这样：</p>
 
 <blockquote><pre>
 CREATE TABLE sqlite_master (
@@ -925,50 +503,17 @@ CREATE TABLE sqlite_master (
 )
 </pre></blockquote>
 
-<p>Every table (except the "sqlite_master" table itself)
-and every named index in an SQLite database has an entry
-in the sqlite_master table.  You can query this table using
-a SELECT statement just like any other table.  But you are
-not allowed to directly change the table using UPDATE, INSERT,
-or DELETE.  Changes to sqlite_master have to occur using
-the CREATE and DROP commands because SQLite also has to update
-some of its internal data structures when tables and indices
-are added or destroyed.</p>
+<p>每个表（除了 sqlite_master 本身）以及每个命名的索引在 SQLite 数据库中都会在 sqlite_master 表中有一个条目。你可以像查询其他表一样使用 SELECT 语句查询这个表。但你不能直接通过 UPDATE、INSERT 或 DELETE 修改它。必须通过 CREATE 和 DROP 命令来更改 sqlite_master，因为在添加或删除表和索引时，SQLite 还需要更新一些内部数据结构。</p>
 
-<p>But from the point of view of the VDBE, a CREATE works
-pretty much like an INSERT and a DROP works like a DELETE.
-When the SQLite library opens to an existing database,
-the first thing it does is a SELECT to read the "sql"
-columns from all entries of the sqlite_master table.
-The "sql" column contains the complete SQL text of the
-CREATE statement that originally generated the index or
-table.  This text is fed back into the SQLite parser
-and used to reconstruct the
-internal data structures describing the index or table.</p>
+<p>但从 VDBE 的角度来看，CREATE 的工作方式很像 INSERT，DROP 则像 DELETE。当 SQLite 库打开一个已有的数据库时，首先执行 SELECT，从 sqlite_master 表的所有条目中读取 "sql" 列。 "sql" 列包含最初生成该索引或表的 CREATE 语句的完整 SQL 文本。这段文本会被重新送入 SQLite 解析器，用来重建描述该索引或表的内部数据结构。</p>
 
 <h2>Using Indexes To Speed Searching</h2>
 
-<p>In the example queries above, every row of the table being
-queried must be loaded off of the disk and examined, even if only
-a small percentage of the rows end up in the result.  This can
-take a long time on a big table.  To speed things up, SQLite
-can use an index.</p>
+<p>在上面的示例查询中，被查询表的每一行都必须从磁盘加载并检查，即使结果中只有很小一部分行。这在大表上可能非常耗时。为了加快速度，SQLite 可以使用索引。</p>
 
-<p>An SQLite file associates a key with some data.  For an SQLite
-table, the database file is set up so that the key is an integer
-and the data is the information for one row of the table.
-Indices in SQLite reverse this arrangement.  The index key
-is (some of) the information being stored and the index data 
-is an integer.
-To access a table row that has some particular
-content, we first look up the content in the index table to find
-its integer index, then we use that integer to look up the
-complete record in the table.</p>
+<p>SQLite 文件将 key 与一些数据关联起来。对于 SQLite 表，数据库文件按照 key 为整数，而数据为表中一行的信息来设置。SQLite 中的索引则相反：索引 key 是所存储的部分信息，而索引数据是一个整数。要访问包含特定内容的表行，我们首先在索引表中查找该内容以获得它的整数索引，然后使用该整数到表中查找完整记录。</p>
 
-<p>Note that SQLite uses b-trees, which are a sorted data structure, 
-so indices can be used when the WHERE clause of the SELECT statement
-contains tests for equality or inequality.  Queries like the following 
-can use an index if it is available:</p>
+<p>请注意，SQLite 使用 b-tree（一种有序数据结构），所以当 SELECT 语句的 WHERE 子句包含等值或不等值测试时可以使用索引。下面这样的查询如果有合适的索引就能使用它：</p>
 
 <blockquote><pre>
 SELECT * FROM examp WHERE two==50;
@@ -976,36 +521,27 @@ SELECT * FROM examp WHERE two<50;
 SELECT * FROM examp WHERE two IN (50, 100);
 </pre></blockquote>
 
-<p>If there exists an index that maps the "two" column of the "examp"
-table into integers, then SQLite will use that index to find the integer
-keys of all rows in examp that have a value of 50 for column two, or 
-all rows that are less than 50, etc.
-But the following queries cannot use the index:</p>
+<p>如果存在一个将 examp 表的 "two" 列映射到整数的索引，那么 SQLite 就会使用该索引来查找 examp 中所有 column two 值为 50 的行的整数键，或所有小于 50 的行等。但下面这些查询就不能使用索引：</p>
 
 <blockquote><pre>
 SELECT * FROM examp WHERE two%50 == 10;
 SELECT * FROM examp WHERE two&127 == 3;
 </pre></blockquote>
 
-<p>Note that the SQLite parser will not always generate code to use an 
-index, even if it is possible to do so.  The following queries will not 
-currently use the index:</p>
+<p>注意，即便解析器可以使用索引，它也不总是生成对应的代码。以下查询目前不会使用索引：</p>
 
 <blockquote><pre>
 SELECT * FROM examp WHERE two+10 == 50;
 SELECT * FROM examp WHERE two==50 OR two==100;
 </pre></blockquote>
 
-<p>To understand better how indices work, lets first look at how
-they are created.  Let's go ahead and put an index on the two
-column of the examp table.  We have:</p>
+<p>为了更好地理解索引的工作方式，我们先看看它们是怎么创建的。我们将在 examp 表的 two 列上创建索引。语句如下：</p>
 
 <blockquote><pre>
 CREATE INDEX examp_idx1 ON examp(two);
 </pre></blockquote>
 
-<p>The VDBE code generated by the above statement looks like the
-following:</p>
+<p>以上语句生成的 VDBE 代码如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1039,55 +575,25 @@ following:</p>
 28&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 29&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 30&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>Remember that every table (except sqlite_master) and every named
-index has an entry in the sqlite_master table.  Since we are creating
-a new index, we have to add a new entry to sqlite_master.  This is
-handled by instructions 3 through 15.  Adding an entry to sqlite_master
-works just like any other INSERT statement so we will not say any more
-about it here.  In this example, we want to focus on populating the
-new index with valid data, which happens on instructions 16 through 
-23.</p>
+<p>记住，每个表（sqlite_master 除外）和每个命名索引在 sqlite_master 表中都有一条记录。由于我们正在创建一个新索引，所以必须向 sqlite_master 添加一个新条目。这由指令 3 到 15 处理。向 sqlite_master 添加条目的过程与任何其他 INSERT 语句相同，因此我们不再赘述。在这个例子中，我们要关注的是如何填充新的索引，也就是指令 16 到 23 所做的工作。</p>
 <blockquote><tt>16&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 17&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp</tt></blockquote>
-<p>The first thing that happens is that we open the table being
-indexed for reading.  In order to construct an index for a table,
-we have to know what is in that table.  The index has already been 
-opened for writing using cursor 0 by instructions 3 and 4.</p>
+<p>第一件事是为读取打开正在建立索引的表。为了构建该表的索引，我们必须了解表中有什么。索引已经通过指令 3 和 4 使用游标 0 打开以供写入。</p>
 <blockquote><tt>18&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 19&nbsp;&nbsp;&nbsp;&nbsp;Recno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 20&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 21&nbsp;&nbsp;&nbsp;&nbsp;MakeIdxKey&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 22&nbsp;&nbsp;&nbsp;&nbsp;IdxPut&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;indexed&nbsp;columns&nbsp;are&nbsp;not&nbsp;unique&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 23&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;19</tt></blockquote>
-<p>Instructions 18 through 23 implement a loop over every row of the 
-table being indexed.  For each table row, we first extract the integer 
-key for that row using Recno in instruction 19, then get the value of 
-the "two" column using Column in instruction 20.  
-The <a href="opcode.html#MakeIdxKey">MakeIdxKey</a> instruction at 21 
-converts data from the "two" column (which is on the top of the stack) 
-into a valid index key.  For an index on a single column, this is 
-basically a no-op.  But if the P1 operand to MakeIdxKey had been 
-greater than one multiple entries would have been popped from the stack 
-and converted into a single index key.  
-The <a href="opcode.html#IdxPut">IdxPut</a> instruction at 22 is what 
-actually creates the index entry.  IdxPut pops two elements from the 
-stack.  The top of the stack is used as a key to fetch an entry from the 
-index table.  Then the integer which was second on stack is added to the 
-set of integers for that index and the new record is written back to the 
-database file.  Note
-that the same index entry can store multiple integers if there
-are two or more table entries with the same value for the two
-column.
-</p>
+<p>指令 18 到 23 实现了对正在索引的表的每一行的循环。对于每一行，首先使用指令 19 的 Recno 提取该行的整数键，然后通过指令 20 的 Column 获取 "two" 列的值。第 21 条 <a href="opcode.html#MakeIdxKey">MakeIdxKey</a> 指令将来自 "two" 列的数据（位于栈顶）转换为有效的索引键。对于单列索引，这基本上是一个空操作。但如果 MakeIdxKey 的 P1 操作数大于 1，则会从栈中弹出多个条目并转换为一个索引键。第 22 条 <a href="opcode.html#IdxPut">IdxPut</a> 指令才是真正创建索引条目的操作。IdxPut 会从栈中弹出两个元素。栈顶用于作为键去索引表中取条目。然后栈上的第二个整数将被加入该索引的整数集合，新记录写回数据库文件。请注意，如果存在两个或更多表条目拥有相同的 two 列值，那么相同的索引条目可以存储多个整数。</p>
 
-<p>Now let's look at how this index will be used.  Consider the
-following query:</p>
+<p>现在我们来看看这个索引是如何被使用的。考虑下面的查询：</p>
 
 <blockquote><pre>
 SELECT * FROM examp WHERE two==50;
 </pre></blockquote>
 
-<p>SQLite generates the following VDBE code to handle this query:</p>
+<p>SQLite 为这个查询生成了如下 VDBE 代码：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;one&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1112,57 +618,21 @@ SELECT * FROM examp WHERE two==50;
 19&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 20&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 21&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The SELECT begins in a familiar fashion.  First the column
-names are initialized and the table being queried is opened.
-Things become different beginning with instructions 5 and 6 where
-the index file is also opened.  Instructions 7 and 8 make
-a key with the value of 50.  
-The <a href="opcode.html#MemStore">MemStore</a> instruction at 9 stores 
-the index key in VDBE memory location 0.  The VDBE memory is used to 
-avoid having to fetch a value from deep in the stack, which can be done,
-but makes the program harder to generate.  The following instruction 
-<a href="opcode.html#MoveTo">MoveTo</a> at address 10 pops the key off 
-the stack and moves the index cursor to the first row of the index with 
-that key.  This initializes the cursor for use in the following loop.</p>
+<p>SELECT 以熟悉的方式开始。首先初始化列名并打开被查询的表。从指令 5 和 6 开始情况不同，因为此时索引文件也被打开了。指令 7 和 8 使用值 50 构造了一个键。第 9 条 <a href="opcode.html#MemStore">MemStore</a> 指令将该索引键存储在 VDBE 的内存位置 0 中。使用 VDBE 内存是为了避免必须从栈深处获取值，虽然也可以那样做，但会让程序更难生成。接下来的 <a href="opcode.html#MoveTo">MoveTo</a> 指令在地址 10 将栈顶键弹出，并将索引游标移动到索引中第一个具有该键的行。这为后续的循环初始化了游标。</p>
 
-<p>Instructions 11 through 18 implement a loop over all index records 
-with the key that was fetched by instruction 8.  All of the index 
-records with this key will be contiguous in the index table, so we walk 
-through them and fetch the corresponding table key from the index.  
-This table key is then used to move the cursor to that row in the table.  
-The rest of the loop is the same as the loop for the non-indexed SELECT 
-query.</p>
+<p>指令 11 到 18 实现了一个循环，遍历所有具有指令 8 获取的键的索引记录。所有具有该键的索引记录在索引表中是连续的，因此我们遍历它们，并从索引中获取相应的表键。然后使用这个表键将游标移到表中的那一行。循环的其余部分与未使用索引的 SELECT 查询的循环相同。</p>
 
-<p>The loop begins with the <a href="opcode.html#MemLoad">MemLoad</a> 
-instruction at 11 which pushes a copy of the index key back onto the 
-stack.  The instruction <a href="opcode.html#IdxGT">IdxGT</a> at 12 
-compares the key to the key in the current index record pointed to by 
-cursor P1.  If the index key at the current cursor location is greater 
-than the index we are looking for, then jump out of the loop.</p>
+<p>循环从第 11 条 <a href="opcode.html#MemLoad">MemLoad</a> 指令开始，它将索引键的副本重新压入栈中。第 12 条 <a href="opcode.html#IdxGT">IdxGT</a> 指令将该键与由游标 P1 指向的当前索引记录中的键进行比较。如果当前游标位置的索引键大于我们要查找的键，就跳出循环。</p>
 
-<p>The instruction <a href="opcode.html#IdxRecno">IdxRecno</a> at 13 
-pushes onto the stack the table record number from the index.  The 
-following MoveTo pops it and moves the table cursor to that row.  The 
-next 3 instructions select the column data the same way as in the non-
-indexed case. The Column instructions fetch the column data and the 
-callback function is invoked.  The final Next instruction advances the 
-index cursor, not the table cursor, to the next row, and then branches 
-back to the start of the loop if there are any index records left.</p>
+<p>第 13 条 <a href="opcode.html#IdxRecno">IdxRecno</a> 指令将索引中的表记录号压入栈。接下来的 MoveTo 将其弹出并将表游标移到该行。之后的 3 条指令以与未使用索引时相同的方式选择列数据。Column 指令获取列数据，并调用回调函数。最后的 Next 指令推进的是索引游标而非表游标，然后如果还有索引记录就跳回到循环的开始。</p>
 
-<p>Since the index is used to look up values in the table,
-it is important that the index and table be kept consistent.
-Now that there is an index on the examp table, we will have
-to update that index whenever data is inserted, deleted, or
-changed in the examp table.  Remember the first example above
-where we were able to insert a new row into the "examp" table using
-12 VDBE instructions.  Now that this table is indexed, 19
-instructions are required.  The SQL statement is this:</p>
+<p>由于使用索引来查表中的值，因此保持索引和表一致是很重要的。既然 examp 表上有了索引，那么每当在 examp 表插入、删除或修改数据时，就必须更新该索引。记得前面第一个例子，我们只用 12 条 VDBE 指令就向 "examp" 表插入了一行。现在该表有索引了，就需要 19 条指令。SQL 语句如下：</p>
 
 <blockquote><pre>
 INSERT INTO examp VALUES('Hello, World!',99);
 </pre></blockquote>
 
-<p>And the generated code looks like this:</p>
+<p>生成的代码如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1173,7 +643,7 @@ INSERT INTO examp VALUES('Hello, World!',99);
 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp_idx1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NewRecno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello,&nbsp;World!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello,&nbsp;World!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;99&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 10&nbsp;&nbsp;&nbsp;&nbsp;Dup&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 11&nbsp;&nbsp;&nbsp;&nbsp;Dup&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1185,83 +655,55 @@ INSERT INTO examp VALUES('Hello, World!',99);
 17&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 18&nbsp;&nbsp;&nbsp;&nbsp;Commit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 19&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>At this point, you should understand the VDBE well enough to
-figure out on your own how the above program works.  So we will
-not discuss it further in this text.</p>
+<p>此时你应该已经足够理解 VDBE，以便自己推断出上述程序的运行方式，所以我们在本文中不再进一步讨论。</p>
+<h2>连接</h2>
 
-<h2>Joins</h2>
+<p>在一个 join 中，两个或更多表被组合以生成单个结果。结果表由被 join 的各表中的每一个可能的行组合组成。实现这一点最简单、最自然的方法是使用嵌套循环。</p>
 
-<p>In a join, two or more tables are combined to generate a single
-result.  The result table consists of every possible combination
-of rows from the tables being joined.  The easiest and most natural
-way to implement this is with nested loops.</p>
-
-<p>Recall the query template discussed above where there was a
-single loop that searched through every record of the table.
-In a join we have basically the same thing except that there
-are nested loops.  For example, to join two tables, the query
-template might look something like this:</p>
+<p>回想上面讨论的查询模板，其中有一个循环遍历表的每一条记录。在 join 中我们基本上做的是同样的事情，只不过有嵌套循环。例如，为了 join 两个表，查询模板可能看起来像这样：</p>
 
 <p>
 <ol>
-<li>Initialize the <b>azColumnName[]</b> array for the callback.</li>
-<li>Open two cursors, one to each of the two tables being queried.</li>
-<li>For each record in the first table, do:
+<li>为回调初始化 <b>azColumnName[]</b> 数组。</li>
+<li>打开两个游标，分别对应被查询的两个表。</li>
+<li>对于第一个表的每条记录，执行：
     <ol type="a">
-    <li>For each record in the second table do:
+    <li>对于第二个表的每条记录，执行：
       <ol type="i">
-      <li>If the WHERE clause evaluates to FALSE, then skip the steps that
-          follow and continue to the next record.</li>
-      <li>Compute all columns for the current row of the result.</li>
-      <li>Invoke the callback function for the current row of the result.</li>
+      <li>如果 WHERE clause 的求值结果为 FALSE，那么跳过后续步骤并继续到下一条记录。</li>
+      <li>计算当前结果行的所有列。</li>
+      <li>为当前结果行调用回调函数。</li>
       </ol></li>
     </ol>
-<li>Close both cursors.</li>
+<li>关闭两个游标。</li>
 </ol>
 </p>
 
-<p>This template will work, but it is likely to be slow since we
-are now dealing with an O(N<sup>2</sup>) loop.  But it often works
-out that the WHERE clause can be factored into terms and that one or
-more of those terms will involve only columns in the first table.
-When this happens, we can factor part of the WHERE clause test out of
-the inner loop and gain a lot of efficiency.  So a better template
-would be something like this:</p>
+<p>这个模板可以工作，但可能会很慢，因为我们现在处理的是 O(N<sup>2</sup>) 循环。但通常可以将 WHERE clause 分解成多个项，而其中一个或多个项只涉及第一个表的列。发生这种情况时，我们可以将 WHERE clause 条件的一部分从内层循环中提取出来，从而获得大量效率提升。因此，更好的模板可能类似如下：</p>
 
 <p>
 <ol>
-<li>Initialize the <b>azColumnName[]</b> array for the callback.</li>
-<li>Open two cursors, one to each of the two tables being queried.</li>
-<li>For each record in the first table, do:
+<li>为回调初始化 <b>azColumnName[]</b> 数组。</li>
+<li>打开两个游标，分别对应被查询的两个表。</li>
+<li>对于第一个表的每条记录，执行：
     <ol type="a">
-    <li>Evaluate terms of the WHERE clause that only involve columns from
-        the first table.  If any term is false (meaning that the whole
-        WHERE clause must be false) then skip the rest of this loop and
-        continue to the next record.</li>
-    <li>For each record in the second table do:
+    <li>求值只涉及第一个表列的 WHERE clause 项。如果任意一项为 false（意味着整个 WHERE clause 必须为 false），则跳过本次循环的其余部分并继续到下一条记录。</li>
+    <li>对于第二个表的每条记录，执行：
       <ol type="i">
-      <li>If the WHERE clause evaluates to FALSE, then skip the steps that
-          follow and continue to the next record.</li>
-      <li>Compute all columns for the current row of the result.</li>
-      <li>Invoke the callback function for the current row of the result.</li>
+      <li>如果 WHERE clause 的求值结果为 FALSE，那么跳过后续步骤并继续到下一条记录。</li>
+      <li>计算当前结果行的所有列。</li>
+      <li>为当前结果行调用回调函数。</li>
       </ol></li>
     </ol>
-<li>Close both cursors.</li>
+<li>关闭两个游标。</li>
 </ol>
 </p>
 
-<p>Additional speed-up can occur if an index can be used to speed
-the search of either or the two loops.</p>
+<p>如果可以使用索引加快任一循环的搜索，还可以进一步提高速度。</p>
 
-<p>SQLite always constructs the loops in the same order as the
-tables appear in the FROM clause of the SELECT statement.  The
-left-most table becomes the outer loop and the right-most table
-becomes the inner loop.  It is possible, in theory, to reorder
-the loops in some circumstances to speed the evaluation of the
-join.  But SQLite does not attempt this optimization.</p>
+<p>SQLite 总是按照 SELECT 语句中 FROM 子句中表出现的顺序构造循环。最左边的表成为外层循环，而最右边的表成为内层循环。理论上，在某些情况下有可能重新排序循环以加快 join 的求值，但 SQLite 并不尝试这种优化。</p>
 
-<p>You can see how SQLite constructs nested loops in the following
-example:</p>
+<p>可以在下例中看到 SQLite 如何构造嵌套循环：</p>
 
 <blockquote><pre>
 CREATE TABLE examp2(three int, four int);
@@ -1272,7 +714,7 @@ SELECT * FROM examp, examp2 WHERE two<50 AND four==two;
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp.one&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp.two&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp2.three&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp2.four&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp2.four&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;909&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1296,33 +738,17 @@ SELECT * FROM examp, examp2 WHERE two<50 AND four==two;
 24&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 25&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 26&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The outer loop over table examp is implemented by instructions
-7 through 23.  The inner loop is instructions 13 through 22.
-Notice that the "two<50" term of the WHERE expression involves
-only columns from the first table and can be factored out of
-the inner loop.  SQLite does this and implements the "two<50"
-test in instructions 10 through 12.  The "four==two" test is
-implemented by instructions 14 through 16 in the inner loop.</p>
+<p>对表 examp 的外层循环由指令 7 到 23 实现。内层循环是指令 13 到 22。注意 WHERE 表达式中的 "two<50" 项只涉及第一个表的列，因此可以从内层循环中提取出来。SQLite 这样做了，并将 "two<50" 测试放在指令 10 到 12 中。 "four==two" 测试则由内层循环的指令 14 到 16 实现。</p>
 
-<p>SQLite does not impose any arbitrary limits on the tables in
-a join.  It also allows a table to be joined with itself.</p>
+<p>SQLite 对 join 中的表不施加任意限制。它也允许一个表与自身进行 join。</p>
 
-<h2>The ORDER BY clause</h2>
+<h2>ORDER BY 子句</h2>
 
-<p>For historical reasons, and for efficiency, all sorting is currently 
-done in memory.</p>
+<p>出于历史原因以及效率的考虑，所有排序目前都在内存中完成。</p>
 
-<p>SQLite implements the ORDER BY clause using a special
-set of instructions to control an object called a sorter.  In the
-inner-most loop of the query, where there would normally be
-a Callback instruction, instead a record is constructed that
-contains both callback parameters and a key.  This record
-is added to the sorter (in a linked list).  After the query loop 
-finishes, the list of records is sorted and this list is walked.  For 
-each record on the list, the callback is invoked.  Finally, the sorter
-is closed and memory is deallocated.</p>
+<p>SQLite 使用一组特殊指令来控制一个称为 sorter 的对象，从而实现 ORDER BY 子句。在查询的最内层循环中，通常会有一个 Callback 指令，但在此处会构造一个同时包含回调参数和键的记录。此记录被添加到 sorter（通过链表）。查询循环结束后，记录列表会被排序并遍历。对于列表中的每条记录，回调会被调用。最后，sorter 被关闭并释放内存。</p>
 
-<p>We can see the process in action in the following query:</p>
+<p>在下列查询中可以看到这个过程：</p>
 
 <blockquote><pre>
 SELECT * FROM examp ORDER BY one DESC, two;
@@ -1334,66 +760,8 @@ SELECT * FROM examp ORDER BY one DESC, two;
 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;909&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SortMakeRec&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-10&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-11&nbsp;&nbsp;&nbsp;&nbsp;SortMakeKey&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-12&nbsp;&nbsp;&nbsp;&nbsp;SortPut&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-13&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-14&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-15&nbsp;&nbsp;&nbsp;&nbsp;Sort&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-16&nbsp;&nbsp;&nbsp;&nbsp;SortNext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-17&nbsp;&nbsp;&nbsp;&nbsp;SortCallback&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-18&nbsp;&nbsp;&nbsp;&nbsp;Goto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-19&nbsp;&nbsp;&nbsp;&nbsp;SortReset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-20&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>There is only one sorter object, so there are no instructions to open 
-or close it.  It is opened automatically when needed, and it is closed 
-when the VDBE program halts.</p>
-
-<p>The query loop is built from instructions 5 through 13.  Instructions
-6 through 8 build a record that contains the azData[] values for a single
-invocation of the callback.  A sort key is generated by instructions
-9 through 11.  Instruction 12 combines the invocation record and the
-sort key into a single entry and puts that entry on the sort list.<p>
-
-<p>The P3 argument of instruction 11 is of particular interest.  The
-sort key is formed by prepending one character from P3 to each string
-and concatenating all the strings.  The sort comparison function will
-look at this character to determine whether the sort order is
-ascending or descending, and whether to sort as a string or number.  
-In this example, the first column should be sorted as a string 
-in descending order so its prefix is "D" and the second column should 
-sorted numerically in ascending order so its prefix is "+".  Ascending 
-string sorting uses "A", and descending numeric sorting uses "-".</p>
-
-<p>After the query loop ends, the table being queried is closed at
-instruction 14.  This is done early in order to allow other processes
-or threads to access that table, if desired.  The list of records
-that was built up inside the query loop is sorted by the instruction
-at 15.  Instructions 16 through 18 walk through the record list
-(which is now in sorted order) and invoke the callback once for
-each record.  Finally, the sorter is closed at instruction 19.</p>
-
-<h2>Aggregate Functions And The GROUP BY and HAVING Clauses</h2>
-
-<p>To compute aggregate functions, the VDBE implements a special 
-data structure and instructions for controlling that data structure.
-The data structure is an unordered set of buckets, where each bucket
-has a key and one or more memory locations.  Within the query
-loop, the GROUP BY clause is used to construct a key and the bucket
-with that key is brought into focus.  A new bucket is created with
-the key if one did not previously exist.  Once the bucket is in
-focus, the memory locations of the bucket are used to accumulate
-the values of the various aggregate functions.  After the query
-loop terminates, each bucket is visited once to generate a
-single row of the results.</p>
-
-<p>An example will help to clarify this concept.  Consider the
-following query:</p>
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
+<p>一个示例将有助于澄清这个概念。请考虑下列查询：</p>
 
 <blockquote><pre>
 SELECT three, min(three+four)+avg(four) 
@@ -1402,7 +770,7 @@ GROUP BY three;
 </pre></blockquote>
 
 
-<p>The VDBE code generated for this query is as follows:</p>
+<p>此查询生成的 VDBE 代码如下所示：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;three&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1411,7 +779,7 @@ GROUP BY three;
 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AggInit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ptr(0x7903a0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AggInit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ptr(0x790700)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenRead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examp2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;909&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;23&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1438,56 +806,25 @@ GROUP BY three;
 30&nbsp;&nbsp;&nbsp;&nbsp;Goto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 31&nbsp;&nbsp;&nbsp;&nbsp;Noop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 32&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The first instruction of interest is the 
-<a href="opcode.html#AggReset">AggReset</a> at 2.
-The AggReset instruction initializes the set of buckets to be the
-empty set and specifies the number of memory slots available in each
-bucket as P2.  In this example, each bucket will hold 3 memory slots.
-It is not obvious, but if you look closely at the rest of the program
-you can figure out what each of these slots is intended for.</p>
+<p>第一个值得注意的指令是位于 2 的 <a href="opcode.html#AggReset">AggReset</a>。
+AggReset 指令将桶集初始化为空集，并指定每个桶中可用的内存槽数量为 P2 。在这个示例中，每个桶将保存 3 个内存槽。虽然并不明显，但如果仔细查看程序的其余部分，就能弄清这些槽分别用于什么。</p>
 
 <blockquote><table border="2" cellpadding="5">
-<tr><th>Memory Slot</th><th>Intended Use Of This Memory Slot</th></tr>
-<tr><td>0</td><td>The "three" column -- the key to the bucket</td></tr>
-<tr><td>1</td><td>The minimum "three+four" value</td></tr>
-<tr><td>2</td><td>The sum of all "four" values. This is used to compute 
-   "avg(four)".</td></tr>
+<tr><th>内存槽</th><th>该内存槽的预期用途</th></tr>
+<tr><td>0</td><td>“three” 列 —— 桶的键</td></tr>
+<tr><td>1</td><td>最小的 “three+four” 值</td></tr>
+<tr><td>2</td><td>所有 “four” 值的总和。用于计算 “avg(four)”。</td></tr>
 </table></blockquote>
 
-<p>The query loop is implemented by instructions 8 through 22.
-The aggregate key specified by the GROUP BY clause is computed
-by instructions 9 and 10.  Instruction 11 causes the appropriate
-bucket to come into focus.  If a bucket with the given key does
-not already exist, a new bucket is created and control falls
-through to instructions 12 and 13 which initialize the bucket.
-If the bucket does already exist, then a jump is made to instruction
-14.  The values of aggregate functions are updated by the instructions
-between 11 and 21.  Instructions 14 through 18 update memory
-slot 1 to hold the next value "min(three+four)".  Then the sum of the 
-"four" column is updated by instructions 19 through 21.</p>
+<p>查询循环由指令 8 到 22 实现。
+GROUP BY 子句指定的聚合键由指令 9 和 10 计算。指令 11
+使得相应的桶进入焦点。如果尚未存在具有给定键的桶，则会创建一个新桶，并且控制流会落到指令 12 和 13，这些指令对桶进行初始化。如果该桶已经存在，则跳转到指令 14。聚合函数的值由指令 11 到 21 之间的指令更新。指令 14 到 18 更新内存槽 1 以保存下一个值 “min(three+four)”。然后由指令 19 到 21 更新 “four” 列的总和。</p>
 
-<p>After the query loop is finished, the table "examp2" is closed at
-instruction 23 so that its lock will be released and it can be
-used by other threads or processes.  The next step is to loop
-over all aggregate buckets and output one row of the result for
-each bucket.  This is done by the loop at instructions 24
-through 30.  The AggNext instruction at 24 brings the next bucket
-into focus, or jumps to the end of the loop if all buckets have
-been examined already.  The 3 columns of the result are fetched from 
-the aggregator bucket in order at instructions 25 through 27.
-Finally, the callback is invoked at instruction 29.</p>
+<p>查询循环完成后，在指令 23 关闭表 “examp2”，以便释放其锁并可供其他线程或进程使用。下一步是遍历所有聚合桶，并为每个桶输出一行结果。这由指令 24 到 30 的循环完成。位于 24 的 AggNext 指令将下一个桶带入焦点，如果已检查所有桶，则跳转到循环结束。在指令 25 到 27 中按照顺序从聚合器桶提取结果的 3 列。最后，在指令 29 调用回调。</p>
 
-<p>In summary then, any query with aggregate functions is implemented
-by two loops.  The first loop scans the input table and computes
-aggregate information into buckets and the second loop scans through
-all the buckets to compute the final result.</p>
+<p>因此，总结一下，任何包含聚合函数的查询都是通过两个循环实现的。第一个循环扫描输入表并将聚合信息计算到桶中，第二个循环遍历所有桶以计算最终结果。</p>
 
-<p>The realization that an aggregate query is really two consecutive
-loops makes it much easier to understand the difference between
-a WHERE clause and a HAVING clause in th3 SQL query statement.  The
-WHERE clause is a restriction on the first loop and the HAVING
-clause is a restriction on the second loop.  You can see this
-by adding both a WHERE and a HAVING clause to our example query:</p>
+<p>意识到聚合查询实际上是两个连续循环后，就更容易理解在 th3 SQL 查询语句中 WHERE 子句与 HAVING 子句之间的区别。WHERE 子句是对第一个循环的限制，而 HAVING 子句是对第二个循环的限制。你可以通过在示例查询中同时添加 WHERE 和 HAVING 子句来观察这一点：</p>
 
 
 <blockquote><pre>
@@ -1538,13 +875,7 @@ HAVING avg(four)<10;
 36&nbsp;&nbsp;&nbsp;&nbsp;Goto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 37&nbsp;&nbsp;&nbsp;&nbsp;Noop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 38&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The code generated in this last example is the same as the
-previous except for the addition of two conditional jumps used
-to implement the extra WHERE and HAVING clauses.  The WHERE
-clause is implemented by instructions 9 through 11 in the query
-loop.  The HAVING clause is implemented by instructions 28 through
-30 in the output loop.</p>
-
+<p>上一示例生成的代码与前一个相同，除了为了实现额外的 WHERE 和 HAVING 子句而添加了两个条件跳转。WHERE 子句由查询循环中的第 9 至 11 条指令实现。HAVING 子句由输出循环中的第 28 至 30 条指令实现。</p>
 <h2>Using SELECT Statements As Terms In An Expression</h2>
 
 <p>The very name "Structured Query Language" tells us that SQL should
@@ -1553,9 +884,8 @@ are supported.  Any SELECT statement that returns a single-row, single-column
 result can be used as a term in an expression of another SELECT statement.
 And, a SELECT statement that returns a single-column, multi-row result
 can be used as the right-hand operand of the IN and NOT IN operators.
-We will begin this section with an example of the first kind of nesting,
-where a single-row, single-column SELECT is used as a term in an expression
-of another SELECT.  Here is our example:</p>
+我们将以一个第一类嵌套的例子开始本节，在该例中单行单列的 SELECT 作为另一个 SELECT 表达式中的项。
+以下是我们的示例：</p>
 
 <blockquote><pre>
 SELECT * FROM examp
@@ -1563,11 +893,10 @@ WHERE two!=(SELECT three FROM examp2
             WHERE four=5);
 </pre></blockquote>
 
-<p>The way SQLite deals with this is to first run the inner SELECT
-(the one against examp2) and store its result in a private memory
-cell.  SQLite then substitutes the value of this private memory
-cell for the inner SELECT when it evaluates the outer SELECT.
-The code looks like this:</p>
+<p>SQLite 处理该情况的方式是先运行内部的 SELECT
+（针对 examp2 的查询）并将其结果存储在一个私有内存单元中。
+然后在评估外部 SELECT 时，SQLite 将此私有内存单元的值替换内部 SELECT。
+代码如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1577,8 +906,8 @@ The code looks like this:</p>
 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VerifyCookie&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;909&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ne&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ne&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 10&nbsp;&nbsp;&nbsp;&nbsp;MemStore&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 11&nbsp;&nbsp;&nbsp;&nbsp;Goto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1591,43 +920,33 @@ The code looks like this:</p>
 18&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;26&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 19&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 20&nbsp;&nbsp;&nbsp;&nbsp;MemLoad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-21&nbsp;&nbsp;&nbsp;&nbsp;Eq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+21&nbsp;&nbsp;&nbsp;&nbsp;Eq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 22&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 23&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 24&nbsp;&nbsp;&nbsp;&nbsp;Callback&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 25&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 26&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 27&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The private memory cell is initialized to NULL by the first
-two instructions.  Instructions 2 through 13 implement the inner
-SELECT statement against the examp2 table.  Notice that instead of
-sending the result to a callback or storing the result on a sorter,
-the result of the query is pushed into the memory cell by instruction
-10 and the loop is abandoned by the jump at instruction 11.  
-The jump at instruction at 11 is vestigial and never executes.</p>
+<p>前两个指令将私有内存单元初始化为 NULL。  指令 2 到 13 实现了针对 examp2 表的内部 SELECT。
+请注意，这里没有把结果发送给回调或将结果存放在排序器中，
+而是由指令 10 将查询结果推送到内存单元，指令 11 的跳转结束循环。
+事实上，指令 11 的跳转是遗留的，从不执行。</p>
 
-<p>The outer SELECT is implemented by instructions 14 through 25.
-In particular, the WHERE clause that contains the nested select
-is implemented by instructions 19 through 21.  You can see that
-the result of the inner select is loaded onto the stack by instruction
-20 and used by the conditional jump at 21.</p>
+<p>外部 SELECT 由指令 14 到 25 实现。
+特别地，包含嵌套 select 的 WHERE 子句由指令 19 到 21 实现。
+你可以看到内层 select 的结果是由指令 20 加载到堆栈并被指令 21 的条件跳转所使用。</p>
 
-<p>When the result of a sub-select is a scalar, a single private memory
-cell can be used, as shown in the previous
-example.  But when the result of a sub-select is a vector, such
-as when the sub-select is the right-hand operand of IN or NOT IN,
-a different approach is needed.  In this case, 
-the result of the sub-select is
-stored in a transient table and the contents of that table
-are tested using the Found or NotFound operators.  Consider this
-example:</p>
+<p>当子 select 的结果是标量时，可以像前面的示例中那样使用单个私有内存单元。
+但当子 select 的结果是向量，比如子 select 作为 IN 或 NOT IN 的右操作数时，就需要不同的做法。
+在这种情况下，子 select 的结果存储在瞬态表中，并使用 Found 或 NotFound 操作对该表的内容进行测试。
+请看这个例子：</p>
 
 <blockquote><pre>
 SELECT * FROM examp
 WHERE two IN (SELECT three FROM examp2);
 </pre></blockquote>
 
-<p>The code generated to implement this last query is as follows:</p>
+<p>实现此查询生成的代码如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenTemp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1657,38 +976,29 @@ WHERE two IN (SELECT three FROM examp2);
 24&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 25&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 26&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The transient table in which the results of the inner SELECT are
-stored is created by the <a href="opcode.html#OpenTemp">OpenTemp</a> 
-instruction at 0.  This opcode is used for tables that exist for the 
-duration of a single SQL statement only.  The transient cursor is always 
-opened read/write even if the main database is read-only.  The transient 
-table is deleted automatically when the cursor is closed.  The P2 value 
-of 1 means the cursor points to a BTree index, which has no data but can 
-have an arbitrary key.</p>
+<p>内部 SELECT 结果存储的瞬态表由第 0 条指令的 <a href="opcode.html#OpenTemp">OpenTemp</a> 指令创建。
+该 opcode 用于只在单条 SQL 语句期间存在的表。
+瞬态游标始终以读/写方式打开即使主数据库是只读的。
+游标关闭时瞬态表会自动删除。
+P2 值为 1 表示游标指向一个 BTree 索引，该索引没有数据但可以有任意键。</p>
 
-<p>The inner SELECT statement is implemented by instructions 1 through 10.
-All this code does is make an entry in the temporary table for each
-row of the examp2 table with a non-NULL value for the "three" column.  
-The key for each temporary table entry is the "three" column of examp2 
-and the data is an empty string since it is never used.</p>
+<p>内部 SELECT 由指令 1 至 10 实现。
+所有这些代码就是为 examp2 表中 "three" 列非 NULL 的每一行在临时表中创建一个条目。
+每个临时表条目的键是 examp2 的 "three" 列，
+数据是一串空字符串，因为从未使用过。</p>
 
-<p>The outer SELECT is implemented by instructions 11 through 25.  In
-particular, the WHERE clause containing the IN operator is implemented
-by instructions at 16, 17, and 20.  Instruction 16 pushes the value of
-the "two" column for the current row onto the stack and instruction 17
-checks to see that it is non-NULL.  If this is successful, execution 
-jumps to 20, where it tests to see if top of the stack matches any key 
-in the temporary table.  The rest of the code is the same as what has 
-been shown before.</p>
+<p>外部 SELECT 由指令 11 至 25 实现。
+特别地，包含 IN 操作的 WHERE 子句由指令 16、17 和 20 实现。
+指令 16 将当前行 "two" 列的值推入栈，指令 17 检查其是否非 NULL。
+如果成功，执行跳转到 20，在那里测试栈顶是否与临时表中的任意键匹配。
+剩下的代码与前面示例所示相同。</p>
 
 <h2>Compound SELECT Statements</h2>
 
-<p>SQLite also allows two or more SELECT statements to be joined as
-peers using operators UNION, UNION ALL, INTERSECT, and EXCEPT.  These
-compound select statements are implemented using transient tables.
-The implementation is slightly different for each operator, but the
-basic ideas are the same.  For an example we will use the EXCEPT
-operator.</p>
+<p>SQLite 还允许使用 UNION、UNION ALL、INTERSECT 和 EXCEPT 操作符将两个或多个 SELECT 语句作为同级连接。
+这些复合 select 语句通过瞬态表实现。
+每个操作的实现略有不同，但基本思想相同。
+我们以 EXCEPT 操作为例。</p>
 
 <blockquote><pre>
 SELECT two FROM examp
@@ -1696,10 +1006,8 @@ EXCEPT
 SELECT four FROM examp2;
 </pre></blockquote>
 
-<p>The result of this last example should be every unique value
-of the "two" column in the examp table, except any value that is
-in the "four" column of examp2 is removed.  The code to implement
-this query is as follows:</p>
+<p>此最后示例的结果应该是 examp 表中 "two" 列的每个唯一值，但会排除任何在 examp2 的 "four" 列中出现的值。
+实现该查询的代码如下：</p>
 <blockquote><tt>addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 ----&nbsp;&nbsp;------------&nbsp;&nbsp;-----&nbsp;&nbsp;-----&nbsp;&nbsp;-----------------------------------<br>
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenTemp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
@@ -1723,93 +1031,52 @@ this query is as follows:</p>
 18&nbsp;&nbsp;&nbsp;&nbsp;Delete&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 19&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 20&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-21&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;four&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+21&nbsp;&nbsp;&nbsp;&nbsp;ColumnName&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;four&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 22&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;26&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 23&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 24&nbsp;&nbsp;&nbsp;&nbsp;Callback&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 25&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;23&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 26&nbsp;&nbsp;&nbsp;&nbsp;Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 27&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</tt></blockquote>
-<p>The transient table in which the result is built is created by
-instruction 0.  Three loops then follow.  The loop at instructions
-5 through 10 implements the first SELECT statement.  The second
-SELECT statement is implemented by the loop at instructions 14 through
-19.  Finally, a loop at instructions 22 through 25 reads the transient
-table and invokes the callback once for each row in the result.</p>
+<p>构建结果的瞬态表由第 0 条指令创建。接下来依次出现三个循环。
+指令 5 到 10 的循环实现第一个 SELECT 语句。
+第二个 SELECT 语句由指令 14 到 19 的循环实现。
+最后，指令 22 到 25 的循环读取瞬态表，并在结果的每一行调用一次回调。</p>
 
-<p>Instruction 1 is of particular importance in this example.  Normally,
-the Column instruction extracts the value of a column from a larger
-record in the data of an SQLite file entry.  Instruction 1 sets a flag on
-the transient table so that Column will instead treat the key of the
-SQLite file entry as if it were data and extract column information from
-the key.</p>
+<p>指令 1 在本例中特别重要。通常 Column 指令是从 SQLite 文件记录的数据中提取某列的值。
+而指令 1 在瞬态表上设置一个标记，使得 Column 改为将 SQLite 文件记录的键当作数据，并从键中提取列信息。</p>
 
-<p>Here is what is going to happen:  The first SELECT statement
-will construct rows of the result and save each row as the key of
-an entry in the transient table.  The data for each entry in the
-transient table is never used so we fill it in with an empty string.
-The second SELECT statement also constructs rows, but the rows
-constructed by the second SELECT are removed from the transient table.
-That is why we want the rows to be stored in the key of the SQLite file
-instead of in the data -- so they can be easily located and deleted.</p>
+<p>以下将要发生：第一个 SELECT 语句生成结果行，并将每一行作为瞬态表中条目的键保存。
+瞬态表中每个条目的数据从未使用，因此填入空字符串。
+第二个 SELECT 也构造行，但这些行会从瞬态表中移除。
+这正是我们希望将行存储在 SQLite 文件键中的原因，而不是数据部分——这样就可以轻松定位并删除它们。</p>
 
-<p>Let's look more closely at what is happening here.  The first
-SELECT is implemented by the loop at instructions 5 through 10.
-Instruction 5 initializes the loop by rewinding its cursor.
-Instruction 6 extracts the value of the "two" column from "examp"
-and instruction 7 converts this into a row.  Instruction 8 pushes
-an empty string onto the stack.  Finally, instruction 9 writes the
-row into the temporary table.  But remember, the PutStrKey opcode uses
-the top of the stack as the record data and the next on stack as the
-key.  For an INSERT statement, the row generated by the
-MakeRecord opcode is the record data and the record key is an integer
-created by the NewRecno opcode.  But here the roles are reversed and
-the row created by MakeRecord is the record key and the record data is
-just an empty string.</p>
+<p>让我们更仔细地看看这里发生了什么。
+第一个 SELECT 由指令 5 到 10 的循环实现。
+指令 5 通过倒带游标初始化循环。
+指令 6 从 "examp" 中提取 "two" 列的值，指令 7 将其转换为行。
+指令 8 将一个空字符串压入堆栈。
+最后，指令 9 将行写入临时表。
+但请记住，PutStrKey opcode 使用栈顶作为记录数据，栈上一个作为键。
+对 INSERT 语句而言，
+MakeRecord opcode 生成的行作为记录数据，NewRecno opcode 创建的整数作为记录键。
+但在此处角色颠倒，MakeRecord 生成的行作为记录键，而记录数据则是空字符串。</p>
 
-<p>The second SELECT is implemented by instructions 14 through 19.
-Instruction 14 initializes the loop by rewinding its cursor.
-A new result row is created from the "four" column of table "examp2"
-by instructions 15 and 16.  But instead of using PutStrKey to write this
-new row into the temporary table, we instead call Delete to remove
-it from the temporary table if it exists.</p>
+<p>第二个 SELECT 由指令 14 到 19 实现。
+指令 14 通过倒带游标初始化循环。
+指令 15 和 16 从表 "examp2" 的 "four" 列创建一个新的结果行。
+但我们没有使用 PutStrKey 将此新行写入临时表，
+而是调用 Delete，如果存在则将其从临时表中删除。</p>
 
-<p>The result of the compound select is sent to the callback routine
-by the loop at instructions 22 through 25.  There is nothing new
-or remarkable about this loop, except for the fact that the Column 
-instruction at 23 will be extracting a column out of the record key
-rather than the record data.</p>
+<p>复合 select 的结果由指令 22 到 25 的循环传递给回调例程。
+这个循环并没有什么新奇之处，唯一值得注意的是
+指令 23 的 Column 将从记录键中提取列而不是从记录数据中提取。</p>
+<h2>总结</h2>
 
-<h2>Summary</h2>
+<p>本文回顾了SQLite的VDBE用于实现SQL语句的所有主要技术。尚未展示的是，这些技术中的大多数可以结合使用，以生成适用于复杂查询语句的代码。例如，我们已经展示了如何在简单查询上完成排序，也展示了如何实现复合查询。但我们并未给出在复合查询中排序的例子。这是因为对复合查询进行排序并不会引入任何新概念：它只是将之前的两个想法（排序与复合）在同一个VDBE程序中组合起来。</p>
 
-<p>This article has reviewed all of the major techniques used by
-SQLite's VDBE to implement SQL statements.  What has not been shown
-is that most of these techniques can be used in combination to
-generate code for an appropriately complex query statement.  For
-example, we have shown how sorting is accomplished on a simple query
-and we have shown how to implement a compound query.  But we did
-not give an example of sorting in a compound query.  This is because
-sorting a compound query does not introduce any new concepts: it
-merely combines two previous ideas (sorting and compounding)
-in the same VDBE program.</p>
+<p>关于SQLite库如何运作的更多信息，建议读者直接查阅SQLite源代码。如果你理解了本文的内容，跟随源码不应该太困难。对于认真研究SQLite内部结构的读者来说，可能还需要仔细研究如<a href="opcode.html">此处</a>所记录的VDBE操作码。大部分操作码文档是通过脚本从源代码注释中提取出来的，因此你也可以直接从<b>vdbe.c</b>源文件中获取关于各个操作码的信息。如果你已经成功读到这里，后面的内容应该也不难理解。</p>
 
-<p>For additional information on how the SQLite library
-functions, the reader is directed to look at the SQLite source
-code directly.  If you understand the material in this article,
-you should not have much difficulty in following the sources.
-Serious students of the internals of SQLite will probably
-also want to make a careful study of the VDBE opcodes
-as documented <a href="opcode.html">here</a>.  Most of the
-opcode documentation is extracted from comments in the source
-code using a script so you can also get information about the
-various opcodes directly from the <b>vdbe.c</b> source file.
-If you have successfully read this far, you should have little
-difficulty understanding the rest.</p>
+<p>如果你在文档或代码中发现错误，欢迎随时修复并/或联系作者：<a href="mailto:drh@hwaci.com">drh@hwaci.com</a>。我们始终欢迎你的漏洞修复或建议。</p>
 
-<p>If you find errors in either the documentation or the code,
-feel free to fix them and/or contact the author at
-<a href="mailto:drh@hwaci.com">drh@hwaci.com</a>.  Your bug fixes or
-suggestions are always welcomed.</p>
-
-<p align="center"><small><i>This page was last updated on 2025-05-12 11:14:48Z </small></i></p>
-
+<p align="center"><small><i>本页面最后更新于 2025-05-12 11:14:48Z </small></i></p>

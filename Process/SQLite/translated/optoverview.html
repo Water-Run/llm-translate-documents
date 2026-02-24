@@ -1,5 +1,6 @@
 <!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
-<!-- Skip ... -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
 <!DOCTYPE html>
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +9,48 @@
 <title>The SQLite Query Optimizer Overview</title>
 <!-- path= -->
 </head>
-<body>
-<div class=nosearch>
+<body><div class=nosearch>
 <a href="index.html">
 <img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
 </a>
 <div><!-- IE hack to prevent disappearing logo --></div>
 <div class="tagline desktoponly">
-Small. Fast. Reliable.<br>Choose any three.
+由WaterRun使用gpt-5.1-codex-mini翻译<br>
+小巧。快速。可靠。任选三项。
 </div>
 <div class="menu mainmenu">
 <ul>
-<li><a href="index.html">Home</a>
-<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>Menu</a>
-<li class='wideonly'><a href='about.html'>About</a>
-<li class='desktoponly'><a href="docs.html">Documentation</a>
-<li class='desktoponly'><a href="download.html">Download</a>
-<li class='wideonly'><a href='copyright.html'>License</a>
-<li class='desktoponly'><a href="support.html">Support</a>
-<li class='desktoponly'><a href="prosupport.html">Purchase</a>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可证</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 <li class='search' id='search_menubutton'>
-<a href="javascript:void(0)" onclick='toggle_search()'>Search</a>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
 </ul>
 </div>
 <div class="menu submenu" id="submenu">
 <ul>
-<li><a href='about.html'>About</a>
-<li><a href='docs.html'>Documentation</a>
-<li><a href='download.html'>Download</a>
-<li><a href='support.html'>Support</a>
-<li><a href='prosupport.html'>Purchase</a>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
 </ul>
 </div>
 <div class="searchmenu" id="searchmenu">
 <form method="GET" action="search">
 <select name="s" id="searchtype">
-<option value="d">Search Documentation</option>
-<option value="c">Search Changelog</option>
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
 </select>
 <input type="text" name="q" id="searchbox" value="">
-<input type="submit" value="Go">
+<input type="submit" value="前往">
 </form>
 </div>
 </div>
@@ -116,43 +119,42 @@ antiRobotGo();
 antiRobotGo();
 }
 antiRobotDefense();
-</script>
-<div class=fancy>
+</script><div class=fancy>
 <div class=nosearch>
 <div class="fancy_title">
-The SQLite Query Optimizer Overview
+SQLite 查询优化器概述
 </div>
 <details class="fancy_toc">
-<summary>Table Of Contents</summary>
-<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. Introduction</a></div>
-<div class="fancy-toc1"><a href="#where_clause_analysis">2. WHERE Clause Analysis</a></div>
-<div class="fancy-toc2"><a href="#index_term_usage_examples">2.1. Index Term Usage Examples</a></div>
-<div class="fancy-toc1"><a href="#the_between_optimization">3. The BETWEEN Optimization</a></div>
-<div class="fancy-toc1"><a href="#or_optimizations">4. OR Optimizations</a></div>
-<div class="fancy-toc2"><a href="#converting_or_connected_constraint_into_an_in_operator">4.1. Converting OR-connected constraint into an IN operator</a></div>
-<div class="fancy-toc2"><a href="#evaluating_or_constraints_separately_and_taking_the_union_of_the_result">4.2. Evaluating OR constraints separately and taking the UNION of the result</a></div>
-<div class="fancy-toc1"><a href="#the_like_optimization">5. The LIKE Optimization</a></div>
-<div class="fancy-toc1"><a href="#the_skip_scan_optimization">6. The Skip-Scan Optimization</a></div>
-<div class="fancy-toc1"><a href="#joins">7. Joins</a></div>
-<div class="fancy-toc2"><a href="#manual_control_of_join_order">7.1. Manual Control Of Join Order</a></div>
-<div class="fancy-toc3"><a href="#manual_control_of_query_plans_using_sqlite_stat_tables">7.1.1. Manual Control Of Query Plans Using SQLITE_STAT Tables</a></div>
-<div class="fancy-toc3"><a href="#manual_control_of_query_plans_using_cross_join">7.1.2. Manual Control of Query Plans using CROSS JOIN</a></div>
-<div class="fancy-toc1"><a href="#choosing_between_multiple_indexes">8. Choosing Between Multiple Indexes</a></div>
-<div class="fancy-toc2"><a href="#disqualifying_where_clause_terms_using_unary_">8.1. Disqualifying WHERE Clause Terms using Unary-"+"</a></div>
-<div class="fancy-toc2"><a href="#range_queries">8.2. Range Queries</a></div>
-<div class="fancy-toc1"><a href="#covering_indexes">9. Covering Indexes</a></div>
-<div class="fancy-toc1"><a href="#order_by_optimizations">10. ORDER BY Optimizations</a></div>
-<div class="fancy-toc2"><a href="#partial_order_by_via_index">10.1. Partial ORDER BY via Index</a></div>
-<div class="fancy-toc1"><a href="#subquery_flattening">11. Subquery Flattening</a></div>
-<div class="fancy-toc1"><a href="#subquery_co_routines">12. Subquery Co-routines</a></div>
-<div class="fancy-toc2"><a href="#using_co_routines_to_defer_work_until_after_the_sorting">12.1. Using Co-routines to Defer Work until after the Sorting</a></div>
-<div class="fancy-toc1"><a href="#the_min_max_optimization">13. The MIN/MAX Optimization</a></div>
-<div class="fancy-toc1"><a href="#automatic_query_time_indexes">14. Automatic Query-Time Indexes</a></div>
-<div class="fancy-toc2"><a href="#hash_joins">14.1. Hash Joins</a></div>
-<div class="fancy-toc1"><a href="#the_predicate_push_down_optimization">15. The Predicate Push-Down Optimization</a></div>
-<div class="fancy-toc1"><a href="#the_outer_join_strength_reduction_optimization">16. The OUTER JOIN Strength Reduction Optimization</a></div>
-<div class="fancy-toc1"><a href="#the_omit_outer_join_optimization">17. The Omit OUTER JOIN Optimization</a></div>
-<div class="fancy-toc1"><a href="#the_constant_propagation_optimization">18. The Constant Propagation Optimization</a></div>
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#introduction">1. 引言</a></div>
+<div class="fancy-toc1"><a href="#where_clause_analysis">2. WHERE 子句分析</a></div>
+<div class="fancy-toc2"><a href="#index_term_usage_examples">2.1. 索引项使用示例</a></div>
+<div class="fancy-toc1"><a href="#the_between_optimization">3. BETWEEN 优化</a></div>
+<div class="fancy-toc1"><a href="#or_optimizations">4. OR 优化</a></div>
+<div class="fancy-toc2"><a href="#converting_or_connected_constraint_into_an_in_operator">4.1. 将 OR 连接的约束转换为 IN 运算符</a></div>
+<div class="fancy-toc2"><a href="#evaluating_or_constraints_separately_and_taking_the_union_of_the_result">4.2. 分别评估 OR 约束并取结果的 UNION</a></div>
+<div class="fancy-toc1"><a href="#the_like_optimization">5. LIKE 优化</a></div>
+<div class="fancy-toc1"><a href="#the_skip_scan_optimization">6. 跳扫优化</a></div>
+<div class="fancy-toc1"><a href="#joins">7. 连接</a></div>
+<div class="fancy-toc2"><a href="#manual_control_of_join_order">7.1. 手动控制连接顺序</a></div>
+<div class="fancy-toc3"><a href="#manual_control_of_query_plans_using_sqlite_stat_tables">7.1.1. 使用 SQLITE_STAT 表手动控制查询计划</a></div>
+<div class="fancy-toc3"><a href="#manual_control_of_query_plans_using_cross_join">7.1.2. 使用 CROSS JOIN 手动控制查询计划</a></div>
+<div class="fancy-toc1"><a href="#choosing_between_multiple_indexes">8. 多索引选择</a></div>
+<div class="fancy-toc2"><a href="#disqualifying_where_clause_terms_using_unary_">8.1. 使用一元“+”排除 WHERE 子句项</a></div>
+<div class="fancy-toc2"><a href="#range_queries">8.2. 范围查询</a></div>
+<div class="fancy-toc1"><a href="#covering_indexes">9. 覆盖索引</a></div>
+<div class="fancy-toc1"><a href="#order_by_optimizations">10. ORDER BY 优化</a></div>
+<div class="fancy-toc2"><a href="#partial_order_by_via_index">10.1. 通过索引的部分 ORDER BY</a></div>
+<div class="fancy-toc1"><a href="#subquery_flattening">11. 子查询扁平化</a></div>
+<div class="fancy-toc1"><a href="#subquery_co_routines">12. 子查询协程</a></div>
+<div class="fancy-toc2"><a href="#using_co_routines_to_defer_work_until_after_the_sorting">12.1. 使用协程将工作推迟到排序之后</a></div>
+<div class="fancy-toc1"><a href="#the_min_max_optimization">13. MIN/MAX 优化</a></div>
+<div class="fancy-toc1"><a href="#automatic_query_time_indexes">14. 自动查询时索引</a></div>
+<div class="fancy-toc2"><a href="#hash_joins">14.1. 哈希连接</a></div>
+<div class="fancy-toc1"><a href="#the_predicate_push_down_optimization">15. 谓词下推优化</a></div>
+<div class="fancy-toc1"><a href="#the_outer_join_strength_reduction_optimization">16. OUTER JOIN 强度减少优化</a></div>
+<div class="fancy-toc1"><a href="#the_omit_outer_join_optimization">17. 省略 OUTER JOIN 优化</a></div>
+<div class="fancy-toc1"><a href="#the_constant_propagation_optimization">18. 常量传播优化</a></div>
 </div>
 </details>
 </div>
@@ -161,463 +163,370 @@ The SQLite Query Optimizer Overview
 
 
 
-<h1 id="introduction"><span>1. </span>Introduction</h1>
+<h1 id="introduction"><span>1. </span>引言</h1>
 <p>
-  This document provides an overview of how the query planner and optimizer
-  for SQLite works.
+  本文件概述了 SQLite 的查询规划器和优化器的工作原理。
 
 
 </p><p>
-  Given a single SQL statement, there might be dozens, hundreds, or even
-  thousands of ways to implement that statement, depending on the complexity
-  of the statement itself and of the underlying database schema.  The 
-  task of the query planner is to select the algorithm that minimizes
-  disk I/O and CPU overhead.
+  对于单个 SQL 语句，根据语句自身和底层数据库模式的复杂性，可能存在数十、数百甚至数千种实现方式。
+  查询规划器的任务是选择能够最小化磁盘 I/O 和 CPU 开销的算法。
 
 
 </p><p>
-  Additional background information is available in the
-  <a href="queryplanner.html">indexing tutorial</a> document.
-  The <a href="queryplanner-ng.html">Next Generation Query Planner</a> document provides more detail on
-  how the <a href="optoverview.html#joins">join order</a> is chosen.
+  有关更多背景信息，请参阅
+  <a href="queryplanner.html">索引教程</a> 文档。
+  <a href="queryplanner-ng.html">下一代查询规划器</a> 文档提供了更多关于
+  如何选择 <a href="optoverview.html#joins">连接顺序</a> 的细节。
 
 
 
 <a name="where_clause"></a>
 
-</p><h1 id="where_clause_analysis"><span>2. </span>WHERE Clause Analysis</h1>
+</p><h1 id="where_clause_analysis"><span>2. </span>WHERE 子句分析</h1>
 
 <p>
-  Prior to analysis, the following transformations are made
-  to shift all join constraints into the WHERE clause:
+  在分析之前，会进行以下转换，将所有连接约束移入 WHERE 子句：
 
 </p><p>
 </p><ul>
-<li>All NATURAL joins are converted into joins with a USING clause.
-</li><li>All USING clauses (including ones created by the previous step)
-    are converted into equivalent ON clauses.
-</li><li>All ON clauses (include ones created by the previous step)
-    are added as new conjuncts (AND-connected terms) in the WHERE clause.
+<li>所有 NATURAL 连接都转换为带 USING 子句的连接。
+</li><li>所有 USING 子句（包括前一步中创建的）都转换为等价的 ON 子句。
+</li><li>所有 ON 子句（包括前一步创建的）都作为新的合取项（AND 连接的项）添加到 WHERE 子句中。
 </li></ul>
 
 
 <p>
-  SQLite makes no distinction between join constraints that occur in the
-  WHERE clause and constraints in the ON clause of an inner join, since that
-  distinction does not affect the outcome.  However, there is
-  a difference between ON clause constraints and WHERE clause constraints for
-  outer joins.  Therefore, when SQLite moves an ON clause constraint from an
-  outer join over to the WHERE clause it adds special tags to the Abstract
-  Syntax Tree (AST) to indicate that the constraint came from an outer join
-  and from which outer join it came. There is no way to add those tags in
-  pure SQL text.  Hence, the SQL input must use ON clauses on outer joins.
-  But in the internal AST, all constraints are part of the WHERE clause,
-  because having everything in one place simplifies processing.
+  SQLite 不区分发生在 WHERE 子句中的连接约束和发生在 INNER JOIN 的 ON 子句中的约束，因为这种区分不会影响结果。
+  然而，对于 OUTER JOIN 来说，ON 子句约束与 WHERE 子句约束之间存在差别。因此，当 SQLite 将来自 OUTER JOIN 的 ON 子句约束移到 WHERE 子句时，
+  它会在抽象语法树（AST）中添加特殊标记，以指示该约束来自某个 OUTER JOIN 以及来自哪个 OUTER JOIN。
+  在纯 SQL 文本中无法添加这些标记。因此，SQL 输入必须在 OUTER JOIN 上使用 ON 子句。
+  但在内部 AST 中，所有约束都属于 WHERE 子句，因为将所有内容集中在一个位置简化了处理。
 
 </p><p>
-  After all constraints have been shifted into the WHERE clause,
-  The WHERE clause is broken up into conjuncts (hereafter called
-  "terms").  In other words, the WHERE clause is broken up into pieces
-  separated from the others by an AND operator.
-  If the WHERE clause is composed of constraints separated by the OR
-  operator (disjuncts) then the entire clause is considered to be a single "term"
-  to which the <a href="#or_opt">OR-clause optimization</a> is applied.
+  在所有约束都移入 WHERE 子句之后，WHERE 子句被分解为合取项（以下简称“项”）。
+  换言之，WHERE 子句被 AND 运算符分隔开的多个片段分解。
+  如果 WHERE 子句由 OR 运算符连接的约束（析取）构成，那么整个子句被视为单个“项”，并应用
+  <a href="#or_opt">OR 子句优化</a>。
 
 </p><p>
-  All terms of the WHERE clause are analyzed to see if they can be
-  satisfied using indexes.
-  To be usable by an index a term must usually be of one of the following
-  forms:
+  会分析 WHERE 子句的所有项，看它们是否可以使用索引。
+  要使某一项可被索引使用，该项通常必须符合下列形式之一：
 
 <blockquote><pre><b>
-  </b><i>column</i><b> = </b><i>expression</i><b>
-  </b><i>column</i><b> IS </b><i>expression</i><b>
-  </b><i>column</i><b> &gt; </b><i>expression</i><b>
-  </b><i>column</i><b> &gt;= </b><i>expression</i><b>
-  </b><i>column</i><b> &lt; </b><i>expression</i><b>
-  </b><i>column</i><b> &lt;= </b><i>expression</i><b>
-  </b><i>expression</i><b> = </b><i>column</i><b>
-  </b><i>expression</i><b> IS </b><i>column</i><b>
-  </b><i>expression</i><b> &gt; </b><i>column</i><b>
-  </b><i>expression</i><b> &gt;= </b><i>column</i><b>
-  </b><i>expression</i><b> &lt; </b><i>column</i><b>
-  </b><i>expression</i><b> &lt;= </b><i>column</i><b>
-  </b><i>column</i><b> IN (</b><i>expression-list</i><b>)
-  </b><i>column</i><b> IN (</b><i>subquery</i><b>)
-  </b><i>column</i><b> IS NULL
-  </b><i>column</i><b> LIKE </b><i>pattern</i><b>
-  </b><i>column</i><b> GLOB </b><i>pattern</i><b>
+  </b><i>列</i><b> = </b><i>表达式</i><b>
+  </b><i>列</i><b> IS </b><i>表达式</i><b>
+  </b><i>列</i><b> &gt; </b><i>表达式</i><b>
+  </b><i>列</i><b> &gt;= </b><i>表达式</i><b>
+  </b><i>列</i><b> &lt; </b><i>表达式</i><b>
+  </b><i>列</i><b> &lt;= </b><i>表达式</i><b>
+  </b><i>表达式</i><b> = </b><i>列</i><b>
+  </b><i>表达式</i><b> IS </b><i>列</i><b>
+  </b><i>表达式</i><b> &gt; </b><i>列</i><b>
+  </b><i>表达式</i><b> &gt;= </b><i>列</i><b>
+  </b><i>表达式</i><b> &lt; </b><i>列</i><b>
+  </b><i>表达式</i><b> &lt;= </b><i>列</i><b>
+  </b><i>列</i><b> IN (</b><i>表达式列表</i><b>)
+  </b><i>列</i><b> IN (</b><i>子查询</i><b>)
+  </b><i>列</i><b> IS NULL
+  </b><i>列</i><b> LIKE </b><i>模式</i><b>
+  </b><i>列</i><b> GLOB </b><i>模式</i><b>
 </b></pre></blockquote>
 
 </p><p>
-  If an index is created using a statement like this:
+  如果通过如下语句创建索引：
 
 </p><div class="codeblock"><pre>CREATE INDEX idx_ex1 ON ex1(a,b,c,d,e,...,y,z);
 </pre></div>
 
 <p>
-  Then the index might be used if the initial columns of the index
-  (columns a, b, and so forth) appear in WHERE clause terms.
-  The initial columns of the index must be used with
-  the <b>=</b> or <b>IN</b> or <b>IS</b> operators.  
-  The right-most column that is used can employ inequalities.  
-  For the right-most
-  column of an index that is used, there can be up to two inequalities
-  that must sandwich the allowed values of the column between two extremes.
+  如果索引的初始列（列 a、b 等）出现在 WHERE 子句项中，就可能使用该索引。
+  索引的初始列必须使用 <b>=</b>、<b>IN</b> 或 <b>IS</b> 运算符。
+  最右侧使用的列可以使用不等式。
+  对于被使用的索引的最右侧列，最多可以存在两个不等式，用于将列的允许值夹在两个极值之间。
 
 </p><p>
-  It is not necessary for every column of an index to appear in a
-  WHERE clause term in order for that index to be used. 
-  However, there cannot be gaps in the columns of the index that are used.
-  Thus for the example index above, if there is no WHERE clause term
-  that constrains column c, then terms that constrain columns a and b can
-  be used with the index but not terms that constrain columns d through z.
-  Similarly, index columns will not normally be used (for indexing purposes)
-  if they are to the right of a 
-  column that is constrained only by inequalities.
-  (See the <a href="optoverview.html#skipscan">skip-scan optimization</a> below for the exception.)
+  并非所有索引列都必须出现在 WHERE 子句项中，索引仍然可以被使用。
+  然而，使用的索引列之间不能有间隙。
+  因此，以上示例索引中，如果没有约束列 c 的 WHERE 子句项，那么约束列 a 与 b 的项可以使用该索引，
+  但约束列 d 到 z 的项就不能使用。
+  同样地，如果索引列位于仅由不等式约束的列右侧，通常也不会用于索引目的。
+  （有关例外情况，请参阅下文的 <a href="optoverview.html#skipscan">跳扫优化</a>。）
 
 </p><p>
-  In the case of <a href="expridx.html">indexes on expressions</a>, whenever the word "column" is
-  used in the foregoing text, one can substitute "indexed expression"
-  (meaning a copy of the expression that appears in the <a href="lang_createindex.html">CREATE INDEX</a>
-  statement) and everything will work the same.
+  对于
+  <a href="expridx.html">表达式索引</a>，
+  上述文本中每当出现“列”一词时，可以替换为“已索引的表达式”
+  （即出现在 <a href="lang_createindex.html">CREATE INDEX</a> 语句中的表达式的副本），
+  一切仍然适用。
   
 
 <a name="idxexamp"></a>
 
-</p><h2 id="index_term_usage_examples"><span>2.1. </span>Index Term Usage Examples</h2>
+</p><h2 id="index_term_usage_examples"><span>2.1. </span>索引项使用示例</h2>
 <p>
-  For the index above and WHERE clause like this:
+  对于以上索引和如下 WHERE 子句：
 
 </p><div class="codeblock"><pre>... WHERE a=5 AND b IN (1,2,3) AND c IS NULL AND d='hello'
 </pre></div>
 <p>
-  The first four columns a, b, c, and d of the index would be usable since
-  those four columns form a prefix of the index and are all bound by
-  equality constraints.
+  由于索引的前四列 a、b、c 和 d 构成索引的前缀且都由相等约束绑定，因此这四列都是可用的。
 
 </p><p>
-  For the index above and WHERE clause like this:
+  对于以上索引和如下 WHERE 子句：
 
 </p><div class="codeblock"><pre>... WHERE a=5 AND b IN (1,2,3) AND c>12 AND d='hello'
 </pre></div>
 <p>
-  Only columns a, b, and c of the index would be usable.  The d column
-  would not be usable because it occurs to the right of c and c is
-  constrained only by inequalities.
+  只有索引的列 a、b 和 c 可用。列 d 不可用，因为它位于 c 的右侧，而 c 仅由不等式约束。
 
 </p><p>
-  For the index above and WHERE clause like this:
+  对于以上索引和如下 WHERE 子句：
 
 </p><div class="codeblock"><pre>... WHERE a=5 AND b IN (1,2,3) AND d='hello'
 </pre></div>
 <p>
-  Only columns a and b of the index would be usable.  The d column
-  would not be usable because column c is not constrained and there can
-  be no gaps in the set of columns that usable by the index.
+  只有索引的列 a 和 b 可用。列 d 不可用，因为列 c 未被约束，而可用索引列之间不能有间隙。
 
 </p><p>
-  For the index above and WHERE clause like this:
+  对于以上索引和如下 WHERE 子句：
 
 </p><div class="codeblock"><pre>... WHERE b IN (1,2,3) AND c NOT NULL AND d='hello'
 </pre></div>
 <p>
-  The index is not usable at all because the left-most column of the
-  index (column "a") is not constrained.  Assuming there are no other
-  indexes, the query above would result in a full table scan.
+  索引完全不可用，因为索引的最左列（列 "a"）没有被约束。
+  在假设没有其它索引的情况下，上述查询将导致全表扫描。
 
 </p><p>
-  For the index above and WHERE clause like this:
+  对于以上索引和如下 WHERE 子句：
 
 </p><div class="codeblock"><pre>... WHERE a=5 OR b IN (1,2,3) OR c NOT NULL OR d='hello'
 </pre></div>
 <p>
-  The index is not usable because the WHERE clause terms are connected
-  by OR instead of AND. This query would result in a full table scan.
-  However, if three additional indexes are added that contain columns
-  b, c, and d as their left-most columns, then the
-  <a href="#or_opt">OR-clause optimization</a> might apply.
+  由于 WHERE 子句项由 OR 连接而不是 AND 连接，此时索引不可用。
+  该查询将导致全表扫描。
+  然而，如果再增加三个索引，使得 b、c、d 分别成为各自索引的最左列，则可能适用
+  <a href="#or_opt">OR 子句优化</a>。
 
 
 <a name="between_opt"></a>
 
-</p><h1 id="the_between_optimization"><span>3. </span>The BETWEEN Optimization</h1>
+</p><h1 id="the_between_optimization"><span>3. </span>BETWEEN 优化</h1>
 
 <p>
-  If a term of the WHERE clause is of the following form:
+  如果某个 WHERE 子句项符合以下形式：
 
 <blockquote><pre><b>
   </b><i>expr1</i><b> BETWEEN </b><i>expr2</i><b> AND </b><i>expr3</i><b>
 </b></pre></blockquote>
 </p><p>
-  Then two "virtual" terms are added as follows:
+  则会添加两个“虚拟”项如下：
 
 <blockquote><pre><b>
   </b><i>expr1</i><b> &gt;= </b><i>expr2</i><b> AND </b><i>expr1</i><b> &lt;= </b><i>expr3</i><b>
 </b></pre></blockquote>
 </p><p>
-  Virtual terms are used for analysis only and do not cause any byte-code
-  to be generated.
-  If both virtual terms end up being used as constraints on an index,
-  then the original BETWEEN term is omitted and the corresponding test
-  is not performed on input rows.
-  Thus if the BETWEEN term ends up being used as an index constraint
-  no tests are ever performed on that term.
-  On the other hand, the
-  virtual terms themselves never causes tests to be performed on
-  input rows.
-  Thus if the BETWEEN term is not used as an index constraint and
-  instead must be used to test input rows, the <i>expr1</i> expression is
-  only evaluated once.
+  虚拟项仅用于分析，不会生成任何字节码。
+  如果两个虚拟项都最终作为索引约束被使用，则原始的 BETWEEN 项会被省略，
+  相应的测试也不会在输入行上执行。
+  因此，如果 BETWEEN 项最终被用作索引约束，则该项永远不会在输入行上进行测试。
+  另一方面，虚拟项本身也不会导致在输入行上执行测试。
+  因此，如果 BETWEEN 项未被用作索引约束，而必须用于测试输入行，则表达式 <i>expr1</i>
+  只会被评估一次。
 
 <a name="or_opt"></a>
 
-</p><h1 id="or_optimizations"><span>4. </span>OR Optimizations</h1>
+</p><h1 id="or_optimizations"><span>4. </span>OR 优化</h1>
 
 <p>
-  WHERE clause constraints that are connected by OR instead of AND can
-  be handled in two different ways.
+  WHERE 子句中由 OR 而非 AND 连接的约束可以通过两种不同的方式处理。
 
-</p><h2 id="converting_or_connected_constraint_into_an_in_operator"><span>4.1. </span>Converting OR-connected constraint into an IN operator</h2>
+</p><h2 id="converting_or_connected_constraint_into_an_in_operator"><span>4.1. </span>将 OR 连接的约束转换为 IN 运算符</h2>
 
 <p>
-  If a term consists of multiple subterms containing a common column
-  name and separated by OR, like this:
+  如果某一项由多个包含公共列名并由 OR 分隔的子项组成，如下所示：
 
 <blockquote><pre><b>
-  </b><i>column</i><b> = </b><i>expr1</i><b> OR </b><i>column</i><b> = </b><i>expr2</i><b> OR </b><i>column</i><b> = </b><i>expr3</i><b> OR ...
+  </b><i>列</i><b> = </b><i>expr1</i><b> OR </b><i>列</i><b> = </b><i>expr2</i><b> OR </b><i>列</i><b> = </b><i>expr3</i><b> OR ...
 </b></pre></blockquote>
 </p><p>
-  Then that term is rewritten as follows:
+  则该项会被重写为：
 
 <blockquote><pre><b>
-  </b><i>column</i><b> IN (</b><i>expr1</i><b>,</b><i>expr2</i><b>,</b><i>expr3</i><b>,...)
+  </b><i>列</i><b> IN (</b><i>expr1</i><b>,</b><i>expr2</i><b>,</b><i>expr3</i><b>,...)
 </b></pre></blockquote>
 </p><p>
-  The rewritten term then might go on to constrain an index using the
-  normal rules for <b>IN</b> operators.  Note that <i>column</i> must be
-  the same column in every OR-connected subterm,
-  although the column can occur on either the left or the right side of
-  the <b>=</b> operator.
+  重写后的项会根据 <b>IN</b> 运算符的常规规则继续对索引造成约束。
+  注意，在每个 OR 连接的子项中，<i>列</i> 必须是相同的列，尽管该列可以位于
+  <b>=</b> 运算符的左侧或右侧。
 
-</p><h2 id="evaluating_or_constraints_separately_and_taking_the_union_of_the_result"><span>4.2. </span>Evaluating OR constraints separately and taking the UNION of the result</h2>
+</p><h2 id="evaluating_or_constraints_separately_and_taking_the_union_of_the_result"><span>4.2. </span>分别评估 OR 约束并取结果的 UNION</h2>
 
 <p>
-  If and only if the previously described conversion of OR to an IN operator
-  does not work, the second OR-clause optimization is attempted.
-  Suppose the OR clause consists of multiple subterms as follows:
+  仅当前述的 OR 到 IN 的转换不奏效时，才会尝试第二种 OR 子句优化。
+  假设 OR 子句由如下多个子项构成：
 
 <blockquote><pre><b>
   </b><i>expr1</i><b> OR </b><i>expr2</i><b> OR </b><i>expr3</i><b>
 </b></pre></blockquote>
 </p><p>
-  Individual subterms might be a single comparison expression like
-  <b>a=5</b> or <b>x&gt;y</b> or they can be 
-  LIKE or BETWEEN expressions, or a subterm
-  can be a parenthesized list of AND-connected sub-subterms.
-  Each subterm is analyzed as if it were itself the entire WHERE clause
-  in order to see if the subterm is indexable by itself.
-  If <u>every</u> subterm of an OR clause is separately indexable
-  then the OR clause might be coded such that a separate index is used
-  to evaluate each term of the OR clause.  One way to think about how
-  SQLite uses separate indexes for each OR clause term is to imagine
-  that the WHERE clause where rewritten as follows:
+  单个子项可以是诸如 <b>a=5</b> 或 <b>x&gt;y</b> 的比较表达式，或 LIKE、BETWEEN 表达式，
+  也可以是一个由 AND 连接的子子项构成的带括号的列表。
+  每个子项都会被分析，就好像它本身就是整个 WHERE 子句，以验证该子项是否独立可索引。
+  如果一个 OR 子句的<u>每个</u>子项都能单独使用索引，那么可能会对该 OR 子句进行编码，
+  使得为 OR 子句的每个项都使用不同的索引。
+  想象一下 SQLite 如何为 OR 子句的每项分别使用索引，就好像 WHERE 子句被如下重写：
 
 <blockquote><pre><b>
-  rowid IN (SELECT rowid FROM </b><i>table</i><b> WHERE </b><i>expr1</i><b>
-            UNION SELECT rowid FROM </b><i>table</i><b> WHERE </b><i>expr2</i><b>
-            UNION SELECT rowid FROM </b><i>table</i><b> WHERE </b><i>expr3</i><b>)
+  rowid IN (SELECT rowid FROM </b><i>表</i><b> WHERE </b><i>expr1</i><b>
+            UNION SELECT rowid FROM </b><i>表</i><b> WHERE </b><i>expr2</i><b>
+            UNION SELECT rowid FROM </b><i>表</i><b> WHERE </b><i>expr3</i><b>)
 </b></pre></blockquote>
 </p><p>
-  The rewritten expression above is conceptual; WHERE clauses containing
-  OR are not really rewritten this way.
-  The actual implementation of the OR clause uses a mechanism that is
-  more efficient and that works even for <a href="withoutrowid.html">WITHOUT ROWID</a> tables or 
-  tables in which the "rowid" is inaccessible.  Nevertheless,
-  the essence of the implementation is captured by the statement
-  above:  Separate indexes are used to find candidate result rows
-  from each OR clause term and the final result is the union of
-  those rows.
+  上述重写只是概念性的；实际的 WHERE 子句并不会真的这样重写。
+  OR 子句的实际实现使用的是一种更高效的方法，并且即使针对 <a href="withoutrowid.html">WITHOUT ROWID</a> 表
+  或“rowid”不可访问的表也能奏效。
+  然而，上述语句很好地概括了其实现要点：对每个 OR 子句项分别使用不同的索引去查找候选结果行，
+  最终结果就是这些行的并集。
 
 </p><p>
-  Note that in most cases, SQLite will only use a single index for each
-  table in the FROM clause of a query.  The second OR-clause optimization
-  described here is the exception to that rule.  With an OR-clause,
-  a different index might be used for each subterm in the OR-clause.
+  请注意，在大多数情况下，SQLite 只会为查询的 FROM 子句中的每个表使用一个索引。
+  此处描述的第二种 OR 子句优化是该规则的例外。
+  在 OR 子句中，每个子项可能使用不同的索引。
 
 </p><p>
-  For any given query, the fact that the OR-clause optimization described
-  here can be used does not guarantee that it will be used.
-  SQLite uses a cost-based query planner that estimates the CPU and
-  disk I/O costs of various competing query plans and chooses the plan
-  that it thinks will be the fastest.  If there are many OR terms in
-  the WHERE clause or if some of the indexes on individual OR-clause 
-  subterms are not very selective, then SQLite might decide that it is
-  faster to use a different query algorithm, or even a full-table scan.
-  Application developers can use the
-  <a href="lang_explain.html">EXPLAIN QUERY PLAN</a> prefix on a statement to get a
-  high-level overview of the chosen query strategy.
+  对于任意给定的查询，虽然可以尝试使用此处描述的 OR 子句优化，但并不保证最终会使用它。
+  SQLite 使用基于成本的查询规划器，估算各种竞选查询计划的 CPU 和磁盘 I/O 成本，并选择它认为最快的计划。
+  如果 WHERE 子句中存在许多 OR 项，或者某些 OR 子句子项上可用的索引不够具备选择性，
+  SQLite 可能会决定使用另一种查询算法，甚至彻底进行全表扫描。
+  应用程序开发人员可以在语句前加上
+  <a href="lang_explain.html">EXPLAIN QUERY PLAN</a> 前缀，以获取所选查询策略的高级概览。
 
 <a name="like_opt"></a>
 
-</p><h1 id="the_like_optimization"><span>5. </span>The LIKE Optimization</h1>
+</p><h1 id="the_like_optimization"><span>5. </span>LIKE 优化</h1>
 
 <p>
-  A WHERE-clause term that uses the <a href="lang_expr.html#like">LIKE</a> or <a href="lang_expr.html#glob">GLOB</a> operator
-  can sometimes be used with an index to do a range search, 
-  almost as if the LIKE or GLOB were an alternative to a <a href="lang_expr.html#between">BETWEEN</a>
-  operator.
-  There are many conditions on this optimization:
+  使用 <a href="lang_expr.html#like">LIKE</a> 或 <a href="lang_expr.html#glob">GLOB</a> 运算符的 WHERE 子句项有时可以借助索引进行范围搜索，
+  几乎就像 LIKE 或 GLOB 是 <a href="lang_expr.html#between">BETWEEN</a> 运算符的替代方案。
+  该优化有许多条件：
 
 </p><p>
   </p><ol>
-  <li>The right-hand side of the LIKE or GLOB must be either a string literal
-      or a <a href="lang_expr.html#varparam">parameter</a> bound to a string literal
-      that does not begin with a wildcard character.</li>
-  <li>It must not be possible to make the LIKE or GLOB operator true by
-      having a numeric value (instead of a string or blob) on the
-      left-hand side. This means that either:
+  <li>LIKE 或 GLOB 的右侧必须是字符串字面量，或
+      是绑定到不以通配符开头的字符串字面量的
+      <a href="lang_expr.html#varparam">参数</a>。</li>
+  <li>必须无法通过在左侧使用数值（而非字符串或 BLOB）使 LIKE 或 GLOB 运算符为真。
+      这意味着要么：
       <ol type="A">
-      <li> the left-hand side of the LIKE or GLOB operator is the name
-           of an indexed column with <a href="datatype3.html#affinity">TEXT affinity</a>, or</li>
-      <li> the right-hand side pattern argument does not begin with a
-           minus sign ("-") or a digit.</li>
+      <li> LIKE 或 GLOB 运算符的左侧是具有 <a href="datatype3.html#affinity">TEXT 亲和性</a> 的已索引列名，或</li>
+      <li> 右侧模式参数不以减号（"-"）或数字开头。</li>
       </ol>
-      This constraint arises from the fact that numbers do not sort in
-      lexicographical order.  For example: 9&lt;10 but '9'&gt;'10'.</li>
-  <li>The built-in functions used to implement LIKE and GLOB must not
-      have been overloaded using the <a href="c3ref/create_function.html">sqlite3_create_function()</a> API.</li>
-  <li>For the GLOB operator, the column must be indexed using the 
-      built-in BINARY collating sequence.</li>
-  <li>For the LIKE operator, if <a href="pragma.html#pragma_case_sensitive_like">case_sensitive_like</a> mode is enabled then
-      the column must be indexed using the built-in BINARY collating sequence,
-      or if <a href="pragma.html#pragma_case_sensitive_like">case_sensitive_like</a> mode is disabled then the column must be
-      indexed using the built-in NOCASE collating sequence.</li>
-  <li>If the ESCAPE option is used, the ESCAPE character must be ASCII,
-      or a single-byte character in UTF-8.
+      该约束来源于数字无法按字典顺序排列。
+      例如：9&lt;10 但 '9'&gt;'10'。</li>
+  <li>用于实现 LIKE 和 GLOB 的内置函数必须未被
+      <a href="c3ref/create_function.html">sqlite3_create_function()</a> API 重载。</li>
+  <li>对于 GLOB 运算符，列必须使用内置的 BINARY 排序序列进行索引。</li>
+  <li>对于 LIKE 运算符，如果启用了
+      <a href="pragma.html#pragma_case_sensitive_like">case_sensitive_like</a> 模式，
+      则列必须使用内置的 BINARY 排序序列进行索引；
+      如果禁用了该模式，则该列必须使用内置的 NOCASE 排序序列进行索引。</li>
+  <li>如果使用了 ESCAPE 选项，则 ESCAPE 字符必须是 ASCII 字符或 UTF-8 中的单字节字符。
   </li></ol>
 
 <p>
-  The LIKE operator has two modes that can be set by a
-  <a href="pragma.html#pragma_case_sensitive_like">pragma</a>.  The
-  default mode is for LIKE comparisons to be insensitive to differences
-  of case for latin1 characters.  Thus, by default, the following
-  expression is true:
+  LIKE 运算符有两种模式，可以通过
+  <a href="pragma.html#pragma_case_sensitive_like">pragma</a> 设置。
+  默认模式下，LIKE 比较对 latin1 字符的大小写差异不敏感。
+  因此，默认情况下，下述表达式为真：
 
 </p><div class="codeblock"><pre>'a' LIKE 'A'
 </pre></div>
 <p>
-  If the case_sensitive_like pragma is enabled as follows:
+  如果启用了 case_sensitive_like pragma，如下：
 
 </p><div class="codeblock"><pre>PRAGMA case_sensitive_like=ON;
 </pre></div>
 <p>
-  Then the LIKE operator pays attention to case and the example above would
-  evaluate to false.  Note that case insensitivity only applies to
-  latin1 characters - basically the upper and lower case letters of English
-  in the lower 127 byte codes of ASCII.  International character sets
-  are case sensitive in SQLite unless an application-defined
-  <a href="datatype3.html#collation">collating sequence</a> and <a href="lang_corefunc.html#like">like() SQL function</a> are provided that
-  take non-ASCII characters into account.
-  If an application-defined collating sequence and/or like() SQL
-  function are provided, the LIKE optimization described here will never
-  be taken.
+  则 LIKE 运算符会区分大小写，上述示例将评估为 false。
+  注意，大小写不敏感仅适用于 latin1 字符——基本上是 ASCII 前 127 个字节码中的英文大小写字母。
+  除非提供了考虑非 ASCII 字符的应用定义
+  <a href="datatype3.html#collation">排序序列</a> 和 <a href="lang_corefunc.html#like">like() SQL 函数</a>，否则 SQLite 中的国际字符集是区分大小写的。
+  如果提供了应用定义的排序序列和/或 like() SQL 函数，则上述 LIKE 优化将永远不会被采用。
 
 </p><p>
-  The LIKE operator is case insensitive by default because this is what
-  the SQL standard requires.  You can change the default behavior at
-  compile time by using the <a href="compile.html#case_sensitive_like">SQLITE_CASE_SENSITIVE_LIKE</a> command-line option
-  to the compiler.
+  LIKE 运算符默认大小写不敏感，因为 SQL 标准要求如此。
+  你可以在编译时使用编译器的
+  <a href="compile.html#case_sensitive_like">SQLITE_CASE_SENSITIVE_LIKE</a> 命令行选项
+  更改默认行为。
 
 </p><p>
-  The LIKE optimization might occur if the column named on the left of the
-  operator is indexed using the built-in BINARY collating sequence and
-  case_sensitive_like is turned on.  Or the optimization might occur if
-  the column is indexed using the built-in NOCASE collating sequence and the 
-  case_sensitive_like mode is off.  These are the only two combinations
-  under which LIKE operators will be optimized.
+  如果 LIKE 或 GLOB 运算符左侧的列使用内置的 BINARY 排序序列进行索引，并且 case_sensitive_like 被启用，
+  则可能会采用 LIKE 优化。
+  如果该列使用内置的 NOCASE 排序序列进行索引，并且 case_sensitive_like 模式被禁用，也可能采纳此优化。
+  这两种组合是 LIKE 运算符会被优化的唯一情况。
 
 </p><p>
-  The GLOB operator is always case sensitive.  The column on the left side
-  of the GLOB operator must always use the built-in BINARY collating sequence
-  or no attempt will be made to optimize that operator with indexes.
+  GLOB 运算符始终区分大小写。
+  GLOB 运算符左侧的列必须始终使用内置的 BINARY 排序序列，否则不会尝试对该运算符进行索引优化。
 
 </p><p>
-  The LIKE optimization will only be attempted if
-  the right-hand side of the GLOB or LIKE operator is either a
-  literal string or a <a href="lang_expr.html#varparam">parameter</a> that has been <a href="c3ref/bind_blob.html">bound</a>
-  to a string literal.  The string literal must not
-  begin with a wildcard; if the right-hand side begins with a wildcard
-  character then this optimization is not attempted.  If the right-hand side 
-  is a <a href="lang_expr.html#varparam">parameter</a> that is bound to a string, then this optimization is
-  only attempted if the <a href="c3ref/stmt.html">prepared statement</a> containing the expression
-  was compiled with <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> or <a href="c3ref/prepare.html">sqlite3_prepare16_v2()</a>.
-  The LIKE optimization is not attempted if the
-  right-hand side is a <a href="lang_expr.html#varparam">parameter</a> and the statement was prepared using
-  <a href="c3ref/prepare.html">sqlite3_prepare()</a> or <a href="c3ref/prepare.html">sqlite3_prepare16()</a>.
+  只有当 GLOB 或 LIKE 运算符的右侧是字面字符串或已经
+  <a href="c3ref/bind_blob.html">绑定</a> 到字符串字面量的<a href="lang_expr.html#varparam">参数</a>时，
+  才会尝试 LIKE 优化。
+  字符串字面量不得以通配符开头；若右侧以通配符字符开头，则不会尝试此优化。
+  如果右侧是绑定到字符串的<a href="lang_expr.html#varparam">参数</a>，
+  仅在包含该表达式的<a href="c3ref/stmt.html">预处理语句</a>使用
+  <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 或 <a href="c3ref/prepare.html">sqlite3_prepare16_v2()</a> 编译时才会尝试该优化。
+  如果右侧是<a href="lang_expr.html#varparam">参数</a>，且语句使用
+  <a href="c3ref/prepare.html">sqlite3_prepare()</a> 或 <a href="c3ref/prepare.html">sqlite3_prepare16()</a> 预编译，
+  则不会尝试 LIKE 优化。
 
 </p><p>
-  Suppose the initial sequence of non-wildcard characters on the right-hand
-  side of the LIKE or GLOB operator is <i>x</i>.  We are using a single 
-  character to denote this non-wildcard prefix but the reader should
-  understand that the prefix can consist of more than 1 character.
-  Let <i>y</i> be the smallest string that is the same length as /x/ but which
-  compares greater than <i>x</i>.  For example, if <i>x</i> is
-  <tt>'hello'</tt> then
-  <i>y</i> would be <tt>'hellp'</tt>.
-  The LIKE and GLOB optimizations consist of adding two virtual terms
-  like this:
+  假设 LIKE 或 GLOB 运算符右侧的非通配符字符的初始序列为 <i>x</i>。
+  这里使用单个字符表示这个非通配符前缀，但读者应理解前缀可以由多字符组成。
+  令 <i>y</i> 为与 <i>x</i> 长度相同且比 <i>x</i> 大的最小字符串。
+  例如，如果 <i>x</i> 是 <tt>'hello'</tt>，
+  则 <i>y</i> 是 <tt>'hellp'</tt>。
+  LIKE 和 GLOB 优化就是添加如下两个虚拟项：
 
 <blockquote><pre><b>
-  </b><i>column</i><b> &gt;= </b><i>x</i><b> AND </b><i>column</i><b> &lt; </b><i>y</i><b>
+  </b><i>列</i><b> &gt;= </b><i>x</i><b> AND </b><i>列</i><b> &lt; </b><i>y</i><b>
 </b></pre></blockquote>
 </p><p>
-  Under most circumstances, the original LIKE or GLOB operator is still
-  tested against each input row even if the virtual terms are used to
-  constrain an index.  This is because we do not know what additional
-  constraints may be imposed by characters to the right
-  of the <i>x</i> prefix.  However, if there is only a single
-  global wildcard to the right of <i>x</i>, then the original LIKE or 
-  GLOB test is disabled.
-  In other words, if the pattern is like this:
+  在大多数情况下，即使虚拟项用于对索引进行约束，原始的 LIKE 或 GLOB 运算符仍会针对每一行输入进行测试。
+  这是因为我们无法知道在 <i>x</i> 前缀右侧可能施加的额外约束。
+  然而，如果 <i>x</i> 右侧只有一个全局通配符，则原始的 LIKE 或 GLOB 测试会被禁用。
+  换句话说，如果模式如下：
 
 <blockquote><pre><b>
-  </b><i>column</i><b> LIKE </b><i>x</i><b>%
-  </b><i>column</i><b> GLOB </b><i>x</i><b>*
+  </b><i>列</i><b> LIKE </b><i>x</i><b>%
+  </b><i>列</i><b> GLOB </b><i>x</i><b>*
 </b></pre></blockquote>
 </p><p>
-  then the original LIKE or GLOB tests are disabled when the virtual
-  terms constrain an index because in that case we know that all of the
-  rows selected by the index will pass the LIKE or GLOB test.
+  若虚拟项约束了索引，则原始的 LIKE 或 GLOB 测试将被禁用，
+  因为在这种情况下我们知道索引选出的所有行都会通过 LIKE 或 GLOB 测试。
 
 </p><p>
-  Note that when the right-hand side of a LIKE or GLOB operator is
-  a <a href="lang_expr.html#varparam">parameter</a> and the statement is prepared using <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>
-  or <a href="c3ref/prepare.html">sqlite3_prepare16_v2()</a> then the statement is automatically reparsed
-  and recompiled on the first <a href="c3ref/step.html">sqlite3_step()</a> call of each run if the binding
-  to the right-hand side parameter has changed since the previous run.
-  This reparse and recompile is essentially the same action that occurs
-  following a schema change.  The recompile is necessary so that the query
-  planner can examine the new value bound to the right-hand side of the
-  LIKE or GLOB operator and determine whether or not to employ the
-  optimization described above.
+  请注意，当 LIKE 或 GLOB 运算符的右侧是
+  <a href="lang_expr.html#varparam">参数</a>，并且语句使用
+  <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 或 <a href="c3ref/prepare.html">sqlite3_prepare16_v2()</a> 预编译时，
+  如果右侧参数的绑定值与上一次运行不同，则在每次运行的首次
+  <a href="c3ref/step.html">sqlite3_step()</a> 调用时，该语句会自动重新解析并重新编译。
+  此重新解析与重新编译实质上与模式变更后发生的操作相同。
+  重新编译是必要的，以便查询规划器能够检查绑定到 LIKE 或 GLOB 运算符右侧的新值，并确定是否采用上述优化。
 
 <a name="skipscan"></a>
 
-</p><h1 id="the_skip_scan_optimization"><span>6. </span>The Skip-Scan Optimization</h1>
+</p><h1 id="the_skip_scan_optimization"><span>6. </span>跳扫优化</h1>
 
 <p>
-  The general rule is that indexes are only useful if there are 
-  WHERE-clause constraints on the left-most columns of the index.
-  However, in some cases,
-  SQLite is able to use an index even if the first few columns of
-  the index are omitted from the WHERE clause but later columns 
-  are included.
+  通用规则是，只有在 WHERE 子句约束索引的最左列时，索引才有用。
+  然而，在某些情况下，即使索引的最前几列未出现在 WHERE 子句中，SQLite 仍能使用该索引，只要之后的列被包含在内。
 
 
 </p><p>
-  Consider a table such as the following:
+  例如考虑如下表：
 
 </p><div class="codeblock"><pre>CREATE TABLE people(
   name TEXT PRIMARY KEY,
@@ -629,29 +538,23 @@ CREATE INDEX people_idx1 ON people(role, height);
 </pre></div>
 
 <p>
-  The people table has one entry for each person in a large
-  organization.  Each person is either a "student" or a "teacher",
-  as determined by the "role" field.  The table also records the height in
-  centimeters of each person.  The role and height are indexed.
-  Notice that the left-most column of the index is not very
-  selective - it only contains two possible values.
+  people 表中每个人都有一条记录。
+  每个人的 “role” 字段指出其是 “student” 还是 “teacher”。
+  表中还记录了每个人的身高（单位厘米）。
+  role 和 height 是被索引的列。
+  注意索引的最左列并不是很具备选择性——它只包含两个可能值。
 
 
 </p><p>
-  Now consider a query to find the names of everyone in the
-  organization that is 180cm tall or taller:
-
+  现在考虑一个查询，用于查找组织中身高至少 180cm 的所有人：
 
 </p><div class="codeblock"><pre>SELECT name FROM people WHERE height>=180;
 </pre></div>
 
 <p>
-  Because the left-most column of the index does not appear in the
-  WHERE clause of the query, one is tempted to conclude that the
-  index is not usable here.  However, SQLite is able to use the index.
-  Conceptually, SQLite uses the index as if the query were more
-  like the following:
-
+  由于索引的最左列没有出现在查询的 WHERE 子句中，似乎无法使用该索引。
+  然而，SQLite 实际上能够使用该索引。
+  从概念上讲，SQLite 会将查询处理得更像如下形式：
 
 </p><div class="codeblock"><pre>SELECT name FROM people
  WHERE role IN (SELECT DISTINCT role FROM people)
@@ -659,7 +562,7 @@ CREATE INDEX people_idx1 ON people(role, height);
 </pre></div>
 
 <p>
-  Or this:
+  或者：
 
 </p><div class="codeblock"><pre>SELECT name FROM people WHERE role='teacher' AND height>=180
 UNION ALL
@@ -667,88 +570,57 @@ SELECT name FROM people WHERE role='student' AND height>=180;
 </pre></div>
 
 <p>
-  The alternative query formulations shown above are conceptual only.
-  SQLite does not really transform the query. 
-  The actual query plan is like this:
-  SQLite locates the first possible value for "role", which it
-  can do by rewinding the "people_idx1" index to the beginning and reading
-  the first record.  SQLite stores this first "role" value in an
-  internal variable that we will here call "$role".  Then SQLite
-  runs a query like: "SELECT name FROM people WHERE role=$role AND height>=180".
-  This query has an equality constraint on the left-most column of the
-  index and so the index can be used to resolve that query.  Once
-  that query is finished, SQLite then uses the "people_idx1" index to
-  locate the next value of the "role" column, using code that is logically
-  similar to "SELECT role FROM people WHERE role>$role LIMIT 1".
-  This new "role" value overwrites the $role variable, and the process
-  repeats until all possible values for "role" have been examined.
+  上述替代查询只是概念性的。
+  SQLite 并不会真的转换查询。
+  实际的查询计划如下：
+  SQLite 找到 “role” 的第一个可能值，这可以通过将 "people_idx1" 索引倒回到开头并读取第一条记录实现。
+  SQLite 将这个第一个 “role” 值存储在一个内部变量中，这里称之为 "$role"。
+  然后 SQLite 运行如下查询：“SELECT name FROM people WHERE role=$role AND height>=180”。
+  该查询在索引的最左列上具有相等约束，因此该索引可以用于解析该查询。
+  一旦该查询完成，SQLite 就会使用 "people_idx1" 索引定位 “role” 列的下一个值，
+  其代码逻辑类似于 “SELECT role FROM people WHERE role>$role LIMIT 1”。
+  该新的 “role” 值将覆盖 $role 变量，整个过程不断重复，直到所有可能的 “role” 值都被检查一遍。
 
 </p><p>
-  We call this kind of index usage a "skip-scan" because the database
-  engine is basically doing a full scan of the index but it optimizes the
-  scan (making it less than "full") by occasionally skipping ahead to the
-  next candidate value.
+  我们将这种索引用法称为 “跳扫”，因为数据库引擎基本上在执行索引的全扫描，但它通过偶尔跳到下一个候选值来优化扫描（让扫描变得不再是“全”扫描）。
 
 </p><p>
-  SQLite might use a skip-scan on an index if it knows that the first
-  one or more columns contain many duplication values.
-  If there are too few duplicates
-  in the left-most columns of the index, then it would
-  be faster to simply step ahead to the next value, and thus do
-  a full table scan, than to do a binary search on an index to locate
-  the next left-column value.
+  如果 SQLite 知道索引的最左列包含大量重复值，它可能会在该索引上执行跳扫。
+  如果索引最左列的重复值太少，那么简单地跳到下一个值（即执行全表扫描）会比在索引上执行二分查找更快，从而不会进行跳扫。
 
 </p><p>
-  The only way that SQLite can know that there are many duplicates
-  in the left-most columns of an index
-  is if the <a href="lang_analyze.html">ANALYZE</a> command has been run
-  on the database.
-  Without the results of ANALYZE, SQLite has to guess at the "shape" of
-  the data in the table, and the default guess is that there are an average
-  of 10 duplicates for every value in the left-most column of the index.
-  Skip-scan only becomes profitable (it only gets to be faster than
-  a full table scan) when the number of duplicates is about 18 or more.
-  Hence, a skip-scan is never used on a database that has not been analyzed.
+  SQLite 只有在数据库上运行了
+  <a href="lang_analyze.html">ANALYZE</a> 命令后，才能知道索引最左列有大量重复值。
+  没有 ANALYZE 的结果，SQLite 只能对表中的数据“形状”做出猜测，默认猜测是索引最左列的每个值平均有 10 个重复。
+  约当跳扫只有在重复数量达到约 18 个或更多时才会比全表扫描更快。
+  因此，未经过 ANALYZE 的数据库永远不会使用跳扫。
 
 <a name="joins"></a>
-
-</p><h1 id="joins"><span>7. </span>Joins</h1>
+</p><h1 id="joins"><span>7. </span>连接</h1>
 
 <p>
-  SQLite implements joins as nested loops.
-  The default order of the nested loops in a join is for the left-most
-  table in the FROM clause to form the outer loop and the right-most
-  table to form the inner loop.
-  However, SQLite will nest the loops in a different order if doing so
-  will help it to select better indexes.
+  SQLite 将连接实现为嵌套循环。
+  嵌套循环在连接中的默认顺序是让 FROM 子句中最左边的表形成外层循环，最右边的表形成内层循环。
+  然而，如果以不同顺序嵌套循环能帮助它选择更好的索引，SQLite 会采用不同的顺序。
 
 </p><p>
-  Inner joins can be freely reordered.  However outer joins are
-  neither commutative nor associative and hence will not be reordered.
-  Inner joins to the left and right of an outer join might be reordered
-  if the optimizer thinks that is advantageous but outer joins are
-  always evaluated in the order in which they occur.
+  内连接可以随意重新排序。然而外连接既不满足交换律也不满足结合律，因此不会被重新排序。
+  位于外连接左右两侧的内连接可能会根据优化器的判断被重新排序，但外连接始终按照它们出现的顺序来执行。
 
 </p><p>
-  SQLite <a href="lang_select.html#crossjoin">treats the CROSS JOIN operator specially</a>.
-  The CROSS JOIN operator is commutative, in theory.  However, SQLite chooses to
-  never reorder tables in a CROSS JOIN.  This provides a mechanism
-  by which the programmer can force SQLite to choose a particular loop nesting
-  order.  
+  SQLite <a href="lang_select.html#crossjoin">将 CROSS JOIN 操作符视为特殊情况</a>。
+  理论上，CROSS JOIN 操作符满足交换律。然而，SQLite 选择永不重新排序 CROSS JOIN 中的表。
+  这为程序员提供了一种机制，使得 SQLite 能够选择特定的循环嵌套顺序。  
 
 </p><p>
-  When selecting the order of tables in a join, SQLite uses an efficient
-  polynomial-time algorithm graph algorithm described in
-  the <a href="queryplanner-ng.html">Next Generation Query Planner</a> document.  Because of this,
-  SQLite is able to plan queries with 50- or 60-way joins in a matter of
-  microseconds
+  在选择连接中各表的顺序时，SQLite 使用在
+  <a href="queryplanner-ng.html">Next Generation Query Planner</a> 文档中描述的高效多项式时间图算法。
+  因此，SQLite 能够在微秒级别内规划 50 路或 60 路连接的查询。
 
 </p><p>
-  Join reordering is automatic and usually works well enough that
-  programmers do not have to think about it, especially if <a href="lang_analyze.html">ANALYZE</a>
-  has been used to gather statistics about the available indexes,
-  though occasionally some hints from the programmer are needed.
-  Consider, for example, the following schema:
+  连接重新排序是自动完成的，通常效果足够好，程序员无需操心，特别是在使用 <a href="lang_analyze.html">ANALYZE</a> 
+  收集了可用索引的统计信息之后，尽管有时仍可能需要程序员提供一些提示。
+  例如，考虑如下模式：
 
 </p><div class="codeblock"><pre>CREATE TABLE node(
    id INTEGER PRIMARY KEY,
@@ -763,8 +635,7 @@ CREATE TABLE edge(
 CREATE INDEX edge_idx ON edge(dest,orig);
 </pre></div>
 <p>
-  The schema above defines a directed graph with the ability to store a
-  name at each node. Now consider a query against this schema:
+  上述模式定义了一个有向图，并可以在每个节点存储一个名称。现在考虑针对该模式的如下查询：
 
 </p><div class="codeblock"><pre>SELECT *
   FROM edge AS e,
@@ -776,16 +647,13 @@ CREATE INDEX edge_idx ON edge(dest,orig);
    AND e.dest = n2.id;
 </pre></div>
 <p>
-  This query asks for is all information about edges that go from
-  nodes labeled "alice" to nodes labeled "bob".
-  The query optimizer in SQLite has basically two choices on how to
-  implement this query.  (There are actually six different choices, but
-  we will only consider two of them here.)
-  Pseudocode below demonstrating these two choices.
+  这个查询请求有关从标记为 "alice" 的节点到标记为 "bob" 的节点的边的所有信息。
+  SQLite 中的查询优化器基本上有两种选择来实现此查询。（实际上有六种不同的选择，但这里仅考虑其中两种。）
+  以下伪代码演示了这两种选择。
 
 <a name="option1"></a>
 
-</p><p>Option 1:
+</p><p>方案 1：
 </p><div class="codeblock"><pre>foreach n1 where n1.name='alice' do:
   foreach n2 where n2.name='bob' do:
     foreach e where e.orig=n1.id and e.dest=n2.id
@@ -796,7 +664,7 @@ end
 </pre></div>
 <a name="option2"></a>
 
-<p>Option 2:
+<p>方案 2：
 </p><div class="codeblock"><pre>foreach n1 where n1.name='alice' do:
   foreach e where e.orig=n1.id do:
     foreach n2 where n2.id=e.dest and n2.name='bob' do:
@@ -806,96 +674,70 @@ end
 end
 </pre></div>
 <p>
-  The same indexes are used to speed up every loop in both implementation
-  options.
-  The only difference in these two query plans is the order in which
-  the loops are nested.
+  两种实现方案中的每个循环都使用相同的索引进行加速。
+  这两个查询计划之间唯一的区别在于循环嵌套的顺序。
 
 </p><p>
-  So which query plan is better? It turns out that the answer depends on
-  what kind of data is found in the node and edge tables.
+  那么哪个查询计划更好？事实证明，这取决于 node 和 edge 表中数据的结构。
 
 </p><p>
-  Let the number of alice nodes be M and the number of bob nodes be N.
-  Consider two scenarios. In the first scenario, M and N are both 2 but
-  there are thousands of edges on each node. In this case, option 1 is
-  preferred. With option 1, the inner loop checks for the existence of
-  an edge between a pair of nodes and outputs the result if found. 
-  Because there are only 2 alice and bob nodes each, the inner loop
-  only has to run four times and the query is very quick. Option 2 would
-  take much longer here. The outer loop of option 2 only executes twice,
-  but because there are a large number of edges leaving each alice node,
-  the middle loop has to iterate many thousands of times. It will be
-  much slower. So in the first scenario, we prefer to use option 1.
+  设 alice 节点数量为 M，bob 节点数量为 N。
+  考虑两种场景。第一种场景中，M 和 N 都是 2，但每个节点有数千条边。在这种情况下，方案 1 更可取。
+  在方案 1 中，内层循环检查一对节点之间是否存在边，如果存在则输出结果。
+  由于只有两个 alice 和两个 bob 节点，内层循环只需运行四次，查询非常快。而方案 2 在这里会花费更长时间。
+  方案 2 的外层循环仅执行两次，但由于每个 alice 节点有大量出边，中间循环必须迭代数千次。因此会慢得多。
+  所以在第一种场景中，我们更愿意使用方案 1。
 
 </p><p>
-  Now consider the case where M and N are both 3500. Alice nodes are
-  abundant.  This time suppose each of these nodes is connected by only one
-  or two edges. Now option 2 is preferred. With option 2,
-  the outer loop still has to run 3500 times, but the middle loop only
-  runs once or twice for each outer loop and the inner loop will only
-  run once for each middle loop, if at all. So the total number of
-  iterations of the inner loop is around 7000. Option 1, on the other
-  hand, has to run both its outer loop and its middle loop 3500 times
-  each, resulting in 12 million iterations of the middle loop.
-  Thus in the second scenario, option 2 is nearly 2000 times faster
-  than option 1.
+  现在考虑 M 和 N 都是 3500 的情况。alice 节点非常多。
+  这次假设每个节点仅连接一到两条边。现在方案 2 更可取。
+  在方案 2 中，外层循环仍需运行 3500 次，但中间循环对每个外层循环仅运行一到两次，内层循环也仅在极少数情况下运行一次。
+  于是内层循环的总迭代次数约为 7000。
+  而方案 1 的外层和中间循环都会运行 3500 次，使得中间循环的迭代次数达到 1200 万。
+  因此在第二种场景中，方案 2 比方案 1 快近 2000 倍。
 
 </p><p>
-  So you can see that depending on how the data is structured in the table,
-  either query plan 1 or query plan 2 might be better.  Which plan does
-  SQLite choose by default?  As of version 3.6.18, without running <a href="lang_analyze.html">ANALYZE</a>,
-  SQLite will choose option 2.
-  If the <a href="lang_analyze.html">ANALYZE</a> command is run in order to gather statistics,
-  a different choice might be made if the statistics indicate that the
-  alternative is likely to run faster.
+  所以可以看出，根据表中数据的结构，查询计划 1 或查询计划 2 中可能有一个更好。
+  SQLite 默认选择哪个计划？截至版本 3.6.18，在未运行 <a href="lang_analyze.html">ANALYZE</a> 的情况下，
+  SQLite 会选择方案 2。
+  如果运行了 <a href="lang_analyze.html">ANALYZE</a> 命令以收集统计信息，
+  那么如果统计信息表明另一个计划可能更快，就可能会做出不同的选择。
 
-</p><h2 id="manual_control_of_join_order"><span>7.1. </span>Manual Control Of Join Order</h2>
+</p><h2 id="manual_control_of_join_order"><span>7.1. </span>手动控制连接顺序</h2>
 
 <p>
-  SQLite almost always picks the best join order automatically.  It is
-  very rare that a developer needs to intervene to give the query planner
-  hints about the best join order.  The best policy is to make use
-  of <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> to ensure that the query planner has access to
-  up-to-date statistics on the shape of the data in the database.
+  SQLite 几乎总是自动选择最佳的连接顺序。
+  开发者很少需要干预来给查询规划器提供最佳连接顺序的提示。
+  最佳策略是使用 <a href="pragma.html#pragma_optimize">PRAGMA optimize</a>，确保查询规划器能够获得数据库中数据形状的最新统计信息。
 
 </p><p>
-  This section describes techniques by which developers can control the
-  join order in SQLite, to work around any performance problems that may
-  arise.  However, the use of these techniques is not recommended, except
-  as a last resort.
+  本节介绍开发人员可以控制 SQLite 中连接顺序的技术，以解决可能出现的性能问题。
+  但是，除非万不得已，否则不推荐使用这些技术。
 
 </p><p>
-  If you do encounter a situation where SQLite is picking a suboptimal
-  join order even after running <a href="pragma.html#pragma_optimize">PRAGMA optimize</a>, please report your
-  situation on the <a href="https://sqlite.org/forum">SQLite Community Forum</a> so
-  that the SQLite maintainers can make new refinements to the query planner
-  such that manual intervention is not required.
+  如果在运行 <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> 后仍遇到 SQLite 选择了次优的连接顺序的情况，
+  请将情况报告到 <a href="https://sqlite.org/forum">SQLite Community Forum</a>，
+  以便 SQLite 维护人员对查询规划器作出新的改进，从而不再需要手动干预。
 
 <a name="manctrl"></a>
 
-</p><h3 id="manual_control_of_query_plans_using_sqlite_stat_tables"><span>7.1.1. </span>Manual Control Of Query Plans Using SQLITE_STAT Tables</h3>
+</p><h3 id="manual_control_of_query_plans_using_sqlite_stat_tables"><span>7.1.1. </span>使用 SQLITE_STAT 表手动控制查询计划</h3>
 
 <p>
-  SQLite provides the ability for advanced programmers to exercise control
-  over the query plan chosen by the optimizer. One method for doing this
-  is to fudge the <a href="lang_analyze.html">ANALYZE</a> results in the <a href="fileformat2.html#stat1tab">sqlite_stat1</a> table.
+  SQLite 为高级程序员提供了控制优化器所选查询计划的能力。
+  实现这一目标的一种方法是篡改 <a href="lang_analyze.html">ANALYZE</a> 结果中 <a href="fileformat2.html#stat1tab">sqlite_stat1</a> 表的数据。
 
 <a name="crossjoin"></a>
 
-</p><h3 id="manual_control_of_query_plans_using_cross_join"><span>7.1.2. </span>Manual Control of Query Plans using CROSS JOIN</h3>
+</p><h3 id="manual_control_of_query_plans_using_cross_join"><span>7.1.2. </span>使用 CROSS JOIN 手动控制查询计划</h3>
 
 <p>
-  Programmers can force SQLite to use a particular loop nesting order
-  for a join by using the CROSS JOIN operator instead of just JOIN, 
-  INNER JOIN, NATURAL JOIN, or a "," join.  Though CROSS JOINs are
-  commutative in theory, SQLite chooses to never reorder the tables in
-  a CROSS JOIN.  Hence, the left table of a CROSS JOIN will always be
-  in an outer loop relative to the right table.
+  程序员可以通过在连接中使用 CROSS JOIN 操作符（而不是 JOIN、INNER JOIN、NATURAL JOIN 或 “,” 连接）来强制 SQLite 使用特定的循环嵌套顺序。
+  虽然理论上 CROSS JOIN 满足交换律，SQLite 却选择永不重新排序 CROSS JOIN 中的表。
+  因此，CROSS JOIN 的左表总是在相对于右表的外层循环中。
 
 </p><p>
-  In the following query, the optimizer is free to reorder the 
-  tables of FROM clause any way it sees fit:
+  在下面的查询中，优化器可以按照它认为合适的方式重新排序 FROM 子句中的表：
 
 </p><div class="codeblock"><pre>SELECT *
   FROM node AS n1,
@@ -907,9 +749,7 @@ end
    AND e.dest = n2.id;
 </pre></div>
 <p>
-  In the following logically equivalent formulation of the same query,
-  the substitution of "CROSS JOIN" for the "," means that the order
-  of tables must be N1, E, N2.
+  在下面这一逻辑上等价的查询中，将 “,” 替换为 “CROSS JOIN” 表示表的顺序必须是 N1、E、N2。
 
 </p><div class="codeblock"><pre>SELECT *
   FROM node AS n1 CROSS JOIN
@@ -921,33 +761,23 @@ end
    AND e.dest = n2.id;
 </pre></div>
 <p>
-  In the latter query, the query plan must be 
-  <a href="#option2">option 2</a>.  Note that
-  you must use the keyword "CROSS" in order to disable the table reordering
-  optimization; INNER JOIN, NATURAL JOIN, JOIN, and other similar
-  combinations work just like a comma join in that the optimizer is
-  free to reorder tables as it sees fit. (Table reordering is also
-  disabled on an outer join, but that is because outer joins are not
-  associative or commutative. Reordering tables in OUTER JOIN changes
-  the result.)
+  在后一种查询中，查询计划必须是
+  <a href="#option2">方案 2</a>。
+  请注意，必须使用关键字 “CROSS” 来禁用表重新排序优化；INNER JOIN、NATURAL JOIN、JOIN 和其它类似组合的行为与逗号连接相同，优化器可以按自己的判断重新排序表。（在外连接上也同样禁用了表重排，因为外连接不满足结合律也不满足交换律。重新排序 OUTER JOIN 中的表会改变结果。）
 
 </p><p>
-  See "<a href="queryplanner-ng.html#fossilcasestudy">The Fossil NGQP Upgrade Case Study</a>" for another real-world example
-  of using CROSS JOIN to manually control the nesting order of a join.
-  The <a href="queryplanner-ng.html#howtofix">query planner checklist</a> found later in the same document provides
-  further guidance on manual control of the query planner.
+  参见同一文档中稍后部分的 "<a href="queryplanner-ng.html#fossilcasestudy">The Fossil NGQP Upgrade Case Study</a>"，了解另一个在实际中使用 CROSS JOIN 手动控制连接嵌套顺序的例子。
+  同一文档中稍后部分的 <a href="queryplanner-ng.html#howtofix">查询规划器检查清单</a> 提供了有关手动控制查询规划器的进一步指导。
 
 <a name="multi_index"></a>
 
-</p><h1 id="choosing_between_multiple_indexes"><span>8. </span>Choosing Between Multiple Indexes</h1>
+</p><h1 id="choosing_between_multiple_indexes"><span>8. </span>在多个索引之间做选择</h1>
 
 <p>
-  Each table in the FROM clause of a query can use at most one index
-  (except when the <a href="#or_opt">OR-clause optimization</a> comes into
-  play)
-  and SQLite strives to use at least one index on each table.  Sometimes,
-  two or more indexes might be candidates for use on a single table.
-  For example:
+  查询的 FROM 子句中的每个表最多只能使用一个索引（<a href="#or_opt">OR 子句优化</a> 除外），
+  并且 SQLite 力求让每个表至少使用一个索引。
+  有时，一个表可能有两个或多个索引可以选用。
+  例如：
 
 </p><div class="codeblock"><pre>CREATE TABLE ex2(x,y,z);
 CREATE INDEX ex2i1 ON ex2(x);
@@ -955,84 +785,63 @@ CREATE INDEX ex2i2 ON ex2(y);
 SELECT z FROM ex2 WHERE x=5 AND y=6;
 </pre></div>
 <p>
-  For the SELECT statement above, the optimizer can use the ex2i1 index
-  to lookup rows of ex2 that contain x=5 and then test each row against
-  the y=6 term.  Or it can use the ex2i2 index to lookup rows
-  of ex2 that contain y=6 then test each of those rows against the
-  x=5 term.
+  对于上面的 SELECT 语句，优化器可以使用 ex2i1 索引查找包含 x=5 的 ex2 行，然后再针对 y=6 条件测试每一行。
+  或者它可以使用 ex2i2 索引查找包含 y=6 的 ex2 行，然后再针对 x=5 条件测试这些行。
 
 </p><p>
-  When faced with a choice of two or more indexes, SQLite tries to estimate
-  the total amount of work needed to perform the query using each option.
-  It then selects the option that gives the least estimated work.
+  面对两个或多个索引的选择时，SQLite 会尝试估算使用每种选项执行查询所需的总工作量。
+  然后选择预计工作量最少的选项。
 
 </p><p>
-  To help the optimizer get a more accurate estimate of the work involved
-  in using various indexes, the user may optionally run the <a href="lang_analyze.html">ANALYZE</a> command.
-  The <a href="lang_analyze.html">ANALYZE</a> command scans all indexes of database where there might
-  be a choice between two or more indexes and gathers statistics on the
-  selectiveness of those indexes.  The statistics gathered by
-  this scan are stored in special database tables names shows names all
-  begin with "<b>sqlite_stat</b>".
-  The content of these tables is not updated as the database
-  changes so after making significant changes it might be prudent to
-  rerun <a href="lang_analyze.html">ANALYZE</a>.
-  The results of an ANALYZE command are only available to database connections
-  that are opened after the ANALYZE command completes.
+  为了帮助优化器更准确地估算使用各种索引所需的工作量，用户可以选择运行 <a href="lang_analyze.html">ANALYZE</a> 命令。
+  <a href="lang_analyze.html">ANALYZE</a> 命令扫描数据库中所有可能涉及多个索引选择的索引，并收集这些索引的选择性统计信息。
+  这些扫描所得的统计信息被存储在以 "<b>sqlite_stat</b>" 为前缀的特殊数据库表中。
+  这些表的内容不会随着数据库的变化而自动更新，因此在做出重大更改后，重新运行 <a href="lang_analyze.html">ANALYZE</a> 可能是明智的。
+  ANALYZE 命令的结果只对在 ANALYZE 命令完成后打开的数据库连接可用。
 
 </p><p>
-  The various <b>sqlite_stat</b><i>N</i> tables contain information on how
-  selective the various indexes are.  For example, the <a href="fileformat2.html#stat1tab">sqlite_stat1</a>
-  table might indicate that an equality constraint on column x reduces the
-  search space to 10 rows on average, whereas an equality constraint on
-  column y reduces the search space to 3 rows on average.  In that case,
-  SQLite would prefer to use index ex2i2 since that index is more selective.
+  各种 <b>sqlite_stat</b><i>N</i> 表包含有关各索引选择性的相关信息。
+  例如，<a href="fileformat2.html#stat1tab">sqlite_stat1</a> 表可能表示对列 x 的等值约束平均将搜索空间缩小到 10 行，而对列 y 的等值约束则将搜索空间缩小到 3 行。
+  在这种情况下，SQLite 会偏好使用 ex2i2 索引，因为该索引更加选择性。
 
 <a name="uplus"></a>
 
-</p><h2 id="disqualifying_where_clause_terms_using_unary_"><span>8.1. </span>Disqualifying WHERE Clause Terms using Unary-"+"</h2>
+</p><h2 id="disqualifying_where_clause_terms_using_unary_"><span>8.1. </span>使用一元 “+” 排除 WHERE 子句项</h2>
 
 <p>
-  <i>Note: Disqualifying WHERE clause terms this way is not recommended.
-  This is a work-around.
-  Only do this as a last resort to get the performance you need.  If you
-  find a situation where this work-around is necessary, please report the
-  situation on the <a href="https://sqlite.org/forum">SQLite Community Forum</a> so
-  that the SQLite maintainers can try to improve the query planner such
-  that the work-around is no longer required for your situation.</i>
+  <i>注意：以这种方式排除 WHERE 子句项并不推荐。
+  这是一种权宜之计。
+  只有在绝对必要以获得所需性能时才使用此方法。
+  如果你发现必须使用此种方法，请在 <a href="https://sqlite.org/forum">SQLite Community Forum</a> 报告该情况，
+  以便 SQLite 维护人员尝试改进查询规划器，使得在你的场景中不再需要此种权宜之计。</i>
 
 </p><p>
-  Terms of the WHERE clause can be manually disqualified for use with
-  indexes by prepending a unary <b>+</b> operator to the column name.  The
-  unary <b>+</b> is a no-op and will not generate any byte code in the prepared
-  statement.
-  However, the unary <b>+</b> operator will prevent the term from
-  constraining an index.
-  So, in the example above, if the query were rewritten as:
+  可以通过在列名前加一元 <b>+</b> 运算符来手动排除 WHERE 子句项在索引中的使用。
+  一元 <b>+</b> 是无操作的，并不会在准备好的语句中生成任何字节码。
+  但是，一元 <b>+</b> 运算符会阻止该项约束索引。
+  因此，在上述示例中，如果查询被重写为：
 
 </p><div class="codeblock"><pre>SELECT z FROM ex2 WHERE +x=5 AND y=6;
 </pre></div>
 <p>
-  The <b>+</b> operator on the <b>x</b> column will prevent that term from 
-  constraining an index.  This would force the use of the ex2i2 index.
+  列 <b>x</b> 上的一元 <b>+</b> 运算符会阻止该项对索引施加约束。
+  这将迫使使用 ex2i2 索引。
 
 </p><p>
-  Note that the unary <b>+</b> operator also removes 
-  <a href="datatype3.html#affinity">type affinity</a> from
-  an expression, and in some cases this can cause subtle changes in
-  the meaning of an expression.
-  In the example above,
-  if column <b>x</b> has <a href="datatype3.html#affinity">TEXT affinity</a>
-  then the comparison "x=5" will be done as text.  The <b>+</b> operator
-  removes the affinity.  So the comparison "<b>+x=5</b>" will compare the text
-  in column <b>x</b> with the numeric value 5 and will always be false.
+  请注意，一元 <b>+</b> 运算符还会从表达式中移除
+  <a href="datatype3.html#affinity">类型亲和性</a>，在某些情况下这可能会导致表达式含义的细微变化。
+  在上述示例中，
+  如果列 <b>x</b> 具有 <a href="datatype3.html#affinity">TEXT 亲和性</a>，
+  那么比较 “x=5” 将作为文本进行。
+  <b>+</b> 运算符会移除亲和性。
+  因此比较 "<b>+x=5</b>" 将把列 <b>x</b> 中的文本与数值 5 进行比较，并且将始终为假。
 
 <a name="rangequery"></a>
 
-</p><h2 id="range_queries"><span>8.2. </span>Range Queries</h2>
+</p><h2 id="range_queries"><span>8.2. </span>范围查询</h2>
 
 <p>
-  Consider a slightly different scenario:
+  再考虑一种略有不同的情况：
 
 </p><div class="codeblock"><pre>CREATE TABLE ex2(x,y,z);
 CREATE INDEX ex2i1 ON ex2(x);
@@ -1040,33 +849,23 @@ CREATE INDEX ex2i2 ON ex2(y);
 SELECT z FROM ex2 WHERE x BETWEEN 1 AND 100 AND y BETWEEN 1 AND 100;
 </pre></div>
 <p>
-  Further suppose that column x contains values spread out
-  between 0 and 1,000,000 and column y contains values
-  that span between 0 and 1,000.  In that scenario,
-  the range constraint on column x should reduce the search space by
-  a factor of 10,000 whereas the range constraint on column y should
-  reduce the search space by a factor of only 10.  So the ex2i1 index
-  should be preferred.
+  再进一步假设列 x 包含分布在 0 到 1,000,000 之间的值，而列 y 包含分布在 0 到 1,000 之间的值。
+  在该场景中，x 上的范围约束应该将搜索空间缩小 10,000 倍，而 y 上的范围约束则仅缩小 10 倍。
+  所以 ex2i1 索引应当被优先使用。
 
 </p><p>
-  SQLite will make this determination, but only if it has been compiled
-  with <a href="compile.html#enable_stat3">SQLITE_ENABLE_STAT3</a> or <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a>.
-  The <a href="compile.html#enable_stat3">SQLITE_ENABLE_STAT3</a> and <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> options causes
-  the <a href="lang_analyze.html">ANALYZE</a> command to collect a histogram of column content in the
-  <a href="fileformat2.html#stat3tab">sqlite_stat3</a> or <a href="fileformat2.html#stat4tab">sqlite_stat4</a> tables and to use this histogram to 
-  make a better guess at the best query to use for range constraints
-  such as the above.  The main difference between STAT3 and STAT4 is
-  that STAT3 records histogram data for only the left-most column of
-  an index whereas STAT4 records histogram data for all columns of an
-  index.  For single-column indexes, STAT3 and STAT4 work the same.
+  SQLite 会做出这个判断，但前提是它已使用 <a href="compile.html#enable_stat3">SQLITE_ENABLE_STAT3</a> 或 <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> 编译。
+  <a href="compile.html#enable_stat3">SQLITE_ENABLE_STAT3</a> 和 <a href="compile.html#enable_stat4">SQLITE_ENABLE_STAT4</a> 选项使 <a href="lang_analyze.html">ANALYZE</a> 命令在
+  <a href="fileformat2.html#stat3tab">sqlite_stat3</a> 或 <a href="fileformat2.html#stat4tab">sqlite_stat4</a> 表中收集列内容的直方图，并利用这些直方图对如上述范围约束所需的最佳查询做出更好的猜测。
+  STAT3 和 STAT4 之间的主要区别在于：STAT3 仅为索引的最左列记录直方图数据，而 STAT4 会为索引的所有列记录直方图数据。
+  对于单列索引，STAT3 与 STAT4 的工作方式相同。
 
 </p><p>
-  The histogram data is only useful if the right-hand side of the constraint
-  is a simple compile-time constant or <a href="lang_expr.html#varparam">parameter</a> and not an expression.
+  直方图数据只有在约束的右侧是简单的编译时常量或 <a href="lang_expr.html#varparam">参数</a> 而非表达式时才有用。
 
 </p><p>
-  Another limitation of the histogram data is that it only applies to the
-  left-most column on an index.  Consider this scenario:
+  直方图数据的另一个限制是，它只适用于索引的最左列。
+  例如：
 
 </p><div class="codeblock"><pre>CREATE TABLE ex3(w,x,y,z);
 CREATE INDEX ex3i1 ON ex2(w, x);
@@ -1074,315 +873,228 @@ CREATE INDEX ex3i2 ON ex2(w, y);
 SELECT z FROM ex3 WHERE w=5 AND x BETWEEN 1 AND 100 AND y BETWEEN 1 AND 100;
 </pre></div>
 <p>
-  Here the inequalities are on columns x and y which are not the
-  left-most index columns.  Hence, the histogram data is useless in helping
-  to choose between the range constraints on columns x and y.
+  这里的不等式条件位于 x 和 y 列，而它们并不是索引中的最左列。
+  因此，直方图数据在帮助选择 x 和 y 的范围约束时毫无用处。
 
 <a name="covidx"></a>
 
-</p><h1 id="covering_indexes"><span>9. </span>Covering Indexes</h1>
+</p><h1 id="covering_indexes"><span>9. </span>覆盖索引</h1>
 
 <p>
-  When doing an indexed lookup of a row, the usual procedure is to
-  do a binary search on the index to find the index entry, then extract
-  the <a href="lang_createtable.html#rowid">rowid</a> from the index and use that <a href="lang_createtable.html#rowid">rowid</a> to do a binary search on
-  the original table.  Thus a typical indexed lookup involves two
-  binary searches.
-  If, however, all columns that were to be fetched from the table are
-  already available in the index itself, SQLite will use the values
-  contained in the index and will never look up the original table
-  row.  This saves one binary search for each row and can make many
-  queries run twice as fast.
+  在进行索引查找某一行时，通常的过程是先在索引上执行二分查找以找到索引项，然后从索引中提取 <a href="lang_createtable.html#rowid">rowid</a>，再利用该 <a href="lang_createtable.html#rowid">rowid</a> 在原始表上执行二分查找。
+  因此，一个典型的索引查找涉及两次二分查找。
+  然而，如果要从表中获取的所有列都已包含在索引本身中，SQLite 会直接使用索引中包含的值，而永远不去查找原始表行。
+  这样每行就节省了一次二分查找，从而可能使许多查询运行速度提升一倍。
 
 </p><p>
-  When an index contains all of the data needed for a query and when the
-  original table never needs to be consulted, we call that index a
-  "covering index".
+  当一个索引包含了查询所需的所有数据，并且永远不需要访问原始表时，我们称该索引为“覆盖索引”。
 
 <a name="order_by"></a>
 
-</p><h1 id="order_by_optimizations"><span>10. </span>ORDER BY Optimizations</h1>
+</p><h1 id="order_by_optimizations"><span>10. </span>ORDER BY 优化</h1>
 
 <p>
-  SQLite attempts to use an index to satisfy the ORDER BY clause of a
-  query when possible.
-  When faced with the choice of using an index to satisfy WHERE clause
-  constraints or satisfying an ORDER BY clause, SQLite does the same
-  cost analysis described above
-  and chooses the index that it believes will result in the fastest answer.
+  SQLite 在可能的情况下会尝试使用索引来满足查询的 ORDER BY 子句。
+  在面临使用索引满足 WHERE 子句约束或满足 ORDER BY 子句的选择时，SQLite 会进行前面所述的相同成本分析，并选择其认为能得到最快响应的索引。
 
 </p><p>
-  SQLite will also attempt to use indexes to help satisfy GROUP BY clauses
-  and the DISTINCT keyword.  If the nested loops of the join can be arranged
-  such that rows that are equivalent for the GROUP BY or for the DISTINCT are
-  consecutive, then the GROUP BY or DISTINCT logic can determine if the 
-  current row is part of the same group or if the current row is distinct
-  simply by comparing the current row to the previous row.
-  This can be much faster than the alternative of comparing each row to
-  all prior rows.
+  SQLite 也会尝试使用索引协助满足 GROUP BY 子句和 DISTINCT 关键字。
+  如果连接的嵌套循环可以按照某个 GROUP BY 或 DISTINCT 等价的顺序来排列，
+  那么 GROUP BY 或 DISTINCT 逻辑只需将当前行与前一行进行比较即可确定当前行是否属于同一组或是否是不同值。
+  这通常比将每一行与之前所有行比较要快得多。
 
 <a name="partsort"></a>
 
-</p><h2 id="partial_order_by_via_index"><span>10.1. </span>Partial ORDER BY via Index</h2>
+</p><h2 id="partial_order_by_via_index"><span>10.1. </span>通过索引实现部分 ORDER BY</h2>
 
 <p>
-  If a query contains an ORDER BY clause with multiple terms, it might
-  be that SQLite can use indexes to cause rows to come out in the order
-  of some prefix of the terms in the ORDER BY but that later terms in
-  the ORDER BY are not satisfied.  In that case, SQLite does block sorting.
-  Suppose the ORDER BY clause has four terms and the natural order of the
-  query results in rows appearing in order of the first two terms.  As
-  each row is output by the query engine and enters the sorter, the 
-  outputs in the current row corresponding to the first two terms of 
-  the ORDER BY are compared against the previous row.  If they have
-  changed, the current sort is finished and output and a new sort is
-  started.  This results in a slightly faster sort.  Even bigger
-  advantages are that many fewer rows need to be held in memory,
-  reducing memory requirements, and outputs can begin to appear before
-  the core query has run to completion.
+  如果查询包含一个带有多个项的 ORDER BY 子句，SQLite 可能会使用索引使行按照 ORDER BY 的某个前缀项的顺序输出，但 ORDER BY 中的后续项并不能得到满足。
+  在这种情况下，SQLite 会进行块排序。
+  假设 ORDER BY 子句中有四项，而查询的自然顺序会使结果按照前两项排序。
+  每当查询引擎输出一行并将其输入排序器时，
+  与 ORDER BY 前两项对应的输出会与前一行进行比较。
+  如果发生变化，则当前排序结束并输出，随后开始新的排序。
+  这会带来略快的排序性能。更大的优势在于：需要驻留在内存中的行数大大减少，从而降低了内存需求，并且在核心查询运行完成之前就可以开始输出结果。
 
 <a name="flattening"></a>
 
-</p><h1 id="subquery_flattening"><span>11. </span>Subquery Flattening</h1>
+</p><h1 id="subquery_flattening"><span>11. </span>子查询扁平化</h1>
 
 <p>
-  When a subquery occurs in the FROM clause of a SELECT, the simplest
-  behavior is to evaluate the subquery into a transient table, then run
-  the outer SELECT against the transient table.  Such a plan
-  can be suboptimal since the transient table will not have any indexes
-  and the outer query (which is likely a join) will be forced to either
-  do a full table scan on the transient table or else construct a
-  <a href="optoverview.html#autoindex">query-time index</a> on the transient table, neither of which is
-  is particularly fast.
+  当一个子查询出现在 SELECT 的 FROM 子句中时，最简单的行为是将子查询求值为临时表，然后对该临时表执行外部 SELECT。
+  这种计划可能是次优的，因为临时表没有任何索引，并且外部查询（可能是一个连接）将被迫要么对临时表执行全表扫描，要么对临时表构造一个
+  <a href="optoverview.html#autoindex">查询时索引</a>，这两种方法都不是特别快。
 
 </p><p>
-  To overcome this problem, SQLite attempts to flatten subqueries in
-  the FROM clause of a SELECT.
-  This involves inserting the FROM clause of the subquery into the
-  FROM clause of the outer query and rewriting expressions in
-  the outer query that refer to the result set of the subquery.
-  For example:
+  为了解决这一问题，SQLite 会尝试扁平化 SELECT 的 FROM 子句中的子查询。
+  这涉及将子查询的 FROM 子句插入外部查询的 FROM 子句，并重写外部查询中引用子查询结果集的表达式。
+  例如：
 
 </p><div class="codeblock"><pre>SELECT t1.a, t2.b FROM t2, (SELECT x+y AS a FROM t1 WHERE z&lt;100) WHERE a&gt;5
 </pre></div>
 <p>
-  Would be rewritten using query flattening as:
+  扁平化查询后会被重写为：
 
 </p><div class="codeblock"><pre>SELECT t1.x+t1.y AS a, t2.b FROM t2, t1 WHERE z&lt;100 AND a&gt;5
 </pre></div>
 <p>
-  There is a long list of conditions that must all be met in order for
-  query flattening to occur.  Some of the constraints are marked as 
-  obsolete by italic text.  These extra constraints are retained in the
-  documentation to preserve the numbering of the other constraints.
+  必须满足许多条件才能执行查询扁平化。其中一些约束被斜体标注为过时。
+  这些额外约束保留在文档中是为了保持其他约束编号的一致性。
 
 </p><p>
-  Casual readers are not expected to understand all of these rules.
-  The point here is that flattening rules are subtle and complex.
-  There have been multiple bugs over the years caused by
-  over-aggressive query flattening.  On the other hand, performance
-  of complex queries and/or queries involving views tends to suffer
-  if query flattening is more conservative.
+  普通读者不需要理解所有这些规则。
+  关键点在于，扁平化规则非常微妙且复杂。
+  多年来曾有多个 Bug 是由于过度激进的查询扁平化引起的。
+  另一方面，如果查询扁平化过于谨慎，复杂查询和/或涉及视图的查询的性能往往会受到影响。
 
 </p><p>
   </p><ol>
-  <li value="1">  <i>(Obsolete)</i>
-  </li><li value="2">  <i>(Obsolete)</i>
+  <li value="1">  <i>（已废弃）</i>
+  </li><li value="2">  <i>（已废弃）</i>
   </li><li value="3">
-  If the subquery is the right operand of a LEFT JOIN then
-   <ol type="a"><li> the subquery may not be a join, and
-   </li><li> the FROM clause of the subquery may
-        not contain a virtual table, and
-   </li><li> the outer query may not be DISTINCT.</li></ol>
-  </li><li value="4">  The subquery is not DISTINCT.
-  </li><li value="5"> <i>(Obsolete - subsumed into constraint 4)</i>
-  </li><li value="6"> <i>(Obsolete)</i>
-  </li><li value="7"> The subquery has a FROM clause.
-  </li><li value="8"> The subquery does not use LIMIT or the outer query is
-                  not a join.
-  </li><li value="9"> The subquery does not use LIMIT or the outer query
-                  does not use aggregates.
-  </li><li value="10"> <i>(Obsolete)</i>
+  如果子查询是 LEFT JOIN 的右操作数，则
+   <ol type="a"><li> 子查询不得为连接，且
+   </li><li> 子查询的 FROM 子句不得包含虚表，且
+   </li><li> 外部查询不得为 DISTINCT。</li></ol>
+  </li><li value="4">  子查询不能是 DISTINCT。
+  </li><li value="5"> <i>（已废弃 - 已包含于约束 4）</i>
+  </li><li value="6"> <i>（已废弃）</i>
+  </li><li value="7"> 子查询必须有 FROM 子句。
+  </li><li value="8"> 子查询不得使用 LIMIT，或者外部查询不是一个连接。
+  </li><li value="9"> 子查询不得使用 LIMIT，或者外部查询不使用聚合。
+  </li><li value="10"> <i>（已废弃）</i>
   </li><li value="11">
-  The subquery and the outer query do not both have ORDER BY clauses.
-  </li><li value="12"> <i>(Obsolete - subsumed into constraint 3)</i>
-  </li><li value="13">  The subquery and outer query do not both use LIMIT.
-  </li><li value="14">  The subquery does not use OFFSET.
+  子查询和外部查询不能同时具有 ORDER BY 子句。
+  </li><li value="12"> <i>（已废弃 - 已包含于约束 3）</i>
+  </li><li value="13">  子查询和外部查询不能同时使用 LIMIT。
+  </li><li value="14">  子查询不能使用 OFFSET。
   </li><li value="15">
-  If the outer query is part of a compound select, then the
-  subquery may not have a LIMIT clause.
+  如果外部查询是复合 SELECT，则子查询不得包含 LIMIT 子句。
 
   </li><li value="16">
-  If the outer query is an aggregate, then the subquery may
-  not contain ORDER BY. 
+  如果外部查询是聚合，则子查询不得包含 ORDER BY。 
 
   </li><li value="17">
-  If the sub-query is a compound SELECT, then
+  如果子查询是复合 SELECT，则
   <ol type="a">
-  <li> all compound operators must be UNION ALL, and
-  </li><li> no terms with the subquery compound may be aggregate
-       or DISTINCT, and
-  </li><li> every term within the subquery must have a FROM clause, and
-  </li><li> the outer query may not be an aggregateor DISTINCT query.
-  </li><li> the subquery may not contain window functions.
-  </li><li> the subquery must not be the right-hand side of a LEFT JOIN.
-  </li><li> either the subquery is the first element of the outer query
-       or there are not RIGHT or FULL JOINs in any arm of the subquery.
-  </li><li> the corresponding result set expressions in all arms of the
-       compound subquery must have the same <a href="datatype3.html#affinity">affinity</a>.
+  <li> 所有复合操作符必须是 UNION ALL，且
+  </li><li> 子查询复合的各项中不得包含聚合或 DISTINCT，且
+  </li><li> 子查询内的每一项都必须有 FROM 子句，且
+  </li><li> 外部查询不得为聚合或 DISTINCT 查询。
+  </li><li> 子查询不得包含窗口函数。
+  </li><li> 子查询不得是 LEFT JOIN 的右侧。
+  </li><li> 子查询要么是外部查询的第一个元素，要么子查询内部的任何分支都不能包含 RIGHT 或 FULL JOIN。
+  </li><li> 复合子查询所有分支中对应结果集表达式必须具有相同的 <a href="datatype3.html#affinity">亲和性</a>。
   </li></ol>
 
-  The parent and sub-query may contain WHERE clauses. Subject to
-  rules (11), (12) and (13), they may also contain ORDER BY,
-  LIMIT and OFFSET clauses.
+  父查询和子查询可以包含 WHERE 子句。根据规则 (11)、(12) 和 (13)，它们也可以包含 ORDER BY、LIMIT 和 OFFSET 子句。
 
   </li><li value="18">
-  If the sub-query is a compound select, then all terms of the
-  ORDER by clause of the parent must be simple references to 
-  columns of the sub-query.
+  如果子查询是复合 SELECT，则父查询的 ORDER BY 子句的所有项必须是对子查询列的简单引用。
 
   </li><li value="19">
-  If the subquery uses LIMIT then the outer query may not
-  have a WHERE clause.
+  如果子查询使用 LIMIT，则外部查询不能有 WHERE 子句。
 
   </li><li value="20">
-  If the sub-query is a compound select, then it must not use
-   an ORDER BY clause.
+  如果子查询是复合 SELECT，则它不得使用 ORDER BY 子句。
 
   </li><li value="21">
-  If the subquery uses LIMIT, then the outer query may not be
-  DISTINCT.
+  如果子查询使用 LIMIT，则外部查询不得为 DISTINCT。
 
-  </li><li value="22"> The subquery may not be a recursive CTE.
+  </li><li value="22"> 子查询不得是递归 CTE。
 
-  </li><li value="23"> If the outer query is a recursive CTE, then the sub-query
-                  may not be a compound query.
+  </li><li value="23"> 如果外部查询是递归 CTE，则子查询不得为复合查询。
 
-  </li><li value="24"> <i>(Obsolete)</i>
+  </li><li value="24"> <i>（已废弃）</i>
 
-  </li><li value="25"> Neither the subquery nor the outer query may contain
-      a <a href="windowfunctions.html">window function</a> in the result set nor the ORDER BY clause.
+  </li><li value="25"> 子查询和父查询在结果集或 ORDER BY 子句中都不得包含
+      <a href="windowfunctions.html">窗口函数</a>。
 
-  </li><li value="26"> The subquery may not be the right operand of a RIGHT
-                  or FULL OUTER JOIN.
-  </li><li value="27"> The subquery may not contain a FULL or RIGHT JOIN unless it
-        is the first element of the parent query.  Two subcases:
+  </li><li value="26"> 子查询不得作为 RIGHT 或 FULL OUTER JOIN 的右操作数。
+  </li><li value="27"> 子查询不得包含 FULL 或 RIGHT JOIN，除非它是父查询的第一个元素。
+        其中有两个子情况：
         <ol type="a">
-        <li> the subquery is not a compound query.
-        </li><li> the subquery is a compound query and the RIGHT JOIN occurs
-                in any arm of the compound query.  (See also (17g)).
+        <li> 子查询不是复合查询。
+        </li><li> 子查询是复合查询，并且复合查询的任一分支中包含 RIGHT JOIN。（参见 (17g)）。
          </li></ol>
-  </li><li value="28"> The subquery is not a MATERIALIZED CTE.
+  </li><li value="28"> 子查询不得是 MATERIALIZED CTE。
   </li></ol>
 
 
 <p>
-  Query flattening is an important optimization when views are used as
-  each use of a view is translated into a subquery.
+  当使用视图时，查询扁平化是一项重要的优化，因为每次使用视图都会被翻译为一次子查询。
 
 <a name="coroutines"></a>
-
-</p><h1 id="subquery_co_routines"><span>12. </span>Subquery Co-routines</h1>
+</p><h1 id="subquery_co_routines"><span>12. </span>子查询协程</h1>
 
 <p>
-  SQLite implements FROM-clause subqueries in one of three ways:
+  SQLite 以三种方式之一实现 FROM-clause 的子查询：
   </p><ol>
-  <li> <a href="optoverview.html#flattening">Flatten</a> the subquery into its outer query
-  </li><li> Evaluate the subquery into a transient table that exists for
-       the duration of the one SQL statement that is being evaluated,
-       then run the outer query against that transient table.
-  </li><li> Evaluate the subquery in a co-routine that runs in parallel with
-       the outer query, providing rows to the outer query as needed.
+  <li> <a href="optoverview.html#flattening">Flatten</a> 子查询到外层查询中
+  </li><li> 将子查询评估为一个在正在执行的 SQL 语句期间存在的临时表，然后针对该临时表运行外层查询。
+  </li><li> 在与外层查询并行运行的协程中评估子查询，根据需要向外层查询提供行。
   </li></ol>
 
 <p>
-  This section describes the third technique: implementing the subquery
-  as a co-routine.
+  本节描述第三种技术：将子查询实现为协程。
 
 </p><p>
-  A co-routine is like a subroutine in that it runs in the same thread
-  as the caller and eventually returns control back to the caller.  The
-  difference is that a co-routine also has the ability to return
-  before it has finished, and then resume where it left off the next
-  time it is called.
+  协程类似于子程序，因为它在与调用者相同的线程中运行，并最终将控制权返回给调用者。
+  区别在于协程还可以在未完成时返回，然后在下次调用时从中断处继续。
 
 </p><p>
-  When a subquery is implemented as a co-routine, byte-code is generated
-  to implement the subquery as if it were a standalone query, except
-  instead of returning rows of results back to the application, the
-  co-routine yields control back to the caller after each row is computed.
-  The caller can then use that one computed row as part of its computation,
-  then invoke the co-routine again when it is ready for the next row.
+  当子查询以协程的方式实现时，会生成字节码来将子查询实现得像一个独立查询，
+  只是它不是将结果行返回给应用程序，而是在计算出每一行后将控制权让给调用者。
+  调用者然后可以将该行用作其计算的一部分，并在准备好获取下一行时再次调用协程。
 
 </p><p>
-  Co-routines are better than storing the complete result set of the subquery
-  in a transient table because co-routines use less memory.  With a co-routine,
-  only a single row of the result needs to be remembered, whereas all rows of
-  the result must be stored for a transient table.  Also, because the
-  co-routine does not need to run to completion before the outer query
-  begins its work, the first rows of output can appear much sooner, and if
-  the overall query is abandoned before it has finished, less work is done
-  overall.
+  协程优于将子查询的完整结果集存储在临时表中，因为协程使用更少的内存。
+  使用协程时只需要记住结果的单行，而临时表必须存储全部行。
+  此外，由于协程不需要在外层查询开始工作之前运行完毕，因此输出的前几行可以更早出现，
+  如果整体查询在完成之前被放弃，所做的工作也更少。
 
 </p><p>
-  On the other hand, if the result of the subquery must be scanned multiple
-  times (because, for example, it is just one table in a join) then it
-  is better to use a transient table to remember the entire result of the
-  subquery, in order to avoid computing the subquery more than once.
+  另一方面，如果必须多次扫描子查询的结果（例如，它只是连接中的某个表），
+  那么最好使用临时表来记住整个子查询的结果，以避免重复计算子查询。
 
 <a name="deferred_work"></a>
 
-</p><h2 id="using_co_routines_to_defer_work_until_after_the_sorting"><span>12.1. </span>Using Co-routines to Defer Work until after the Sorting</h2>
+</p><h2 id="using_co_routines_to_defer_work_until_after_the_sorting"><span>12.1. </span>在排序之后延迟工作的协程</h2>
 
 <p>
-  As of SQLite version 3.21.0 (2017-10-24), the query planner will
-  always prefer to use a co-routine to implement FROM-clause subqueries 
-  that contains an ORDER BY clause and that are not part of a join when
-  the result set of the outer query is "complex".  This feature allows
-  applications to shift expensive computations from before the
-  sorter until after the sorter, which can result in faster operation.
-  For example, consider this query:
+  从 SQLite 版本 3.21.0 (2017-10-24) 起，当外层查询的结果集“复杂”时，
+  查询优化器总是更倾向于使用协程来实现包含 ORDER BY 子句且不属于 join 的 FROM-clause 子查询。
+  此功能允许应用程序将昂贵的计算从排序器之前移动到排序器之后，从而可能获得更快的运行速度。
+  例如，考虑以下查询：
 
 </p><div class="codeblock"><pre>SELECT expensive_function(a) FROM tab ORDER BY date DESC LIMIT 5;
 </pre></div>
 <p>
-  The goal of this query is to compute some value for the five most
-  recent entries in the table.  In the query above, the
-  "expensive_function()" is invoked prior to the sort and thus is
-  invoked on every row of the table, even
-  rows that are ultimately omitted due to the LIMIT clause.
-  A co-routine can be used to work around this:
+  该查询的目标是在表中为最近的五条记录计算某些值。
+  在上述查询中，"expensive_function()" 在排序之前被调用，因此在表的每一行上都会调用它，即使某些行最终由于 LIMIT 而被省略。
+  协程可以用来规避这一点：
 
 </p><div class="codeblock"><pre>SELECT expensive_function(a) FROM (
   SELECT a FROM tab ORDER BY date DESC LIMIT 5
 );
 </pre></div>
 <p>
-  In the revised query, the subquery implemented by a co-routine computes
-  the five most recent values for "a".  Those five values are passed from the
-  co-routine up into the outer query where the "expensive_function()" is
-  invoked on only the specific rows that the application cares about.
+  在修改后的查询中，由协程实现的子查询计算了最近的五个 "a" 值。
+  这五个值传递给外层查询，在那里仅在应用程序关心的特定行上调用 "expensive_function()"。
 
 </p><p>
-  The query planner in future versions of SQLite might grow smart enough
-  to make transformations such as the above automatically, in both directions.
-  That is to say, future versions of SQLite might transform queries of the
-  first form into the second, or queries written the second way into the
-  first.  As of SQLite version 3.22.0 (2018-01-22), the query planner
-  will flatten the subquery if the outer query does not make use of any
-  user-defined functions or subqueries in its result set.  For the examples
-  shown above, however, SQLite implements each of the queries as
-  written.
+  未来版本的 SQLite 的查询优化器可能会变得足够智能，从而在两个方向上自动完成上述转换。
+  也就是说，未来版本可能将第一种形式的查询转换为第二种形式，或者将第二种形式写出的查询转换为第一种形式。
+  从 SQLite 版本 3.22.0 (2018-01-22) 开始，如果外层查询的结果集中没有使用任何用户定义函数或子查询，
+  查询优化器将会 Flatten 子查询。然而，对于上面展示的示例，SQLite 仍然按原样实现每个查询。
 
 <a name="minmax"></a>
 
-</p><h1 id="the_min_max_optimization"><span>13. </span>The MIN/MAX Optimization</h1>
+</p><h1 id="the_min_max_optimization"><span>13. </span>MIN/MAX 优化</h1>
 
 <p>
-  Queries that contain a single MIN() or MAX() aggregate function whose
-  argument is the left-most column of an index might be satisfied
-  by doing a single index lookup rather than by scanning the entire table.
-  Examples:
+  包含单个 MIN() 或 MAX() 聚合函数且其参数是某个索引的最左侧列的查询
+  可以通过进行单次索引查找而非扫描整个表来满足。示例：
 
 </p><div class="codeblock"><pre>SELECT MIN(x) FROM table;
 SELECT MAX(x)+1 FROM table;
@@ -1390,18 +1102,14 @@ SELECT MAX(x)+1 FROM table;
 
 <a name="autoindex"></a>
 
-<h1 id="automatic_query_time_indexes"><span>14. </span>Automatic Query-Time Indexes</h1>
+<h1 id="automatic_query_time_indexes"><span>14. </span>自动查询时索引</h1>
 
 <p>
-  When no indexes are available to aid the evaluation of a query, SQLite
-  might create an automatic index that lasts only for the duration
-  of a single SQL statement.
-  Automatic indexes are also sometimes called "Query-time indexes".
-  Since the cost of constructing the automatic or query-time index is
-  O(NlogN) (where N is the number of entries in the table) and the cost of
-  doing a full table scan is only O(N), an automatic index will
-  only be created if SQLite expects that the lookup will be run more than
-  logN times during the course of the SQL statement. Consider an example:
+  当没有可用索引来帮助评估查询时，SQLite 可能会创建一个仅在单个 SQL 语句期间存在的自动索引。
+  自动索引有时也称为“查询时索引”。
+  由于构造自动或查询时索引的成本为 O(NlogN)（其中 N 是表中条目的数量），而进行全表扫描的成本仅为 O(N)，
+  因此只有当 SQLite 预计在 SQL 语句执行期间查找将被运行超过 logN 次时，才会创建自动索引。
+  例如：
 
 </p><div class="codeblock"><pre>CREATE TABLE t1(a,b);
 CREATE TABLE t2(c,d);
@@ -1409,16 +1117,12 @@ CREATE TABLE t2(c,d);
 SELECT * FROM t1, t2 WHERE a=c;
 </pre></div>
 <p>
-  In the query above, if both t1 and t2 have approximately N rows, then
-  without any indexes the query will require O(N*N) time.  On the other
-  hand, creating an index on table t2 requires O(NlogN) time and using
-  that index to evaluate the query requires an additional O(NlogN) time.
-  In the absence of <a href="lang_analyze.html">ANALYZE</a> information, SQLite guesses that N is one
-  million and hence it believes that constructing the automatic index will
-  be the cheaper approach.
+  在上面的查询中，如果 t1 和 t2 都大约有 N 行，那么在没有任何索引的情况下，查询需要 O(N*N) 时间。
+  另一方面，在表 t2 上创建索引需要 O(NlogN) 时间，使用该索引评估查询又需要额外的 O(NlogN) 时间。
+  在缺乏 <a href="lang_analyze.html">ANALYZE</a> 信息的情况下，SQLite 猜测 N 为一百万，因此认为构造自动索引是成本更低的方法。
 
 </p><p>
-  An automatic query-time index might also be used for a subquery:
+  自动查询时索引也可能用于子查询：
 
 </p><div class="codeblock"><pre>CREATE TABLE t1(a,b);
 CREATE TABLE t2(c,d);
@@ -1426,70 +1130,47 @@ CREATE TABLE t2(c,d);
 SELECT a, (SELECT d FROM t2 WHERE c=b) FROM t1;
 </pre></div>
 <p>
-  In this example, the t2 table is used in a subquery to translate values
-  of the t1.b column.  If each table contains N rows, SQLite expects that
-  the subquery will run N times, and hence it will believe it is faster
-  to construct an automatic, transient index on t2 first and then use
-  that index to satisfy the N instances of the subquery.
+  在这个示例中，t2 表在子查询中用于转换 t1.b 列的值。
+  如果每个表都有 N 行，SQLite 预计子查询将运行 N 次，因此它会认为先在 t2 上构造一个自动的临时索引，然后再使用该索引来满足子查询的 N 次实例更快。
 
 </p><p>
-  The automatic indexing capability can be disabled at run-time using
-  the <a href="pragma.html#pragma_automatic_index">automatic_index pragma</a>.  Automatic indexing is turned on by
-  default, but this can be changed so that automatic indexing is off
-  by default using the <a href="compile.html#default_automatic_index">SQLITE_DEFAULT_AUTOMATIC_INDEX</a> compile-time option.
-  The ability to create automatic indexes can be completely disabled by
-  compiling with the <a href="compile.html#omit_automatic_index">SQLITE_OMIT_AUTOMATIC_INDEX</a> compile-time option.
+  自动索引功能可以在运行时通过 <a href="pragma.html#pragma_automatic_index">automatic_index pragma</a> 禁用。
+  自动索引默认开启，但可以通过 <a href="compile.html#default_automatic_index">SQLITE_DEFAULT_AUTOMATIC_INDEX</a> 编译时选项将自动索引默认设置为关闭。
+  通过使用 <a href="compile.html#omit_automatic_index">SQLITE_OMIT_AUTOMATIC_INDEX</a> 编译时选项可以完全禁用创建自动索引的能力。
 
 </p><p>
-  In SQLite <a href="releaselog/3_8_0.html">version 3.8.0</a> (2013-08-26) and later, 
-  an <a href="rescode.html#warning_autoindex">SQLITE_WARNING_AUTOINDEX</a> message is sent
-  to the <a href="errlog.html">error log</a> every time a statement is prepared that uses an
-  automatic index.  Application developers can and should use these warnings
-  to identify the need for new persistent indexes in the schema.
+  在 SQLite <a href="releaselog/3_8_0.html">版本 3.8.0</a> (2013-08-26) 及之后，
+  每次准备使用自动索引的语句时都会向 <a href="errlog.html">错误日志</a> 发送一个 <a href="rescode.html#warning_autoindex">SQLITE_WARNING_AUTOINDEX</a> 消息。
+  应用程序开发者可以并且应该使用这些警告来识别架构中需要新的持久索引的情况。
 
 </p><p>
-  Do not confuse automatic indexes with the <a href="fileformat2.html#intschema">internal indexes</a> (having names
-  like "sqlite_autoindex_<i>table</i>_<i>N</i>") that are sometimes
-  created to implement a <a href="lang_createtable.html#primkeyconst">PRIMARY KEY constraint</a> or <a href="lang_createtable.html#uniqueconst">UNIQUE constraint</a>.
-  The automatic indexes described here exist only for the duration of a
-  single query, are never persisted to disk, and are only visible to a
-  single database connection.  Internal indexes are part of the implementation
-  of PRIMARY KEY and UNIQUE constraints, are long-lasting and persisted
-  to disk, and are visible to all database connections.  The term "autoindex"
-  appears in the names of <a href="fileformat2.html#intschema">internal indexes</a> for legacy reasons and does
-  not indicate that internal indexes and automatic indexes are related.
+  不要将自动索引与有时用于实现 <a href="lang_createtable.html#primkeyconst">PRIMARY KEY 约束</a> 或 <a href="lang_createtable.html#uniqueconst">UNIQUE 约束</a> 的内部索引（名称类似 "sqlite_autoindex_<i>table</i>_<i>N</i>"）混淆。
+  这里描述的自动索引仅存在于单个查询期间，永远不会持久化到磁盘，并且只对单个数据库连接可见。
+  内部索引是 PRIMARY KEY 和 UNIQUE 约束实现的一部分，具有持久性并保存到磁盘，对所有数据库连接都可见。
+  “autoindex” 这个术语出现在 <a href="fileformat2.html#intschema">内部索引</a> 的名称中是出于历史原因，并不表示内部索引与自动索引存在关联。
 
 <a name="hashjoin"></a>
 
-</p><h2 id="hash_joins"><span>14.1. </span>Hash Joins</h2>
+</p><h2 id="hash_joins"><span>14.1. </span>哈希连接</h2>
 
 <p>
- An automatic index is almost the same thing as a
- <a href="https://en.wikipedia.org/wiki/Hash_join">hash join</a>.  The only difference
- is that a B-Tree is used instead of a hash table.  If you are willing to
- say that the transient B-Tree constructed for an automatic index is
- really just a fancy hash table, then a query that uses an automatic
- index is just a hash join.
+  自动索引几乎就是一个 <a href="https://en.wikipedia.org/wiki/Hash_join">hash join</a>。
+  唯一不同的是使用的是 B-Tree 而不是哈希表。
+  如果你愿意认为为自动索引构造的临时 B-Tree 真正只是一个炫酷的哈希表，
+  那么使用自动索引的查询实际上就是一个哈希连接。
 
 </p><p>
- SQLite constructs a transient index instead of a hash table in this
- instance because it already has a robust and high performance B-Tree
- implementation at hand, whereas a hash-table would need to be added.
- Adding a separate hash table implementation to handle this one case
- would increase the size of the library (which is designed for use on
- low-memory embedded devices) for minimal performance gain.  SQLite might
- be enhanced with a hash-table implementation someday, but for now it seems
- better to continue using automatic indexes in cases where client/server
- database engines might use a hash join.
+  SQLite 在这种情况下构造临时索引而不是哈希表，因为它已经有一个稳健且高性能的 B-Tree 实现，而哈希表需要额外添加。
+  为这个单一情况添加一个独立的哈希表实现会增加库的体积（该库设计用于低内存嵌入式设备），但性能提升不大。
+  SQLite 也许将来会增强哈希表实现，但目前看来，在客户端/服务器数据库引擎可能使用哈希连接的情况下继续使用自动索引更为合适。
 
 <a name="pushdown"></a>
 
-</p><h1 id="the_predicate_push_down_optimization"><span>15. </span>The Predicate Push-Down Optimization</h1>
+</p><h1 id="the_predicate_push_down_optimization"><span>15. </span>谓词下推优化</h1>
 
 <p>
-  If a subquery cannot be <a href="optoverview.html#flattening">flattened</a> into the outer query, it might
-  still be possible to enhance performance by "pushing down" WHERE clause
-  terms from the outer query into the subquery.  Consider an example:
+  如果子查询无法被 <a href="optoverview.html#flattening">Flatten</a> 到外层查询中，仍可能通过将外层查询的 WHERE 子句项向下推送到子查询来提高性能。
+  例如：
 
 </p><div class="codeblock"><pre>CREATE TABLE t1(a INT, b INT);
 CREATE TABLE t2(x INT, y INT);
@@ -1501,13 +1182,11 @@ SELECT x, y, b
 </pre></div>
 
 <p>
-  The view v1 cannot be <a href="optoverview.html#flattening">flattened</a> because it is DISTINCT.  It must
-  instead be run as a subquery with the results being stored in a
-  transient table, then the join is performed between t2 and the
-  transient table.  The push-down optimization pushes down the
-  "b BETWEEN 10 AND 20" term into the view.  This makes the transient
-  table smaller, and helps the subquery to run faster if there
-  is an index on t1.b.  The resulting evaluation is like this:
+  由于 v1 是 DISTINCT，不能被 <a href="optoverview.html#flattening">Flatten</a>。
+  它必须作为子查询运行，其结果存储在临时表中，然后在 t2 与该临时表之间执行连接。
+  谓词下推优化会将 "b BETWEEN 10 AND 20" 这一项下推到视图中。
+  这使得临时表更小，并有助于如果 t1.b 上有索引，则子查询运行更快。
+  最终计算如下所示：
 
 </p><div class="codeblock"><pre>SELECT x, y, b
   FROM t2
@@ -1516,48 +1195,33 @@ SELECT x, y, b
 </pre></div>
 
 <p>
-  The WHERE-clause push-down optimization cannot always be used.  For example,
-  if the subquery contains a LIMIT, then pushing down any part of
-  the WHERE clause from the outer query could change the result of
-  the inner query.  There are other restrictions, explained in a
-  comment in the source code on the pushDownWhereTerms() routine
-  that implements this optimization.
+  WHERE 子句下推优化并非总是可用。例如，如果子查询包含 LIMIT，则从外层查询下推 WHERE 子句的任何部分都可能改变内层查询的结果。
+  在实现该优化的 pushDownWhereTerms() 例程的源代码注释中解释了其他限制。
 
 </p><p>
-  Do not confuse this optimization with the optimization by a similar name
-  in MySQL.  The MySQL push-down optimization changes the order of evaluation
-  of WHERE-clause constraints such that those that can be evaluated using
-  only the index and without having to find the corresponding table row are
-  evaluated first, thus avoiding an unnecessary table row lookup if the
-  constraint fails.  For disambiguation, SQLite calls this the
-  "MySQL push-down optimization".   SQLite does do the MySQL push-down
-  optimization too, in addition to the WHERE-clause push-down optimization.
-  But the focus of this section is the WHERE-clause push-down optimization.
+  不要将此优化与 MySQL 中名称相似的优化混淆。
+  MySQL 的下推优化改变 WHERE 子句约束的评估顺序，使得那些只能使用索引并且无需找到相应表行即可评估的约束优先评估，
+  从而在约束失败时避免不必要的表行查找。
+  为了区分，SQLite 将该优化称为 “MySQL 下推优化”。
+  除了 WHERE 子句下推优化之外，SQLite 也确实执行 MySQL 下推优化。
+  但是本节的重点是 WHERE 子句下推优化。
 
 <a name="leftjoinreduction"></a>
 
-</p><h1 id="the_outer_join_strength_reduction_optimization"><span>16. </span>The OUTER JOIN Strength Reduction Optimization</h1>
+</p><h1 id="the_outer_join_strength_reduction_optimization"><span>16. </span>外部连接强度降低优化</h1>
 
 <p>
-  An OUTER JOIN (either a LEFT JOIN, a RIGHT JOIN, or a FULL JOIN)
-  can sometimes be simplified.  A LEFT or RIGHT JOIN can be converted
-  into an ordinary (INNER) JOIN, or a FULL JOIN might be converted into
-  either a LEFT or a RIGHT JOIN.  This can happen if there are terms
-  in the WHERE clause that guarantee the same result after simplification.
-  For example, if any
-  column in the right-hand table of the LEFT JOIN must be non-NULL
-  in order for the WHERE clause to be true, then the LEFT JOIN is
-  demoted to an ordinary JOIN.
+  OUTER JOIN（LEFT JOIN、RIGHT JOIN 或 FULL JOIN）有时可以简化。
+  LEFT 或 RIGHT JOIN 可能被转换为普通（INNER）JOIN，或者 FULL JOIN 可能被转换为 LEFT JOIN 或 RIGHT JOIN。
+  如果 WHERE 子句中存在确保简化后结果相同的项，就可以发生此情况。
+  例如，如果 LEFT JOIN 的右表中的任何列在 WHERE 子句为真时必须为非 NULL，那么 LEFT JOIN 就可以降级为普通 JOIN。
 
 </p><p>
-  The theorem prover that determines whether a join can be simplified is
-  imperfect.  It sometimes returns a false negative.  In other words,
-  it sometimes fails to prove that reducing the strength of an OUTER JOIN
-  is safe when in fact it is safe.
-  For example, the prover does not know
-  the <a href="lang_datefunc.html#dttm">datetime() SQL function</a> will always return NULL if its first
-  argument is NULL, and so it will not recognize that the LEFT JOIN
-  in the following query could be strength-reduced:
+  判定连接是否可简化的定理证明器并不完美。
+  它有时会返回错误的否定结果。
+  换句话说，它有时无法证明将 OUTER JOIN 的强度降低是安全的——即使实际上是安全的。
+  例如，证明器不知道 <a href="lang_datefunc.html#dttm">datetime()</a> SQL 函数在其第一个参数为 NULL 时总是返回 NULL，
+  因此它不会识别以下查询中可以进行强度降低的 LEFT JOIN：
 
 </p><div class="codeblock"><pre>SELECT urls.url
   FROM urls
@@ -1573,41 +1237,30 @@ SELECT x, y, b
 </pre></div>
 
 <p>
-  It is possible that future enhancements to the prover might enable it
-  to recognize that NULL inputs to certain built-in functions
-  always result in a NULL answer.  However, not all built-in
-  functions have that property (for example <a href="lang_corefunc.html#coalesce">coalesce()</a>) and, of
-  course, the prover will never be able to reason about
-  <a href="appfunc.html">application-defined SQL functions</a>.
+  未来对证明器的增强可能会使其认识到某些内建函数在输入为 NULL 时总是返回 NULL。
+  然而，并非所有内建函数都具有这种属性（例如 <a href="lang_corefunc.html#coalesce">coalesce()</a>），当然证明器永远无法推理
+  <a href="appfunc.html">应用程序定义的 SQL 函数</a>。
 
 <a name="omitnoopjoin"></a>
 
-</p><h1 id="the_omit_outer_join_optimization"><span>17. </span>The Omit OUTER JOIN Optimization</h1>
+</p><h1 id="the_omit_outer_join_optimization"><span>17. </span>省略 OUTER JOIN 优化</h1>
 
 <p>
-  Sometimes a LEFT or RIGHT JOIN can be completely omitted from a query without
-  changing the result.  This can happen if all of the following are
-  true:
+  有时 LEFT JOIN 或 RIGHT JOIN 可以在不改变结果的情况下完全从查询中省略。
+  只有在以下所有条件都满足时才可能发生这种情况：
 
 </p><p>
   </p><ol>
-  <li> The query is not an aggregate
-  </li><li> Either the query is DISTINCT or else the ON or USING clause
-       on the OUTER JOIN constrains the join such that it matches
-       only a single row
-  </li><li> The right-hand table of the LEFT JOIN or the left-hand table of
-       a RIGHT JOIN is not be used anywhere
-       in the query outside of its own USING or ON clause.
+  <li> 查询不是聚合查询
+  </li><li> 查询是 DISTINCT，或者 OUTER JOIN 的 ON 或 USING 子句将连接约束为仅匹配一行
+  </li><li> LEFT JOIN 的右表或者 RIGHT JOIN 的左表在查询中除了其自身的 USING 或 ON 子句之外未被使用。
   </li></ol>
 
 <p>
-  OUTER JOIN elimination often comes up when OUTER JOINs are used
-  inside of views, and then the view is used in such as way that
-  none of the columns on the right-hand table of the LEFT JOIN or
-  on the left-hand table of a RIGHT JOIN are referenced.
+  当 OUTER JOIN 在视图内部使用，然后该视图以不引用 LEFT JOIN 右表或 RIGHT JOIN 左表任何列的方式被使用时，OUTER JOIN 消除经常出现。
 
 </p><p>
-  Here is a simple example of omitting a LEFT JOIN:
+  这里是一个省略 LEFT JOIN 的简单示例：
 
 </p><div class="codeblock"><pre>CREATE TABLE t1(ipk INTEGER PRIMARY KEY, v1);
 CREATE TABLE t2(ipk INTEGER PRIMARY KEY, v2);
@@ -1619,43 +1272,35 @@ SELECT v1, v3 FROM t1
 </pre></div>
 
 <p>
-  The t2 table is completely unused in the query above, and so the
-  query planner is able to implement the query as if it were written:
+  在上述查询中，t2 表完全未被使用，因此查询优化器可以像下面这样实现查询：
 
 </p><div class="codeblock"><pre>SELECT v1, v3 FROM t1 
   LEFT JOIN t3 ON (t1.ipk=t3.ipk)
 </pre></div>
 
 <p>
-  As of this writing, only LEFT JOINs are eliminated.  This optimize
-  has not yet been generalized to work with RIGHT JOINs as RIGHT JOIN
-  is a relatively new addition to SQLite.  That asymmetry will probably
-  be corrected in a future release.
+  截至本文撰写时，仅 LEFT JOIN 会被消除。
+  该优化尚未推广到 RIGHT JOIN，因为 RIGHT JOIN 是 SQLite 的一个相对较新的添加项。
+  这种不对称可能会在未来的版本中得到纠正。
 
 
 <a name="constprop"></a>
 
-</p><h1 id="the_constant_propagation_optimization"><span>18. </span>The Constant Propagation Optimization</h1>
+</p><h1 id="the_constant_propagation_optimization"><span>18. </span>常量传播优化</h1>
 
 <p>
-  When a WHERE clause contains two or more equality constraints connected
-  by the AND operator such that all of the <a href="datatype3.html#affinity">affinities</a> of the various
-  constraints are the same, then SQLite might use the transitive property
-  of equality to construct new "virtual" constraints that can be used to
-  simplify expressions and/or improve performance.  This is called the
-  "constant-propagation optimization".
+  当 WHERE 子句包含两个或更多由 AND 运算符连接的等式约束，并且这些约束的各个 <a href="datatype3.html#affinity">affinities</a> 相同时，
+  SQLite 可能会利用等式的传递性构造新的“虚拟”约束，用于简化表达式和/或提升性能。
+  这称为“常量传播优化”。
 
 </p><p>
-  For example, consider the following schema and query:
+  例如，考虑以下模式和查询：
 
 </p><div class="codeblock"><pre>CREATE TABLE t1(a INTEGER PRIMARY KEY, b INT, c INT);
 SELECT * FROM t1 WHERE a=b AND b=5;
 </pre></div>
 
 <p>
-  SQLite looks at the "a=b" and "b=5" constraints and deduces that
-  if those two constraints are true, then it must also be the case
-  that "a=5" is true.  This means that the desired row can be looked up
-  quickly using a value of 5 for the INTEGER PRIMARY KEY.
+  SQLite 查看 "a=b" 和 "b=5" 约束并推断，如果这两个约束为真，那么 "a=5" 也必须为真。
+  这意味着可以使用 INTEGER PRIMARY KEY 的值 5 快速查找所需的行。
 </p><p align="center"><small><i>This page was last updated on 2025-05-31 13:08:22Z </small></i></p>
-

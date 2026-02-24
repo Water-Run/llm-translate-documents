@@ -1,0 +1,1492 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>The SQLite Bytecode Engine</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline-note desktoponly">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧、快速、可靠。<br>任选其三。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><div class=fancy>
+<div class=nosearch>
+<div class="fancy_title">
+SQLite 字节码引擎
+</div>
+<details class="fancy_toc">
+<summary>目录</summary>
+<div id="toc_sub"><div class="fancy-toc1"><a href="#executive_summary">1. 执行摘要</a></div>
+<div class="fancy-toc1"><a href="#introduction">2. 介绍</a></div>
+<div class="fancy-toc2"><a href="#vdbe_source_code">2.1. VDBE 源代码</a></div>
+<div class="fancy-toc2"><a href="#instruction_format">2.2. 指令格式</a></div>
+<div class="fancy-toc2"><a href="#registers">2.3. 寄存器</a></div>
+<div class="fancy-toc2"><a href="#b_tree_cursors">2.4. B 树游标</a></div>
+<div class="fancy-toc2"><a href="#subroutines_coroutines_and_subprograms">2.5. 子程序、协程与子程序</a></div>
+<div class="fancy-toc2"><a href="#self_altering_code">2.6. 自修改代码</a></div>
+<div class="fancy-toc1"><a href="#viewing_the_bytecode">3. 查看字节码</a></div>
+<div class="fancy-toc1"><a href="#the_opcodes">4. 操作码</a></div>
+</div>
+</details>
+</div>
+
+
+
+
+
+<h1 id="executive_summary"><span>1. </span>执行摘要</h1>
+
+<p>SQLite 的工作方式是将 SQL 语句转换为字节码，然后在虚拟机中运行这些字节码。本文档描述了字节码引擎的运行方式。
+
+</p><p>本文档介绍了 SQLite 的内部机制。常规的 SQLite 应用开发并不需要阅读本内容。本篇面向希望深入了解 SQLite 内部运行细节的人员。
+
+</p><p>字节码引擎<u>不是</u> SQLite 的 API。字节码引擎的细节会随着每个 SQLite 版本的改变而变化。应用程序不应依赖本文件中描述的任何细节。
+
+</p><p>欲知 SQLite 为什么偏好使用字节码实现 SQL，请参见文档“<a href="whybytecode.html">Why SQLite Uses Bytecode</a>”。
+
+
+
+</p><h1 id="introduction"><span>2. </span>介绍</h1>
+
+<p>SQLite 的工作方式是将每个 SQL 语句翻译成字节码并执行该字节码。SQLite 中的<a href="c3ref/stmt.html">prepared statement</a> 实际上就是执行对应 SQL 所需的字节码集合。<a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 接口是将 SQL 翻译为字节码的编译器。<a href="c3ref/step.html">sqlite3_step()</a> 接口则是执行包含在<a href="c3ref/stmt.html">prepared statement</a> 中字节码的虚拟机。
+
+</p><p>字节码虚拟机是 SQLite 的核心。想要理解 SQLite 内部如何运作的程序员必须熟悉字节码引擎。
+
+</p><p>从历史上看，SQLite 中的字节码引擎被称为“虚拟数据库引擎”或“VDBE”。本网站中“字节码引擎”、“VDBE”、“虚拟机”与“字节码虚拟机”这些术语可以互换使用，因为它们表示的是同一个概念。
+
+</p><p>
+本文档中的“字节码程序”与“prepared statement”也可以互换使用，因为它们在大多数情况下表示的是相同的内容。
+
+</p><h2 id="vdbe_source_code"><span>2.1. </span>VDBE 源代码</h2>
+
+<p>字节码引擎的源代码位于<a href="https://sqlite.org/src/file/src/vdbe.c">vdbe.c</a> 源文件中。本文档中的<a href="opcode.html#codes">操作码定义</a>来自该源文件中的注释。源代码注释是关于字节码引擎信息的权威来源，如有疑问，请查阅源代码。</p>
+
+<p>除了主要的 vdbe.c 源代码文件之外，源码树中还有其他以“vdbe”开头的辅助代码文件——“vdbe”即“Virtual DataBase Engine”的缩写。
+
+</p><p>请记住，操作码的名称与含义常常随着 SQLite 的版本更迭而发生变化。因此，如果您在分析 SQLite 的<a href="lang_explain.html">EXPLAIN</a> 输出，应参考运行该 EXPLAIN 的 SQLite 版本所对应的本文档（或 vdbe.c 源代码）。否则，操作码的描述可能不准确。本文档基于 SQLite 版本 3.51.2 的提交版本<a href='https://sqlite.org/src/timeline?c=b270f8339eb13'>b270f8339eb13</a>（日期为 2026-01-09）。
+
+
+
+
+</p><h2 id="instruction_format"><span>2.2. </span>指令格式</h2>
+
+
+<p>SQLite 中的字节码程序由一个或多个指令组成。每条指令都有一个操作码和五个操作数，分别命名为 P1、P2、P3、P4 和 P5。P1、P2 与 P3 操作数是 32 位有符号整数，通常指向寄存器。对于操作 B 树游标的指令，P1 操作数通常是游标编号。对于跳转指令，P2 通常是跳转目的地址。P4 可以是 32 位或 64 位有符号整数、64 位浮点值、字符串字面量、Blob 字面量、指向排序序列比较函数的指针、指向应用程序定义 SQL 函数实现的指针，或其他多种内容。P5 是一个通常用于保存标志的 16 位无符号整数。P5 标志的各个位有时会以微妙的方式影响操作码。例如，如果在<a href="opcode.html#Eq">Eq</a> 操作码上设置了 P5 操作数的 SQLITE_NULLEQ (0x0080) 位，那么 NULL 值会相互比较为相等；否则 NULL 值会被看作不相等。
+
+
+<p>某些操作码会使用全部五个操作数。有些操作码只使用一两个。有些操作码根本不使用操作数。</p><p>
+
+
+<p>字节码引擎从指令编号 0 开始执行。执行会持续，直到遇到<a href="opcode.html#Halt">Halt</a> 指令，或者程序计数器变得大于最后一条指令的地址，或者发生错误。字节码引擎停止时，它分配的所有内存都会被释放，并关闭所有可能打开的数据库游标。如果执行因错误而中止，则任何挂起的事务都会被终止，并且对数据库所做的更改会回滚。</p>
+
+
+
+<p><a href="opcode.html#ResultRow">ResultRow</a> 操作码会让字节码引擎暂停，并让对应的<a href="c3ref/step.html">sqlite3_step()</a> 调用返回<a href="rescode.html#row">SQLITE_ROW</a>。在调用<a href="opcode.html#ResultRow">ResultRow</a> 之前，字节码程序会将查询结果某一行加载到一系列寄存器中。像<a href="c3ref/column_blob.html">sqlite3_column_int()</a>或<a href="c3ref/column_blob.html">sqlite3_column_text()</a>这样的 C 语言 API 会从这些寄存器中提取查询结果。字节码引擎在下一次调用<a href="c3ref/step.html">sqlite3_step()</a> 时，从<a href="opcode.html#ResultRow">ResultRow</a> 之后的下一条指令继续执行。
+
+
+</p><h2 id="registers"><span>2.3. </span>寄存器</h2>
+
+
+<p>每个字节码程序都有固定（但可能很大）的寄存器数量。单个寄存器可以保存多种对象：
+<ul>
+<li> NULL 值
+<li> 有符号 64 位整数
+<li> IEEE 双精度（64 位）浮点数
+<li> 任意长度字符串
+<li> 任意长度 BLOB
+<li> RowSet 对象（参见<a href="opcode.html#RowSetAdd">RowSetAdd</a>、<a href="opcode.html#RowSetRead">RowSetRead</a> 和
+                      <a href="opcode.html#RowSetTest">RowSetTest</a> 操作码）
+<li> Frame 对象（由<a href="opcode.html#subprog">子程序</a>使用 —— 参见<a href="opcode.html#Program">Program</a>）
+</ul>
+
+
+<p>寄存器也可以是“未定义”的，表示它根本没有值。未定义不同于 NULL。依据编译时选项，读取未定义寄存器通常会导致运行时错误。如果代码生成器（<a href="c3ref/prepare.html">sqlite3_prepare_v2()</a>）生成了会读取未定义寄存器的<a href="c3ref/stmt.html">prepared statement</a>，那就是代码生成器中的 bug。
+
+</p><p>
+寄存器从 0 开始编号。大多数操作码至少引用一个寄存器。
+
+</p><p>单个 prepared statement 中的寄存器数量在编译时固定。准备语句在被<a href="c3ref/reset.html">reset</a>或<a href="c3ref/finalize.html">finalize</a>时，会清除所有寄存器的内容。
+
+</p><p>内部的 Mem 对象负责存储单个寄存器的值。API 中暴露的抽象<a href="c3ref/value.html">sqlite3_value</a>对象实际上就是 Mem 对象或寄存器。
+
+
+
+</p><h2 id="b_tree_cursors"><span>2.4. </span>B 树游标</h2>
+
+
+<p>一个 prepared statement 可以有零个或多个打开的游标。每个游标由一个小整数标识，该整数通常是使用该游标的操作码的 P1 参数。同一个索引或表可以打开多个游标。即便是指向同一索引或表的游标也会独立工作。虚拟机与数据库文件交互的唯一方式就是通过游标。虚拟机中的指令可以创建新游标（例如：<a href="opcode.html#OpenRead">OpenRead</a> 或 <a href="opcode.html#OpenWrite">OpenWrite</a>）、从游标读取数据（<a href="opcode.html#Column">Column</a>）、将游标移动到表中的下一条记录（例如：<a href="opcode.html#Next">Next</a> 或 <a href="opcode.html#Prev">Prev</a>）等等。prepared statement 在被<a href="c3ref/reset.html">reset</a>或<a href="c3ref/finalize.html">finalize</a>时，所有游标都会自动关闭。
+
+
+<a name="subprog"></a>
+
+<h2 id="subroutines_coroutines_and_subprograms"><span>2.5. </span>子程序、协程与子程序</h2>
+
+<p>字节码引擎没有栈来存储子程序的返回地址，因此返回地址必须保存在寄存器中。因此，字节码子程序不是重入的。
+
+
+<p><a href="opcode.html#Gosub">Gosub</a> 操作码将当前程序计数器存入寄存器 P1，然后跳转到地址 P2。<a href="opcode.html#Return">Return</a> 操作码跳转到地址 P1+1。因此，每个子程序都关联着两个整数：子程序入口点的地址以及用于保存返回地址的寄存器编号。
+
+<p><a href="opcode.html#Yield">Yield</a> 操作码将程序计数器的值与寄存器 P1 中的整数值进行交换。该操作码用于实现协程。协程经常用来实现按需拉取内容的子查询。
+
+
+</p><p><a href="lang_createtrigger.html">触发器</a>需要是可重入的。
+
+
+由于字节码子程序不可重入，因此必须使用不同的机制来实现触发器。每个触发器通过独立的字节码程序实现，并拥有自己的操作码、程序计数器和寄存器集。<a href="opcode.html#Program">Program</a> 操作码调用触发器子程序。<a href="opcode.html#Program">Program</a> 指令为每次子程序调用分配并初始化一个新的寄存器集，因此子程序可以是可重入和递归的。<a href="opcode.html#Param">Param</a> 操作码用于让子程序访问调用该字节码程序的寄存器内容。
+
+
+</p><h2 id="self_altering_code"><span>2.6. </span>自修改代码</h2>
+
+
+<p>某些操作码会自修改。例如，<a href="opcode.html#Init">Init</a> 操作码（它总是每个字节码程序的第一条操作码）会递增它的 P1 操作数。后续的<a href="opcode.html#Once">Once</a> 操作码会将其 P1 操作数与<a href="opcode.html#Init">Init</a> 操作码的 P1 值进行比较，以确定是否跳过随后的仅执行一次的初始化代码。另一个例子是<a href="opcode.html#String8">String8</a> 操作码，它将其 P4 操作数从 UTF-8 转换为正确的数据库字符串编码，然后将自身转换为<a href="opcode.html#String">String</a> 操作码。
+
+
+
+<h1 id="viewing_the_bytecode"><span>3. </span>查看字节码</h1>
+
+<p>SQLite 解释的每个 SQL 语句都会对应一个虚拟机程序。但是如果 SQL 语句以关键字<a href="lang_explain.html">EXPLAIN</a> 开头，虚拟机就不会执行该程序，而是像查询结果一样按行返回该程序的指令。该功能对于调试以及了解虚拟机的运作非常有用。例如：
+</p>
+
+<blockquote><pre>$&nbsp;<b>sqlite3&nbsp;ex1.db</b>
+sqlite&gt;&nbsp;<b>explain&nbsp;delete&nbsp;from&nbsp;tbl1&nbsp;where&nbsp;two&lt;20;</b>
+addr&nbsp;&nbsp;opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;&nbsp;&nbsp;&nbsp;p4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p5&nbsp;&nbsp;comment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+----&nbsp;&nbsp;-------------&nbsp;&nbsp;----&nbsp;&nbsp;----&nbsp;&nbsp;----&nbsp;&nbsp;-------------&nbsp;&nbsp;--&nbsp;&nbsp;-------------
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Init&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;Start&nbsp;at&nbsp;12&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Null&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;r[1]=NULL&nbsp;&nbsp;&nbsp;&nbsp;
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OpenWrite&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;root=2&nbsp;iDb=0;&nbsp;tbl1
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rewind&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;r[2]=tbl1.two
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ge&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(BINARY)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;51&nbsp;&nbsp;if&nbsp;r[2]&gt;=r[3]&nbsp;goto&nbsp;9
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rowid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;r[4]=rowid&nbsp;&nbsp;&nbsp;
+7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Once&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tbl1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10&nbsp;&nbsp;&nbsp;&nbsp;Noop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11&nbsp;&nbsp;&nbsp;&nbsp;Halt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;01&nbsp;&nbsp;usesStmtJournal=0
+13&nbsp;&nbsp;&nbsp;&nbsp;TableLock&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tbl1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;iDb=0&nbsp;root=2&nbsp;write=1
+14&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00&nbsp;&nbsp;r[3]=20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;Goto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00</pre></blockquote>
+
+<p>任何应用程序都可以运行<a href="lang_explain.html">EXPLAIN</a> 查询以获取类似上面的输出。然而，SQLite 核心不会为展示循环结构添加缩进。<a href="cli.html">命令行 shell</a> 包含用于缩进循环的附加逻辑。此外，<a href="lang_explain.html">EXPLAIN</a> 输出中的“comment”列仅在 SQLite 使用<a href="compile.html#enable_explain_comments">-DSQLITE_ENABLE_EXPLAIN_COMMENTS</a> 选项编译时才会提供。
+
+</p><p>当 SQLite 使用<a href="compile.html#debug">SQLITE_DEBUG</a> 编译期选项编译时，会开放一些额外的<a href="pragma.html#syntax">PRAGMA</a> 命令，这些命令对于调试与探索 VDBE 的运行非常有用。例如，可以启用<a href="pragma.html#pragma_vdbe_trace">vdbe_trace</a> pragma，以便在执行每个 VDBE 操作码时将其反汇编打印到标准输出。这些调试 pragma 包括：
+</p><ul>
+<li> <a href="pragma.html#pragma_parser_trace">PRAGMA parser_trace</a>
+</li><li> <a href="pragma.html#pragma_vdbe_addoptrace">PRAGMA vdbe_addoptrace</a>
+</li><li> <a href="pragma.html#pragma_vdbe_debug">PRAGMA vdbe_debug</a>
+</li><li> <a href="pragma.html#pragma_vdbe_listing">PRAGMA vdbe_listing</a>
+</li><li> <a href="pragma.html#pragma_vdbe_trace">PRAGMA vdbe_trace</a>
+</li></ul>
+
+
+<h1 id="the_opcodes"><span>4. </span>操作码</h1>
+
+<p>当前虚拟机定义了 191 个操作码。本文档下方的表格描述了所有目前定义的操作码。该表格是通过扫描文件<a href="https://sqlite.org/src/artifact/b44c366e83412d3b8c190feb1f029b7d02e1bd69252a57b32f195107f0d03964">vdbe.c</a>的源代码自动生成的。
+
+
+</p><p>请记住：VDBE 操作码<u>不是</u>SQLite 接口定义的一部分。操作码的数量、名称与含义会随着 SQLite 的版本变化而变化。下表中展示的操作码适用于 SQLite 版本 3.51.2 的提交版本<a href='https://sqlite.org/src/timeline?c=b270f8339eb13'>b270f8339eb13</a>（日期为 2026-01-09）。
+
+<a name="codes"></a>
+
+  </div>
+  <style>.optab td {vertical-align:top; padding: 1ex 1ex;}</style>
+  <div class="optab">
+  <blockquote><table cellspacing=0 border=1 cellpaddin>
+  <tr><th>操作码名称</th><th>描述</th></tr>
+<tr><td valign="top" align="center">
+<a name="Abortable"></a>Abortable
+<td>确认 Abort 是否可能发生。如果在此处发生 Abort 可能导致数据库损坏，则会断言失败。该操作码只出现在调试构建中。</p>
+
+<p>只要没有写操作，或者存在活动的语句日志，Abort 就是安全的。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Add"></a>Add
+<td>将寄存器 P1 中的值加到寄存器 P2 中的值，并将结果存入寄存器 P3。如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AddImm"></a>AddImm
+<td>将常量 P2 加到寄存器 P1 中的值。结果始终是整数。</p>
+
+<p>要强制任意寄存器成为整数，只需加 0。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Affinity"></a>Affinity
+<td>对从 P1 开始的 P2 个寄存器应用亲和性。</p>
+
+<p>P4 是长度为 P2 的字符串。该字符串的第 N 个字符指出该范围内第 N 个内存单元应该使用的列亲和性。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AggFinal"></a>AggFinal
+<td>P1 是聚合或窗口函数的累加器的内存位置。执行聚合的终结函数，并将结果存入 P1。</p>
+
+<p>P2 是 step 函数的参数个数，P4 是指向该函数 FuncDef 的指针。P2 参数不会被此操作码使用，仅用于区分可接受不同数量参数的函数。P4 参数只有在 step 函数此前未被调用时才需要。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AggInverse"></a>AggInverse
+<td>执行聚合的 xInverse 函数。该函数有 P5 个参数。P4 是指向指定该函数的 FuncDef 结构的指针。寄存器 P3 是累加器。</p>
+
+<p>P5 参数取自寄存器 P2 及其后续寄存器。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AggStep"></a>AggStep
+<td>执行聚合的 xStep 函数。该函数有 P5 个参数。P4 是指向指定该函数的 FuncDef 结构的指针。寄存器 P3 是累加器。</p>
+
+<p>P5 参数取自寄存器 P2 及其后续寄存器。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AggStep1"></a>AggStep1
+<td>执行聚合的 xStep（当 P1==0）或 xInverse（当 P1!=0）函数。该函数有 P5 个参数。P4 是指向指定该函数的 FuncDef 结构的指针。寄存器 P3 是累加器。</p>
+
+<p>P5 参数取自寄存器 P2 及其后续寄存器。</p>
+
+<p>该操作码最初被编码为 OP_AggStep0。在首次评估时，P4 中存储的 FuncDef 会被转换为 sqlite3_context，并且操作码会被更改。这样一来，sqlite3_context 的初始化只发生一次，而不是在每次调用 step 函数时都发生。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AggValue"></a>AggValue
+<td>调用 xValue() 函数，并将结果存入寄存器 P3。</p>
+
+<p>P2 是 step 函数的参数个数，P4 是指向该函数 FuncDef 的指针。P2 参数不会被此操作码使用，仅用于区分可接受不同参数个数的函数。P4 参数只有在 step 函数此前未被调用时才需要。</td></tr>
+<tr><td valign="top" align="center">
+<a name="And"></a>And
+<td>计算寄存器 P1 与 P2 中值的逻辑 AND，并将结果写入寄存器 P3。</p>
+
+<p>只要 P1 或 P2 为 0（false），即使另一个输入为 NULL，结果也为 0。 NULL 与 true 或两个 NULL 会产生 NULL 输出。</td></tr>
+<tr><td valign="top" align="center">
+<a name="AutoCommit"></a>AutoCommit
+<td>将数据库自动提交标志设为 P1（1 或 0）。如果 P2 为 true，则回滚任何当前活动的 B 树事务。如果存在任何其他活动的虚拟机（不包括当前此台），ROLLBACK 将失败。如果存在正在写入的活动虚拟机或使用共享缓存的活动虚拟机，则 COMMIT 会失败。</p>
+
+<p>该指令会使虚拟机停止。</td></tr>
+<tr><td valign="top" align="center">
+<a name="BeginSubrtn"></a>BeginSubrtn
+<td>标记一个子例程的开始，该子例程可以内联进入，也可以使用 <a href="opcode.html#Gosub">Gosub</a> 调用。该子例程应由一个 <a href="opcode.html#Return">Return</a> 指令终止，该指令的 P1 操作数与本操作码的 P2 操作数相同，且 P3 设为 1。
+如果子例程是内联进入的，则 <a href="opcode.html#Return">Return</a> 会直接顺序执行。但如果子例程是通过 <a href="opcode.html#Gosub">Gosub</a> 进入的，则 <a href="opcode.html#Return">Return</a> 会跳回到 <a href="opcode.html#Gosub">Gosub</a> 之后的第一条指令。</p>
+
+<p>此例程通过向 P2 寄存器加载 NULL 实现。当返回地址寄存器包含 NULL 时，<a href="opcode.html#Return">Return</a> 指令会成为一个简单的顺序执行的空操作（前提是该 <a href="opcode.html#Return">Return</a> 操作码的 P3 值为 1）。因此，如果子例程以内联方式进入，那么 <a href="opcode.html#Return">Return</a> 会导致内联执行继续。但如果子例程是通过 <a href="opcode.html#Gosub">Gosub</a> 进入的，那么 <a href="opcode.html#Return">Return</a> 会返回到 <a href="opcode.html#Gosub">Gosub</a> 之后的地址。</p>
+
+<p>此操作码与 <a href="opcode.html#Null">Null</a> 相同。它仅因名称不同以便让字节码更易于阅读和验证。</td></tr>
+<tr><td valign="top" align="center">
+<a name="BitAnd"></a>BitAnd
+<td>对寄存器 P1 和 P2 中的值执行按位 AND 操作，并将结果存入寄存器 P3。
+如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="BitNot"></a>BitNot
+<td>将寄存器 P1 中的内容解释为整数。将 P1 值的一补存入寄存器 P2。如果 P1 保存 NULL，则在 P2 中存放 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="BitOr"></a>BitOr
+<td>对寄存器 P1 和 P2 中的值执行按位 OR 操作，并将结果存入寄存器 P3。
+如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Blob"></a>Blob
+<td>P4 指向一个长度为 P1 字节的数据 blob。将该 blob 存入寄存器 P2。如果 P4 是 NULL 指针，则在 P2 中构造一个长度为 P1 字节的全零 blob。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Cast"></a>Cast
+<td>强制将寄存器 P1 中的值转换为 P2 定义的类型。</p>
+
+<p><ul>
+<li> P2=='A' → BLOB
+<li> P2=='B' → TEXT
+<li> P2=='C' → NUMERIC
+<li> P2=='D' → INTEGER
+<li> P2=='E' → REAL
+</ul></p>
+
+<p>NULL 值不会被此例程修改。它仍然是 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Checkpoint"></a>Checkpoint
+<td>检查点数据库 P1。如果 P1 当前不在 WAL 模式下，则此操作为无操作。参数 P2 为 SQLITE_CHECKPOINT_PASSIVE、FULL、RESTART 或 TRUNCATE 中的一个。如果检查点返回 SQLITE_BUSY，则在 mem&#91;P3&#93; 写入 1，否则写入 0。在检查点完成后，将 WAL 中的页数写入 mem&#91;P3+1&#93;，将已检查点的 WAL 页数写入 mem&#91;P3+2&#93;。但遇到错误时，mem&#91;P3+1&#93; 和 mem&#91;P3+2&#93; 会被初始化为 -1。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Clear"></a>Clear
+<td>删除数据库文件中以 P1 为根页的表或索引的全部内容。但与 <a href="opcode.html#Destroy">Destroy</a> 不同，不要将该表或索引从数据库文件中移除。</p>
+
+<p>如果 P2==0，则被清空的表位于主数据库文件中。如果 P2==1，则被清空的表位于用于存储 CREATE TEMPORARY TABLE 创建的表的辅助数据库文件中。</p>
+
+<p>如果 P3 值非零，则行更改计数会增加被清空表中的行数。如果 P3 大于零，则寄存器 P3 中存储的值也会增加被清空表中的行数。</p>
+
+<p>另见：<a href="opcode.html#Destroy">Destroy</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Close"></a>Close
+<td>关闭先前以 P1 打开的游标。如果 P1 当前未打开，则该指令为无操作。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ClrSubtype"></a>ClrSubtype
+<td>清除寄存器 P1 的子类型。</td></tr>
+<tr><td valign="top" align="center">
+<a name="CollSeq"></a>CollSeq
+<td>P4 是指向 CollSeq 对象的指针。如果下一次对用户函数或聚合函数的调用调用 sqlite3GetFuncCollSeq()，则返回此排序序列。内置的 min()、max() 和 nullif() 函数使用此功能。</p>
+
+<p>如果 P1 不为零，则它是一个寄存器，后续的 min() 或 max() 聚合将在当前行不是最小值或最大值时将其设为 1。此指令会将 P1 寄存器初始化为 0。</p>
+
+<p>上述函数的实现用于检索此操作码设置的排序序列的接口不对外公开。仅内置函数可以访问此功能。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Column"></a>Column
+<td>将游标 P1 指向的数据解释为通过 <a href="opcode.html#MakeRecord">MakeRecord</a> 指令构造的结构。（有关数据格式的更多信息，请参见 <a href="opcode.html#MakeRecord">MakeRecord</a> 操作码。）从该记录中提取第 P2 列。如果记录中少于 (P2+1) 个值，则提取 NULL。</p>
+
+<p>提取的值存储在寄存器 P3 中。</p>
+
+<p>如果记录中的字段少于 P2，则提取 NULL。或者，如果 P4 参数为 P4_MEM，则使用 P4 参数的值作为结果。</p>
+
+<p>如果 P5 中设置了 OPFLAG_LENGTHARG 位，则结果仅保证用于 length() 函数或等效函数。大 blob 的内容不会被加载，从而节省 CPU 周期。如果设置了 OPFLAG_TYPEOFARG 位，则结果仅供 typeof() 函数、IS NULL 或 IS NOT NULL 操作符或其等效者使用。在这种情况下，可以省略所有内容的加载。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ColumnsUsed"></a>ColumnsUsed
+<td>此操作码（仅当 SQLite 使用 SQLITE_ENABLE_COLUMN_USED_MASK 编译时存在）标识游标 P1 所指向的表或索引中使用了哪些列。P4 是一个 64 位整数（P4_INT64），其前 63 位分别对应在游标实际使用的表或索引的前 63 列。如果第 64 列之后的任一列被使用，则设置高位。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Compare"></a>Compare
+<td>比较寄存器向量 reg(P1)..reg(P1+P3-1)（称为向量 “A”）与 reg(P2)..reg(P2+P3-1)（“B”）。保存比较结果以供下一条 <a href="opcode.html#Jump">Jump</a> 指令使用。</p>
+
+<p>如果 P5 的 OPFLAG_PERMUTE 位被设置，则比较顺序由最近的 <a href="opcode.html#Permutation">Permutation</a> 操作符决定。如果 OPFLAG_PERMUTE 位清除，则按顺序比较寄存器。</p>
+
+<p>P4 是一个 KeyInfo 结构，定义了用于比较的排序序列和排序顺序。排列仅适用于寄存器。KeyInfo 元素按顺序使用。</p>
+
+<p>该比较是排序比较，因此 NULL 视为相等，NULL 小于数字，数字小于字符串，字符串小于 blobs。</p>
+
+<p>此操作码必须紧接在 <a href="opcode.html#Jump">Jump</a> 操作码之后执行。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Concat"></a>Concat
+<td>将寄存器 P1 中的文本追加到寄存器 P2 的文本末尾，并将结果存入寄存器 P3。如果 P1 或 P2 中的文本为 NULL，则在 P3 中存储 NULL。</p>
+
+<p>P3 = P2 || P1</p>
+
+<p>P1 和 P3 不能是同一个寄存器。如果 P3 与 P2 相同，某些情况下实现可以避免 memcpy()。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Copy"></a>Copy
+<td>将寄存器 P1..P1+P3 的内容复制到寄存器 P2..P2+P3。</p>
+
+<p>如果 P5 的 0x0002 位设置，则还会清除目标寄存器中的 MEM_Subtype 标志。P5 的 0x0001 位表示该 <a href="opcode.html#Copy">Copy</a> 操作码不可合并。0x0001 位由查询规划器使用，在查询执行过程中不会起作用。</p>
+
+<p>此指令会对值进行深拷贝。对任何字符串或 blob 常量都会创建副本。另见 <a href="opcode.html#SCopy">SCopy</a>。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Count"></a>Count
+<td>将游标 P1 打开的表或索引中的条目数（整数值）存入寄存器 P2。</p>
+
+<p>如果 P3==0，则获取精确计数，需访问表的每个 btree 页面。但如果 P3 非零，则返回基于当前游标位置的估算值。</td></tr>
+<tr><td valign="top" align="center">
+<a name="CreateBtree"></a>CreateBtree
+<td>如果 P1==0，则在主数据库文件中分配一个新的 b-tree；如果 P1==1，则在 TEMP 数据库文件中分配；如果 P1&gt;1，则在附加数据库中分配。P3 参数必须为 1（BTREE_INTKEY）用于 rowid 表，必须为 2（BTREE_BLOBKEY）用于索引或 WITHOUT ROWID 表。新 b-tree 的根页号存储在寄存器 P2 中。</td></tr>
+<tr><td valign="top" align="center">
+<a name="CursorHint"></a>CursorHint
+<td>向游标 P1 提供提示，使其只需返回满足 P4 中 Expr 的行。P4 表达式中的 TK_REGISTER 项指的是当前寄存器中的值。P4 表达式中的 TK_COLUMN 项指的是游标 P1 指向的 b-tree 中的列。</td></tr>
+<tr><td valign="top" align="center">
+<a name="CursorLock"></a>CursorLock
+<td>锁定游标 P1 指向的 btree，以防其他游标写入该 btree。</td></tr>
+<tr><td valign="top" align="center">
+<a name="CursorUnlock"></a>CursorUnlock
+<td>解锁游标 P1 指向的 btree，使其他游标可以写入。</td></tr>
+<tr><td valign="top" align="center">
+<a name="DecrJumpZero"></a>DecrJumpZero
+<td>寄存器 P1 中必须保存整数。将 P1 中的值减 1，如果新值正好为 0，则跳转到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="DeferredSeek"></a>DeferredSeek
+<td>P1 是一个打开的索引游标，P3 是对应表的游标。此操作码对 P3 表游标执行延迟查找，使其定位到与 P1 当前行对应的行。</p>
+
+<p>这是延迟查找。直到使用游标读取记录之前实际上不会发生任何操作。这样，如果没有读取发生，就不会产生不必要的 I/O。</p>
+
+<p>P4 可以是一个整数数组（类型 P4_INTARRAY），其中每个条目对应 P3 表的列。如果数组条目 a(i) 非零，则从游标 P3 读取第 a(i)-1 列相当于先执行延迟查找再从 P1 读取第 i 列。该信息存储在 P3 中并用于将对 P3 的读取重定向到 P1，从而可能避免对游标 P3 进行查找和读取。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Delete"></a>Delete
+<td>删除游标 P1 当前指向的记录。</p>
+
+<p>如果 P5 参数的 OPFLAG_SAVEPOSITION 位被设置，则游标将保持指向表中的下一条或上一条记录。如果指向下一条记录，则下一条 <a href="opcode.html#Next">Next</a> 指令将是无操作。因此，在这种情况下可以在 <a href="opcode.html#Next">Next</a> 循环中删除记录。如果 P5 的 OPFLAG_SAVEPOSITION 位清除，则游标将处于未定义状态。</p>
+
+<p>如果 P5 设置了 OPFLAG_AUXDELETE 位，则表示此删除是与删除表行及其相关索引条目相关的多个删除之一。确切地说，其中一个删除是“主”删除，其他的要么作用于带有 OPFLAG_FORDELETE 的游标，要么被标记为 AUXDELETE。</p>
+
+<p>如果 P2（注意是 P2 不是 P5）的 OPFLAG_NCHANGE（0x01）标志被设置，则行更改计数会增加（否则不增加）。</p>
+
+<p>如果 P2（不是 P5）的 OPFLAG_ISNOOP（0x40）标志被设置，则执行删除的预更新钩子，但 btree 本身不变。这种情况发生在 <a href="opcode.html#Delete">Delete</a> 紧接着用相同键的 <a href="opcode.html#Insert">Insert</a>，导致 btree 条目被覆盖。</p>
+
+<p>P1 不能是伪表。它必须是具有多行的真实表。</p>
+
+<p>如果 P4 不为 NULL，则它指向 Table 对象。在这种情况下可能会调用更新或预更新钩子或两者。P1 游标必须在调用此操作码之前通过 <a href="opcode.html#NotFound">NotFound</a> 定位。具体来说，如果配置了预更新钩子且 P4 不为 NULL，则调用预更新钩子。如果配置了更新钩子、P4 不为 NULL，且 P2 中设置了 OPFLAG_NCHANGE，则调用更新钩子。</p>
+
+<p>如果 P2 中设置了 OPFLAG_ISUPDATE 标志，则 P3 包含保存将被更新的行的 rowid 的内存单元的地址。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Destroy"></a>Destroy
+<td>删除数据库文件中以 P1 为根页的整个表或索引。</p>
+
+<p>如果 P3==0，则被销毁的表位于主数据库文件。如果 P3==1，则被销毁的表位于用于存储 CREATE TEMPORARY TABLE 创建的表的辅助数据库文件中。</p>
+
+<p>如果启用了 AUTOVACUUM，则可能会将另一个根页移动到新删除的根页中，以便保持所有根页在数据库开头连续。移动前的根页号（即移动发生前的值）存储在寄存器 P2 中。如果不需要移动（因为被删除的表已经是数据库中的最后一个），则在寄存器 P2 中存储 0。如果禁用了 AUTOVACUUM，则寄存器 P2 中也存储 0。</p>
+
+<p>如果存在任何活动的读 VM，此操作码会抛出错误。这样做是为了避免在 AUTOVACUUM 数据库中移动根页时更新现有游标所带来的困难。即使数据库不是 AUTOVACUUM 模式，也会抛出此错误，以避免在 autovacuum 与非 autovacuum 模式之间引入不兼容性。</p>
+
+<p>另见：<a href="opcode.html#Clear">Clear</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Divide"></a>Divide
+<td>将寄存器 P1 中的值除以寄存器 P2 中的值，并将结果存入寄存器 P3（P3=P2/P1）。如果寄存器 P1 的值为 0，则结果为 NULL。如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="DropIndex"></a>DropIndex
+<td>移除描述数据库 P1 中名为 P4 的索引的内部（内存）数据结构。该操作在磁盘上通过 <a href="opcode.html#Destroy">Destroy</a> 操作码删除索引后执行，以使内部架构表示与磁盘上的内容保持一致。</td></tr>
+<tr><td valign="top" align="center">
+<a name="DropTable"></a>DropTable
+<td>移除描述数据库 P1 中名为 P4 的表的内部（内存）数据结构。该操作在磁盘上通过 <a href="opcode.html#Destroy">Destroy</a> 操作码删除表后执行，以使内部架构表示与磁盘上的内容保持一致。</td></tr>
+<tr><td valign="top" align="center">
+<a name="DropTrigger"></a>DropTrigger
+<td>移除描述数据库 P1 中名为 P4 的触发器的内部（内存）数据结构。该操作在磁盘上通过 <a href="opcode.html#Destroy">Destroy</a> 操作码删除触发器后执行，以使内部架构表示与磁盘上的内容保持一致。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ElseEq"></a>ElseEq
+<td>此操作码必须跟在 <a href="opcode.html#Lt">Lt</a> 或 <a href="opcode.html#Gt">Gt</a> 比较操作符之后。中间可以有零个或多个 OP_ReleaseReg 操作码，但在此指令与之前的 <a href="opcode.html#Lt">Lt</a> 或 <a href="opcode.html#Gt">Gt</a> 之间不允许出现其他操作码。</p>
+
+<p>如果对与之前 <a href="opcode.html#Lt">Lt</a> 或 <a href="opcode.html#Gt">Gt</a> 相同的两个操作数执行 <a href="opcode.html#Eq">Eq</a> 比较的结果为真，则跳转到 P2。如果结果为假或 NULL，则顺序执行。</td></tr>
+<tr><td valign="top" align="center">
+<a name="EndCoroutine"></a>EndCoroutine
+<td>寄存器 P1 中地址处的指令是一个 <a href="opcode.html#Yield">Yield</a>。跳转到该 <a href="opcode.html#Yield">Yield</a> 的 P2 参数。跳转后，寄存器 P1 中存留的值使得后续的 OP_Yields 会返回到同一个 <a href="opcode.html#EndCoroutine">EndCoroutine</a> 指令。</p>
+
+<p>另见：<a href="opcode.html#InitCoroutine">InitCoroutine</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Eq"></a>Eq
+<td>比较寄存器 P1 和 P3 中的值。如果 reg(P3)==reg(P1)，则跳转到地址 P2。</p>
+
+<p>P5 的 SQLITE_AFF_MASK 部分必须是一个压缩字符——例如 SQLITE_AFF_TEXT、SQLITE_AFF_INTEGER 等。在进行比较前，会尝试根据该压缩将两个输入值强制转换。如果 SQLITE_AFF_MASK 为 0x00，则使用数字压缩。请注意，压缩转换会写回输入寄存器 P1 和 P3，因此此操作码可能会对寄存器 P1 和 P3 造成持久更改。</p>
+
+<p>完成转换后，如果两个值都不为 NULL，则进行比较。如果两个值都是 blob，则使用 memcmp() 确定结果。如果两个值都是文本，则使用 P4 指定的适当排序函数进行比较。如果未指定 P4，则使用 memcmp() 比较文本字符串。如果两个值都是数字，则使用数字比较。如果两值类型不同，则数字小于字符串、字符串小于 blob。</p>
+
+<p>如果在 P5 中设置 SQLITE_NULLEQ，则比较结果始终为真或假，不会为 NULL。如果两个操作数都是 NULL，则比较结果为真。如果任一操作数为 NULL，则结果为假。如果两个操作数都不为 NULL，则结果与省略 P5 中 SQLITE_NULLEQ 标志时相同。</p>
+
+<p>此操作码保存比较结果，以供新的 <a href="opcode.html#Jump">Jump</a> 操作码使用。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Expire"></a>Expire
+<td>使预编译语句过期。当使用 sqlite3_step() 执行已过期的语句时，它要么自动重新准备（如果最初是使用 sqlite3_prepare_v2() 创建的），要么因 SQLITE_SCHEMA 而失败。</p>
+
+<p>如果 P1 为 0，则全部 SQL 语句过期。如果 P1 非零，则仅当前正在执行的语句过期。</p>
+
+<p>如果 P2 为 0，则立即使 SQL 语句过期。如果 P2 为 1，则允许正在运行的 SQL 语句继续执行完毕。当执行 CREATE INDEX 或类似的架构更改时，可能会提高语句的运行速度，但不会影响操作的正确性，此时会用到 P2==1 的情况。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Explain"></a>Explain
+<td>在正常查询执行期间，此操作码与 <a href="opcode.html#Noop">Noop</a> 相同。此操作码的目的是保存有关查询计划的信息，以便生成 EXPLAIN QUERY PLAN 输出。</p>
+
+<p>P4 值是描述查询计划元素的人类可读文本。例如 “SCAN t1” 或 “SEARCH t2 USING INDEX t2x1”。</p>
+
+<p>P1 值是当前元素的 ID，P2 是用于嵌套查询计划元素时的父元素。如果 P2 为零，则该元素为顶层元素。</p>
+
+<p>对于循环元素，P3 是每次调用该元素时估计的代码行数。</p>
+
+<p>如同所有操作码一样，<a href="opcode.html#Explain">Explain</a> 参数的含义可能随每个发行版发生变化。应用程序不应尝试解释或使用 <a href="opcode.html#Explain">Explain</a> 操作码中包含的任何信息。该操作码提供的信息仅用于测试和调试。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Filter"></a>Filter
+<td>对以 r&#91;P3&#93; 为起点的 P4 寄存器中包含的键计算哈希。检查该哈希是否存在于寄存器 P1 托管的布隆过滤器中。如果不存在，可能跳转到 P2。否则顺序执行。</p>
+
+<p>误报为假是无害的。即使该值在布隆过滤器中，依然可以安全地顺序执行。误报为假会导致更多的 CPU 周期消耗，但仍应产生正确答案。然而，如果误报为真——即跳转发生而本应顺序执行——可能会得到错误结果。</td></tr>
+<tr><td valign="top" align="center">
+<a name="FilterAdd"></a>FilterAdd
+<td>对以 r&#91;P3&#93; 为起点的 P4 寄存器计算哈希，并将该哈希添加到 r&#91;P1&#93; 中包含的布隆过滤器。</td></tr>
+<tr><td valign="top" align="center">
+<a name="FinishSeek"></a>FinishSeek
+<td>如果游标 P1 先前通过 <a href="opcode.html#DeferredSeek">DeferredSeek</a> 移动，则立即完成该查找操作。如果查找已完成，则此指令为无操作。</td></tr>
+<tr><td valign="top" align="center">
+<a name="FkCheck"></a>FkCheck
+<td>如果存在任何未解决的外键约束违规，则以 SQLITE_CONSTRAINT 错误终止。如果没有外键约束违规，则此指令为无操作。</p>
+
+<p>准备语句退出时也会检查外键约束违规。此操作码用于在返回结果（如行更改计数或 RETURNING 子句结果）之前引发外键约束错误。</td></tr>
+<tr><td valign="top" align="center">
+<a name="FkCounter"></a>FkCounter
+<td>将“约束计数器”增加 P2（P2 可为负或正）。如果 P1 非零，则增加数据库约束计数器（延迟外键约束）。否则，如果 P1 为零，则增加语句计数器（立即外键约束）。</td></tr>
+<tr><td valign="top" align="center">
+<a name="FkIfZero"></a>FkIfZero
+<td>此操作码测试外键约束计数器是否为零。如果是，则跳转到指令 P2。否则顺序执行下一条指令。</p>
+
+<p>如果 P1 非零，则当数据库约束计数器（统计延迟约束违规的那一个）为零时执行跳转。如果 P1 为零，则当语句约束计数器为零时执行跳转（立即约束违规）。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Found"></a>Found
+<td>如果 P4==0，则寄存器 P3 包含由 <a href="opcode.html#MakeRecord">MakeRecord</a> 构造的 blob。如果 P4&gt;0，则寄存器 P3 是构成一个解包记录的 P4 个寄存器中的第一个。</p>
+
+<p>游标 P1 位于索引 btree 上。如果由 P3 和 P4 标识的记录是 P1 中任一条目 的前缀，则跳转到 P2，并且 P1 保持指向匹配条目。</p>
+
+<p>该操作使游标保持在可以向前移动的状态。<a href="opcode.html#Next">Next</a> 指令仍然可用，但 <a href="opcode.html#Prev">Prev</a> 指令不可用。</p>
+
+<p>另见：<a href="opcode.html#NotFound">NotFound</a>、<a href="opcode.html#NoConflict">NoConflict</a>、<a href="opcode.html#NotExists">NotExists</a>。SeekGe</td></tr>
+<tr><td valign="top" align="center">
+<a name="Function"></a>Function
+<td>调用用户函数（P4 是指向 sqlite3_context 对象的指针，该对象包含指向要运行的函数的指针），其参数来自寄存器 P2 及其后继寄存器。参数数量由 P4 所指向的 sqlite3_context 对象包含。函数的结果存储在寄存器 P3 中。寄存器 P3 不能是函数输入之一。</p>
+<p>P1 是一个 32 位位掩码，用于指示函数的每个参数在编译时是否被判定为常量。如果第一个参数是常量，则将 P1 的第 0 位置位。此信息用于确定是否可以安全地将使用 sqlite3_set_auxdata() API 与用户函数参数关联的元数据保留到下一次执行此操作码为止。</p>
+
+<p>See also: <a href="opcode.html#AggStep">AggStep</a>, <a href="opcode.html#AggFinal">AggFinal</a>, <a href="opcode.html#PureFunc">PureFunc</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Ge"></a>Ge
+<td>此操作与 Lt 操作码完全相同，唯一区别是当寄存器 P3 的内容大于或等于寄存器 P1 的内容时才会执行跳转。有关更多信息，请参见 Lt 操作码。</td></tr>
+<tr><td valign="top" align="center">
+<a name="GetSubtype"></a>GetSubtype
+<td>从寄存器 P1 中提取子类型值，并将该子类型写入寄存器 P2。如果 P1 没有子类型，则 P1 得到 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Gosub"></a>Gosub
+<td>将当前地址写入寄存器 P1，然后跳转到地址 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Goto"></a>Goto
+<td>无条件跳转到地址 P2。接下来要执行的指令是程序开头起第 P2 个指令。</p>
+
+<p>P1 参数实际上并未被此操作码使用。不过，有时它会被置为 1 而不是 0，以提示命令行 shell，此 <a href="opcode.html#Goto">Goto</a> 是一个循环的底部，并且从 P2 到当前行的行应该在 EXPLAIN 输出中缩进。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Gt"></a>Gt
+<td>此操作与 Lt 操作码完全相同，唯一区别是当寄存器 P3 的内容大于寄存器 P1 的内容时才会执行跳转。有关更多信息，请参见 Lt 操作码。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Halt"></a>Halt
+<td>立即退出。所有打开的游标等都会自动关闭。</p>
+
+<p>P1 是 sqlite3_exec()、sqlite3_reset() 或 sqlite3_finalize() 返回的结果码。对于正常的 halt，应为 SQLITE_OK (0)。出现错误时，它可以是其他值。如果 P1!=0，则 P2 决定是否回滚当前事务。如果 P2==OE_Fail，则不要回滚。如果 P2==OE_Rollback，则执行回滚。如果 P2==OE_Abort，则撤销此 VDBE 执行期间发生的所有更改，但不要回滚事务。</p>
+
+<p>如果 P3 不为零且 P4 为 NULL，则 P3 是一个保存错误消息文本的寄存器。</p>
+
+<p>如果 P3 为零且 P4 不为 NULL，则错误消息字符串保存在 P4 中。</p>
+
+<p>如果 P5 的取值在 1 到 4（含）之间，则按如下方式修改 P4 错误消息字符串：</p>
+
+<p>1:  NOT NULL constraint failed: P4
+2:  UNIQUE constraint failed: P4
+3:  CHECK constraint failed: P4
+4:  FOREIGN KEY constraint failed: P4</p>
+
+<p>如果 P3 为零且 P5 不为零且 P4 为 NULL，则省略 “:” 之后的所有内容。</p>
+
+<p>每个程序的末尾都会隐含插入一个 "<a href="opcode.html#Halt">Halt</a> 0 0 0" 指令。因此跳过程序的最后一条指令与执行 <a href="opcode.html#Halt">Halt</a> 相同。</td></tr>
+<tr><td valign="top" align="center">
+<a name="HaltIfNull"></a>HaltIfNull
+<td>检查寄存器 P3 的值。如果为 NULL，则使用参数 P1、P2 和 P4 按照 <a href="opcode.html#Halt">Halt</a> 指令的方式执行 <a href="opcode.html#Halt">Halt</a>。如果寄存器 P3 中的值不是 NULL，则此例程不执行任何操作。P5 参数应为 1。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxDelete"></a>IdxDelete
+<td>从寄存器 P2 开始的 P3 个寄存器的内容构成一个未打包的索引键。此操作码从由游标 P1 打开索引中删除该条目。</p>
+
+<p>如果 P5 不为零，则如果未找到匹配的索引条目，则引发 SQLITE_CORRUPT_INDEX 错误。这会在运行 UPDATE 或 DELETE 语句时发生，当要更新或删除的索引条目未找到。对于某些 IdxDelete 的用途（例如：EXCEPT 运算符），未找到匹配条目并没有关系。对于这些情况，P5 为零。此外，如果处于 writable_schema 模式，也不要引发此（自我修正且非关键）错误。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxGE"></a>IdxGE
+<td>从 P3 开始的 P4 寄存器值构成一个省略 PRIMARY KEY 的未打包索引键。使用 <a href="opcode.html#Compare">Compare</a> 将此键与 P1 当前指向的索引进行比较，忽略末尾的 PRIMARY KEY 或 ROWID 字段。</p>
+
+<p>如果 P1 索引条目大于或等于键值，则跳转到 P2。否则继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxGT"></a>IdxGT
+<td>从 P3 开始的 P4 寄存器值构成一个省略 PRIMARY KEY 的未打包索引键。使用 <a href="opcode.html#Compare">Compare</a> 将此键与 P1 当前指向的索引进行比较，忽略末尾的 PRIMARY KEY 或 ROWID 字段。</p>
+
+<p>如果 P1 索引条目大于键值，则跳转到 P2。否则继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxInsert"></a>IdxInsert
+<td>寄存器 P2 保存使用 <a href="opcode.html#MakeRecord">MakeRecord</a> 指令生成的 SQL 索引键。此操作码将该键写入索引 P1。该条目的数据为 nil。</p>
+
+<p>如果 P4 不为零，则它是 reg(P2) 的未打包键中的值数。在这种情况下，P3 是未打包键的第一个寄存器的索引。未打包键的可用性有时是一个优化。</p>
+
+<p>如果 P5 设置了 OPFLAG_APPEND 位，则提示 B 树层该插入可能是追加操作。</p>
+
+<p>如果 P5 设置了 OPFLAG_NCHANGE 位，则此指令会递增更改计数器。如果 OPFLAG_NCHANGE 位清除，则更改计数器保持不变。</p>
+
+<p>如果 P5 的 OPFLAG_USESEEKRESULT 标志被设置，实现可能通过避免对游标 P1 进行不必要的查找而运行得更快。然而，只有在游标上没有先前查找或最近的查找使用了与 P2 等价的键时，才可以设置 OPFLAG_USESEEKRESULT 标志。</p>
+
+<p>此指令仅适用于索引。表的等价指令为 <a href="opcode.html#Insert">Insert</a>。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxLE"></a>IdxLE
+<td>从 P3 开始的 P4 寄存器值构成一个省略 PRIMARY KEY 或 ROWID 的未打包索引键。使用 <a href="opcode.html#Compare">Compare</a> 将此键与 P1 当前指向的索引进行比较，忽略 P1 索引上的 PRIMARY KEY 或 ROWID。</p>
+
+<p>如果 P1 索引条目小于或等于键值，则跳转到 P2。否则继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxLT"></a>IdxLT
+<td>从 P3 开始的 P4 寄存器值构成一个省略 PRIMARY KEY 或 ROWID 的未打包索引键。使用 <a href="opcode.html#Compare">Compare</a> 将此键与 P1 当前指向的索引进行比较，忽略 P1 索引上的 PRIMARY KEY 或 ROWID。</p>
+
+<p>如果 P1 索引条目小于键值，则跳转到 P2。否则继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IdxRowid"></a>IdxRowid
+<td>将一个整数写入寄存器 P2，该整数是游标 P1 指向的索引键尾部记录的最后一项。该整数应为此索引条目所指向的表条目的 rowid。</p>
+
+<p>See also: <a href="opcode.html#Rowid">Rowid</a>, <a href="opcode.html#MakeRecord">MakeRecord</a>.</td></tr>
+<tr><td valign="top" align="center">
+<a name="If"></a>If
+<td>如果寄存器 P1 中的值为真，则跳转到 P2。若要表示为真，该值必须为数值且非零。如果 P1 中的值为 NULL，则仅当 P3 非零时才执行跳转。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfEmpty"></a>IfEmpty
+<td>检查游标 P1 所引用的 B 树表是否为空，如果为空则跳转到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfNoHope"></a>IfNoHope
+<td>寄存器 P3 是构成未打包记录的 P4 寄存器的第一个。游标 P1 是一个索引 B 树。P2 是跳转目标。换句话说，此操作码的操作数与 <a href="opcode.html#NotFound">NotFound</a> 和 <a href="opcode.html#IdxGT">IdxGT</a> 相同。</p>
+
+<p>此操作码只是一个优化尝试。如果此操作码总是继续执行，则仍然可以获得正确结果，只是会执行额外的工作。</p>
+
+<p>如果游标 P1 的 seekHit 标志为 N，则表示存在一个键 P3:N 与索引中的某条记录匹配。我们想知道是否可能有一个记录 P3:P4 与索引中的某条记录匹配。如果不可能，则可以跳过一些工作。因此，如果 seekHit 小于 P4，则通过运行 <a href="opcode.html#NotFound">NotFound</a> 来尝试确定是否可能匹配。</p>
+
+<p>此操作码用于多列键的 IN 子句处理。如果 IN 子句附加在键的非最左侧元素上，并且最近对整个键的查找没有匹配，那么可能是某个左侧键元素阻止了匹配，从而无论检查多少 IN 子句元素都“没有希望”匹配。在这种情况下，我们使用此操作码提前放弃 IN 子句搜索。操作码名称来源于当“没有希望”达到匹配时会执行跳转。</p>
+
+<p>See also: <a href="opcode.html#NotFound">NotFound</a>, <a href="opcode.html#SeekHit">SeekHit</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="IfNot"></a>IfNot
+<td>如果寄存器 P1 中的值为 False，则跳转到 P2。作为 False，该值必须为数值且为零。如果 P1 中的值为 NULL，则仅当 P3 非零时才执行跳转。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfNotOpen"></a>IfNotOpen
+<td>如果游标 P1 未打开或已使用 <a href="opcode.html#NullRow">NullRow</a> 操作码设置为 NULL 行，则跳转到指令 P2。否则继续执行。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfNotZero"></a>IfNotZero
+<td>寄存器 P1 必须包含整数。如果寄存器 P1 的内容初始大于零，则将寄存器 P1 的值减一。如果结果非零（正或负）则跳转到 P2。如果寄存器 P1 初始为零，则保持不变并继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfNullRow"></a>IfNullRow
+<td>检查游标 P1 当前是否指向 NULL 行。如果是，则将寄存器 P3 设为 NULL，并立即跳转到 P2。如果 P1 未指向 NULL 行，则继续执行而不进行任何更改。</p>
+
+<p>如果 P1 不是打开的游标，则此操作码不执行任何操作。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfPos"></a>IfPos
+<td>寄存器 P1 必须包含整数。如果寄存器 P1 的值大于等于 1，则从 P1 的值中减去 P3 并跳转到 P2。</p>
+
+<p>如果寄存器 P1 的初始值小于 1，则值保持不变并继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IfSizeBetween"></a>IfSizeBetween
+<td>设 N 为游标 P1 所指向的表或索引的近似行数，若 N 为正则令 X = 10*log2(N)，若 N 为零则令 X = -1。</p>
+
+<p>如果 X 在 P3 与 P4 之间（含）则跳转到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IncrVacuum"></a>IncrVacuum
+<td>对 P1 数据库执行增量 vacuum 过程的一步。如果 vacuum 已完成，则跳转到指令 P2。否则继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Init"></a>Init
+<td>程序包含一个此操作码的实例，且作为非常首条操作码。</p>
+
+<p>如果启用了 sqlite3_trace() 接口的跟踪功能，则会在跟踪回调中输出 P4 中的 UTF-8 字符串。如果 P4 为空，则使用 sqlite3_sql() 返回的字符串。</p>
+
+<p>如果 P2 不为零，则跳转到指令 P2。</p>
+
+<p>递增 P1 的值，以便 <a href="opcode.html#Once">Once</a> 操作码在此运行中首次评估时跳转。</p>
+
+<p>如果 P3 不为零，则它为遇到 SQLITE_CORRUPT 错误时需要跳转的地址。</td></tr>
+<tr><td valign="top" align="center">
+<a name="InitCoroutine"></a>InitCoroutine
+<td>设置寄存器 P1，使其可以 <a href="opcode.html#Yield">Yield</a> 给位于地址 P3 的协程。</p>
+
+<p>如果 P2!=0，则协程实现紧随此操作码之后。因此跳过协程实现，直接跳转到地址 P2。</p>
+
+<p>See also: <a href="opcode.html#EndCoroutine">EndCoroutine</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Insert"></a>Insert
+<td>向游标 P1 所指的表写入一条记录。如果该记录不存在则创建新条目，否则覆盖现有条目的数据。数据来自寄存器号为 P2 的 MEM_Blob。键存储在寄存器 P3 中。键必须是 MEM_Int。</p>
+
+<p>如果 P5 的 OPFLAG_NCHANGE 标志被设置，则递增行更改计数（否则不递增）。如果 P5 的 OPFLAG_LASTROWID 标志被设置，则将 rowid 存储以供 sqlite3_last_insert_rowid() 函数随后返回（否则不修改）。</p>
+
+<p>如果 P5 的 OPFLAG_USESEEKRESULT 标志被设置，实现可能通过避免对游标 P1 进行不必要的查找而运行得更快。然而，只有在游标上没有先前查找或最近的查找使用了等于 P3 的键时，才可以设置该标志。</p>
+
+<p>如果设置了 OPFLAG_ISUPDATE 标志，则此操作码是 UPDATE 操作的一部分。否则（如果该标志清除），则是 INSERT 操作的一部分。该差异仅对更新钩子重要。</p>
+
+<p>参数 P4 可能指向 Table 结构，也可能为 NULL。如果不为 NULL，则在插入成功后调用更新钩子（sqlite3.xUpdateCallback）。</p>
+
+<p>（警告/待办：如果 P1 是伪游标且 P2 是动态分配的，则 P2 的所有权会转移给伪游标，并且寄存器 P2 变得短暂。如果游标被改变，则寄存器 P2 的值也会改变。请确保这不会引发问题。）</p>
+
+<p>此指令仅适用于表。索引的等价指令为 <a href="opcode.html#IdxInsert">IdxInsert</a>。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Int64"></a>Int64
+<td>P4 是指向 64 位整数值的指针。将该值写入寄存器 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IntCopy"></a>IntCopy
+<td>将寄存器 P1 中保存的整数值传输到寄存器 P2。</p>
+
+<p>这是一个仅适用于整数值的优化版 <a href="opcode.html#SCopy">SCopy</a>。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Integer"></a>Integer
+<td>将 32 位整数值 P1 写入寄存器 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IntegrityCk"></a>IntegrityCk
+<td>对当前打开的数据库执行分析。将描述任何问题的错误消息文本存储在寄存器 (P1+1) 中。如果未发现问题，则在寄存器 (P1+1) 中存储 NULL。</p>
+
+<p>寄存器 (P1) 包含最大允许错误数减一。最多会报告 reg(P1) 个错误。换句话说，一旦看到 reg(P1) 个错误，分析将停止。Reg(P1) 会被更新为剩余的错误数。</p>
+
+<p>数据库中所有表的根页号为整数，存储在 P4_INTARRAY 参数中。</p>
+
+<p>如果 P5 不为零，则检查在辅助数据库文件上执行，而不是主数据库文件。</p>
+
+<p>此操作码用于实现 integrity_check pragma。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IsNull"></a>IsNull
+<td>如果寄存器 P1 中的值为 NULL，则跳转到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="IsTrue"></a>IsTrue
+<td>此操作码实现 IS TRUE、IS FALSE、IS NOT TRUE 以及 IS NOT FALSE 运算符。</p>
+
+<p>将寄存器 P1 中的值作为布尔值解释，并将该布尔值（0 或 1）存储在寄存器 P2 中。如果寄存器 P1 中的值为 NULL，则将 P3 存储在寄存器 P2 中。如果 P4 为 1，则对结果取反。</p>
+
+<p>逻辑如下所示：</p>
+
+<p><ul>
+<li> 如果 P3==0 且 P4==0，则 r&#91;P2&#93; := r&#91;P1&#93; IS TRUE
+<li> 如果 P3==1 且 P4==1，则 r&#91;P2&#93; := r&#91;P1&#93; IS FALSE
+<li> 如果 P3==0 且 P4==1，则 r&#91;P2&#93; := r&#91;P1&#93; IS NOT TRUE
+<li> 如果 P3==1 且 P4==0，则 r&#91;P2&#93; := r&#91;P1&#93; IS NOT FALSE
+</ul></td></tr>
+<tr><td valign="top" align="center">
+<a name="IsType"></a>IsType
+<td>如果 B 树中某列的类型是 P5 位掩码所指定的类型之一，则跳转到 P2。</p>
+
+<p>P1 通常是一个在至少第 P3 列上行解码缓存有效的 B 树游标。换句话说，应该至少之前有一次对第 P3 或更大的列执行 <a href="opcode.html#Column">Column</a>。如果游标无效，则此操作码可能返回错误结果。</p>
+
+<p>如果 B 树行的列数少于 P3，则使用 P4 作为数据类型。</p>
+
+<p>如果 P1 为 -1，则 P3 是一个寄存器编号，数据类型取自该寄存器中的值。</p>
+
+<p>P5 是数据类型的位掩码。SQLITE_INTEGER 是最低位（0x01）。SQLITE_FLOAT 是 0x02 位。SQLITE_TEXT 是 0x04。SQLITE_BLOB 是 0x08。SQLITE_NULL 是 0x10。</p>
+
+<p>警告：当 P1&gt;=0 时，此操作码不能可靠地区分 NULL 和 REAL。如果数据库包含 NaN 值，则此操作码会误认为数据类型是 REAL，而实际上应该是 NULL。当 P1&lt;0 且值已存储在寄存器 P3 中时，此操作码可以可靠地区分 NULL 和 REAL。问题仅当 P1&gt;=0 时才会出现。</p>
+
+<p>仅当由 P1 和 P3 确定的值的数据类型与 P5 位掩码中的某位对应时，才跳转到地址 P2。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="JournalMode"></a>JournalMode
+<td>将数据库 P1 的日志模式更改为 P3。P3 必须是 PAGER_JOURNALMODE_XXX 值之一。在各种回滚模式（delete、truncate、persist、off 和 memory）之间切换是一项简单操作，无需 IO。</p>
+
+<p>如果切换到 WAL 模式或从 WAL 模式切换，过程会更复杂。</p>
+
+<p>将包含最终日志模式的字符串写入寄存器 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Jump"></a>Jump
+<td>根据最近一次 <a href="opcode.html#Compare">Compare</a> 指令的结果，当 P1 向量小于、等于或大于 P2 向量时，分别跳转到地址 P1、P2 或 P3。</p>
+
+<p>此操作码必须紧随 <a href="opcode.html#Compare">Compare</a> 操作码之后。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Last"></a>Last
+<td>下一次对 P1 执行 <a href="opcode.html#Rowid">Rowid</a>、<a href="opcode.html#Column">Column</a> 或 <a href="opcode.html#Prev">Prev</a> 指令时，将访问数据库表或索引中的最后一条记录。如果表或索引为空且 P2&gt;0，则立即跳转到 P2。如果 P2 为 0 或者表或索引非空，则继续执行下一条指令。</p>
+
+<p>此操作码将游标配置为以相反顺序移动，从末尾向开头。因此游标配置为使用 <a href="opcode.html#Prev">Prev</a>，而不是 <a href="opcode.html#Next">Next</a>。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Le"></a>Le
+<td>此操作与 Lt 操作码完全相同，唯一区别是当寄存器 P3 的内容小于或等于寄存器 P1 的内容时才会执行跳转。有关更多信息，请参见 Lt 操作码。</td></tr>
+<tr><td valign="top" align="center">
+<a name="LoadAnalysis"></a>LoadAnalysis
+<td>读取数据库 P1 的 sqlite_stat1 表，并将该表的内容加载到内部索引哈希表中。这将导致分析用于准备所有后续查询。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Lt"></a>Lt
+<td>比较寄存器 P1 与 P3 中的值。如果 reg(P3)&lt;reg(P1)，则跳转到地址 P2。</p>
+
+<p>如果 P5 的 SQLITE_JUMPIFNULL 位被设置且 reg(P1) 或 reg(P3) 为 NULL，则执行跳转。如果该位清除，则只要其中任一操作数为 NULL 就继续执行下一条指令。</p>
+
+<p>P5 的 SQLITE_AFF_MASK 部分必须是一个 affinity 字符——SQLITE_AFF_TEXT、SQLITE_AFF_INTEGER 等。在进行比较之前，会尝试根据此 affinity 对两个输入进行强制转换。如果 SQLITE_AFF_MASK 为 0x00，则使用数字 affinity。请注意，变换后的值会写回到 P1 和 P3 寄存器。因此此操作码可能会对 P1 和 P3 寄存器产生持久更改。</p>
+
+<p>一旦完成任何必要的转换，并且两个值都不是 NULL，就会进行比较。如果两个值都是 BLOB，则使用 memcmp() 确定比较结果。如果两个值都是文本，则使用 P4 中指定的适当排序函数进行比较。如果未指定 P4，则使用 memcmp() 进行文本比较。如果两个值都是数字，则使用数字比较。如果两个值类型不同，则将数字视为小于字符串，而字符串视为小于 BLOB。</p>
+
+<p>此操作码会保存比较结果以供新的 <a href="opcode.html#Jump">Jump</a> 操作码使用。</td></tr>
+<tr><td valign="top" align="center">
+<a name="MakeRecord"></a>MakeRecord
+<td>将从 P1 开始的 P2 个寄存器转换为 <a href="fileformat2.html#record_format">记录格式</a>，用作数据库表中的数据记录或索引中的键。之后的 <a href="opcode.html#Column">Column</a> 操作码可以解码该记录。</p>
+
+<p>P4 可能是一个长度为 P2 的字符串。该字符串的第 N 个字符指示索引键第 N 个字段应使用的列 affinity。</p>
+
+<p>字符到 affinity 的映射由 sqliteInt.h 中定义的 SQLITE_AFF_ 宏给出。</p>
+
+<p>如果 P4 为 NULL，则所有索引字段的 affinity 为 BLOB。</p>
+
+<p>P5 的含义取决于是否启用了 SQLITE_ENABLE_NULL_TRIM 编译时选项：</p>
+
+<p>* 如果启用了 SQLITE_ENABLE_NULL_TRIM，则 P5 表示可以进行 null-trim 的最右侧表的索引。</p>
+
+<p>* 如果未启用 SQLITE_ENABLE_NULL_TRIM，则当 <a href="opcode.html#MakeRecord">MakeRecord</a> 操作码允许接受 serial_type 为 10 的无变化记录时，P5 的值为 OPFLAG_NOCHNG_MAGIC。此值仅在 assert() 内部使用，并不影响最终结果。</td></tr>
+<tr><td valign="top" align="center">
+<a name="MaxPgcnt"></a>MaxPgcnt
+<td>尝试将数据库 P1 的最大页数设置为 P3 的值。不要让最大页数低于当前页数，如果 P3==0 则不要更改最大页数。</p>
+
+<p>将更改后的最大页数存储在寄存器 P2 中。</td></tr>
+<tr><td valign="top" align="center">
+<a name="MemMax"></a>MemMax
+<td>P1 是此虚拟机根帧中的寄存器（如果当前指令在子程序中执行，则根帧不同于当前帧）。将寄存器 P1 的值设置为其当前值与寄存器 P2 中值的较大者。</p>
+
+<p>如果内存单元最初不是整数，则此指令将引发错误。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Move"></a>Move
+<td>将寄存器 P1..P1+P3-1 中的 P3 个值移动到寄存器 P2..P2+P3-1 中。寄存器 P1..P1+P3-1 会被置为 NULL。寄存器范围 P1..P1+P3-1 与 P2..P2+P3-1 不得重叠，P3 也不得小于 1。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Multiply"></a>Multiply
+<td>将寄存器 P1 中的值与寄存器 P2 中的值相乘，并将结果保存在寄存器 P3 中。如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="MustBeInt"></a>MustBeInt
+<td>强制将寄存器 P1 中的值转换为整数。如果 P1 中的值不是整数且无法在不丢失数据的情况下转换为整数，则立即跳转到 P2；如果 P2==0，则引发 SQLITE_MISMATCH 异常。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Ne"></a>Ne
+<td>这个操作与 Eq opcode 完全一样，只是当寄存器 P1 和 P3 中的操作数不相等时会跳转。有关更多信息请参见 Eq opcode。</td></tr>
+<tr><td valign="top" align="center">
+<a name="NewRowid"></a>NewRowid
+<td>获取一个新的整型记录号（即“rowid”），作为表的键。该记录号在光标 P1 指向的数据库表中尚未被用作键。新的记录号会写入寄存器 P2。</p>
+
+<p>如果 P3&gt;0，那么 P3 是此 VDBE 根帧中保存最大先前生成记录号的寄存器。任何新记录号都不能小于该值。当该值达到最大时，会生成 SQLITE_FULL 错误。P3 寄存器会更新为新生成的记录号。这个 P3 机制用于辅助实现 AUTOINCREMENT 特性。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Next"></a>Next
+<td>将光标 P1 向前推进，使其指向其表或索引中的下一个键/数据对。如果没有更多键/值对，则继续执行后续指令。但如果光标推进成功，则立即跳转到 P2。</p>
+
+<p><a href="opcode.html#Next">Next</a> opcode 仅在跟随某个用于定位光标的 <a href="opcode.html#SeekGT">SeekGT</a>、<a href="opcode.html#SeekGE">SeekGE</a> 或 <a href="opcode.html#Rewind">Rewind</a> opcode 时才有效。<a href="opcode.html#Next">Next</a> 不允许跟在 <a href="opcode.html#SeekLT">SeekLT</a>、<a href="opcode.html#SeekLE">SeekLE</a> 或 <a href="opcode.html#Last">Last</a> 之后。</p>
+
+<p>P1 光标必须指向一个真实表，而不是伪表。P1 必须在此 opcode 之前打开，否则程序会段错误。</p>
+
+<p>P3 的值是对 btree 实现的提示。如果 P3==1，说明 P1 是一个 SQL 索引，并且在该索引唯一的情况下可以省略此次指令。P3 通常为 0，且始终只有 0 或 1。</p>
+
+<p>如果 P5 为正并且跳转被采用，则准备语句中的事件计数器编号 P5-1 会递增。</p>
+
+<p>另见：<a href="opcode.html#Prev">Prev</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="NoConflict"></a>NoConflict
+<td>如果 P4==0，则寄存器 P3 保存由 <a href="opcode.html#MakeRecord">MakeRecord</a> 构造的 blob。如果 P4&gt;0，则寄存器 P3 是由 P4 个寄存器组成的非压缩记录中的第一个寄存器。</p>
+
+<p>P1 光标位于一个索引 btree 上。如果 P3 和 P4 所标识的记录包含任何 NULL 值，则立即跳转到 P2。如果记录的所有项都非 NULL，则会检查 P1 索引 btree 中是否存在匹配的键前缀。如果没有匹配项，则立即跳转到 P2。如果存在匹配项，则控制流继续执行下一个指令，并且将 P1 光标保持在匹配行上。</p>
+
+<p>此 opcode 与 <a href="opcode.html#NotFound">NotFound</a> 类似，不同之处在于如果搜索键的任何部分为 NULL，则总是采用分支。</p>
+
+<p>此操作会使光标处于无法向任一方向推进的状态。换句话说，此操作之后 <a href="opcode.html#Next">Next</a> 和 <a href="opcode.html#Prev">Prev</a> opcode 将无法工作。</p>
+
+<p>另见：<a href="opcode.html#NotFound">NotFound</a>、<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotExists">NotExists</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Noop"></a>Noop
+<td>什么都不做。继续执行下一条 opcode。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Not"></a>Not
+<td>将寄存器 P1 中的值解释为布尔值。将布尔取反结果存入寄存器 P2。如果寄存器 P1 中的值为 NULL，则在 P2 中也存入 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="NotExists"></a>NotExists
+<td>P1 是一个打开的 SQL 表 btree（带整数键）上的光标索引。P3 是一个整数 rowid。如果 P1 中不存在 rowid 为 P3 的记录，则立即跳转到 P2。或者，如果 P2 为 0，则引发 SQLITE_CORRUPT 错误。如果 P1 中确实有 rowid 为 P3 的记录，则将光标保持在该记录上并继续执行下一条指令。</p>
+
+<p><a href="opcode.html#SeekRowid">SeekRowid</a> opcode 执行相同的操作，但还允许 P3 寄存器包含非整数值，此时总是采用跳转。该 opcode 要求 P3 始终包含整数。</p>
+
+<p><a href="opcode.html#NotFound">NotFound</a> opcode 对索引 btree（具有任意多值键）执行相同的操作。</p>
+
+<p>此 opcode 会将光标置于无法向任一方向推进的状态。换句话说，此 opcode 之后 <a href="opcode.html#Next">Next</a> 和 <a href="opcode.html#Prev">Prev</a> 将无法工作。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotFound">NotFound</a>、<a href="opcode.html#NoConflict">NoConflict</a>、<a href="opcode.html#SeekRowid">SeekRowid</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="NotFound"></a>NotFound
+<td>如果 P4==0，则寄存器 P3 保存由 <a href="opcode.html#MakeRecord">MakeRecord</a> 构造的 blob。如果 P4&gt;0，则寄存器 P3 是由 P4 个寄存器组成的非压缩记录中的第一个寄存器。</p>
+
+<p>P1 光标位于一个索引 btree 上。如果 P3 和 P4 所标识的记录不是 P1 中任意条目的前缀，则跳转到 P2。如果 P1 中确实存在前缀与 P3/P4 记录匹配的条目，则继续执行下一条指令，并将 P1 保持在匹配条目上。</p>
+
+<p>此操作会使光标处于无法向任一方向推进的状态。换句话说，此操作之后 <a href="opcode.html#Next">Next</a> 和 <a href="opcode.html#Prev">Prev</a> 都无法工作。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotExists">NotExists</a>、<a href="opcode.html#NoConflict">NoConflict</a>、<a href="opcode.html#IfNoHope">IfNoHope</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="NotNull"></a>NotNull
+<td>如果寄存器 P1 中的值不是 NULL，则跳转到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Null"></a>Null
+<td>在寄存器 P2 中写入 NULL。如果 P3 大于 P2，则也在寄存器 P3 以及 P2 与 P3 之间的每个寄存器中写入 NULL。如果 P3 小于 P2（通常 P3 为零），则仅将寄存器 P2 设为 NULL。</p>
+
+<p>如果 P1 的值非零，还要设置 MEM_Cleared 标志，以便即使在 <a href="opcode.html#Ne">Ne</a> 或 <a href="opcode.html#Eq">Eq</a> 上启用了 SQLITE_NULLEQ，NULL 值也不会被视为相等。</td></tr>
+<tr><td valign="top" align="center">
+<a name="NullRow"></a>NullRow
+<td>将光标 P1 移动到空行。光标位于空行时所执行的任何 <a href="opcode.html#Column">Column</a> 操作都会写入 NULL。</p>
+
+<p>如果光标 P1 尚未打开，则立即将其打开到一个特殊的伪光标，该光标在每一列上总是返回 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Offset"></a>Offset
+<td>在寄存器 r[P3] 中存储当前光标 P1 所指记录负载在数据库文件中的字节偏移量。</p>
+
+<p>P2 是 sqlite_offset() 函数参数的列号。此 opcode 本身不使用 P2，但 P2 的值由代码生成器使用。此 opcode 的 P1、P2 和 P3 操作数与 <a href="opcode.html#Column">Column</a> 相同。</p>
+
+<p>只有在 SQLite 使用 -DSQLITE_ENABLE_OFFSET_SQL_FUNC 选项编译时，此 opcode 才可用。</td></tr>
+<tr><td valign="top" align="center">
+<a name="OffsetLimit"></a>OffsetLimit
+<td>此 opcode 执行一个与 LIMIT 和 OFFSET 处理相关的常用计算。r[P1] 保存 LIMIT 计数器，r[P3] 保存 OFFSET 计数器。该 opcode 计算 LIMIT 与 OFFSET 的组合值，并将该值存入 r[P2]。计算得到的 r[P2] 是完成查询所需访问的总行数。</p>
+
+<p>如果 r[P3] 为零或负值，则表示没有 OFFSET，此时 r[P2] 设置为 LIMIT 的值 r[P1]。</p>
+
+<p>如果 r[P1] 为零或负值，则表示没有 LIMIT，此时 r[P2] 设置为 -1。</p>
+
+<p>否则，r[P2] 设置为 r[P1] 与 r[P3] 的和。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Once"></a>Once
+<td>在每次调用字节码程序时首次遇到此 opcode 时直接落入下一条指令。第二次及后续遇到时跳转到 P2（通过 <a href="opcode.html#Jump">Jump</a>）。</p>
+
+<p>顶层程序通过将该 opcode 的 P1 操作数与程序开头的 <a href="opcode.html#Init">Init</a> opcode 的 P1 操作数作比较来确定首次调用。如果 P1 不同，则继续执行并将此 opcode 的 P1 设置为 <a href="opcode.html#Init">Init</a> 的 P1。如果 P1 相同，则采取跳转。</p>
+
+<p>对于子程序，VdbeFrame 中有一个位掩码决定是否应采取跳转。该位掩码是必要的，因为自修改代码技巧在递归触发器中不起作用。</p>
+
+<p>P3 操作数不会被此 opcode 直接使用。不过代码生成器会如下使用 P3：如果此 opcode 是子程序的起点且该子程序使用 Bloom 过滤器，则 P3 将是保存该 Bloom 过滤器的寄存器。有关实现细节，请参见源码中的 tag-202407032019。</td></tr>
+<tr><td valign="top" align="center">
+<a name="OpenAutoindex"></a>OpenAutoindex
+<td>此 opcode 的工作方式与 <a href="opcode.html#OpenEphemeral">OpenEphemeral</a> 相同。它采用不同的名称以区分其用途。通过此 opcode 创建的表将用于连接中自动创建的瞬态索引。</td></tr>
+<tr><td valign="top" align="center">
+<a name="OpenDup"></a>OpenDup
+<td>打开一个新的光标 P1，使其指向与光标 P2 相同的瞬态表。P2 光标必须已由之前的 <a href="opcode.html#OpenEphemeral">OpenEphemeral</a> opcode 打开。只有瞬态光标可以被复制。</p>
+
+<p>复制的瞬态光标用于对物化视图的自连接。</td></tr>
+<tr><td valign="top" align="center">
+<a name="OpenEphemeral"></a>OpenEphemeral
+<td>打开一个指向瞬态表的新光标 P1。无论主数据库是否只读，该光标始终以读写方式打开。该瞬态表在光标关闭时会自动删除。</p>
+
+<p>如果光标 P1 已经打开在某个瞬态表上，则会清空该表（擦除所有内容）。</p>
+
+<p>P2 是瞬态表中的列数。如果 P4==0，则光标指向一个 BTree 表；如果 P4 不为 0，则指向一个 BTree 索引。如果 P4 不为 NULL，则它指向一个 KeyInfo 结构，用于定义索引中键的格式。</p>
+
+<p>P5 参数可以是 btree.h 中定义的 BTREE_* 标志的掩码。这些标志控制 btree 的某些行为。BTREE_OMIT_JOURNAL 和 BTREE_SINGLE 标志会自动加入。</p>
+
+<p>如果 P3 为正，则会稍微修改 reg[P3]，使其可以作为 <a href="opcode.html#Insert">Insert</a> 的零长度数据。这是一种优化，可避免额外的 <a href="opcode.html#Blob">Blob</a> opcode 来初始化该寄存器。</td></tr>
+<tr><td valign="top" align="center">
+<a name="OpenPseudo"></a>OpenPseudo
+<td>打开一个新的光标，使其指向一个包含单行数据的假表。该行的内容就是寄存器 P2 中 MEM_Blob 的内容。换句话说，光标 P1 成为寄存器 P2 中 MEM_Blob 内容的别名。</p>
+
+<p>此 opcode 创建的伪表用于将排序器输出的单行分解为各个列，以便使用 <a href="opcode.html#Column">Column</a> opcode。<a href="opcode.html#Column">Column</a> opcode 是唯一可以与伪表一起工作的光标 opcode。</p>
+
+<p>P3 是伪表将存储记录的字段数。如果 P2 为 0 或负值，则伪光标在每列上都会返回 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="OpenRead"></a>OpenRead
+<td>为根页为 P2 的数据库表打开一个只读光标。数据库文件由 P3 决定。P3==0 表示主数据库，P3==1 表示用于临时表的数据库，而 P3&gt;1 表示使用对应的附加数据库。为新光标指定标识符 P1。P1 的值不必连续，但应该是小整数。P1 为负值是错误的。</p>
+
+<p>允许的 P5 位：
+<ul>
+<li>  <b>0x02 OPFLAG_SEEKEQ</b>：此光标仅用于等值查找（由 <a href="opcode.html#SeekGE">SeekGE</a>/<a href="opcode.html#IdxGT">IdxGT</a> 或 <a href="opcode.html#SeekLE">SeekLE</a>/<a href="opcode.html#IdxLT">IdxLT</a> 这对 opcode 实现）</ul></p>
+
+<p>P4 的值可以是整数（P4_INT32）或指向 KeyInfo 结构的指针（P4_KEYINFO）。如果是指针，则所打开的表必须是一个 <a href="fileformat2.html#btypes">index b-tree</a>，该 KeyInfo 对象定义索引 b-tree 的内容和排序序列。否则，如果 P4 是整数值，则所打开的表必须是一个 <a href="fileformat2.html#btypes">table b-tree</a>，并且列数不少于 P4。</p>
+
+<p>另见：<a href="opcode.html#OpenWrite">OpenWrite</a>、<a href="opcode.html#ReopenIdx">ReopenIdx</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="OpenWrite"></a>OpenWrite
+<td>为根页为 P2 的表或索引打开一个读写光标 P1（如果 P5 中设置了 OPFLAG_P2ISREG 位，则 P2 的根页由寄存器提供）。</p>
+
+<p>P4 的值可以是整数（P4_INT32）或指向 KeyInfo 结构的指针（P4_KEYINFO）。如果是指针，则所打开的表必须是一个 <a href="fileformat2.html#btypes">index b-tree</a>，该 KeyInfo 对象定义索引 b-tree 的内容和排序序列。否则，如果 P4 是整数值，则所打开的表必须是一个 <a href="fileformat2.html#btypes">table b-tree</a>，并且列数不少于 P4。</p>
+
+<p>允许的 P5 位：
+<ul>
+<li>  <b>0x02 OPFLAG_SEEKEQ</b>：此光标仅用于等值查找（由 <a href="opcode.html#SeekGE">SeekGE</a>/<a href="opcode.html#IdxGT">IdxGT</a>  生成的前一对 opcode 实现）</p></td></tr>
+of <a href="opcode.html#SeekLE">SeekLE</a>/<a href="opcode.html#IdxLT">IdxLT</a>)
+<li>  <b>0x08 OPFLAG_FORDELETE</b>: 该游标仅用于在索引B树中搜索并随后删除条目。这是给存储引擎的提示，存储引擎可以选择忽略。该提示并未被官方SQLite b*tree存储引擎使用，但被COMDB2使用。
+<li>  <b>0x10 OPFLAG_P2ISREG</b>: 使用寄存器P2中的内容作为根页，而不是P2本身的值。
+</ul></p>
+
+<p>该指令的工作方式类似于 <a href="opcode.html#OpenRead">OpenRead</a>，但它以读/写模式打开游标。</p>
+
+<p>另见：<a href="opcode.html#OpenRead">OpenRead</a>、<a href="opcode.html#ReopenIdx">ReopenIdx</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="Or"></a>Or
+<td>对寄存器P1和P2中的值进行逻辑OR运算，并将结果存储在寄存器P3中。</p>
+
+<p>如果P1或P2任意一个为非零（true），即使另一个输入为NULL，结果也为1（true）。NULL和false或者两个NULL将产出NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Pagecount"></a>Pagecount
+<td>将数据库P1的当前页数写入内存单元P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Param"></a>Param
+<td>该操作码仅出现在通过<a href="opcode.html#Program">Program</a>指令调用的子程序中。<a href="opcode.html#Copy">Copy</a>一个当前存储在调用方（父）帧的内存单元中的值到当前帧地址空间的单元P2。这被触发器程序用来访问new.*和old.*的值。</p>
+
+<p>父帧中单元的地址由将P1参数的值加到调用<a href="opcode.html#Program">Program</a>指令的P1参数值得到。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ParseSchema"></a>ParseSchema
+<td>读取并解析数据库P1的模式表中与WHERE子句P4匹配的所有条目。如果P4是NULL指针，则重新解析P1的整个模式。</p>
+
+<p>该操作码调用解析器创建一个新的虚拟机，然后运行该新虚拟机。因此它是一个可重入的操作码。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Permutation"></a>Permutation
+<td>设置下一条指令中<a href="opcode.html#Compare">Compare</a>操作符使用的置换。该置换存储在P4操作数中。</p>
+
+<p>该置换仅对下一条必须在P5中设置了OPFLAG_PERMUTE位的<a href="opcode.html#Compare">Compare</a>操作码有效。</p>
+
+<p>P4整数数组中的第一个整数是数组的长度，不会成为置换的一部分。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Prev"></a>Prev
+<td>将游标P1回退，使其指向表或索引中的上一个键/数据对。如果不存在上一个键/值对，则继续执行下一条指令。但如果游标成功回退，则立即跳转到P2。</p>
+
+<p><a href="opcode.html#Prev">Prev</a>操作码仅在用于定位游标的<a href="opcode.html#SeekLT">SeekLT</a>、<a href="opcode.html#SeekLE">SeekLE</a>或<a href="opcode.html#Last">Last</a>之后才有效。<a href="opcode.html#Prev">Prev</a>不允许在<a href="opcode.html#SeekGT">SeekGT</a>、<a href="opcode.html#SeekGE">SeekGE</a>或<a href="opcode.html#Rewind">Rewind</a>之后。</p>
+
+<p>P1游标必须用于真实表，而非伪表。如果P1未打开，则行为未定义。</p>
+
+<p>P3的值是对B树实现的提示。如果P3==1，则表示P1是SQL索引，并且如果该索引是唯一的，该指令本可以省略。P3通常为0。P3始终为0或1。</p>
+
+<p>如果P5为正且跳转被执行，则准备语句中的事件计数器编号P5-1将递增。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Program"></a>Program
+<td>执行作为P4传递的触发器程序（类型为P4_SUBPROGRAM）。</p>
+
+<p>P1包含存储指针数组中第一个内存单元的地址，该数组用于向子程序传递参数。P2包含如果子程序通过RAISE()函数抛出IGNORE异常则跳转的地址。若不存在IGNORe 异常，则P2可能为零。寄存器P3包含本（父）VM中的一个内存单元地址，用于在运行时为子VDbe分配所需内存。</p>
+
+<p>P4是指向包含触发器程序的虚拟机的指针。</p>
+
+<p>如果P5非零，则启用递归程序调用。</td></tr>
+<tr><td valign="top" align="center">
+<a name="PureFunc"></a>PureFunc
+<td>调用用户函数（P4是指向包含要运行函数的指针的sqlite3_context对象），参数来自寄存器P2及其后续寄存器。参数个数在P4指向的sqlite3_context对象中。函数结果存储在寄存器P3中。寄存器P3不得为函数输入之一。</p>
+
+<p>P1是一个32位位掩码，指示在编译时是否确定每个函数参数为常量。如果第一个参数是常量，则P1的第0位被设置。该掩码用于确定是否可以安全地保留与用户函数参数相关的元数据（使用sqlite3_set_auxdata() API）直到下一次调用此操作码。</p>
+
+<p>该操作码的行为与<a href="opcode.html#Function">Function</a>完全相同。唯一的区别在于名称。该操作码用于必须完全非确定性的函数。有些内置的日期/时间函数根据其参数可以是确定性或非确定性的。当这些函数以非确定性方式使用时，它们会检查是否使用了<a href="opcode.html#PureFunc">PureFunc</a>而不是<a href="opcode.html#Function">Function</a>，如果是，则抛出错误。</p>
+
+<p>另见：<a href="opcode.html#AggStep">AggStep</a>、<a href="opcode.html#AggFinal">AggFinal</a>、<a href="opcode.html#Function">Function</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="ReadCookie"></a>ReadCookie
+<td>从数据库P1读取编号为P3的cookie，并将其写入寄存器P2。P3==1是模式版本。P3==2是数据库格式。P3==3是推荐的分页缓存大小，以此类推。P1==0是主数据库文件，P1==1是存储临时表的数据库文件。</p>
+
+<p>执行此指令前必须对数据库加读锁（要么启动事务，要么有打开的游标）。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Real"></a>Real
+<td>P4是指向64位浮点值的指针。将该值写入寄存器P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="RealAffinity"></a>RealAffinity
+<td>如果寄存器P1保存的是整数，则将其转换为实数值。</p>
+
+<p>当从具有REAL亲和性的列中提取信息时使用此操作码。此类列的值可能仍以整数形式存储以节省空间，但提取后我们希望它们只具有实数值。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="ReleaseReg"></a>ReleaseReg
+<td>释放寄存器以供服务。该操作码完成后，寄存器中原有的内容将变得不可靠。</p>
+
+<p>要释放的寄存器是从P1开始的P2个寄存器，除非P3的第ii位被设置，则不释放寄存器P1+ii。换句话说，P3是要保留寄存器的掩码。</p>
+
+<p>释放寄存器会清除Mem.pScopyFrom指针。这意味着如果释放的寄存器内容是使用<a href="opcode.html#SCopy">SCopy</a>设置的，那么源寄存器的值发生变化将不再在sqlite3VdbeMemAboutToChange()中生成断言错误。</p>
+
+<p>如果P5被设置，则所有释放的寄存器都将其类型设置为MEM_Undefined，以便在重新初始化之前对释放寄存器的任何尝试读取都会生成断言错误。</p>
+
+<p>每次调用此操作码时应该设置P5。然而，代码生成器有些地方会在使用前释放寄存器，前提是寄存器在被重新分配给其他目的之前不会再次使用，因此释放是安全的。</p>
+
+<p>该操作码仅在测试和调试版本中可用。发布版本不会生成它。该操作码的目的是帮助验证生成的字节码。该操作码并不真正用于计算结果。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Remainder"></a>Remainder
+<td>计算整数寄存器P2除以寄存器P1后的余数，并将结果存储到寄存器P3中。如果寄存器P1中的值为零，则结果为NULL。如果任一操作数为NULL，结果为NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ReopenIdx"></a>ReopenIdx
+<td><a href="opcode.html#ReopenIdx">ReopenIdx</a>操作码的工作方式类似于<a href="opcode.html#OpenRead">OpenRead</a>，不同之处在于它首先检查P1上的游标是否已经打开在同一棵B树上，如果是，则该操作码成为空操作。换句话说，如果游标已经打开，则不重新打开。</p>
+
+<p><a href="opcode.html#ReopenIdx">ReopenIdx</a>操作码只能与P5==0或P5==OPFLAG_SEEKEQ以及P4为P4_KEYINFO对象一起使用。此外，P3的值必须与用于相同游标号的所有其他<a href="opcode.html#ReopenIdx">ReopenIdx</a>或<a href="opcode.html#OpenRead">OpenRead</a>相同。</p>
+
+<p>允许的P5位：
+<ul>
+<li>  <b>0x02 OPFLAG_SEEKEQ</b>: 该游标仅用于等值查找（实现为一对Opcode<a href="opcode.html#SeekGE">SeekGE</a>/<a href="opcode.html#IdxGT">IdxGT</a>或<a href="opcode.html#SeekLE">SeekLE</a>/<a href="opcode.html#IdxLT">IdxLT</a>）
+</ul></p>
+
+<p>另见：<a href="opcode.html#OpenRead">OpenRead</a>、<a href="opcode.html#OpenWrite">OpenWrite</a></td></tr>
+<tr><td valign="top" align="center">
+<a name="ResetCount"></a>ResetCount
+<td>将更改计数器的值复制到数据库句柄更改计数器（通过后续调用sqlite3_changes()返回）。然后VM的内部更改计数器重置为0。这由触发器程序使用。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ResetSorter"></a>ResetSorter
+<td>删除在游标P1上打开的临时表或排序器的所有内容。</p>
+
+<p>该操作码仅适用于用于排序并通过<a href="opcode.html#OpenEphemeral">OpenEphemeral</a>或<a href="opcode.html#SorterOpen">SorterOpen</a>打开的游标。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="ResultRow"></a>ResultRow
+<td>寄存器P1到P1+P2-1中包含一行结果。该操作码导致sqlite3_step()调用以SQLITE_ROW返回代码终止，并设置sqlite3_stmt结构以便将r(P1)..r(P1+P2-1)的值作为结果行提供访问。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Return"></a>Return
+<td>跳转到存储在寄存器P1中的地址。如果P1是返回地址寄存器，则这实现了从子程序返回。</p>
+
+<p>如果P3为1，则只有当寄存器P1保存整数值时才执行跳转，否则执行落到下一条操作码，<a href="opcode.html#Return">Return</a>变为空操作。如果P3为0，则寄存器P1必须保存整数，否则会触发assert()。当该操作码与<a href="opcode.html#BeginSubrtn">BeginSubrtn</a>结合使用时，应将P3设置为1，否则设置为0。</p>
+
+<p>该操作码不会改变寄存器P1中的值。</p>
+
+<p>字节码引擎不使用P2。然而，如果P2为正且小于当前地址，则CLI中的“EXPLAIN”输出格式器将缩进从P2操作码到当前<a href="opcode.html#Return">Return</a>之前的所有操作码。P2应为该子程序中此操作码返回的第一个操作码。因此P2的值是字节码缩进提示。参见wherecode.c和shell.c中的tag-20220407a。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Rewind"></a>Rewind
+<td>下一次对P1执行<a href="opcode.html#Rowid">Rowid</a>、<a href="opcode.html#Column">Column</a>或<a href="opcode.html#Next">Next</a>指令时将引用数据库表或索引中的第一个条目。如果表或索引为空，则立即跳转到P2。如果表或索引非空，则继续执行下一条指令。</p>
+
+<p>如果P2为零，则表示断言P1表永远不为空，因此该跳转永远不会执行。</p>
+
+<p>该操作码会将游标配置为按照正向顺序移动，从开头向末尾移动。换句话说，游标配置为使用<a href="opcode.html#Next">Next</a>，而不是<a href="opcode.html#Prev">Prev</a>。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="RowCell"></a>RowCell
+<td>P1和P2都是打开的游标。两者必须打开在相同类型的表上——intkey或索引。该操作码用于将P2中的当前行复制到P1。如果游标打开在intkey表上，寄存器P3包含用于P1中新记录的rowid。如果打开在索引表上，则P3未使用。</p>
+
+<p>该操作码必须紧跟带有OPFLAG_PREFORMAT标志的<a href="opcode.html#Insert">Insert</a>或InsertIdx操作码以完成插入操作。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="RowData"></a>RowData
+<td>将游标P1当前指向的行的完整内容写入寄存器P2。不对数据进行解释。它只是按在数据库文件中发现的方式直接复制到P2寄存器。</p>
+
+<p>如果游标P1是索引，则内容是行的键。如果游标P2是表，则提取的内容是数据。</p>
+
+<p>P1游标必须指向真实表的有效行（非NULL行），而非伪表。</p>
+
+<p>如果P3!=0，则该操作码允许在数据库页中建立临时指针。这意味着输出寄存器的内容将在游标移动后无效——包括通过其他游标“保存”当前游标位置以便写入同一表所导致的移动。如果P3==0，则将数据复制到内存中。P3!=0更快，但P3==0更安全。</p>
+
+<p>如果P3!=0，则P2寄存器的内容不适用于OP_Result，并且任何OP_Result都会使P2寄存器的内容失效。P2寄存器的内容会被类似<a href="opcode.html#Function">Function</a>的操作码或指向同一表的其他游标的任何使用使其失效。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Rowid"></a>Rowid
+<td>在寄存器P2中存储一个整数，该整数为P1当前指向的表条目的键。</p>
+
+<p>P1可以是普通表或虚拟表。曾经有一个专门用于虚拟表的OP_VRowid操作码，但现在这个操作码对两种表类型均有效。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="RowSetAdd"></a>RowSetAdd
+<td>将寄存器P2中保存的整数值插入寄存器P1中保存的RowSet对象。</p>
+
+<p>如果P2不是整数，则断言失败。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="RowSetRead"></a>RowSetRead
+<td>从P1中的RowSet对象中提取最小值，并将该值放入寄存器P3。或者，如果RowSet对象P1最初为空，则保持P3不变并跳转到指令P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="RowSetTest"></a>RowSetTest
+<td>假设寄存器P3保存一个64位整数值。如果寄存器P1包含RowSet对象且该RowSet对象包含P3中的值，则跳转到寄存器P2。否则，先将P3中的整数插入RowSet，然后继续执行下一条操作码。</p>
+
+<p>RowSet对象针对分阶段插入整数集合进行了优化，每个阶段的集合不包含重复值。每个集合由唯一的P4值标识。第一个集合必须P4==0，最后一个集合必须P4==-1，其余集合必须P4&gt;0。</p>
+
+<p>这允许优化：（a）当P4==0时无需测试RowSet对象是否包含P3，因为保证不会包含；（b）当P4==-1时无需插入该值，因为永远不会测试它；（c）当将属于集合X的值插入时，无需搜索该值是否之前作为集合X的一部分被插入（只需检查是否作为其他集合的一部分插入过）。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Savepoint"></a>Savepoint
+<td>根据参数P1的值打开、释放或回滚由P4命名的保存点。要打开新保存点，设置P1==0（SAVEPOINT_BEGIN）。要释放（提交）现有保存点，设置P1==1（SAVEPOINT_RELEASE）。要回滚现有保存点，设置P1==2（SAVEPOINT_ROLLBACK）。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SCopy"></a>SCopy
+<td>将寄存器P1的浅拷贝存入寄存器P2。</p>
+
+<p>该指令创建值的浅拷贝。如果该值是字符串或blob，则拷贝只是指向原始值的指针，因此如果原始值发生变化，拷贝也会发生变化。更糟糕的是，如果原始值被释放，则拷贝将失效。因此程序必须确保在拷贝的生命期内原始值不会改变。若需创建完整拷贝，请使用<a href="opcode.html#Copy">Copy</a>。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekEnd"></a>SeekEnd
+<td>将游标P1定位到B树末尾，以便追加新条目。</p>
+
+<p>假设该游标仅用于追加，因此如果游标有效，说明它已经指向B树末尾，因此游标不做任何改变。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekGE"></a>SeekGE
+<td>如果游标P1指向SQL表（使用整数键的B树），则使用寄存器P3中的值作为键。如果游标P1指向SQL索引，则P3是用于解压索引键的P4寄存器数组中的第一个值。</p>
+
+<p>重新定位游标P1，使其指向大于或等于键值的最小条目。如果不存在大于或等于键的记录且P2不为零，则跳转到P2。</p>
+
+<p>如果游标P1是在使用OPFLAG_SEEKEQ标志时打开的，则该操作码要么落到精确匹配键的记录上，要么导致跳转到P2。当游标为OPFLAG_SEEKEQ时，该操作码之后必须跟随具有相同参数的<a href="opcode.html#IdxLE">IdxLE</a>操作码。如果此操作码成功，则跳过<a href="opcode.html#IdxGT">IdxGT</a>操作码，但在随后的循环迭代中仍会使用<a href="opcode.html#IdxGT">IdxGT</a>操作码。OPFLAG_SEEKEQ标志提示B树层该操作是等值搜索。</p>
+
+<p>该操作码会将游标配置为按照正向顺序移动，从开头向末尾移动。换句话说，游标配置为使用<a href="opcode.html#Next">Next</a>，而不是<a href="opcode.html#Prev">Prev</a>。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotFound">NotFound</a>、SeekLt、SeekGt、SeekLe</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekGT"></a>SeekGT
+<td>如果游标P1指向SQL表（使用整数键的B树），则使用寄存器P3中的值作为键。如果游标P1指向SQL索引，则P3是用于解压索引键的P4寄存器数组中的第一个值。</p>
+
+<p>重新定位游标P1，使其指向大于键值的最小条目。如果不存在大于该键的记录且P2不为零，则跳转到P2。</p>
+
+<p>该操作码会将游标配置为按照正向顺序移动，从开头向末尾移动。换句话说，游标配置为使用<a href="opcode.html#Next">Next</a>，而不是<a href="opcode.html#Prev">Prev</a>。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotFound">NotFound</a>、SeekLt、SeekGe、SeekLe</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekHit"></a>SeekHit
+<td>如有必要，将游标P1的seekHit值增加或减少，使其不小于P2且不大于P3。</p>
+
+<p>seekHit整数表示已知至少存在一处匹配的索引术语数量的最大值。如果seekHit值小于索引查找中的平等术语总数，则可能运行<a href="opcode.html#IfNoHope">IfNoHope</a>操作码以查看IN循环是否可以提前放弃，从而节省工作量。这是IN提前退出优化的一部分。</p>
+
+<p>P1必须是有效的B树游标。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekLE"></a>SeekLE
+<td>如果游标P1指向SQL表（使用整数键的B树），则使用寄存器P3中的值作为键。如果游标P1指向SQL索引，则P3是用于解压索引键的P4寄存器数组中的第一个值。</p>
+
+<p>重新定位游标P1，使其指向小于或等于键值的最大条目。如果不存在小于或等于该键的记录且P2不为零，则跳转到P2。</p>
+
+<p>该操作码会将游标配置为按照反向顺序移动，从末尾向开头移动。换句话说，游标配置为使用<a href="opcode.html#Prev">Prev</a>，而不是<a href="opcode.html#Next">Next</a>。</p>
+
+<p>如果游标P1是在使用OPFLAG_SEEKEQ标志时打开的，则该操作码要么落到精确匹配键的记录上，要么导致跳转到P2。当游标为OPFLAG_SEEKEQ时，该操作码之后必须跟随具有相同参数的<a href="opcode.html#IdxLE">IdxLE</a>操作码。如果此操作码成功，则跳过<a href="opcode.html#IdxGE">IdxGE</a>操作码，但在随后的循环迭代中仍会使用<a href="opcode.html#IdxGE">IdxGE</a>。OPFLAG_SEEKEQ标志提示B树层该操作是等值搜索。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotFound">NotFound</a>、SeekGt、SeekGe、SeekLt</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekLT"></a>SeekLT
+<td>如果游标P1指向SQL表（使用整数键的B树），则使用寄存器P3中的值作为键。如果游标P1指向SQL索引，则P3是用于解压索引键的P4寄存器数组中的第一个值。</p>
+
+<p>重新定位游标P1，使其指向小于键值的最大条目。如果不存在小于该键的记录且P2不为零，则跳转到P2。</p>
+
+<p>该操作码会将游标配置为按照反向顺序移动，从末尾向开头移动。换句话说，游标配置为使用<a href="opcode.html#Prev">Prev</a>，而不是<a href="opcode.html#Next">Next</a>。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotFound">NotFound</a>、SeekGt、SeekGe、SeekLe</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekRowid"></a>SeekRowid
+<td>P1是打开在SQL表B树（带整数键）上的游标索引。如果寄存器P3不包含整数或P1中没有rowid为P3的记录，则立即跳转到P2。或者，如果P2为0，则引发SQLITE_CORRUPT错误。如果P1包含rowid为P3的记录，则保持游标指向该记录并继续执行下一条指令。</p>
+
+<p><a href="opcode.html#NotExists">NotExists</a>操作码执行相同操作，但在<a href="opcode.html#NotExists">NotExists</a>中，P3寄存器必须保证包含整数。使用本操作码时，寄存器P3可能不包含整数。</p>
+
+<p><a href="opcode.html#NotFound">NotFound</a>操作码对索引B树（具有任意多值键）执行相同操作。</p>
+
+<p>该操作码会使游标处于无法前后移动的状态。换句话说，在该操作码之后，<a href="opcode.html#Next">Next</a>和<a href="opcode.html#Prev">Prev</a>操作码将无法正常工作。</p>
+
+<p>另见：<a href="opcode.html#Found">Found</a>、<a href="opcode.html#NotFound">NotFound</a>、<a href="opcode.html#NoConflict">NoConflict</a>、<a href="opcode.html#SeekRowid">SeekRowid</a></p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SeekScan"></a>SeekScan
+<td>此 opcode 是 <a href="opcode.html#SeekGE">SeekGE</a> 的前缀 opcode。换句话说，这个 opcode 必须紧接着 <a href="opcode.html#SeekGE">SeekGE</a> 执行。这个约束由 assert() 语句检查。</p>
+
+<p>这个 opcode 使用随后的 <a href="opcode.html#SeekGE">SeekGE</a> 的 P1 到 P4 操作数。下文中，随后的 <a href="opcode.html#SeekGE">SeekGE</a> opcode 的操作数记作 SeekOP.P1 到 SeekOP.P4。只有这个 opcode 的 P1、P2 和 P5 操作数也会被使用，分别称为 This.P1、This.P2 和 This.P5。</p>
+
+<p>这个 opcode 有助于通过避免对 btree 的不必要查找，而改为在 b-tree 上移动到下一行，来优化多列索引中 IN 操作符位于索引后续项的情况。即使省略该 opcode 或它作为无操作，也能得到正确的答案。</p>
+
+<p><a href="opcode.html#SeekGE">SeekGE</a>.P3 和 <a href="opcode.html#SeekGE">SeekGE</a>.P4 操作数标识一个未打包的键，是我们期望游标 <a href="opcode.html#SeekGE">SeekGE</a>.P1 指向的条目。将该 <a href="opcode.html#SeekGE">SeekGE</a>.P3/P4 所在行称为“目标”。</p>
+
+<p>如果 <a href="opcode.html#SeekGE">SeekGE</a>.P1 游标当前未指向任何有效行，那么该 opcode 为无操作，执行流程直接进入 <a href="opcode.html#SeekGE">SeekGE</a>。</p>
+
+<p>如果 <a href="opcode.html#SeekGE">SeekGE</a>.P1 游标指向一个有效行，那么该行可能就是目标行，也可能在目标行的前面不远处，或者在目标行之后。如果游标当前位于目标行之前，那么该 opcode 会尝试通过对游标调用 sqlite3BtreeStep() 1 到 This.P1 次的方式，使其定位到目标行或之后的位置。</p>
+
+<p>This.P5 参数是一个标志，用来指示如果游标最终指向一个在目标行之后的有效行时该怎么做。如果 This.P5 为假（0），则跳转到 <a href="opcode.html#SeekGE">SeekGE</a>.P2。如果 This.P5 为真（非零），则跳转到 This.P2。当 P5==0 时表示在 IN 约束右边没有不等式约束。跳转到 <a href="opcode.html#SeekGE">SeekGE</a>.P2 会结束循环。P5!=0 的情况出现于 IN 操作符右侧有不等式约束。在这种情况下，This.P2 要么直接指向 <a href="opcode.html#IdxGT">IdxGT</a> 或 <a href="opcode.html#IdxGE">IdxGE</a>，要么指向检查循环终止的前置代码。</p>
+
+<p>该 opcode 可能有如下几种结果：<ol></p>
+
+<p><li>如果游标最初没有指向任何有效行，则继续执行随后的 <a href="opcode.html#SeekGE">SeekGE</a> opcode。</p>
+
+<p><li>如果游标即使在调用 sqlite3BtreeNext() 多达 This.P1 次之后仍然指向目标行之前的某一行，那么仍然会落入 <a href="opcode.html#SeekGE">SeekGE</a>。</p>
+
+<p><li>如果游标最终指向目标行，无论是因为一开始就在目标行，还是因为一个或多个 sqlite3BtreeNext() 调用将游标移动到了目标行，则跳转到 This.P2。</p>
+
+<p><li>如果游标一开始位于目标行之前，且一次 sqlite3BtreeNext() 调用将游标移出索引末尾（这表明目标行在 btree 中肯定不存在），则跳转到 <a href="opcode.html#SeekGE">SeekGE</a>.P2，以结束循环。</p>
+
+<p><li>如果游标最终指向一个在目标行之后的有效行（表明目标行在 btree 中不存在），则在 This.P5==0 时跳转到 SeekOP.P2，否则在 This.P5&gt;0 时跳转到 This.P2。</ol></td></tr>
+<tr><td valign="top" align="center">
+<a name="Sequence"></a>Sequence
+<td>为游标 P1 查找下一个可用序列号。将该序列号写入寄存器 P2。执行此指令后，游标上的序列号会增加。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SequenceTest"></a>SequenceTest
+<td>P1 是一个排序游标。如果序列计数器当前为零，则跳转到 P2。无论是否跳转，都对序列值进行递增。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SetCookie"></a>SetCookie
+<td>将整数值 P3 写入数据库 P1 的编号为 P2 的 cookie。P2==1 是 schema version。P2==2 是 database format。P2==3 是推荐的 pager cache size，依此类推。P1==0 表示主数据库文件，P1==1 表示用于临时表的数据库文件。</p>
+
+<p>在执行此 opcode 之前必须先启动事务。</p>
+
+<p>如果 P2 是 SCHEMA_VERSION cookie（编号为 1），则内部 schema version 设置为 P3-P5。"PRAGMA schema_version=N" 语句将 P5 设为 1，因此内部 schema version 会与数据库 schema version 不同，从而导致 schema 重置。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="SetSubtype"></a>SetSubtype
+<td>将寄存器 P2 的 subtype 值设置为寄存器 P1 中的整数。如果 P1 为 NULL，则清除 P2 的 subtype。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ShiftLeft"></a>ShiftLeft
+<td>将寄存器 P2 中的整数向左移动由寄存器 P1 中的整数指定的位数。将结果存入寄存器 P3。如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="ShiftRight"></a>ShiftRight
+<td>将寄存器 P2 中的整数向右移动由寄存器 P1 中的整数指定的位数。将结果存入寄存器 P3。如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SoftNull"></a>SoftNull
+<td>将寄存器 P1 设置为在 <a href="opcode.html#MakeRecord">MakeRecord</a> 指令看来为 NULL 的值，但不要释放与该寄存器关联的任何字符串或 blob 内存，这样如果该值是先前通过 <a href="opcode.html#SCopy">SCopy</a> 复制的字符串或 blob，副本仍然有效。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Sort"></a>Sort
+<td>这个 opcode 与 <a href="opcode.html#Rewind">Rewind</a> 做的完全相同，只不过它会递增一个用于测试的未记录的全局变量。</p>
+
+<p>排序是通过将记录写入排序索引，然后在该索引上执行 rewind 并从头到尾播放来完成的。我们使用 <a href="opcode.html#Sort">Sort</a> opcode 而不是 <a href="opcode.html#Rewind">Rewind</a> 来进行 rewind，以便全局变量会被递增，从而让回归测试能够判断优化器是否正确地优化了排序。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SorterCompare"></a>SorterCompare
+<td>P1 是一个排序游标。此指令将寄存器 P3 中记录 blob 的前缀与排序游标当前指向的条目的前缀进行比较。只比较 r[P3] 和排序记录的前 P4 个字段。</p>
+
+<p>如果 P3 或排序器在其重要字段（不包括末尾被忽略的 P4 个字段）中有 NULL，则假定比较结果相等。</p>
+
+<p>如果两条记录比较相等，则落入下一条指令。若不同，则 <a href="opcode.html#Jump">Jump</a> 到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SorterData"></a>SorterData
+<td>将排序游标 P1 当前的排序数据写入寄存器 P2。然后清除游标 P3 上的列头缓存。</p>
+
+<p>此 opcode 通常用于将记录从排序器中移动到作为伪表游标源的寄存器中，该伪表游标通过 <a href="opcode.html#OpenPseudo">OpenPseudo</a> 创建。该伪表游标由参数 P3 标识。在此 opcode 中清除 P3 的列缓存，免去了发出单独的 <a href="opcode.html#NullRow">NullRow</a> 指令来清理该缓存。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SorterInsert"></a>SorterInsert
+<td>寄存器 P2 保存使用 <a href="opcode.html#MakeRecord">MakeRecord</a> 指令生成的 SQL 索引键。此 opcode 将该键写入排序器 P1。条目的数据为 nil。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SorterNext"></a>SorterNext
+<td>此 opcode 的工作方式与 <a href="opcode.html#Next">Next</a> 相同，只不过 P1 必须是已经调用过 <a href="opcode.html#SorterSort">SorterSort</a> opcode 的排序对象。此 opcode 将游标前移到下一个排序记录，或者在没有更多排序记录时跳转到 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SorterOpen"></a>SorterOpen
+<td>此 opcode 的工作方式类似于 <a href="opcode.html#OpenEphemeral">OpenEphemeral</a>，但它打开的是一个专门用于通过外部归并排序算法对大型表进行排序的临时索引。</p>
+
+<p>如果参数 P3 非零，则表示排序器可能假定只需考虑每个键的前 P3 个字段即可产生所需结果。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SorterSort"></a>SorterSort
+<td>在所有记录都已插入由 P1 标识的排序器对象后，调用此 opcode 实际执行排序。若没有记录可排序，则 <a href="opcode.html#Jump">Jump</a> 到 P2。</p>
+
+<p>此 opcode 是用于排序器对象的 <a href="opcode.html#Sort">Sort</a> 和 <a href="opcode.html#Rewind">Rewind</a> 的别名。</td></tr>
+<tr><td valign="top" align="center">
+<a name="SqlExec"></a>SqlExec
+<td>执行 P4 字符串中指定的 SQL 语句或语句组。</p>
+
+<p>P1 参数是一个选项位掩码：</p>
+
+<p>0x0001     在 P4 中的语句运行时禁用 Auth 和 <a href="opcode.html#Trace">Trace</a> 回调。</p>
+
+<p>0x0002     在 P4 中的语句运行时，将 db-&gt;nAnalysisLimit 设为 P2。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="String"></a>String
+<td>长度为 P1（字节）的字符串值 P4 存入寄存器 P2。</p>
+
+<p>如果 P3 非零且寄存器 P3 的内容等于 P5，则寄存器 P2 的数据类型会被转换为 BLOB。内容仍然是相同的字节序列，只是像进行了 CAST 一样作为 BLOB 来解释。换句话说：</p>
+
+<p>if( P3!=0 and reg&#91;P3&#93;==P5 ) reg&#91;P2&#93; := CAST(reg&#91;P2&#93; as BLOB)</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="String8"></a>String8
+<td>P4 指向一个以空字符结尾的 UTF-8 字符串。此 opcode 在第一次执行前会被转换成一个 <a href="opcode.html#String">String</a> opcode。在转换过程中，P4 字符串的长度会被计算并存入 P1 参数。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Subtract"></a>Subtract
+<td>从寄存器 P2 中的值减去寄存器 P1 中的值，并将结果存入寄存器 P3。如果任一输入为 NULL，则结果为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="TableLock"></a>TableLock
+<td>获取某个表的锁。此指令仅在启用共享缓存功能时使用。</p>
+
+<p>P1 是 sqlite3.aDb[] 中所获取锁的数据库的索引。如果 P3==0，则获取读锁；如果 P3==1，则获取写锁。</p>
+
+<p>P2 包含要锁定的表的 root-page。</p>
+
+<p>P4 包含正在被锁定的表名的指针。只有在无法获取锁时才会用来生成错误信息。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Trace"></a>Trace
+<td>如果启用了语句跟踪，则在语句跟踪输出上写入 P4。</p>
+
+<p>操作数 P1 必须是 0x7fffffff，且 P2 必须为正。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Transaction"></a>Transaction
+<td>如果数据库 P1 上还没有活动事务，则启动一个事务。如果 P2 非零，则启动写事务，或者如果已有读事务，则将其升级为写事务。如果 P2 为零，则启动读事务。如果 P2 大于等于 2，则启动独占事务。</p>
+
+<p>P1 是所启动事务的数据库文件的索引。索引 0 是主数据库文件，索引 1 是用于临时表的文件。索引 2 及以上用于附加数据库。</p>
+
+<p>如果启动了写事务且 Vdbe.usesStmtJournal 标志为真（当 Vdbe 可能修改多行并可能抛出 ABORT 异常时设置此标志），则可能还会打开一个语句事务。更具体地说，只有在数据库连接当前不处于自动提交模式，或者有其他活动语句时才会打开语句事务。语句事务允许在发生错误后只回滚该 VDBE 所做的更改，而不必回滚整个事务。如果没有遇到错误，当 VDBE 终止时语句事务会自动提交。</p>
+
+<p>如果 P5!=0，则此 opcode 还会将 schema cookie 与 P3 以及 schema generation counter 与 P4 进行比较。每当数据库 schema 发生变化时，cookie 值都会改变。此操作用于检测 cookie 是否已改变以及当前进程是否需要重新读取 schema。如果 P3 中的 schema cookie 与数据库头部中的 schema cookie 不同，或者 P4 中的 schema generation counter 与当前 generation counter 不同，则会引发 SQLITE_SCHEMA 错误并终止执行。sqlite3_step() 封装函数随后可能会重新准备语句并从头重新执行。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="TypeCheck"></a>TypeCheck
+<td>对以 P1 起始的 P2 个寄存器应用亲和性。亲和性来自 P4 中的 Table 对象。如果某个值无法强制转换为正确类型，则引发错误。</p>
+
+<p>如果 P3==0，则省略对 VIRTUAL 列的检查。</p>
+
+<p>如果 P3==1，则省略对所有生成列（包括 VIRTUAL 和 STORED）的检查。</p>
+
+<p>如果 P3&gt;=2，则仅将表中编号为 P3-2 的列（这是一个 VIRTUAL 列）与 reg&#91;P1&#93; 中的值进行比较。在这种情况下，P2 将是 1。</p>
+
+<p>此 opcode 类似于 <a href="opcode.html#Affinity">Affinity</a>，但它强制将寄存器类型设置为 Table 列的类型。用于实现“严格亲和性”。</p>
+
+<p>只有当 P3 为零时才会检查 GENERATED ALWAYS AS ... STATIC 列。P3 非零时，不会对静态生成列执行类型检查。Virtual 列是在查询时计算的，因此永远不会被检查。</p>
+
+<p>前提条件：</p>
+
+<p><ul>
+<li> P2 应该是 P4 表中非虚拟列的数量，除非 P3&gt;1，在这种情况下 P2 为 1。
+<li> 表 P4 是 STRICT 表。
+</ul></p>
+
+<p>如果任何前提条件不成立，则会发生断言错误。</td></tr>
+<tr><td valign="top" align="center">
+<a name="Vacuum"></a>Vacuum
+<td>对整个数据库 P1 执行 Vacuum。P1 为 0 表示 “main”，2 或更大表示附加数据库。不能对 “temp” 数据库执行 vacuum。</p>
+
+<p>如果 P2 非零，则它是一个寄存器，保存一个字符串，表示 vacuum 结果应该写入的文件。当 P2 为零时，vacuum 会覆盖原始数据库。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Variable"></a>Variable
+<td>将绑定参数 P1 的值传输到寄存器 P2。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VBegin"></a>VBegin
+<td>P4 可能是指向 sqlite3_vtab 结构的指针。如果是，则调用该表的 xBegin 方法。</p>
+
+<p>此外，无论 P4 是否设置，都需检查该调用是否来自虚拟表 xSync() 方法的回调中。如果是，则错误代码将被设置为 SQLITE_LOCKED。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="VCheck"></a>VCheck
+<td>P4 是指向支持 xIntegrity() 方法的 schema P1 中虚拟表的 Table 对象的指针。此 opcode 调用该虚拟表的 xIntegrity() 方法，使用 P3 作为整数参数。如果返回错误，则将表名前置到错误消息中，并将该消息存入 P2。如果未见错误，则将寄存器 P2 设为 NULL。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VColumn"></a>VColumn
+<td>将游标 P1 的虚拟表当前行中的第 P2 列的值存入寄存器 P3。</p>
+
+<p>如果在执行 UPDATE 操作时期望通过 <a href="opcode.html#VColumn">VColumn</a> opcode 获取一个不会改变的列的值，则 P5 的值为 OPFLAG_NOCHNG。这会导致 sqlite3_vtab_nochange() 函数在虚拟表实现的 xColumn 方法内部返回 true。P5 列还可能包含其他位（OPFLAG_LENGTHARG 或 OPFLAG_TYPEOFARG），但这些位在 <a href="opcode.html#VColumn">VColumn</a> 中未使用。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="VCreate"></a>VCreate
+<td>P2 是一个寄存器，保存数据库 P1 中虚拟表的名称。调用该表的 xCreate 方法。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VDestroy"></a>VDestroy
+<td>P4 是数据库 P1 中虚拟表的名称。调用该表的 xDestroy 方法。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VFilter"></a>VFilter
+<td>P1 是使用 <a href="opcode.html#VOpen">VOpen</a> 打开的游标。若筛选后的结果集为空，则跳转到 P2。</p>
+
+<p>P4 要么为 NULL，要么为模块的 xBestIndex 方法生成的字符串。P4 字符串的解释由模块实现决定。</p>
+
+<p>此 opcode 调用由 P1 指定的虚拟表的 xFilter 方法。传递给 xFilter 的整数查询计划参数存储在寄存器 P3 中。寄存器 P3+1 保存传递给 xFilter 的 argc 参数。寄存器 P3+2..P3+1+argc 是传递给 xFilter 作为 argv 的 argc 个附加参数。寄存器 P3+2 在传递给 xFilter 时成为 argv[0]。</p>
+
+<p>如果过滤后的结果集为空，则跳转到 P2。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="VInitIn"></a>VInitIn
+<td>将寄存器 P2 设置为指向游标 P1 的 ValueList 对象，缓存寄存器为 P3，输出寄存器为 P3+1。此 ValueList 对象可以作为 sqlite3_vtab_in_first() 和 sqlite3_vtab_in_next() 的第一个参数，用来提取 P1 游标中存储的所有值。寄存器 P3 用于保存 sqlite3_vtab_in_first() 和 sqlite3_vtab_in_next() 返回的值。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VNext"></a>VNext
+<td>将虚拟表 P1 移动到其结果集中的下一行，并跳转到指令 P2。或者，如果虚拟表已经达到结果集末尾，则继续执行下一条指令。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VOpen"></a>VOpen
+<td>P4 是指向虚拟表对象 sqlite3_vtab 结构的指针。P1 是游标编号。此 opcode 打开一个指向该虚拟表的游标，并将该游标存入 P1。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VRename"></a>VRename
+<td>P4 是指向虚拟表对象 sqlite3_vtab 结构的指针。此 opcode 调用相应的 xRename 方法。寄存器 P1 中的值作为 zName 参数传递给 xRename 方法。</td></tr>
+<tr><td valign="top" align="center">
+<a name="VUpdate"></a>VUpdate
+<td>P4 是指向虚拟表对象 sqlite3_vtab 结构的指针。此 opcode 调用相应的 xUpdate 方法。P2 个值是从 P3 起连续的内存单元，用于传递给 xUpdate 调用。寄存器 (P3+P2-1) 中的值对应于传递给 xUpdate 的 argv 数组的第 p2 个元素。</p>
+
+<p>xUpdate 方法将执行 DELETE、INSERT，或两者兼而有之。argv[0] 元素（对应内存单元 P3）是要删除的行的 rowid。如果 argv[0] 为 NULL，则不执行删除。argv[1] 元素是新行的 rowid。它可以为 NULL，让虚拟表自行选择新的 rowid。数组的后续元素是新行中各列的值。</p>
+
+<p>如果 P2==1，则不执行插入。argv[0] 是要删除的行的 rowid。</p>
+
+<p>P1 是一个布尔标志。如果它为真且 xUpdate 调用成功，则 sqlite3_last_insert_rowid() 返回的值被设置为刚刚插入行的 rowid。</p>
+
+<p>P5 是在插入或更新时发生约束失败时应应用的错误处理操作（OE_Replace、OE_Fail、OE_Ignore 等）。</p></td></tr>
+<tr><td valign="top" align="center">
+<a name="Yield"></a>Yield
+<td>将程序计数器与寄存器 P1 中的值互换。此操作的效果是让出给协程。</p>
+
+<p>如果该指令启动的协程以 <a href="opcode.html#Yield">Yield</a> 或 <a href="opcode.html#Return">Return</a> 结束，则继续执行下一条指令。但如果该协程以 <a href="opcode.html#EndCoroutine">EndCoroutine</a> 结束，则跳转到 P2，而不是继续执行下一条指令。</p>
+
+<p>另请参见：<a href="opcode.html#InitCoroutine">InitCoroutine</a></p></td></tr>
+<tr><td valign="top" align="center">
+<a name="ZeroOrNull"></a>ZeroOrNull
+<td>如果寄存器 P1 和 P3 均非 NULL，则在寄存器 P2 中存入 0。如果寄存器 P1 或 P3 中任意一个为 NULL，则在寄存器 P2 中存入 NULL。</td></tr>
+
+  </table></blockquote>
+  </div>
+
+</p><p align="center"><small><i>此页面最后更新于 2025-04-16 13:13:29Z </small></i></p>

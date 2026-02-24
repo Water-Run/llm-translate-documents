@@ -1,0 +1,712 @@
+<!-- 由WaterRun使用gpt-5.1-codex-mini翻译, 2026年2月 -->
+<!-- header已翻译 -->
+<!-- body已翻译 -->
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link href="sqlite.css" rel="stylesheet">
+<title>Recent SQLite News</title>
+<!-- path= -->
+</head>
+<body><div class=nosearch>
+<a href="index.html">
+<img class="logo" src="images/sqlite370_banner.svg" alt="SQLite" border="0">
+</a>
+<div><!-- IE hack to prevent disappearing logo --></div>
+<div class="tagline desktoponly translation-note">
+由WaterRun使用gpt-5.1-codex-mini翻译
+</div>
+<div class="tagline desktoponly">
+小巧。快速。可靠。<br>任选三项。
+</div>
+<div class="menu mainmenu">
+<ul>
+<li><a href="index.html">首页</a>
+<li class='mobileonly'><a href="javascript:void(0)" onclick='toggle_div("submenu")'>菜单</a>
+<li class='wideonly'><a href='about.html'>关于</a>
+<li class='desktoponly'><a href="docs.html">文档</a>
+<li class='desktoponly'><a href="download.html">下载</a>
+<li class='wideonly'><a href='copyright.html'>许可</a>
+<li class='desktoponly'><a href="support.html">支持</a>
+<li class='desktoponly'><a href="prosupport.html">购买</a>
+<li class='desktoponly'><a href="https://github.com/Water-Run/llm-translate-documents">翻译仓库</a>
+<li class='search' id='search_menubutton'>
+<a href="javascript:void(0)" onclick='toggle_search()'>搜索</a>
+</ul>
+</div>
+<div class="menu submenu" id="submenu">
+<ul>
+<li><a href='about.html'>关于</a>
+<li><a href='docs.html'>文档</a>
+<li><a href='download.html'>下载</a>
+<li><a href='support.html'>支持</a>
+<li><a href='prosupport.html'>购买</a>
+<li><a href='https://github.com/Water-Run/llm-translate-documents'>翻译仓库</a>
+</ul>
+</div>
+<div class="searchmenu" id="searchmenu">
+<form method="GET" action="search">
+<select name="s" id="searchtype">
+<option value="d">搜索文档</option>
+<option value="c">搜索更新日志</option>
+</select>
+<input type="text" name="q" id="searchbox" value="">
+<input type="submit" value="前往">
+</form>
+</div>
+</div>
+<script>
+function toggle_div(nm) {
+var w = document.getElementById(nm);
+if( w.style.display=="block" ){
+w.style.display = "none";
+}else{
+w.style.display = "block";
+}
+}
+function toggle_search() {
+var w = document.getElementById("searchmenu");
+if( w.style.display=="block" ){
+w.style.display = "none";
+} else {
+w.style.display = "block";
+setTimeout(function(){
+document.getElementById("searchbox").focus()
+}, 30);
+}
+}
+function div_off(nm){document.getElementById(nm).style.display="none";}
+window.onbeforeunload = function(e){div_off("submenu");}
+/* Disable the Search feature if we are not operating from CGI, since */
+/* Search is accomplished using CGI and will not work without it. */
+if( !location.origin || !location.origin.match || !location.origin.match(/http/) ){
+document.getElementById("search_menubutton").style.display = "none";
+}
+/* Used by the Hide/Show button beside syntax diagrams, to toggle the */
+function hideorshow(btn,obj){
+var x = document.getElementById(obj);
+var b = document.getElementById(btn);
+if( x.style.display!='none' ){
+x.style.display = 'none';
+b.innerHTML='show';
+}else{
+x.style.display = '';
+b.innerHTML='hide';
+}
+return false;
+}
+var antiRobot = 0;
+function antiRobotGo(){
+if( antiRobot!=3 ) return;
+antiRobot = 7;
+var j = document.getElementById("mtimelink");
+if(j && j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
+}
+function antiRobotDefense(){
+document.body.onmousedown=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousedown=null;
+}
+document.body.onmousemove=function(){
+antiRobot |= 2;
+antiRobotGo();
+document.body.onmousemove=null;
+}
+setTimeout(function(){
+antiRobot |= 1;
+antiRobotGo();
+}, 100)
+antiRobotGo();
+}
+antiRobotDefense();
+</script><h2>最新消息</h2>
+
+<a name="2026_01_09"></a><h3>2026-01-09 - <a href="releaselog/3_51_2.html">Version 3.51.2</a></h3><blockquote>
+Patch release 3.51.2 fixes a potential (but unlikely) deadlock
+in the OS interface for unix that can arise due to changes in 3.51.0
+that were designed to detect broken Posix Advisory Locks cause by
+the application mistakenly directly opening and closing a file 
+descriptor to the database file and not going through the SQLite
+interface.  The patch also fixes some other obscure bugs that are
+of little importance, but still ought to be addressed.  Changes from
+3.51.0 and 3.51.1 are minimal.
+</blockquote><hr width="50%"><a name="2025_11_28"></a><h3>2025-11-28 - <a href="releaselog/3_51_1.html">Version 3.51.1</a></h3><blockquote>
+Patch release 3.51.1 fixes two cases of incorrect answers to
+corner-case queries caused by new optimizations in version 3.51.0.
+</blockquote><hr width="50%"><a name="2025_11_04"></a><h3>2025-11-04 - <a href="releaselog/3_51_0.html">Version 3.51.0</a></h3><blockquote>
+Version 3.51.0 is a first major update to SQLite since the
+25th anniversary release on 2025-05-29. Version 3.51.0 
+includes new features, new interfaces, and new optimizations.
+See the <a href="releaselog/3_51_0.html">3.51.0 change log</a> for a more detail.
+</blockquote><hr width="50%"><a name="2025_07_30"></a><h3>2025-07-30 - <a href="releaselog/3_50_4.html">Version 3.50.4</a></h3><blockquote>
+Version 3.50.4 is a patch release to fix minor problems reported
+since the previous release.
+</blockquote><hr width="50%"><a name="2025_07_17"></a><h3>2025-07-17 - <a href="releaselog/3_50_3.html">Version 3.50.3</a></h3><blockquote>
+Version 3.50.3 is a patch release to fix minor problems reported
+since the previous release.
+</blockquote><hr width="50%"><a name="2025_06_28"></a><h3>2025_06_28 - <a href="releaselog/3_50_2.html">Version 3.50.2</a></h3><blockquote>
+Version 3.50.2 is a patch release to fix minor problems reported
+since the previous release.
+</blockquote><hr width="50%"><a name="2025_06_06"></a><h3>2025-06-06 - <a href="releaselog/3_50_1.html">Version 3.50.1</a></h3><blockquote>
+Version 3.50.1 is a small patch to fix minor problems in the 3.50.0
+release.  Upgrading is recommended.
+</blockquote><hr width="50%"><a name="2025_05_29"></a><h3>2025-05-29 - <a href="releaselog/3_50_0.html">Version 3.50.0</a></h3><blockquote>
+Version 3.50.0 is the twenty-fifth anniversity release of SQLite.
+</blockquote><hr width="50%"><a name="2025_05_07"></a><h3>2025-05-07 - <a href="releaselog/3_49_2.html">Version 3.49.2</a></h3><blockquote>
+Patch release 3.49.2 fixes various bugs.  The most important problem is
+a mistake in the NOT NULL optimization that was added to version 3.40.0
+(see item 3c in the <a href="releaselog/3_40_0.html">version 3.40.0 change log</a>) that if
+abused by an attacker with SQL injection capabilities can lead to read
+off the end of a static array, resulting in a segfault and possible
+denial of service.  This patch release is mostly to address that one
+mistake.  The other fixes could have waited for the next major release.
+<p>
+The 3.50.0 release is still scheduled for 2025-05-29, which is only about
+three weeks away.  All the same bug fixes will be in the 3.50.0 release,
+so you might want to wait for that release to come up before upgrading.
+</blockquote><hr width="50%"><a name="2025_02_18"></a><h3>2025-02-18 - <a href="releaselog/3_49_1.html">Version 3.49.1</a></h3><blockquote>
+Patch release 3.49.1 fixes a problem in the <a href="lang_corefunc.html#concat_ws">concat_ws() SQL function</a>.
+The problem has existed since version 3.44.0 (2023-11-01) but was
+only discovered two days ago.  The problem is a potential vulnerability.
+An attacker who can control the separator string and can make that
+string very large (hundreds of megabytes) could cause a memory error.
+Your system is not vulnerable if you are following the 
+<a href="security.html">recommended application security practices</a>, especially recommendation
+number 2, or if your system does not use the concat_ws() function and
+is impervious to SQL injections.  Regardless of whether or not your
+system is subject to this problem, you will do well to upgrade to version
+3.49.1 or later.
+<p>
+The 3.49.1 patch release also makes multiple improvements to the portability
+of configure scripts and makefiles.  These improvements involve
+a lot of change, but only to makefiles and configuration scripts.  The 
+core SQLite library is unaffected by those enhancements.
+</blockquote><hr width="50%"><a name="2025_02_06"></a><h3>2025-02-06 - <a href="releaselog/3_49_0.html">Version 3.49.0</a></h3><blockquote>
+There were a lot of minor patches and bug fixes that needed to be added
+to the 3.48.0 release.  We were originally planning to do a patch release
+3.48.1 to publish those changes.  But we noticed that the patches formed
+a significant fraction of all changes on the main development trunk, and
+the trunk was stable, so we decided instead just to
+do an early release of version 3.49.0.
+<p>
+Hence, the 3.49.0 release is being published less than one month after
+the 3.48.0 release.  Version 3.49.0 contains both patches for minor
+issues in the 3.48.0 release and new enhancements.
+See the <a href="releaselog/3_49_0.html">change log</a> for details.
+<p>
+We expect that the next major release (3.50.0) will resume the usual
+5-to-7 month cadence.
+</blockquote><hr width="50%"><a name="2025_01_14"></a><h3>2025-01-14 - <a href="releaselog/3_48_0.html">Version 3.48.0</a></h3><blockquote>
+Version 3.48.0 refactors the "./configure" system of SQLite to fix bugs,
+simplify usage, improve performance, and make it easier to maintain moving
+forward.  Though the internal changes are extensive, the user interface
+should remain the same.  Unless you were doing something bizarre and
+undocumented with ./configure, you should not notice the difference.
+<p>
+<b>NB:</b> This change applies to the configure system in the
+<a href="amalg-v-canon.html#canon">canonical source code</a> only.  The amalgamation tarball
+(the sqlite-autoconf-xxxxxx.tar.gz download) is unaffected.
+<p>
+The ./configure implementation has changed to use
+<a href="https://msteveb.github.io/autosetup/">Autosetup</a> instead of
+GNU Autoconf.  One benefit of this is that TCL is no longer necessary
+to build SQLite from canonical sources, thus simplifying the build
+process.  Just download the canonical source code, unpack it, and
+run "./configure && make".  No third-party software packages (other
+than the C compiler and related tools like "make") are needed in
+most cases.  The Windows makefile ("Makefile.msc") also now
+runs without TCL.  Note, however, that TCL is still required to run
+tests or to build tools such as <a href="sqlanalyze.html">sqlite3_analyzer</a> that link against
+libtcl.
+<p>
+There are other minor enhancements in the 3.48.0 release, but the
+refactor of the ./configure system is by far the biggest and most
+important change.  See the <a href="releaselog/3_48_0.html">change log</a> for more detail.
+</blockquote><hr width="50%"><a name="2024_12_07"></a><h3>2024-12-07 - <a href="releaselog/3_47_2.html">Version 3.47.2</a></h3><blockquote>
+Versions 3.47.0 and 3.47.1 contain a bug in the text-to-floating-point
+conversion routines such that numbers where the 16
+most significant digits are "1844674407370955" might be converted to
+floating point incorrectly on x64 and i386 hardware.  This is not an
+issue on ARM or PPC (the only other CPUs that the SQLite devs have
+access to), only x64/i386.
+Version 3.47.2 addresses the problems.  You should upgrade to
+3.47.2 or later if you are using any prior 3.47.x release.
+</blockquote><hr width="50%"><a name="2024_11_25"></a><h3>2024-11-25 - <a href="releaselog/3_47_1.html">Version 3.47.1</a></h3><blockquote>
+Version 3.47.1 is a patch release with minimal changes from
+version 3.47.0.  The purpose of the patch is to fix various
+issues in the 3.47.0 release.
+</blockquote><hr width="50%"><a name="2024_10_21"></a><h3>2024-10-21 - <a href="releaselog/3_47_0.html">Version 3.47.0</a></h3><blockquote>
+Version 3.47.0 is an enhancement release with many
+feature improvements and performance enhancements.  Of particular note:
+<ul>
+<li> The <a href="rsync.html">sqlite3_rsync</a> command-line utility is now available for
+     doing bandwidth-efficient live backups over SSH.
+<li> Integration with <a href="https://www.theregister.com/2024/10/02/tcltk_version_9/">TCL9</a>.
+</ul>
+<p>
+See the <a href="releaselog/3_47_0.html">change log</a> for details.
+</blockquote><hr width="50%"><a name="2024_08_13"></a><h3>2024-08-13 - <a href="releaselog/3_46_1.html">Version 3.46.1</a></h3><blockquote>
+Version 3.46.1 is a patch release that fixes several minor
+problems in version 3.46.0.  There are minimal changes from
+the previous release.
+</blockquote><hr width="50%"><a name="2024_05_23"></a><h3>2024-05-23 - <a href="releaselog/3_46_0.html">Version 3.46.0</a></h3><blockquote>
+Version 3.46.0 is an enhancement release.  Enhancements include:
+<ul>
+<li> Improvements to the <a href="pragma.html#pragma_optimize">PRAGMA optimize</a> command
+<li> Enhancements to the <a href="lang_datefunc.html">date and time functions</a>
+<li> The ability to put "_" between digits in numeric literals for readability
+<li> Added the <a href="json1.html#jpretty">json_pretty()</a> function
+<li> Improvements to the query planner, especially a new faster implementation
+     for VALUES clauses with many terms.
+</ul>
+<p>
+None of these enhancements are critical.  Update at your convenience.
+</blockquote><hr width="50%"><a name="2024_04_15"></a><h3>2024-04-15 - <a href="releaselog/3_45_3.html">Version 3.45.3</a></h3><blockquote>
+Version 3.45.3 is a patch release that fixes a few obscure problems,
+including:
+<ul>
+<li> The "old.*" values in an <a href="lang_createtrigger.html">UPDATE trigger</a> might be incorrect
+     if the trigger fires in response to an <a href="lang_upsert.html">UPSERT</a>.
+<li> The <a href="lang_aggfunc.html#sumunc">sum()</a> function might return NULL in some cases where Infinity
+     would be a better answer.
+</ul>
+None of the problems are emergencies.  Upgrade at your convenience.
+</blockquote><hr width="50%"><a name="2024_03_12"></a><h3>2024-03-12 - <a href="releaselog/3_45_2.html">Version 3.45.2</a></h3><blockquote>
+Version 3.45.2 is a patch against SQLite versions 3.45.0 and 3.45.1.
+<p>
+The primary reason for this patch is to fix two three-year-old
+bugs identified by Forum posts
+<a href="https://sqlite.org/forum/forumpost/919c6579c8">919c6579c8</a>
+and <a href="https://sqlite.org/forum/forumpost/440f2a2f17">440f2a2f17</a>.
+These problems could result in incorrect query results or corrupt
+indexes.  See the associated forum threads for details.
+<p>
+Other trifling fixes are also included in the patch.
+</blockquote><hr width="50%"><a name="2024_01_30"></a><h3>2024-01-30 - <a href="releaselog/3_45_1.html">Version 3.45.1</a></h3><blockquote>
+Version 3.45.1 is a patch against SQLite version 3.45.0.
+<p>
+The main focus of this patch release is to restore certain
+undocumented legacy behavior in the <a href="json1.html">JSON SQL functions</a> that
+the developers were unaware of but which some applications
+had come to depend on.  This undocumented behavior was "fixed"
+in the 3.45.0, resulting in breakage for applications that were
+using it.  So it has now been restored and documented.
+<p>
+Other obscure issues that have come up since the 3.45.0 release,
+some related to the release itself and some going back years,
+are also fixed.
+</blockquote><hr width="50%"><a name="2024_01_15"></a><h3>2024-01-15 - <a href="releaselog/3_45_0.html">Version 3.45.0</a></h3><blockquote>
+Version 3.45.0 is an enhancement release of SQLite.
+<p>
+The most impactful change is likely enhancements to
+the <a href="json1.html">JSON SQL functions</a> such that they are now able to
+store their internal JSON parse trees in the database
+as BLOB values.  This can significantly increase the
+performance of applications that process large JSON
+strings as it omits the need to translate JSON text
+to and from the internal binary format used by SQLite.
+<p>
+A second noteworthy change is that any
+<a href="appfunc.html">application-defined SQL functions</a> that make use of
+the <a href="c3ref/result_subtype.html">sqlite3_result_subtype()</a> interface must now include
+the <a href="c3ref/c_deterministic.html#sqliteresultsubtype">SQLITE_RESULT_SUBTYPE</a> attribute when the function
+is registered using <a href="c3ref/create_function.html">sqlite3_create_function()</a> or similar.
+Failure to include the SQLITE_RESULT_SUBTYPE attribute on
+functions that use <a href="c3ref/result_subtype.html">sqlite3_result_subtype()</a> might result
+in incorrect answers.
+<p>
+See the <a href="releaselog/3_45_0.html">change log</a>
+for additional enhancements that are part of the 3.45.0 release.
+</blockquote><hr width="50%"><a name="2023_11_24"></a><h3>2023-11-24 - <a href="releaselog/3_44_2.html">Version 3.44.2</a></h3><blockquote>
+The <a href="cli.html">CLI</a> fix in version 3.44.1 introduced a new bug, which is
+fixed by patch release 3.44.2.  Version 3.44.2 also fixes an
+FTS5 problem that was found by a fuzzer just minutes after the
+3.44.1 release.
+</blockquote><hr width="50%"><a name="2023_11_22"></a><h3>2023-11-22 - <a href="releaselog/3_44_1.html">Version 3.44.1</a></h3><blockquote>
+Version 3.44.1 is a patch release that fixes various obscure
+bugs.  There is no need to upgrade, unless you are having
+problems with a prior release.
+</blockquote><hr width="50%"><a name="2023_11_01"></a><h3>2023-11-01 - <a href="releaselog/3_44_0.html">Version 3.44.0</a></h3><blockquote>
+Version 3.44.0 is a new enhancement release of SQLite.
+<p>
+It has only been 69 days since the previous major
+release (3.43.0).  The original plan was for version 3.44.0
+to occur at a spacing of approximately 120 days from the
+prior release.  However, the code accumulated so many important
+enhancements that it seemed better to accelerate the release
+of 3.44.0, thus getting those enhancements into circulation.
+This means that some enhancements that were originally
+planned to be in 3.44.0 have been deferred until subsequent
+releases.
+</blockquote><hr width="50%"><a name="2023_10_10"></a><h3>2023-10-10 - <a href="releaselog/3_43_2.html">Version 3.43.2</a></h3><blockquote>
+Version 3.43.2 is a patch release that fixes a few small inaccuracies in
+version 3.43.0 and 3.43.1.
+</blockquote><hr width="50%"><a name="2023_09_11"></a><h3>2023-09-11 - <a href="releaselog/3_43_1.html">Version 3.43.1</a></h3><blockquote>
+Version 3.43.1 is a patch release that fixes a few small inaccuracies that were
+discovered in the the 3.43.0 and/or 3.42.0 releases after the 3.43.0 release was
+published.
+</blockquote><hr width="50%"><a name="2023_08_24"></a><h3>2023-08-24 - <a href="releaselog/3_43_0.html">Version 3.43.0</a></h3><blockquote>
+Version 3.43.0 is a routine enhancement release of SQLite.
+Key enhancements in this release include added support for
+<a href="fts5.html#clssdeltab">Contentless-Delete FTS5 Indexes</a>, 
+and performance improvements in <a href="json1.html">JSON processing</a>.
+See the <a href="releaselog/3_43_0.html">change log</a> for
+details.
+</blockquote><hr width="50%"><a name="2023_05_16"></a><h3>2023-05-16 - <a href="releaselog/3_42_0.html">Version 3.42.0</a></h3><blockquote>
+Version 3.42.0 is a routine enhancement release of SQLite.
+Key enhancements in this release are added support for
+<a href="json1.html#json5">JSON5</a> and the <a href="fts5.html#the_secure_delete_configuration_option">FTS5 secure-delete command</a>.  See the
+<a href="releaselog/3_42_0.html">change log</a> for a
+summary of all enhancements in this release.
+</blockquote><hr width="50%"><a name="2023_03_22"></a><h3>2023-03-22 - <a href="releaselog/3_41_2.html">Version 3.41.2</a></h3><blockquote>
+Version 3.41.2 is a patch release that fixes multiple
+fuzzer-found problems in prior releases.  The worst problems
+include reads (not writes) past the end of a buffer.  Upgrading
+is recommended.
+</blockquote><hr width="50%"><a name="2023_03_10"></a><h3>2023-03-10 - <a href="releaselog/3_41_1.html">Version 3.41.1</a></h3><blockquote>
+Version 3.41.1 is a patch release that fixes various obscure
+problems found in 3.41.0 and reported by users.  Upgrading
+is optional.
+</blockquote><hr width="50%"><a name="2023_02_21"></a><h3>2023-02-21 - <a href="releaselog/3_41_0.html">Version 3.41.0</a></h3><blockquote>
+Version 3.41.0 is a routine enhancement release.
+</blockquote><hr width="50%"><a name="2022_12_28"></a><h3>2022-12-28 - <a href="releaselog/3_40_1.html">Version 3.40.1</a></h3><blockquote>
+Version 3.40.1 is a patch release that fixes some obscure problems
+in version 3.40.0.  The problems fixed have no impact on most applications.
+Upgrading is only necessary if you encounter problems.
+<p>
+The two most important fixes are these:
+<ul>
+<li><p>
+Fix the <a href="cli.html#safemode">safe command-line option</a> on the <a href="cli.html">CLI</a> so that it
+correctly disallows functions with side-effects.  This is a bug
+in the CLI &mdash; <i>not</i> a bug in the
+SQLite library &mdash; and it only affects the --safe command-line
+option, making that option less than fully "safe".  As the number
+of systems that use the --safe command-line option in the CLI is
+approximately zero, this is not considered an important bug.  However,
+a third-party wrote a CVE against it which caused considerable angst
+among maintainers, so it seems good to get the fix into circulation
+sooner rather than wait on the next major release.
+<li><p>
+The optional <a href="malloc.html#memsys5">memsys5</a> memory allocator picked up a bug that might
+put it into an infinite loop for very large (500MiB) allocations.
+Almost all systems use their native memory allocator, not memsys5.
+Memsys5 is only used if SQLite is compiled using SQLITE_ENABLE_MEMSYS5
+and then initialized using <a href="c3ref/config.html">sqlite3_config</a>(<a href="c3ref/c_config_covering_index_scan.html#sqliteconfigheap">SQLITE_CONFIG_HEAP</a>).
+Very, very few systems do this, and so the problem is not considered
+to be serious.
+</ul>
+<p>
+See the <a href="https://sqlite.org/src/timeline?r=branch-3.40">branch-3.40 timeline</a>
+for a complete listing of changes that have gone into this patch release.
+</blockquote><hr width="50%"><a name="2022_11_16"></a><h3>2022-11-16 - <a href="releaselog/3_40_0.html">Version 3.40.0</a></h3><blockquote>
+Version 3.40.0 is a new feature release of SQLite.  See the
+<a href="releaselog/3_40_0.html">change log</a> for details.
+Key enhancements in this release include:
+<ol>
+<li><p>
+Official support for compiling 
+<a href="https://sqlite.org/wasm/doc/trunk/index.md">SQLite to WASM</a>
+and running it in a web browser.
+<li><p>
+New and improved <a href="recovery.html">recovery extension</a> for extracting
+data from corrupted database files.
+</ol>
+<p>
+This release also includes performance enhancements and
+improvements to the query planner.
+<p>
+A psychological milestone:  The performance benchmark that
+the SQLite developers have used for many years has for
+the first time dropped below 1 billion CPU cycles
+(measured using cachegrind) when run in <a href="wal.html">WAL mode</a>.
+This is less than half the number of CPU cycles used as
+recently as 8 years ago.  (The graph below shows SQLite using
+a <a href="lockingv3.html#rollback">rollback journal</a> which uses fewer CPU cycles at the expense
+of extra I/O.  The benchmark passed through the 1 billion cycle
+barrier for rollback journals for the previous release.)
+<p align="center">
+<img src="images/sschart20221116.jpg" align="center" style="margin:1px solid grey;"></img>
+</p>
+</blockquote><hr width="50%"><a name="2022_09_29"></a><h3>2022-09-29 - <a href="releaselog/3_39_4.html">Version 3.39.4</a></h3><blockquote>
+Version 3.39.4 is a security release that addresses a single
+long-standing problem in the <a href="fts3.html">FTS3 extension</a>.  An attacker
+who is able to execute arbitrary SQL statements and who can create
+a corrupt database that is 2GB or larger in size might be able to trick
+FTS3 into overflowing an integer used to size a memory allocation,
+causing the allocation to be too small and ultimately resulting in
+a buffer overrun.  The release also includes fixes for other
+obscure weaknesses, as described in the release notes.
+</blockquote><hr width="50%"><a name="2022_09_05"></a><h3>2022-09-05 - <a href="releaselog/3_39_3.html">Version 3.39.3</a></h3><blockquote>
+Version 3.39.3 is a patch release that fixes a few obscure problems
+in the 3.39.0 release.  See the release notes for details.
+</blockquote><hr width="50%"><a name="2022_07_21"></a><h3>2022-07-21 - <a href="releaselog/3_39_2.html">Version 3.39.2</a></h3><blockquote>
+Version 3.39.2 is a security release that addresses multiple long-standing
+issues in SQLite.  The most severe problem is identified by CVE-2022-35737.
+That issue is associated with the auxiliary C-language APIs
+of SQLite and cannot be reached using SQL or database inputs, and hence is
+unlikely to affect your application.  Nevertheless, upgrading is recommended.
+The other issues are comparatively minor.
+This release also fixes a performance regression that appeared in version
+3.39.0 that might affect some multi-way joins that use LEFT JOIN.
+</blockquote><hr width="50%"><a name="2022_07_13"></a><h3>2022-07-13 - <a href="releaselog/3_39_1.html">Version 3.39.1</a></h3><blockquote>
+Version 3.39.1 is a patch release that fixes a few minor problems in version
+3.39.0.  Upgrading is optional.
+</blockquote><hr width="50%"><a name="2022_06_25"></a><h3>2022-06-25 - <a href="releaselog/3_39_0.html">Version 3.39.0</a></h3><blockquote>
+Version 3.39.0 is a regular maintenance release of SQLite.  The key enhancement
+in this release is added support for RIGHT and FULL JOIN.  There are other
+language and performance enhancements as well &mdash; see the
+<a href="releaselog/3_39_0.html">release notes</a> for details.
+</blockquote><hr width="50%"><a name="2022_05_06"></a><h3>2022-05-06 - <a href="releaselog/3_38_5.html">Version 3.38.5</a></h3><blockquote>
+The 3.38.4 patch release included a minor change to the <a href="cli.html">CLI</a> source code
+that did not work.  The release manager only ran a subset of the normal
+release tests, and hence did not catch the problem. As a result, the CLI
+will segfault when using columnar output modes in version 3.38.4.  This
+blunder did not affect the core SQLite library.  It only affected the CLI.
+<p>
+Take-away lesson:  <b>Always</b> run <b>all</b> of your tests prior to
+a release - even a trival patch release.  <b>Always</b>.
+<p>
+The 3.38.5 patch release fixes the 3.38.4 blunder.
+</blockquote><hr width="50%"><a name="2022_05_04"></a><h3>2022-05-04 - <a href="releaselog/3_38_4.html">Version 3.38.4</a></h3><blockquote>
+Another user-discovered problem in the new Bloom filter optimization
+is fixed in this patch release.  Without the fix, it is possible for
+a multi-way join that uses Bloom filters for two or more tables in
+the join to enter an infinite loop if the key constraint on one of those
+tables contains a NULL value.
+</blockquote><hr width="50%"><a name="2022_04_27"></a><h3>2022-04-27 - <a href="releaselog/3_38_3.html">Version 3.38.3</a></h3><blockquote>
+Version 3.38.3 fixes a bug in the automatic-index and Bloom filter
+construction logic that might cause SQLite to be overly aggressive
+in the use of ON clause constraints, resulting in an incorrect
+automatic-index or Bloom filter that excludes some valid rows from
+output.  The bug was introduced in version 3.38.0.  Other minor
+changes were tossed in to complete the patch.
+</blockquote><hr width="50%"><a name="2022_03_26"></a><h3>2022-03-26 - <a href="releaselog/3_38_2.html">Version 3.38.2</a></h3><blockquote>
+Version 3.38.2 fixes another bug in the new Bloom filter
+optimization that might cause incorrect answers for a
+LEFT JOIN that has an IS NULL constraint on the right-hand
+table.
+</blockquote><hr width="50%"><a name="2022_03_12"></a><h3>2022-03_12 - <a href="releaselog/3_38_1.html">Version 3.38.1</a></h3><blockquote>
+Version 3.38.1 fixes a pair of bugs in the Bloom filter
+optimization that was introduced in version 3.38.0.  These
+bugs might cause incorrect answers for some obscure queries.
+Various other minor problems and documentation typos were
+fixed at the same time.
+</blockquote><hr width="50%"><a name="2022_02_22"></a><h3>2022-02-22 - <a href="releaselog/3_38_0.html">Version 3.38.0</a></h3><blockquote>
+Version 3.38.0 is a routine maintenance release of
+SQLite.  There are various minor enhancements and
+about a 0.5% reduction in the number of CPU cycles
+used. See the
+<a href="releaselog/3_38_0.html">release notes</a> for
+more detail.
+</blockquote><hr width="50%"><a name="2022_01_06"></a><h3>2022-01-06 - <a href="releaselog/3_37_2.html">Version 3.37.2</a></h3><blockquote>
+Version 3.37.2 fixes a
+<a href="howtocorrupt.html#svptbug">database corruption bug</a>.  You are
+encouraged to upgrade, especially if you are using <a href="lang_savepoint.html">SAVEPOINT</a>.</p>
+
+<p>The problem first appeared in version 3.35.0 (2021-03-12) and
+affects all subsequent releases through 3.37.1.
+If temporary files are stored in memory (which is not the default
+behavior, but is sometimes selected by applications using either
+<a href="compile.html#temp_store">-DSQLITE_TEMP_STORE</a> or <a href="pragma.html#pragma_temp_store">PRAGMA temp_store</a>) and
+if a <a href="lang_savepoint.html">SAVEPOINT</a> is rolled back and then subsequent changes
+within the same transaction are committed, the database file might
+(with low but non-zero probability) go corrupt.
+</blockquote><hr width="50%"><a name="2021_12_30"></a><h3>2021-12-30 - <a href="releaselog/3_37_1.html">版本 3.37.1</a></h3><blockquote>
+版本 3.37.1 修复了在 <a href="lang_upsert.html">UPSERT</a> 逻辑中由
+<a href="releaselog/3_35_0.html">version 3.35.0</a> 的 UPSERT 增强引入的一个错误，该错误在某些情况下可能导致生成错误的字节码，从而在字节码中造成无限循环或 NULL 指针解除引用。
+此补丁发布还修复了与 assert() 语句和 <a href="cli.html">CLI</a> 相关的一些其他小问题。
+</blockquote><hr width="50%"><a name="2021_11_27"></a><h3>2021-11-27 - <a href="releaselog/3_37_0.html">版本 3.37.0</a></h3><blockquote>
+版本 3.37.0 是 SQLite 的常规维护版本。本次发布的最大新功能是支持
+<a href="stricttables.html">STRICT tables</a>。其他增强在
+<a href="releaselog/3_37_0.html">release notes</a> 中描述。
+</blockquote><hr width="50%"><a name="2021_06_18"></a><h3>2021-06-18 - <a href="releaselog/3_36_0.html">版本 3.36.0</a></h3><blockquote>
+版本 3.36.0 是 SQLite 的常规维护版本。没有新的重大功能，只有对现有功能的增量改进和一些小的性能提升。
+</blockquote><hr width="50%"><a name="2021_04_19"></a><h3>2021-04-19 - 补丁发布 3.35.5</h3><blockquote>
+在 3.35.0 发布中新增的 ALTER TABLE DROP COLUMN 能力存在一个错误，在重写表以移除已删除列时可能导致表内容损坏。该补丁修复了这个问题。
+</blockquote><hr width="50%"><a name="2021_04_02"></a><h3>2021-04-02 - 补丁发布 3.35.4</h3><blockquote>
+版本 3.35.4 又是一个补丁发布，用于修复与 3.35.0 发布相关功能中的一些晦涩问题。
+</blockquote><hr width="50%"><a name="2021_03_26"></a><h3>2021-03-26 - 补丁发布 3.35.3</h3><blockquote>
+版本 3.35.3 包含对之前版本中发现的几个小问题的补丁。
+</blockquote><hr width="50%"><a name="2021_03_17"></a><h3>2021-03-17 - 补丁发布 3.35.2</h3><blockquote>
+版本 3.35.2 是一个小型补丁发布，用于修复在 3.35.1 发布后不久发现的一些小问题。
+</blockquote><hr width="50%"><a name="2021_03_15"></a><h3>2021-03-15 - 补丁发布 3.35.1</h3><blockquote>
+一位用户发现了 3.35.0 版本中新 DROP COLUMN 功能的问题，因此发布了 3.35.1 版本来修复它。如果你没有使用 DROP COLUMN，则无需升级。
+</blockquote><hr width="50%"><a name="2021_03_12"></a><h3>2021-03-12 - 发布 3.35.0</h3><blockquote>
+SQLite 版本 3.35.0 是常规维护版本。本次发布增加了许多新的语言特性，包括对 ALTER TABLE DROP COLUMN 的支持、内置数学函数、通用 UPSERT 以及公共表表达式上的 MATERIALIZED 提示。此外还有查询优化器的优化和 CLI 的渐进式改进。
+</blockquote><hr width="50%"><a name="2020_01_20"></a><h3>2020-01-20 - 发布 3.34.1</h3><blockquote>
+SQLite 版本 3.34.1 是一个补丁发布，修复了一个可能被恶意 SQL 触发的使用后释放漏洞。此外还修复了扩展和文档中的其他一些小问题。
+</blockquote><hr width="50%"><a name="2020_12_01"></a><h3>2020-12-01 - 发布 3.34.0</h3><blockquote>
+SQLite 版本 3.34.0 是常规维护版本。该发布为性能和功能带来增量改进，包括查询优化器的增强、递归公共表表达式中多个递归 SELECT 的支持，以及来自 CHECK 约束失败的更优错误消息。详情请见更改日志。
+</blockquote><hr width="50%"><a name="2020_08_14"></a><h3>2020-08-14 - 发布 3.33.0</h3><blockquote>
+SQLite 版本 3.33.0 是常规维护版本。本次发布新增对 PostgreSQL 语法的 "UPDATE FROM" 的支持，并将最大数据库大小加倍至 281 TB，还带来了许多其他改进。详情请见更改日志。
+</blockquote><hr width="50%"><a name="2020_06_18"></a><h3>2020-06-18 - 发布 3.32.3</h3><blockquote>
+3.32.3 发行版是一个补丁版本，包含修复模糊测试发现的各种问题。普通方式使用 SQLite 的应用不太可能遇到这些问题，但升级总是有好处。
+<p>
+自 3.32.0 发布以来的所有更改地图：
+<a href="https://sqlite.org/src/timeline?p=version-3.32.3&bt=version-3.32.0">https://sqlite.org/src/timeline?p=version-3.32.3&bt=version-3.32.0</a>
+</blockquote><hr width="50%"><a name="2020_06_04"></a><h3>2020-06-04 - 发布 3.32.2</h3><blockquote>
+3.32.2 发行版相对于 3.32.1 仅有一行改动，用来修复 COMMIT 命令中的一个长期存在的错误。自 <a href="releaselog/3_17_0.html">version 3.17.0</a> 起，如果你在 COMMIT 返回 <a href="rescode.html#busy">SQLITE_BUSY</a> 后不断重试，该命令可能最终报告成功，即便它仍然被阻塞。该补丁修复了这个问题。
+</blockquote><hr width="50%"><a name="2020_05_25"></a><h3>2020-05-25 - 发布 3.32.1</h3><blockquote>
+<a href="https://en.wikipedia.org/wiki/Grey_hat">Grey-hats</a> 在 version 3.32.0 发布约 24 小时后公布了两个 SQLite 漏洞的信息。这些漏洞允许恶意构造的 SQL 崩溃正在运行 SQLite 的进程。两个漏洞都存在已久，影响 3.32.0 之前的版本。3.32.1 修复了这两个问题。
+</blockquote><hr width="50%"><a name="2020_05_22"></a><h3>2020-05-22 - 发布 3.32.0</h3><blockquote>
+版本 3.32.0 是 SQLite 的常规维护版本。本次发布新增了运行 <a href="lang_analyze.html#approx">approximate ANALYZE</a> 的能力，以便查询优化器在无需扫描每个索引的所有行的情况下收集数据库统计信息。其他增强与改进请参见 <a href="releaselog/3_32_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2020_01_27"></a><h3>2020-01-27 - 发布 3.31.1</h3><blockquote>
+使用 SQLite 的应用应该仅通过官方发布的 API 访问 SQLite，不应该依赖或使用 SQLite 的内部数据结构，因为这些结构可能在每个版本之间发生变化。然而，有一个流行的应用依赖于 SQLite 内部数据结构的布局细节，而这些细节在版本 3.31.0 中发生了变化，导致该应用中断。技术上这是该应用中的错误，而非 SQLite 的错误。但 SQLite 可以通过恢复内部数据结构的变动来修复它，因此我们就在 3.31.1 版本中这么做了。
+</blockquote><hr width="50%"><a name="2020_01_22"></a><h3>2020-01-22 - 发布 3.31.0</h3><blockquote>
+版本 3.31.0 是 SQLite 的常规维护版本。该发布新增可以为表定义<a href="gencol.html">generated columns</a>的功能，并带来了许多其他增强。更多信息请参见 <a href="releaselog/3_31_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2019_10_11"></a><h3>2019-10-11 - 发布 3.30.1</h3><blockquote>
+版本 3.30.1 是一个 bug 修复发布，解决了在嵌套查询中的聚合函数使用新 FILTER 子句功能时可能出现的问题。还包括为各种晦涩问题提供的一些额外补丁，以求完整。
+</blockquote><hr width="50%"><a name="2019_10_04"></a><h3>2019-10-04 - 发布 3.30.0</h3><blockquote>
+版本 3.30.0 是 SQLite 的定期维护版本，包含各种性能和功能增强。本次发布增加了对 ORDER BY 语句中 NULLS FIRST 和 NULLS LAST 子句的支持，以及在所有聚合函数上添加 FILTER 子句。详情请参见 <a href="releaselog/3_30_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2019_07_10"></a><h3>2019-07-10 - 发布 3.29.0</h3><blockquote>
+版本 3.29.0 是 SQLite 的定期维护版本，包含各种性能和功能增强。详情请参见 <a href="releaselog/3_29_0.html">change log</a>。
+<p>
+从此版本开始，<a href="quirks.html#dblquote">double-quoted string literal</a> 错误特性已被弃用。尽管为了兼容旧版仍默认启用该特性，不过我们建议开发者通过 <a href="compile.html#dqs">-DSQLITE_DQS=0</a> 选项在编译时禁用，或在运行时通过向 <a href="c3ref/db_config.html">sqlite3_db_config()</a> 接口发送 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdqsdml">SQLITE_DBCONFIG_DQS_DML</a> 和 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfigdqsddl">SQLITE_DBCONFIG_DQS_DDL</a> 操作来禁用。这一点对于 <a href="CREATE TABLE">CREATE TABLE</a> 和 <a href="CREATE INDEX">CREATE INDEX</a> 语句中的双引号字符串字面量尤其重要，因为这些元素在执行 ALTER TABLE 后可能引发意外问题。示例请参见 <a href="https://sqlite.org/src/info/9b78184be266fd70">9b78184be266fd70</a>。
+</blockquote><hr width="50%"><a name="2019_04_16"></a><h3>2019-04-16 - 发布 3.28.0</h3><blockquote>
+版本 3.28.0 是 SQLite 的定期维护版本，包含各种性能和功能增强。详情请参见 <a href="releaselog/3_28_0.html">change log</a>。
+<p>
+本次发布修复了一个晦涩的安全问题。如果使用旧版本 SQLite 的应用满足以下条件，可能存在风险：
+<ol>
+<li> SQLite 在编译时启用了某些可选扩展，且
+<li> 攻击者能够注入任意 SQL。
+</ol>
+我们目前不知道有哪些应用受到该问题影响。但另一方面，我们也无法了解所有使用 SQLite 的应用。如果你的应用允许互联网用户（即潜在攻击者）在未经认证的情况下执行任意 SQL，并且你启用了任意可选扩展，那么应尽快升级。
+<p>
+关于在面向互联网的应用中提升 SQLite 稳健性的更多信息，请参见我们的 <a href="security.html">security recommendations</a>。
+</blockquote><hr width="50%"><a name="2019_02_25"></a><h3>2019-02-25 - 发布 3.27.2</h3><blockquote>
+版本 3.27.2 是一个补丁发布，修复了 3.27.1 中发现的两个 bug 以及若干文档错误。与 3.27.1 和 3.27.0 相比，仅有最小变更。
+</blockquote><hr width="50%"><a name="2019_02_08"></a><h3>2019-02-08 - 发布 3.27.1</h3><blockquote>
+在 3.27.0 发布后但在构建完成并上传之前，通过 System.Data.SQLite 报告了查询优化器中的一个<a href="https://sqlite.org/src/info/4e8e4857d32d401f">长期存在的 bug</a>。既然用户迟早都会升级，我们决定立即发布针对这个新发现问题的修复。因此，3.27.1 在 3.27.0 发布后的不到 24 小时内发布。
+<p>
+如果查询优化器的 bug 能早一天被我们发现就好了，这样我们本可以将修复整合进 3.27.0，但有时候事情就是这样。
+</blockquote><hr width="50%"><a name="2019_02_07"></a><h3>2019-02-07 - 发布 3.27.0</h3><blockquote>
+SQLite <a href="releaselog/3_27_0.html">version 3.27.0</a> 是一个常规维护版本，包含各种性能和功能增强。详情请参见 <a href="releaselog/3_27_0.html">release notes</a>。
+</blockquote><hr width="50%"><a name="2018_12_01"></a><h3>2018-12-01 - 发布 3.26.0</h3><blockquote>
+SQLite <a href="releaselog/3_26_0.html">version 3.26.0</a> 是一个常规维护版本，包含各种性能和功能增强。详情请参见 <a href="releaselog/3_26_0.html">release notes</a>。
+</blockquote><hr width="50%"><a name="2018_11_05"></a><h3>2018-11-05 - 发布 3.25.3</h3><blockquote>
+SQLite <a href="releaselog/3_25_3.html">version 3.25.3</a> 是针对 3.25.0 的第三个补丁，修复了已经暴露并且严重到值得打补丁的各种问题。
+</blockquote><hr width="50%"><a name="2018_09_25"></a><h3>2018-09-25 - 发布 3.25.2</h3><blockquote>
+SQLite <a href="releaselog/3_25_2.html">version 3.25.2</a> 是针对 3.25.0 的另一个补丁，修复了与新 <a href="windowfunctions.html">window function</a> 特性和 <a href="lang_altertable.html">ALTER TABLE</a> 增强相关的更多问题。特别值得注意的是新的 <a href="pragma.html#pragma_legacy_alter_table">PRAGMA legacy_alter_table=ON</a> 命令，它使 ALTER TABLE RENAME 命令恢复到 3.25.0 所引入增强之前的那种怪异行为——即触发器和视图体内部对重命名表的引用不会被更新。旧有行为可以说是一个 bug，但有些程序依赖于旧版的这个 buggy 行为。3.25.2 发布还修复了 VIEW 的 <a href="windowfunctions.html">window function</a> 处理。此外还有一堆影响晦涩编译选项的其他小修复。详情请参见 <a href="https://sqlite.org/src/timeline?r=branch-3.25">Fossil Timeline</a>。
+</blockquote><hr width="50%"><a name="2018_09_18"></a><h3>2018-09-18 - 发布 3.25.1</h3><blockquote>
+SQLite <a href="releaselog/3_25_1.html">version 3.25.1</a> 是针对 3.25.0 的一个补丁，包含两个一行的修复，用以纠正 3.25.0 中引入的 bug。详情请参见更改日志。建议从 3.25.0 升级。
+</blockquote><hr width="50%"><a name="2018_09_15"></a><h3>2018-09-15 - 发布 3.25.0</h3><blockquote>
+SQLite <a href="releaselog/3_25_0.html">version 3.25.0</a> 是一个定期安排的维护版本。本次发布包含两个重大增强：
+<ol>
+<li><p>
+新增了对 <a href="windowfunctions.html">window functions</a> 的支持，参考 PostgreSQL 文档作为基础。
+<li><p>
+增强了 <a href="lang_altertable.html">ALTER TABLE</a> 命令，支持列重命名，并使列与表的重命名能传播到触发器体和视图。
+</ol>
+<p>此外还包括各种性能增强和小修复。
+<p>值得注意的一个 bug 是 <a href="https://sqlite.org/src/info/9936b2fa443fec03ff25">ticket 9936b2fa443fec</a>，描述了一个难以触发的情况，在此情况下 ORDER BY LIMIT 优化可能导致查询评估期间进入无限循环。该工单在 <a href="https://news.ycombinator.com/item?id=17964243">HackerNews</a> 和 <a href="https://www.reddit.com/r/programming/comments/9ezy8c/serious_bug_causing_infinite_loop_in_some_queries/">Reddit</a> 上引发了广泛关注，可能是因为我给工单起名为“无限循环”。虽然听起来很吓人，但我觉得该 bug 并没有那么严重：它非常难以触发，会在测试时显现（而不是在产品部署后神秘出现），不会造成任何数据丢失，也不会返回错误结果。它确实是一个重要错误，但并不像很多人解读的那样可怕。无论如何，该问题现在已经修复。
+</blockquote><hr width="50%"><a name="2018_06_04"></a><h3>2018-06-04 - 发布 3.24.0</h3><blockquote>
+SQLite <a href="releaselog/3_24_0.html">version 3.24.0</a> 是一个定期维护版本。本次发布的亮点包括支持 PostgreSQL 风格的 UPSERT 以及性能提升，特别是针对 ORDER BY LIMIT 查询的优化。
+</blockquote><hr width="50%"><a name="2018_04_10"></a><h3>2018-04-10 - 发布 3.23.1</h3><blockquote>
+<a href="releaselog/3_23_1.html">version 3.23.1</a> 修复了在 3.23.0 版本中新增的 <a href="optoverview.html#leftjoinreduction">LEFT JOIN strength reduction optimization</a> 中的一个 bug。此外还插入了一些其他小而晦涩的修复以及一处小性能优化。与 3.23.0 相比，代码改动非常少。
+</blockquote><hr width="50%"><a name="2018_04_02"></a><h3>2018-04-02 - 发布 3.23.0</h3><blockquote>
+<a href="releaselog/3_23_0.html">version 3.23.0</a> 是一个定期维护版本。有关增强和 bug 修复的列表，请参见 <a href="releaselog/3_23_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2018_01_22"></a><h3>2018-01-22 - 发布 3.22.0</h3><blockquote>
+<a href="releaselog/3_22_0.html">version 3.22.0</a> 是一个定期维护版本。本次发布包含许多有趣的小增强。详情请见 <a href="releaselog/3_22_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2017_10_24"></a><h3>2017-10-24 - 发布 3.21.0</h3><blockquote>
+<a href="releaselog/3_21_0.html">version 3.21.0</a> 是一个定期维护版本。本次发布包含大量增强。详情请见 <a href="releaselog/3_21_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2017_08_24"></a><h3>2017-08-24 - 发布 3.20.1</h3><blockquote>
+<a href="releaselog/3_20_1.html">version 3.20.1</a> 补丁发布在 <a href="c3ref/result_blob.html">sqlite3_result_pointer()</a> 接口中更改了两行代码，以修复一个罕见的内存泄露。与 <a href="releaselog/3_20_0.html">version 3.20.0</a> 相比没有其他变化。
+</blockquote><hr width="50%"><a name="2017_08_01"></a><h3>2017_08_01 - 发布 3.20.0</h3><blockquote>
+SQLite <a href="releaselog/3_20_0.html">version 3.20.0</a> 是一个定期维护发布。
+<p>
+本次发布包含许多小增强，包括：
+<ul>
+<li> 多个新扩展
+<li> 对 “sqlite3.exe” 命令行外壳的增强
+<li> 查询优化器增强
+<li> 为提升性能而做的各种代码优化
+<li> 修复一些晦涩的 bug
+</ul>
+<p>
+更多信息请参见 <a href="releaselog/3_20_0.html">release notes</a>。
+</blockquote><hr width="50%"><a name="2017_06_17"></a><h3>2017_06_17 - 发布 3.18.2</h3><blockquote>
+SQLite <a href="releaselog/3_18_2.html">version 3.18.2</a> 是另一个回移自 SQLite <a href="releaselog/3_19_0.html">version 3.19.0</a> 的 bug 修复，具体是针对工单 <a href="https://sqlite.org/src/info/61fe9745">61fe9745</a> 的修复。与 <a href="releaselog/3_18_0.html">version 3.18.0</a> 相比，变化非常少。
+</blockquote><hr width="50%"><a name="2017_06_16"></a><h3>2017_06_16 - 发布 3.18.1</h3><blockquote>
+SQLite <a href="releaselog/3_18_1.html">version 3.18.1</a> 是针对 <a href="releaselog/3_18_0.html">version 3.18.0</a> 的一个 bug 修复发布，修复了工单 <a href="https://sqlite.org/src/info/fda22108">fda22108</a> 中描述的 <a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a> 损坏 bug。此版本为那些需要该 bug 修复但还不想升级到 <a href="releaselog/3_19_3.html">version 3.19.3</a> 的用户准备。
+</blockquote><hr width="50%"><a name="2017_06_08"></a><h3>2017_06_08 - 发布 3.19.3</h3><blockquote>
+<a href="releaselog/3_19_3.html">Version 3.19.3</a> 是一个紧急补丁发布，用于修复 <a href="https://sqlite.org/src/info/fda22108">auto_vacuum</a> 逻辑中的一个 bug，该 bug 可能导致数据库损坏。该 bug 由 <a href="releaselog/3_16_0.html">version 3.16.0</a>（2017-01-02）引入。尽管该 bug 很难遇到且鲜有发生，但仍建议所有用户升级，尤其是启用了 <a href="pragma.html#pragma_auto_vacuum">auto_vacuum</a> 的用户。
+</blockquote><hr width="50%"><a name="2017_05_25"></a><h3>2017_05_25 - 发布 3.19.2</h3><blockquote>
+在 3.19.0 发布中新增的 LEFT JOIN <a href="https://sqlite.org/optoverview.html#flattening">flattening</a> 优化仍发现了更多问题。此补丁发布修复了该优化的所有已知问题，并添加了新的测试用例。希望这是最后一个补丁。
+</blockquote><hr width="50%"><a name="2017_05_24"></a><h3>2017_05_24 - 发布 3.19.1</h3><blockquote>
+3.19.0 版本中的一项新的查询优化器优化包含 bug。3.19.1 补丁发布修复了这些 bug。
+<p>
+自 3.19.0 起，LEFT JOIN 运算符右侧的子查询和视图有时可以被 <a href="https://sqlite.org/optoverview.html#flattening">flatten</a> 到主查询中。该优化在开发者设计的所有测试用例以及数百万个遗留测试用例上表现良好，但在 3.19.0 发布后，用户发现了一些优化失败的情况。工单 <a href="https://sqlite.org/src/info/cad1ab4cb7b0fc344">cad1ab4cb7b0fc344</a> 中包含示例。
+<p>
+这些问题仅存在于 3.19.0。SQLite 3.19.0 的用户应升级，但所有早期版本的用户安全无虞。
+</blockquote><hr width="50%"><a name="2017_05_22"></a><h3>2017_05_22 - 发布 3.19.0</h3><blockquote>
+SQLite <a href="releaselog/3_19_0.html">version 3.19.0</a> 是一个定期维护版本。
+<p>
+本次发布重点在于查询优化器的改进，也包含一些晦涩的 bug 修复。除非你在旧版本中遇到问题，否则无需升级。
+</blockquote><hr width="50%"><a name="2017_03_30"></a><h3>2017_03_30 - 发布 3.18.0</h3><blockquote>
+SQLite <a href="releaselog/3_18_0.html">version 3.18.0</a> 是一个定期维护版本。
+<p>
+本次发布首次实现了 “<a href="pragma.html#pragma_optimize">PRAGMA optimize</a>” 命令。此命令现在可用于按需运行 <a href="lang_analyze.html">ANALYZE</a>。应用程序应在关闭 <a href="c3ref/sqlite3.html">数据库连接</a> 之前调用 “PRAGMA optimize”。该语句在未来的版本中可能会增强，以执行其他类型的自动化数据库维护。
+<p>
+用来管理 SQLite 项目的 <a href="https://www.fossil-scm.org/">Fossil</a> 版本控制系统已升级为使用 SHA3-256 散列而非 SHA1。因此，SQLite 的版本标识现在显示 64 位十六进制的 SHA3-256 散列，而非 40 位十六进制的 SHA1 散列。
+<p>
+有关本次发布的其他增强和优化，请参见 <a href="releaselog/3_18_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2017_02_13"></a><h3>2017_02_13 - 发布 3.17.0</h3><blockquote>
+SQLite <a href="releaselog/3_17_0.html">version 3.17.0</a> 是一个定期维护版本。
+<p>
+本次发布的大多数改动都是性能优化。对 <a href="rtree.html">R-Tree extension</a> 的优化尤为显著。
+<p>
+在此版本中，为每个数据库连接分配的 <a href="malloc.html#lookaside">lookaside buffer</a> 的默认大小从 64,000 字节增加到 120,000 字节。这在一些常见负载下提供了性能提升，但会稍微增加内存占用。优先考虑内存占用而非速度的应用可以通过 <a href="compile.html#default_lookaside">SQLITE_DEFAULT_LOOKASIDE</a> 编译选项、<a href="c3ref/c_config_covering_index_scan.html#sqliteconfiglookaside">sqlite3_config(SQLITE_CONFIG_LOOKASIDE)</a> 启动时设置或 <a href="c3ref/c_dbconfig_defensive.html#sqlitedbconfiglookaside">sqlite3_db_config(SQLITE_DBCONFIG_LOOKASIDE)</a> 运行时设置将 lookaside buffer 大小改回原值（或设为零）。
+</blockquote><hr width="50%"><a name="2017_01_06"></a><h3>2017_01_06 - 发布 3.16.2</h3><blockquote>
+3.16.0 中加入的一个性能优化导致在没有辅助索引的 <a href="withoutrowid.html">WITHOUT ROWID</a> 表上，<a href="lang_replace.html">REPLACE</a> 语句的触发器和外键功能失常。该补丁发布修复了这个问题。详细信息请参见工单 <a href="https://sqlite.org/src/info/30027b613b4">30027b613b4</a>。
+</blockquote><hr width="50%"><a name="2017_01_03"></a><h3>2017_01_03 - 发布 3.16.1</h3><blockquote>
+SQLite <a href="releaselog/3_16_1.html">version 3.16.1</a> 修复了触发器内部 UPDATE 语句的行值逻辑中的一个 bug。自 3.15.0 发布以来引入的行值一直存在该 bug，但直到 3.16.0 发布几分钟后才被发现，因此 3.16.0 中没有修复。此补丁发布就是在 3.16.0 的基础上加上行值 bug 修复。
+</blockquote><hr width="50%"><a name="2017_01_02"></a><h3>2017_01_02 - 发布 3.16.0</h3><blockquote>
+SQLite <a href="releaselog/3_16_0.html">version 3.16.0</a> 是一个定期维护版本。</p>
+
+<p><p>
+本次发布包含许多 <a href="cpu.html#microopt">microoptimizations</a>，总体上减少了约 9% 的 CPU 周期数，同时还对 <a href="cli.html">命令行外壳</a> 进行了重要增强。</p>
+
+<p><p>新增对 <a href="pragma.html#pragfunc">PRAGMA functions</a> 的支持，使得许多 pragma 语句可以作为更大 SQL 查询的一部分使用。这被视为实验性特性。我们不预期对 <a href="pragma.html#pragfunc">PRAGMA function</a> 接口做出变动，但会在未来几个版本中继续称该接口为“实验性”，以防出现不可预见的问题。</p>
+
+<p><p>有关其他增强，请参见 <a href="releaselog/3_16_0.html">change log</a>。
+</blockquote><hr width="50%"><a name="2016_11_28"></a><h3>2016-11-28 - 发布 3.15.2</h3><blockquote>
+SQLite <a href="releaselog/3_15_2.html">version 3.15.2</a> 是一个补丁发布，修复了 3.15.0 和 3.15.1 中的若干小问题。
+</blockquote><hr width="50%"><a name="2016_11_04"></a><h3>2016-11-04 - 发布 3.15.1</h3><blockquote>
+SQLite <a href="releaselog/3_15_1.html">version 3.15.1</a> 是一个补丁发布，修复了 3.15.0 发布中的一些小问题。
+</blockquote><hr width="50%"><a name="2016_10_14"></a><h3>2016-10-14 - 发布 3.15.0</h3><blockquote>
+SQLite <a href="releaselog/3_15_0.html">version 3.15.0</a> 是一个定期维护发布。此版本的主要功能是在<a href="rowvalue.html">行值</a>上增加了支持。还有其他增强功能和多个鲜为人知错误的修复。
+<p>
+3.15.0 版本比 3.14.2 版本使用大约 7% 更少的 CPU 周期。该版本的大部分改进在 SQL 解析器、查询规划器以及与 <a href="c3ref/prepare.html">sqlite3_prepare_v2()</a> 接口对应的字节码生成器（前端）。总体而言，version 3.15.0 使用的 CPU 时间大约是 version 3.8.1（2013-10-17）的一半。上述性能测量是使用 “speedtest1.c” 工作负载在 x64 上以 gcc 和 -Os 编译获得的。不同平台和工作负载下的性能改进可能有所差异。
+</blockquote><hr width="50%"><a name="2016_09_12"></a><h3>2016-09-12 - 发布 3.14.2</h3><blockquote>
+SQLite <a href="releaselog/3_14_2.html">version 3.14.2</a> 修复了多个鲜为人知的错误，并增强了在 32 位 Windows 系统上使用 STDCALL 调用约定构建 SQLite 的支持。升级自 3.14 和 3.14.1 版本是可选的。
+</blockquote><hr width="50%"><a name="2016_08_11"></a><h3>2016-08-11 - 发布 3.14.1</h3><blockquote>
+SQLite <a href="releaselog/3_14_1.html">version 3.14.1</a> 添加了一个小补丁，以提高 pcache1TruncateUnsafe() 例程在仅删除缓存末尾少量页面时的性能。这让在页面缓存非常大的情况下 COMMIT 执行更快。升级自 version 3.14 是可选的。
+</blockquote><hr width="50%"><a name="2016_08_08"></a><h3>2016-08-08 - 发布 3.14</h3><blockquote>
+SQLite <a href="releaselog/3_14.html">version 3.14</a>（“π”发布）是一个定期维护发布，包含性能提升、新功能以及鲜为人知错误的修复。
+</blockquote><hr width="50%"><a name="2016_05_18"></a><h3>2016-05-18 - 发布 3.13.0</h3><blockquote>
+SQLite <a href="releaselog/3_13_0.html">version 3.13.0</a> 是一个定期维护发布，包含性能提升和鲜为人知错误的修复。
+</blockquote><hr width="50%"><a name="2016_04_18"></a><h3>2016-04-18 - 发布 3.12.2</h3><blockquote>
+<p>糟糕！3.12.0 和 3.12.1 发布包含一个向后兼容性错误！声明列类型为 <tt>"INTEGER" PRIMARY KEY</tt>（其中数据类型名 INTEGER 被引号包裹）会生成一个不兼容的数据库文件。错误产生的原因是开发者之前从未考虑过将类型名加引号，因此既没有文档也没有测试。（当然现在已经有测试了。）在实际应用中对数据类型名加引号的情况可能很少，因此我们预计该错误的影响不会太严重。强烈建议升级。
+<p>这个补丁发布还修复了另外三个小问题。其他问题原本会被推迟到下一次定期发布，但既然已经发行补丁发布，不妨一并包含这些修复。
+</blockquote><hr width="50%"><a name="2016_04_08"></a><h3>2016-04-08 - 发布 3.12.1</h3><blockquote>
+<p>SQLite <a href="releaselog/3_12_1.html">version 3.12.1</a> 是一个紧急补丁发布，用来解决一个潜入<a href="https://sqlite.org/src/info/7f7f8026eda38">3.12.0 版本</a>的崩溃 bug。强烈建议从 version 3.12.0 升级。
+<p>同时修复了涉及 <a href="lang_createview.html">视图</a> 列的数据类型的另一个小问题，以及一个查询规划器的不足。这两个问题自身不足以单独发版，但既然为了崩溃 bug 已经发行了一个发布，我们也顺便加入了这两个修复。
+</blockquote><hr width="50%"><a name="2016_03_29"></a><h3>2016-03-29 - 发布 3.12.0</h3><blockquote>
+<p>SQLite <a href="releaselog/3_12_0.html">version 3.12.0</a> 是一个定期维护发布。此版本的一个显著变化是为新创建的数据库文件增加了<a href="pgszchng2016.html">默认页面大小</a>。此外还有各种性能改进。详情请参阅 <a href="releaselog/3_12_0.html">更新日志</a>。
+</blockquote><hr width="50%"><a name="2016_03_03"></a><h3>2016-03-03 - 发布 3.11.1</h3><blockquote>
+<p>SQLite <a href="releaselog/3_11_1.html">version 3.11.1</a> 是一个补丁发布，修复了新 <a href="fts5.html">FTS5</a> 扩展中的问题，增加了 <a href="spellfix1.html">spellfix1</a> 扩展中的默认设置，并对部分 Windows makefile 进行了增强。SQLite 核心自 3.11.0 起没有改变。升级是可选的。
+</blockquote><hr width="50%"><a name="2016_02_15"></a><h3>2016-02-15 - 发布 3.11.0</h3><blockquote>
+<p>SQLite <a href="releaselog/3_11_0.html">version 3.11.0</a> 是一个定期维护发布。
+</blockquote><hr width="50%"><a name="2016_01_20"></a><h3>2016-01-20 - 发布 3.10.2</h3><blockquote>
+<p>糟糕！一次失败的优化尝试导致了 <a href="https://sqlite.org/src/info/80369eddd5c94">LIKE 操作符</a> 中的 bug，而这个补丁发布修复了它。补丁还包括另外三个风险较低的小修复。
+</blockquote><hr width="50%"><a name="2016_01_14"></a><h3>2016-01-14 - 发布 3.10.1</h3><blockquote>
+<p>SQLite <a href="releaselog/3_10_1.html">version 3.10.1</a> 是一个错误修复发布，主要针对 Mapscape 发现的查询规划器 bug <a href="https://sqlite.org/src/info/cb3aa0641d9a4">cb3aa0641d9a4</a>。还包括 Firefox 开发人员在 Mozilla 请求的一个小型 API 增强。与 version 3.10.0 相比变化非常有限。
+</blockquote><hr width="50%"><a name="2016_01_06"></a><h3>2016-01-06 - 发布 3.10.0</h3><blockquote>
+<p>SQLite <a href="releaselog/3_10_0.html">version 3.10.0</a> 是一个定期维护发布。
+</blockquote><hr width="50%">
+
+<a href="oldnews.html">旧新闻...</a>
+<p align="center"><small><i>此页面最后更新时间为 2026-01-09 18:10:28Z </small></i></p>
