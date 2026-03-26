@@ -23,6 +23,8 @@ Where to go?
 
 If this is your first time using fish, see the :doc:`tutorial <tutorial>`.
 
+中文翻译与来源说明请见：:doc:`翻译信息 <translation_info>`。
+
 If you are already familiar with other shells like bash and want to see the scripting differences, see :doc:`Fish For Bash Users <fish_for_bash_users>`.
 
 For an overview of fish's scripting language, see :doc:`The Fish Language <language>`. If it would be useful in a script file, it's here.
